@@ -19,7 +19,7 @@ class LoginView extends ConsumerWidget {
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
         body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Top Area (Logo and Text)
             SizedBox(height: 60),
@@ -28,44 +28,53 @@ class LoginView extends ConsumerWidget {
               padding: const EdgeInsets.only(left: 25),
               child: Text(
                 AppConstants.retailMarketing,
-                style: TextStyle(color: AppColors.secondary, fontSize: 14),
-              ),
-            ),
-            Spacer(),
-
-            Padding(
-              padding: const EdgeInsets.only(left: 25),
-              child: Text(
-                '@1 Title of company',
                 style: TextStyle(
-                  color: AppColors.secondary,
-                  fontSize: 22,
+                  color: AppColors.blackColor,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            // Spacer between top and center section
-            Spacer(),
+            SizedBox(height: 40),
 
-            // Center Area (TextField and Button)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 25),
+                  child: Text(
+                    '@1 Title of company',
+                    style: TextStyle(
+                      color: AppColors.blackColor,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 50),
+
             Padding(
               padding: const EdgeInsets.only(left: 25),
               child: Text(
                 '@2 Login',
                 style: TextStyle(
-                  color: AppColors.secondary,
+                  color: AppColors.blackColor,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
+            SizedBox(height: 20),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25),
               child: TextField(
                 decoration: InputDecoration(
                   hintText: '@3 username',
                   hintStyle: TextStyle(
-                    color: AppColors.secondary,
+                    color: AppColors.blackColor,
                     fontSize: 14,
                   ),
                 ),
@@ -78,7 +87,7 @@ class LoginView extends ConsumerWidget {
                 decoration: InputDecoration(
                   hintText: '@4 password',
                   hintStyle: TextStyle(
-                    color: AppColors.secondary,
+                    color: AppColors.blackColor,
                     fontSize: 14,
                   ),
                 ),
@@ -124,7 +133,7 @@ class LoginView extends ConsumerWidget {
             Center(
               child: Text(
                 '@6 Forgot Password ?',
-                style: TextStyle(color: AppColors.secondary, fontSize: 12),
+                style: TextStyle(color: AppColors.blackColor, fontSize: 12),
               ),
             ),
 

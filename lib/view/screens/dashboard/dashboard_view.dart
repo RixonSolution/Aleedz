@@ -48,62 +48,42 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           items: [
             BottomNavigationBarItem(
               icon: Image.asset(
-                AppIcons.homeUnSelectedIcon,
+                AppIcons.dashboardIcon,
                 height: 30,
                 width: 30,
                 color: AppColors.whiteColor,
               ),
-              activeIcon: Image.asset(
-                AppIcons.homeSelectedIcon,
-                height: 30,
-                width: 30,
-                color: AppColors.whiteColor,
-              ),
+
               label: 'Home',
             ),
             BottomNavigationBarItem(
               icon: Image.asset(
-                AppIcons.coverageUnSelected,
+                AppIcons.coverageIcon,
                 height: 30,
                 width: 30,
                 color: AppColors.whiteColor,
               ),
-              activeIcon: Image.asset(
-                AppIcons.coverageSelected,
-                height: 30,
-                width: 30,
-                color: AppColors.whiteColor,
-              ),
+
               label: 'Coverage',
             ),
             BottomNavigationBarItem(
               icon: Image.asset(
-                AppIcons.notificationUnselected,
+                AppIcons.notificationIcon,
                 height: 30,
                 width: 30,
                 color: AppColors.whiteColor,
               ),
-              activeIcon: Image.asset(
-                AppIcons.notificationSelected,
-                height: 30,
-                width: 30,
-                color: AppColors.whiteColor,
-              ),
+
               label: 'Alert',
             ),
             BottomNavigationBarItem(
               icon: Image.asset(
-                AppIcons.userUnSelected,
+                AppIcons.accountIcon,
                 height: 30,
                 width: 30,
                 color: AppColors.whiteColor,
               ),
-              activeIcon: Image.asset(
-                AppIcons.userSelected,
-                height: 30,
-                width: 30,
-                color: AppColors.whiteColor,
-              ),
+
               label: 'Account',
             ),
           ],

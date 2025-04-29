@@ -23,7 +23,7 @@ class ChooseLanguageView extends ConsumerWidget {
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
         body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Top Area (Logo and Text)
             SizedBox(height: 60),
@@ -32,25 +32,29 @@ class ChooseLanguageView extends ConsumerWidget {
               padding: const EdgeInsets.only(left: 25),
               child: Text(
                 AppConstants.retailMarketing,
-                style: TextStyle(color: AppColors.secondary, fontSize: 14),
-              ),
-            ),
-
-            // Spacer between top and center section
-            Spacer(),
-
-            // Center Area (TextField and Button)
-            Padding(
-              padding: const EdgeInsets.only(left: 25),
-              child: Text(
-                AppConstants.chooseLanguage,
                 style: TextStyle(
-                  color: AppColors.secondary,
-                  fontSize: 18,
+                  color: AppColors.blackColor,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
+            SizedBox(height: 145),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Enter Base URL',
+                  hintStyle: TextStyle(
+                    color: AppColors.blackColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+
             Padding(
               padding: const EdgeInsets.only(left: 25, right: 25),
               child: DropdownButtonFormField<String>(

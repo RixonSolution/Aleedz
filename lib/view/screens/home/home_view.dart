@@ -1,4 +1,5 @@
 import 'package:aleedz/core/constants/app_colors.dart';
+import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/coverage/coverage_view.dart';
 import 'package:aleedz/viewmodel/dashboard_viewmodel.dart';
@@ -28,23 +29,26 @@ class HomeView extends ConsumerWidget {
                     Text(
                       '@ Muhammad Adeel',
                       style: TextStyle(
-                        color: AppColors.secondary,
-                        fontSize: 22,
+                        color: AppColors.blackColor,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    SizedBox(height: 3),
                     Text(
                       '@ Visual Merchandiser, Dubai',
                       style: TextStyle(
-                        color: AppColors.secondary,
-                        fontSize: 14,
+                        color: AppColors.blackColor,
+                        fontSize: 12,
                       ),
                     ),
+                    SizedBox(height: 3),
+
                     Text(
                       '@ Company Name',
                       style: TextStyle(
-                        color: AppColors.secondary,
-                        fontSize: 14,
+                        color: AppColors.blackColor,
+                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -55,76 +59,156 @@ class HomeView extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Divider(color: AppColors.primary),
             ),
+
             Container(
               margin: EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 28, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          '@11 Coverage',
-                          style: TextStyle(
-                            color: AppColors.secondary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 28,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            '@11 Coverage',
+                            style: TextStyle(
+                              color: AppColors.blackColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                        Text(
-                          'Stores',
-                          style: TextStyle(
-                            color: AppColors.secondary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                          Text(
+                            'Stores',
+                            style: TextStyle(
+                              color: AppColors.blackColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                        Text(
-                          '27',
-                          style: TextStyle(
-                            color: AppColors.secondary,
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
+                          Text(
+                            '27',
+                            style: TextStyle(
+                              color: AppColors.blackColor,
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   SizedBox(width: 5),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 28, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(12),
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 28,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Today’s Plan',
+                            style: TextStyle(
+                              color: AppColors.blackColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            '10-Jan-2025',
+                            style: TextStyle(
+                              color: AppColors.blackColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            '6',
+                            style: TextStyle(
+                              color: AppColors.blackColor,
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 10),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 15),
+              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          ' @13 Recent Visit',
+                          style: TextStyle(
+                            color: AppColors.blackColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(height: 3),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Image.asset(
+                              AppIcons.locationIcon,
+                              height: 25,
+                              width: 25,
+                            ),
+                            Text(
+                              'Emax Mall Of The Emirates,Dubai UAE',
+                              style: TextStyle(
+                                color: AppColors.blackColor,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {},
                     child: Column(
                       children: [
                         Text(
-                          'Today’s Plan',
+                          '14@In : 10:11',
                           style: TextStyle(
                             color: AppColors.secondary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          '10-Jan-2025',
+                          'Check Out',
                           style: TextStyle(
                             color: AppColors.secondary,
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          '6',
-                          style: TextStyle(
-                            color: AppColors.secondary,
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -133,164 +217,62 @@ class HomeView extends ConsumerWidget {
                 ],
               ),
             ),
+
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 15),
+              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 220,
-
-                        child: Text(
-                          '@13 Recent Visit',
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          ' @13 Recent Visit',
                           style: TextStyle(
-                            color: AppColors.secondary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
+                            color: AppColors.blackColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.location_on,
-                            size: 20,
-                            color: AppColors.primary,
-                          ),
-                          SizedBox(
-                            width: 200,
-                            child: Text(
+                        SizedBox(height: 3),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Image.asset(
+                              AppIcons.locationIcon,
+                              height: 25,
+                              width: 25,
+                            ),
+                            Text(
                               'Emax Mall Of The Emirates,Dubai UAE',
                               style: TextStyle(
                                 color: AppColors.blackColor,
-                                fontSize: 14,
+                                fontSize: 13,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  InkWell(
-                    onTap: () {
-                      NavigationService.navigateTo(CoverageView());
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 20,
-                        horizontal: 3,
-                      ),
-                      decoration: BoxDecoration(color: Colors.grey.shade200),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Check In:10:11',
-                            style: TextStyle(
-                              color: AppColors.blackColor,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            '@15 CheckOut',
-                            style: TextStyle(
-                              color: AppColors.blackColor,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 220,
-
-                        child: Text(
-                          '@13 Recent Visit',
+                  InkWell(
+                    onTap: () {},
+                    child: Column(
+                      children: [
+                        Text(
+                          'Check In',
                           style: TextStyle(
-                            color: AppColors.secondary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
+                            color: AppColors.blackColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.location_on,
-                            size: 20,
-                            color: AppColors.primary,
-                          ),
-                          SizedBox(
-                            width: 200,
-                            child: Text(
-                              'Emax Mall Of The Emirates,Dubai UAE',
-                              style: TextStyle(
-                                color: AppColors.blackColor,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  InkWell(
-                    onTap: () {
-                      NavigationService.navigateTo(CoverageView());
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 20,
-                        horizontal: 3,
-                      ),
-                      decoration: BoxDecoration(color: AppColors.primary),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Check In:10:11',
-                            style: TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            '@15 CheckOut',
-                            style: TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
                 ],
