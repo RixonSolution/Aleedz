@@ -2,23 +2,41 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_constants.dart';
 import 'package:aleedz/core/constants/assets/app_images.dart';
 import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/view/screens/%20login/login_provider.dart';
 import 'package:aleedz/view/screens/%20login/login_view.dart';
-import 'package:aleedz/viewmodel/choose_language_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ChooseLanguageView extends ConsumerWidget {
-  ChooseLanguageView({super.key});
+class ChooseLanguageView extends ConsumerStatefulWidget {
+  @override
+  _ChooseLanguageViewState createState() => _ChooseLanguageViewState();
+}
+
+class _ChooseLanguageViewState extends ConsumerState<ChooseLanguageView> {
+  late int selectedLanguageId;
 
   String _selectedLanguage = 'English';
 
   final List<String> _languages = ['English', 'Spanish', 'French', 'German'];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(chooseLanguageProvider);
-    final viewModel = ref.read(chooseLanguageProvider.notifier);
+  void initState() {
+    super.initState();
+    selectedLanguageId = 1; // Default language ID
+  }
 
+  // Fetch the app labels using the language ID
+
+  // Handle language selection change
+  void _onLanguageChanged(int languageId) {
+    setState(() {
+      selectedLanguageId = languageId;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = ref.watch(loginViewModelProvider);
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
