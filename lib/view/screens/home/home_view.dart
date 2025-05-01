@@ -1,17 +1,40 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_text_style.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/utils/store_local_data.dart';
+import 'package:aleedz/models/user_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/coverage/coverage_view.dart';
 import 'package:aleedz/viewmodel/dashboard_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomeView extends ConsumerWidget {
-  HomeView({super.key});
+class HomeView extends ConsumerStatefulWidget {
+  const HomeView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends ConsumerState<HomeView> {
+  UserModel? user;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserFromPrefs();
+  }
+
+  Future<void> loadUserFromPrefs() async {
+    final localData = StoreLocalData();
+    final fetchedUser = await localData.getUserFromPrefs();
+    setState(() {
+      user = fetchedUser;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(dashboardProvider);
     final viewModel = ref.read(dashboardProvider.notifier);
 
@@ -21,41 +44,40 @@ class HomeView extends ConsumerWidget {
         body: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-              ), // ⬅ consistent side padding
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 20),
+
                   // Profile
-                  SizedBox(height: 20),
                   Row(
                     children: [
-                      Icon(Icons.person, size: 100),
-                      SizedBox(width: 10), // ⬅ spacing between icon and column
+                      const Icon(Icons.person, size: 100),
+                      const SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '@ Muhammad Adeel',
-                            style: TextStyle(
+                            '${user?.teamMemberName ?? ""}',
+                            style: const TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 3),
+                          const SizedBox(height: 3),
                           Text(
-                            '@ Visual Merchandiser, Dubai',
-                            style: TextStyle(
+                            '${user?.teamTypeName ?? ""}',
+                            style: const TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 12,
                             ),
                           ),
-                          SizedBox(height: 3),
+                          const SizedBox(height: 3),
                           Text(
-                            '@ Company Name',
-                            style: TextStyle(
+                            '${user?.divisionName ?? ""}',
+                            style: const TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 12,
                             ),
@@ -64,8 +86,9 @@ class HomeView extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  Divider(color: AppColors.primary, height: 5),
-                  SizedBox(height: 5),
+
+                  const Divider(color: AppColors.primary, height: 5),
+                  const SizedBox(height: 5),
 
                   // Stats
                   Row(
@@ -73,7 +96,7 @@ class HomeView extends ConsumerWidget {
                       Expanded(
                         child: Container(
                           height: 110,
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 25,
                             vertical: 10,
                           ),
@@ -83,7 +106,7 @@ class HomeView extends ConsumerWidget {
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
+                            children: const [
                               Text('Coverage', style: AppTextStyles.labelStyle),
                               Text(
                                 'Stores',
@@ -94,11 +117,11 @@ class HomeView extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Container(
                           height: 110,
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 25,
                             vertical: 10,
                           ),
@@ -108,7 +131,7 @@ class HomeView extends ConsumerWidget {
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
+                            children: const [
                               Text(
                                 'Today’s Plan',
                                 style: AppTextStyles.labelStyle,
@@ -125,21 +148,21 @@ class HomeView extends ConsumerWidget {
                     ],
                   ),
 
-                  // Coverage Data
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
+
+                  // Coverage List
                   ListView.builder(
                     itemCount: 4,
                     shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
-                      bool isEven = index % 2 == 0;
-
+                      final isEven = index % 2 == 0;
                       return Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 15,
                         ),
-                        margin: EdgeInsets.only(bottom: 5),
+                        margin: const EdgeInsets.only(bottom: 5),
                         decoration: BoxDecoration(
                           color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(12),
@@ -150,7 +173,7 @@ class HomeView extends ConsumerWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  const Text(
                                     '@13 Recent Visit',
                                     style: TextStyle(
                                       color: AppColors.blackColor,
@@ -158,7 +181,7 @@ class HomeView extends ConsumerWidget {
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  SizedBox(height: 3),
+                                  const SizedBox(height: 3),
                                   Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -168,8 +191,8 @@ class HomeView extends ConsumerWidget {
                                         height: 25,
                                         width: 25,
                                       ),
-                                      SizedBox(width: 5),
-                                      Expanded(
+                                      const SizedBox(width: 5),
+                                      const Expanded(
                                         child: Text(
                                           'Emax Mall Of The Emirates, Dubai UAE',
                                           style: TextStyle(
@@ -190,7 +213,7 @@ class HomeView extends ConsumerWidget {
                               child: Column(
                                 children: [
                                   if (isEven)
-                                    Text(
+                                    const Text(
                                       '14@In : 10:11',
                                       style: TextStyle(
                                         color: AppColors.secondary,
@@ -217,7 +240,7 @@ class HomeView extends ConsumerWidget {
                       );
                     },
                   ),
-                  SizedBox(height: 20), // Bottom padding
+                  const SizedBox(height: 20),
                 ],
               ),
             ),

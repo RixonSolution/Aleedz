@@ -14,4 +14,14 @@ class AuthController {
       deviceIMEIID: deviceIMEIID,
     );
   }
+
+  Future<Map<String, dynamic>?> requestUserPermission({
+    required int userTeamId,
+    required String userToken,
+  }) async {
+    return await _apiService.requestPermission(
+      teamId: userTeamId,
+      token: userToken,
+    );
+  }
 }

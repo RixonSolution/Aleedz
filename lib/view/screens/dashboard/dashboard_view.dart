@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DashboardView extends ConsumerStatefulWidget {
-  const DashboardView({super.key});
+  DashboardView({super.key});
 
   @override
   _DashboardViewState createState() => _DashboardViewState();
