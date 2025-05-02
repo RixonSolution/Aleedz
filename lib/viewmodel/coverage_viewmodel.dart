@@ -36,6 +36,8 @@ class CoverageViewModel extends ChangeNotifier {
   }
 
   void loadUser() async {
+    loader = true;
+    notifyListeners();
     final store = StoreLocalData();
 
     user = await store.getUserFromPrefs();
@@ -50,9 +52,6 @@ class CoverageViewModel extends ChangeNotifier {
   bool loader = false;
 
   Future<void> getCoverageCount(BuildContext context) async {
-    loader = true;
-    notifyListeners();
-
     final response = await _coverageController.coverageCount(
       teamMemberId: user?.teamMemberID ?? 0,
       token: user?.apiToken ?? '',
@@ -82,14 +81,12 @@ class CoverageViewModel extends ChangeNotifier {
       token: user?.apiToken ?? '',
     );
 
-    loader = false;
-    notifyListeners();
-
     if (response != null && response["status"] == 200) {
       final dataList = response["data"]['data'];
 
       if (dataList != null && dataList is List && dataList.isNotEmpty) {
         stores = dataList.map((e) => StoreModel.fromJson(e)).toList();
+        loader = false;
         notifyListeners();
       }
     } else {
