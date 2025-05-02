@@ -15,13 +15,122 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
   @override
   void initState() {
     super.initState();
-
     Future.microtask(() {
       ref.read(coverageModelProvider.notifier).loadUser();
+      ref.read(coverageModelProvider.notifier).getLatLong();
       ref.read(coverageModelProvider.notifier).getCoverageCount(context);
       ref.read(coverageModelProvider.notifier).getCoverageDropDown();
       ref.read(coverageModelProvider.notifier).getCoverageList(context);
     });
+  }
+
+  Future<void> showCustomPopup({
+    required BuildContext context,
+    required String title,
+    required String checkStatus,
+
+    required void Function(String value) onSubmit,
+  }) {
+    final TextEditingController _controller = TextEditingController();
+
+    return showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Dialog(
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: 10,
+          ), // Remove default dialog padding
+          backgroundColor:
+              Colors
+                  .transparent, // Make dialog transparent to handle full custom layout
+          child: Align(
+            alignment: Alignment.center, // Position to top if needed
+            child: Material(
+              color: AppColors.whiteColor,
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.all(16), // Optional internal padding
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: AppColors.blackColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      height: 200,
+                      decoration: BoxDecoration(color: AppColors.blackColor),
+                      child: Center(
+                        child: Text(
+                          'Camera will open and taken image will\nappear here.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.whiteColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _controller,
+                      style: TextStyle(color: AppColors.blackColor),
+                      decoration: InputDecoration(
+                        hintText: '@21 ${checkStatus} Remarks',
+                        hintStyle: TextStyle(color: AppColors.blackColor),
+                        border: UnderlineInputBorder(),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.blackColor),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.blackColor),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                        onSubmit(_controller.text);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary,
+                          border: Border(
+                            bottom: BorderSide(
+                              color: AppColors.primary,
+                              width: 4.0,
+                            ),
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '@14 ${checkStatus}',
+                            style: TextStyle(
+                              color: AppColors.whiteColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -203,100 +312,122 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                   child: ListView.separated(
                     physics: ScrollPhysics(),
                     itemCount: viewModel.stores.length,
-                    padding: EdgeInsets.symmetric(vertical: 0),
+                    padding: EdgeInsets.zero,
                     itemBuilder: (context, index) {
-                      return Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 15,
-                        ),
-                        margin: EdgeInsets.symmetric(horizontal: 5),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 5,
-                              ),
-                              child: Text(
-                                '${index + 1}',
-                                style: TextStyle(
-                                  color: AppColors.blackColor,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w600,
+                      return InkWell(
+                        onTap: () {
+                          showCustomPopup(
+                            context: context,
+                            title: viewModel.stores[index].storeName,
+                            checkStatus:
+                                viewModel.stores[index].visitStatusId == 0
+                                    ? 'Check In'
+                                    : 'Check Out',
+                            onSubmit: (value) {
+                              if (viewModel.stores[index].visitStatusId == 0) {
+                                viewModel.coverageCheckIn(
+                                  context,
+                                  viewModel.stores[index].storeId,
+                                  remarks: value,
+                                );
+                              } else {
+                                viewModel.coverageCheckout(
+                                  context,
+                                  viewModel.stores[index].visitStatusId,
+                                  remarks: value,
+                                );
+                              }
+                            },
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 15,
+                          ),
+                          margin: EdgeInsets.symmetric(horizontal: 5),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                ),
+                                child: Text(
+                                  '${index + 1}',
+                                  style: TextStyle(
+                                    color: AppColors.blackColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    viewModel.stores[index].storeName,
-                                    style: TextStyle(
-                                      color: AppColors.blackColor,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  SizedBox(height: 3),
-                                  Text(
-                                    viewModel.stores[index].address,
-                                    style: TextStyle(
-                                      color: AppColors.blackColor,
-                                      fontSize: 13,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                  ),
-                                  Row(
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 5),
+                                  child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Image.asset(
-                                        AppIcons.locationIcon,
-                                        height: 20,
-                                        width: 20,
-                                      ),
                                       Text(
-                                        'Distance: 12KM',
+                                        viewModel.stores[index].storeName,
+                                        style: TextStyle(
+                                          color: AppColors.blackColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(height: 3),
+                                      Text(
+                                        viewModel.stores[index].address,
                                         style: TextStyle(
                                           color: AppColors.blackColor,
                                           fontSize: 13,
                                         ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                      ),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Last Visted: ${viewModel.stores[index].lastVisitedDate}',
+                                            style: TextStyle(
+                                              color: AppColors.blackColor,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                            viewModel.stores[index].visitStatusId == 0
-                                ? Padding(
-                                  padding: const EdgeInsets.only(top: 20),
-                                  child: InkWell(
-                                    onTap: () {},
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          'Check In',
-                                          style: TextStyle(
-                                            color: AppColors.blackColor,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                              viewModel.stores[index].visitStatusId == 0
+                                  ? Center(
+                                    child: InkWell(
+                                      onTap: () {},
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            'Check In',
+                                            style: TextStyle(
+                                              color: AppColors.blackColor,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                )
-                                : Padding(
-                                  padding: const EdgeInsets.only(top: 20),
-                                  child: InkWell(
+                                  )
+                                  : InkWell(
                                     onTap: () {},
                                     child: Column(
                                       children: [
                                         Text(
-                                          '14@In : 10:11',
+                                          '14@In : ${viewModel.stores[index].checkInTime}',
                                           style: TextStyle(
                                             color: AppColors.secondary,
                                             fontSize: 10,
@@ -314,8 +445,8 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                       ],
                                     ),
                                   ),
-                                ),
-                          ],
+                            ],
+                          ),
                         ),
                       );
                     },

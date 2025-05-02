@@ -16,6 +16,10 @@
 	<string>aleedz</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need your location to provide better service.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need your location to provide better service.</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>

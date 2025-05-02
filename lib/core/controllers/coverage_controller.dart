@@ -34,4 +34,48 @@ class CoverageController {
   }) async {
     return await _apiService.getCoverageDropDown(token: token);
   }
+
+  Future<Map<String, dynamic>?> coverageCheckIn({
+    required String teamMemberId,
+    required String storeID,
+    required String planRemarks,
+    required String planDate,
+    required String longitude,
+    required String latitude,
+    required String remarks,
+    required String isLocationAvailable,
+    required String checkInImg,
+    required String token,
+  }) async {
+    return await _apiService.coverageCheckIn(
+      teamMemberId: teamMemberId,
+      storeID: storeID,
+      planRemarks: planRemarks,
+      planDate: planDate,
+      longitude: longitude,
+      latitude: latitude,
+      remarks: remarks,
+      isLocationAvailable: isLocationAvailable,
+      checkInImg: checkInImg,
+      token: token,
+    );
+  }
+
+  Future<Map<String, dynamic>?> coverageCheckOut({
+    required String visitedId,
+    required String longitude,
+    required String latitude,
+    required String remarks,
+    required String checkInImg,
+    required String token,
+  }) async {
+    return await _apiService.coverageCheckOut(
+      visitedId: visitedId,
+      longitude: longitude,
+      latitude: latitude,
+      remarks: remarks,
+      checkInImg: checkInImg,
+      token: token,
+    );
+  }
 }

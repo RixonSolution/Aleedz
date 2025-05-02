@@ -8,6 +8,8 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
 
 final coverageModelProvider = ChangeNotifierProvider<CoverageViewModel>((ref) {
   return CoverageViewModel();
@@ -33,6 +35,44 @@ class CoverageViewModel extends ChangeNotifier {
       await getCoverageList(context, channelId: channel.channelId);
     }
     // You can also call getCoverageList here with the selectedChannel.channelId
+  }
+
+  double latitude = 0.0;
+  double longitude = 0.0;
+
+  Future<void> getLatLong() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw Exception('Location services are disabled.');
+    }
+
+    // Check for permissions
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        throw Exception('Location permissions are denied.');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception('Location permissions are permanently denied.');
+    }
+
+    // Get current position
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    // Separate variables
+    latitude = position.latitude;
+    longitude = position.longitude;
+
+    notifyListeners();
   }
 
   void loadUser() async {
@@ -106,6 +146,62 @@ class CoverageViewModel extends ChangeNotifier {
       final data = response["data"]['data'] as List;
       channelList = data.map((e) => ChannelModel.fromJson(e)).toList();
       notifyListeners();
+    } else {
+      debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+  Future<void> coverageCheckIn(
+    BuildContext context,
+    int storeId, {
+    String planRemarks = '',
+    String remarks = '',
+    bool isLocationAvailable = false,
+  }) async {
+    loader = true;
+    notifyListeners();
+    final response = await _coverageController.coverageCheckIn(
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      storeID: storeId.toString(),
+      planRemarks: planRemarks,
+      planDate: formattedDate,
+      longitude: latitude.toString(),
+      latitude: longitude.toString(),
+      remarks: remarks,
+      isLocationAvailable: isLocationAvailable.toString(),
+      checkInImg: '',
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      await getCoverageList(context);
+    } else {
+      debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> coverageCheckout(
+    BuildContext context,
+    int visitedId, {
+    String planRemarks = '',
+    String remarks = '',
+    bool isLocationAvailable = false,
+  }) async {
+    loader = true;
+    notifyListeners();
+    final response = await _coverageController.coverageCheckOut(
+      visitedId: visitedId.toString(),
+      longitude: latitude.toString(),
+      latitude: longitude.toString(),
+      remarks: remarks,
+      checkInImg: '',
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      await getCoverageList(context);
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
     }

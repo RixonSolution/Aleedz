@@ -82,4 +82,78 @@ class CoverageServices {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>?> coverageCheckIn({
+    required String teamMemberId,
+    required String storeID,
+    required String planRemarks,
+    required String planDate,
+    required String longitude,
+    required String latitude,
+    required String remarks,
+    required String isLocationAvailable,
+    required String checkInImg,
+    required String token,
+  }) async {
+    final encodedTeamMemberId = Uri.encodeComponent(teamMemberId);
+    final encodedStoreId = Uri.encodeComponent(storeID);
+    final encodedPlanRemarks = Uri.encodeComponent(planRemarks);
+    final encodedPlanData = Uri.encodeComponent(planDate);
+    final encodedLongitude = Uri.encodeComponent(longitude);
+    final encodedLatitude = Uri.encodeComponent(latitude);
+    final encodedRemarks = Uri.encodeComponent(remarks);
+    final encodedLocationAvailable = Uri.encodeComponent(isLocationAvailable);
+    final encodedCheckInImg = Uri.encodeComponent(checkInImg);
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse(
+      '${ApiConstants.checkIn}?TeamMemberID=$encodedTeamMemberId&StoreID=$encodedStoreId&PlanRemarks=$encodedPlanRemarks&PlanDate=$encodedPlanData&Longitude=$encodedLongitude&Latitude=$encodedLatitude&Remarks=$encodedRemarks&IsLocationAvailable=$encodedLocationAvailable&CheckInImg=$encodedCheckInImg&_token=$encodedToken',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> coverageCheckOut({
+    required String visitedId,
+    required String longitude,
+    required String latitude,
+    required String remarks,
+    required String checkInImg,
+    required String token,
+  }) async {
+    final encodedVisitedId = Uri.encodeComponent(visitedId);
+    final encodedLongitude = Uri.encodeComponent(longitude);
+    final encodedLatitude = Uri.encodeComponent(latitude);
+    final encodedRemarks = Uri.encodeComponent(remarks);
+    final encodedCheckInImg = Uri.encodeComponent(checkInImg);
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse(
+      '${ApiConstants.checkOut}?VisitID=$encodedVisitedId&Longitude=$encodedLongitude&Latitude=$encodedLatitude&Remarks=$encodedRemarks&CheckOutImage=$encodedCheckInImg&_token=$encodedToken',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
 }

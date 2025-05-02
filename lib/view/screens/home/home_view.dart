@@ -4,7 +4,7 @@ import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/coverage/coverage_view.dart';
+import 'package:aleedz/view/screens/coverage_details/coverage_view.dart';
 import 'package:aleedz/viewmodel/dashboard_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

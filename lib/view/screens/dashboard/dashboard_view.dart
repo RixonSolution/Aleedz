@@ -1,9 +1,7 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
-import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/coverage/coverage_view.dart';
+import 'package:aleedz/view/screens/coverage_details/coverage_view.dart';
 import 'package:aleedz/view/screens/home/home_view.dart';
-import 'package:aleedz/viewmodel/dashboard_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -32,9 +30,6 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(dashboardProvider);
-    final viewModel = ref.read(dashboardProvider.notifier);
-
     return SafeArea(
       child: Scaffold(
         body: _screens[_selectedIndex],
@@ -83,7 +78,6 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                 width: 30,
                 color: AppColors.whiteColor,
               ),
-
               label: 'Account',
             ),
           ],
