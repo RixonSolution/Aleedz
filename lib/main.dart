@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
@@ -8,7 +9,10 @@ import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await LabelService().loadLabels(); // Load once
+
   runApp(const ProviderScope(child: MyApp()));
 }
 

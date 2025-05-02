@@ -1,6 +1,7 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_constants.dart';
 import 'package:aleedz/core/constants/assets/app_images.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/view/screens/%20login/login_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +14,17 @@ class LoginView extends ConsumerStatefulWidget {
 }
 
 class _LoginViewState extends ConsumerState<LoginView> {
+  @override
+  void initState() {
+    _loadLabels();
+    super.initState();
+  }
+
+  Future<void> _loadLabels() async {
+    await LabelService().loadLabels();
+    setState(() {}); // Trigger a rebuild after labels are loaded
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(loginViewModelProvider);
@@ -49,7 +61,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                       Padding(
                         padding: const EdgeInsets.only(left: 25),
                         child: Text(
-                          '@1 Title of company',
+                          LabelService().getLabel(1),
                           style: TextStyle(
                             color: AppColors.blackColor,
                             fontSize: 22,
@@ -63,7 +75,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                   Padding(
                     padding: const EdgeInsets.only(left: 25),
                     child: Text(
-                      '@2 Login',
+                      LabelService().getLabel(2),
                       style: TextStyle(
                         color: AppColors.blackColor,
                         fontSize: 18,
@@ -78,7 +90,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
                       controller: viewModel.usernameController,
                       focusNode: viewModel.usernameFocusNode,
                       decoration: InputDecoration(
-                        hintText: '@3 username',
+                        hintText: LabelService().getLabel(3),
+
                         hintStyle: TextStyle(
                           color: AppColors.blackColor,
                           fontSize: 14,
@@ -113,7 +126,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                 .notifyListeners(); // Assuming you're using ChangeNotifier
                           },
                         ),
-                        hintText: '@4 password',
+                        hintText: LabelService().getLabel(4),
+
                         hintStyle: TextStyle(
                           color: AppColors.blackColor,
                           fontSize: 14,
@@ -157,7 +171,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                             ),
                             child: Center(
                               child: Text(
-                                '@5 Login',
+                                LabelService().getLabel(5),
                                 style: TextStyle(
                                   color: AppColors.whiteColor,
                                   fontSize: 14,
@@ -172,7 +186,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                   SizedBox(height: 10),
                   Center(
                     child: Text(
-                      '@6 Forgot Password ?',
+                      LabelService().getLabel(6),
                       style: TextStyle(
                         color: AppColors.blackColor,
                         fontSize: 12,

@@ -101,40 +101,46 @@ class _ChooseLanguageViewState extends ConsumerState<ChooseLanguageView> {
                 },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 25, right: 25, top: 20),
-              child: InkWell(
-                onTap: () {
-                  NavigationService.navigateTo(LoginView());
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  decoration: BoxDecoration(
-                    color:
-                        AppColors.secondary, // Background with secondary color
-                    border: Border(
-                      bottom: BorderSide(
+            viewModel.loader
+                ? CircularProgressIndicator(
+                  color: AppColors.secondary,
+                  strokeWidth: 2,
+                )
+                : Padding(
+                  padding: const EdgeInsets.only(left: 25, right: 25, top: 20),
+                  child: InkWell(
+                    onTap: () {
+                      viewModel.chooseLanguage(context, '1');
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      decoration: BoxDecoration(
                         color:
                             AppColors
-                                .primary, // Bottom border with primary color
-                        width:
-                            4.0, // Adjust the width to control the thickness of the line
+                                .secondary, // Background with secondary color
+                        border: Border(
+                          bottom: BorderSide(
+                            color:
+                                AppColors
+                                    .primary, // Bottom border with primary color
+                            width:
+                                4.0, // Adjust the width to control the thickness of the line
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      AppConstants.next,
-                      style: TextStyle(
-                        color: AppColors.whiteColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                      child: Center(
+                        child: Text(
+                          AppConstants.next,
+                          style: TextStyle(
+                            color: AppColors.whiteColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ),
 
             // Spacer to push the copyright to the bottom
             Spacer(),

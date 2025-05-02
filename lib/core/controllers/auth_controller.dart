@@ -24,4 +24,10 @@ class AuthController {
       token: userToken,
     );
   }
+
+  Future<Map<String, dynamic>?> choosLanguage({
+    required String languageId,
+  }) async {
+    return await _apiService.chooseLanguage(languageId: languageId);
+  }
 }

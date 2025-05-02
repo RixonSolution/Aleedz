@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -173,7 +174,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '@17 Total Coverage Stores',
+                    LabelService().getLabel(17),
                     style: TextStyle(
                       color: AppColors.blackColor,
                       fontSize: 18,
@@ -210,7 +211,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                   viewModel.getCoverageList(context, searchKeyword: value);
                 },
                 decoration: InputDecoration(
-                  hintText: '@18 Search Store...',
+                  hintText: LabelService().getLabel(18),
                   border: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey),
                   ),
@@ -234,7 +235,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
               child: DropdownButtonFormField<int>(
                 value: viewModel.selectedChannel?.channelId,
                 decoration: InputDecoration(
-                  hintText: '@19 Filter by (Dropdown)',
+                  hintText: LabelService().getLabel(19),
                   border: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey),
                   ),

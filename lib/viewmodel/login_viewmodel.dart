@@ -1,9 +1,11 @@
 import 'package:aleedz/core/controllers/auth_controller.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
+import 'package:aleedz/models/language_model.dart';
 import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/view/screens/%20login/login_view.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +21,8 @@ class LoginViewModel extends ChangeNotifier {
   UserModel? user;
 
   bool isPasswordVisible = false;
+
+  final StoreLocalData localData = StoreLocalData();
 
   void loadUser() async {
     final store = StoreLocalData();
@@ -115,5 +119,29 @@ class LoginViewModel extends ChangeNotifier {
     } else {
       AppSnackBar.showError(context, 'Permission error: ${response?['data']}');
     }
+  }
+
+  Future<void> chooseLanguage(BuildContext context, String languageId) async {
+    loader = true;
+    notifyListeners();
+
+    final response = await _authController.choosLanguage(
+      languageId: languageId,
+    );
+
+    loader = false;
+    notifyListeners();
+
+    if (response != null && response["status"] == 200) {
+      final nestedData = response["data"]['data'];
+      final List<LabelModel> labels =
+          (nestedData as List).map((e) => LabelModel.fromJson(e)).toList();
+      await localData.saveLabelsToPrefs(labels);
+      final List<LabelModel> savedLabels = await localData.getLabelsFromPrefs();
+
+      NavigationService.navigateTo(LoginView());
+
+      AppSnackBar.showSuccess(context, 'Language is set as English}');
+    } else {}
   }
 }

@@ -69,4 +69,27 @@ class AuthServices {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>?> chooseLanguage({
+    required String languageId,
+  }) async {
+    final encodedLanguageId = Uri.encodeComponent(languageId);
+
+    final url = Uri.parse(
+      '${ApiConstants.language}?LanguageID=$encodedLanguageId',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
 }
