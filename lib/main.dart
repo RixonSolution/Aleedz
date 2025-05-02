@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/choose_language/choose_language_view.dart';
-import 'package:aleedz/view/screens/dashboard/dashboard_view.dart'; // Replace with your dashboard screen
+import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

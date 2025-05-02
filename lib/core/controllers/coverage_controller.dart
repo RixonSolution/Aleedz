@@ -1,4 +1,3 @@
-import 'package:aleedz/core/services/auth_services.dart';
 import 'package:aleedz/core/services/coverage_services.dart';
 
 class CoverageController {
@@ -16,7 +15,7 @@ class CoverageController {
 
   Future<Map<String, dynamic>?> coverageList({
     required int teamMemberId,
-    required String chanelId,
+    required int chanelId,
     required String searchKeyWord,
     required String chanelTypeId,
     required String token,
@@ -28,5 +27,11 @@ class CoverageController {
       chanelTypeId: chanelTypeId,
       token: token,
     );
+  }
+
+  Future<Map<String, dynamic>?> coverageDropDown({
+    required String token,
+  }) async {
+    return await _apiService.getCoverageDropDown(token: token);
   }
 }

@@ -8,4 +8,7 @@ class ApiConstants {
 
   static const String coverageList =
       "${baseUrl}/Storelist.asmx/TeamMemberStoreList";
+
+  static const String coverageDropDown =
+      "${baseUrl}/WebService.asmx/ChannelList";
 }

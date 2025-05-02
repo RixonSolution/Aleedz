@@ -1,6 +1,7 @@
 import 'package:aleedz/core/controllers/coverage_controller.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
+import 'package:aleedz/models/chanel_mode.dart';
 import 'package:aleedz/models/store_model.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
@@ -18,6 +19,21 @@ class CoverageViewModel extends ChangeNotifier {
   UserModel? user;
   int? storeCount;
   List<StoreModel> stores = [];
+
+  List<ChannelModel> channelList = [];
+  ChannelModel? selectedChannel;
+
+  void selectChannel(ChannelModel? channel, BuildContext context) async {
+    loader = true;
+    notifyListeners();
+    selectedChannel = channel;
+    notifyListeners();
+    print("Selected Channel ID: ${channel?.channelId}");
+    if (channel != null) {
+      await getCoverageList(context, channelId: channel.channelId);
+    }
+    // You can also call getCoverageList here with the selectedChannel.channelId
+  }
 
   void loadUser() async {
     final store = StoreLocalData();
@@ -53,11 +69,15 @@ class CoverageViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> getCoverageList(BuildContext context) async {
+  Future<void> getCoverageList(
+    BuildContext context, {
+    String searchKeyword = '',
+    int channelId = 0,
+  }) async {
     final response = await _coverageController.coverageList(
       teamMemberId: user?.teamMemberID ?? 0,
-      chanelId: '',
-      searchKeyWord: '',
+      chanelId: channelId,
+      searchKeyWord: searchKeyword,
       chanelTypeId: '',
       token: user?.apiToken ?? '',
     );
@@ -67,12 +87,28 @@ class CoverageViewModel extends ChangeNotifier {
 
     if (response != null && response["status"] == 200) {
       final dataList = response["data"]['data'];
-      print('Store List:${dataList}');
 
       if (dataList != null && dataList is List && dataList.isNotEmpty) {
         stores = dataList.map((e) => StoreModel.fromJson(e)).toList();
         notifyListeners();
       }
+    } else {
+      debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> getCoverageDropDown() async {
+    final response = await _coverageController.coverageDropDown(
+      token: user?.apiToken ?? '',
+    );
+
+    loader = false;
+    notifyListeners();
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'] as List;
+      channelList = data.map((e) => ChannelModel.fromJson(e)).toList();
+      notifyListeners();
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
     }

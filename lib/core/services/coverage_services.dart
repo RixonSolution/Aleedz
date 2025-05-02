@@ -30,13 +30,13 @@ class CoverageServices {
 
   Future<Map<String, dynamic>?> getCoverageList({
     required int teamMemberId,
-    required String chanelId,
+    required int chanelId,
     required String searchKeyWord,
     required String chanelTypeId,
     required String token,
   }) async {
     final encodedTeamId = Uri.encodeComponent(teamMemberId.toString());
-    final encodedChanelId = Uri.encodeComponent(chanelId);
+    final encodedChanelId = Uri.encodeComponent(chanelId.toString());
     final encodedSearchKeyword = Uri.encodeComponent(searchKeyWord);
     final encodedChanelTypeId = Uri.encodeComponent(chanelTypeId);
 
@@ -44,6 +44,29 @@ class CoverageServices {
 
     final url = Uri.parse(
       '${ApiConstants.coverageList}?TeamMemberID=$encodedTeamId&ChannelID=$encodedChanelId&SearchKeyWord=$encodedSearchKeyword&ChannelTypeID=$encodedChanelTypeId&_token=$encodedToken ',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getCoverageDropDown({
+    required String token,
+  }) async {
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse(
+      '${ApiConstants.coverageDropDown}?_token=$encodedToken',
     );
 
     try {
