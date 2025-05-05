@@ -1,4 +1,4 @@
-package com.example.aleedz
+package com.retail.aleedz
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -70,7 +70,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                 color: AppColors.whiteColor,
               ),
 
-              label: 'Alert',
+              label: LabelService().getLabel(9),
             ),
             BottomNavigationBarItem(
               icon: Image.asset(
@@ -79,7 +79,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                 width: 30,
                 color: AppColors.whiteColor,
               ),
-              label: 'Account',
+              label: LabelService().getLabel(10),
             ),
           ],
         ),

@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await LabelService().loadLabels(); // Load once
+  await LabelService().loadLabels();
 
   runApp(const ProviderScope(child: MyApp()));
 }

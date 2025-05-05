@@ -1,8 +1,10 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_text_style.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/user_model.dart';
+import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
 import 'package:aleedz/viewmodel/dashboard_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +22,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
+    ref.read(coverageModelProvider.notifier).getCoverageCount(context);
+
     loadUserFromPrefs();
   }
 
@@ -33,8 +37,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(dashboardProvider);
-    final viewModel = ref.read(dashboardProvider.notifier);
+    final viewModel = ref.watch(coverageModelProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -46,8 +49,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
-
                   // Profile
                   Row(
                     children: [
@@ -95,8 +96,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         child: Container(
                           height: 110,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 25,
-                            vertical: 10,
+                            horizontal: 0,
+                            vertical: 8,
                           ),
                           decoration: BoxDecoration(
                             color: Colors.grey.shade100,
@@ -104,13 +105,30 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: const [
-                              Text('Coverage', style: AppTextStyles.labelStyle),
-                              Text(
-                                'Stores',
-                                style: AppTextStyles.subLabelStyle,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: 85,
+                                    child: Text(
+                                      LabelService().getLabel(11),
+                                      textAlign: TextAlign.center,
+                                      style: AppTextStyles.labelStyle,
+                                    ),
+                                  ),
+                                  Image.asset(
+                                    AppIcons.coverageNetwork,
+                                    height: 20,
+                                    width: 20,
+                                  ),
+                                ],
                               ),
-                              Text('27', style: AppTextStyles.bigTextStyle),
+                              Text(
+                                "${viewModel.storeCount ?? 0}",
+                                style: AppTextStyles.bigTextStyle,
+                              ),
                             ],
                           ),
                         ),
@@ -120,8 +138,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         child: Container(
                           height: 110,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 25,
-                            vertical: 10,
+                            horizontal: 0,
+                            vertical: 8,
                           ),
                           decoration: BoxDecoration(
                             color: Colors.grey.shade100,
@@ -129,10 +147,25 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: const [
-                              Text(
-                                'Today’s Plan',
-                                style: AppTextStyles.labelStyle,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: 85,
+
+                                    child: Text(
+                                      LabelService().getLabel(12),
+                                      style: AppTextStyles.labelStyle,
+                                    ),
+                                  ),
+                                  Image.asset(
+                                    AppIcons.toddayPlan,
+                                    height: 20,
+                                    width: 20,
+                                  ),
+                                ],
                               ),
                               Text(
                                 '10-Jan-2025',
@@ -150,7 +183,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
                   // Coverage List
                   ListView.builder(
-                    itemCount: 4,
+                    itemCount: 1,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
@@ -171,34 +204,44 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    '@13 Recent Visit',
-                                    style: TextStyle(
-                                      color: AppColors.blackColor,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 3),
                                   Row(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Image.asset(
-                                        AppIcons.locationIcon,
+                                        AppIcons.locationRecent,
                                         height: 25,
                                         width: 25,
                                       ),
-                                      const SizedBox(width: 5),
-                                      const Expanded(
-                                        child: Text(
-                                          'Emax Mall Of The Emirates, Dubai UAE',
-                                          style: TextStyle(
-                                            color: AppColors.blackColor,
-                                            fontSize: 13,
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 5,
+                                            right: 3,
                                           ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                LabelService().getLabel(13),
+                                                style: TextStyle(
+                                                  color: AppColors.blackColor,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              Text(
+                                                'Emax Mall Of The Emirates, Dubai UAE',
+                                                style: TextStyle(
+                                                  color: AppColors.blackColor,
+                                                  fontSize: 13,
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -211,16 +254,18 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               child: Column(
                                 children: [
                                   if (isEven)
-                                    const Text(
-                                      '14@In : 10:11',
+                                    Text(
+                                      '${LabelService().getLabel(14)} : 10:11',
                                       style: TextStyle(
-                                        color: AppColors.secondary,
+                                        color: AppColors.primary,
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   Text(
-                                    isEven ? 'Check Out' : 'Check In',
+                                    isEven
+                                        ? LabelService().getLabel(15)
+                                        : LabelService().getLabel(14),
                                     style: TextStyle(
                                       color:
                                           isEven

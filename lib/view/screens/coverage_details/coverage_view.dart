@@ -4,6 +4,7 @@ import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class CoverageView extends ConsumerStatefulWidget {
   const CoverageView({super.key});
@@ -29,6 +30,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
     required BuildContext context,
     required String title,
     required String checkStatus,
+    required String checkRemarks,
 
     required void Function(String value) onSubmit,
   }) {
@@ -55,6 +57,17 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Icon(Icons.close),
+                        ),
+                      ],
+                    ),
                     Text(
                       title,
                       style: TextStyle(
@@ -64,6 +77,16 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                       ),
                     ),
                     const SizedBox(height: 10),
+                    Text(
+                      DateFormat('hh:mm a').format(DateTime.now()),
+                      style: TextStyle(
+                        color: AppColors.blackColor,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
                     Container(
                       height: 200,
                       decoration: BoxDecoration(color: AppColors.blackColor),
@@ -84,7 +107,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                       controller: _controller,
                       style: TextStyle(color: AppColors.blackColor),
                       decoration: InputDecoration(
-                        hintText: '@21 ${checkStatus} Remarks',
+                        hintText: checkRemarks,
                         hintStyle: TextStyle(color: AppColors.blackColor),
                         border: UnderlineInputBorder(),
                         enabledBorder: UnderlineInputBorder(
@@ -114,7 +137,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                         ),
                         child: Center(
                           child: Text(
-                            '@14 ${checkStatus}',
+                            checkStatus,
                             style: TextStyle(
                               color: AppColors.whiteColor,
                               fontSize: 14,
@@ -151,7 +174,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                 children: [
                   Image.asset(AppIcons.backArrow, height: 30, width: 30),
                   Text(
-                    '@16 Screen Title',
+                    LabelService().getLabel(16),
                     style: TextStyle(
                       color: AppColors.blackColor,
                       fontSize: 20,
@@ -183,20 +206,13 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                   ),
                   InkWell(
                     onTap: () {},
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(color: AppColors.secondary),
-                      child: Center(
-                        child: Text(
-                          "${viewModel.storeCount ?? 0}",
-                          style: TextStyle(
-                            color: AppColors.whiteColor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                    child: Center(
+                      child: Text(
+                        "${viewModel.storeCount ?? 0}",
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -266,44 +282,6 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                 },
               ),
             ),
-
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 10),
-            //   child: DropdownButtonFormField<ChannelModel>(
-            //     value: viewModel.selectedChannel,
-            //     decoration: InputDecoration(
-            //   hintText: '@19 Filter by (Dropdown)',
-            //   border: UnderlineInputBorder(
-            //     borderSide: BorderSide(color: Colors.grey),
-            //   ),
-            //   enabledBorder: UnderlineInputBorder(
-            //     borderSide: BorderSide(color: Colors.grey),
-            //   ),
-            //   focusedBorder: UnderlineInputBorder(
-            //     borderSide: BorderSide(color: Colors.blue),
-            //   ),
-            //   contentPadding: EdgeInsets.symmetric(
-            //     horizontal: 0,
-            //     vertical: 12,
-            //   ),
-            // ),
-            //     items:
-            //         viewModel.channelList
-            //             .map(
-            //               (channel) => DropdownMenuItem(
-            //                 value: channel,
-            //                 child: Text(channel.channelName),
-            //               ),
-            //             )
-            //             .toList(),
-            //     onChanged: (channel) {
-            //       viewModel.selectChannel(
-            //         channel,
-            //         context,
-            //       ); // <-- Call API here
-            //     },
-            //   ),
-            // ),
             SizedBox(height: 5),
             viewModel.loader
                 ? Center(
@@ -315,139 +293,193 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                     itemCount: viewModel.stores.length,
                     padding: EdgeInsets.zero,
                     itemBuilder: (context, index) {
-                      return InkWell(
-                        onTap: () {
-                          showCustomPopup(
-                            context: context,
-                            title: viewModel.stores[index].storeName,
-                            checkStatus:
-                                viewModel.stores[index].visitStatusId == 0
-                                    ? 'Check In'
-                                    : 'Check Out',
-                            onSubmit: (value) {
-                              if (viewModel.stores[index].visitStatusId == 0) {
-                                viewModel.coverageCheckIn(
-                                  context,
-                                  viewModel.stores[index].storeId,
-                                  remarks: value,
-                                );
-                              } else {
-                                viewModel.coverageCheckout(
-                                  context,
-                                  viewModel.stores[index].visitStatusId,
-                                  remarks: value,
-                                );
-                              }
-                            },
-                          );
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 15,
-                          ),
-                          margin: EdgeInsets.symmetric(horizontal: 5),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 5,
-                                ),
-                                child: Text(
-                                  '${index + 1}',
-                                  style: TextStyle(
-                                    color: AppColors.blackColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                      return Container(
+                        color:
+                            viewModel.stores[index].visitStatusId == 0
+                                ? AppColors.whiteColor
+                                : AppColors.darkGreyBackground,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 15,
+                        ),
+                        margin: EdgeInsets.symmetric(horizontal: 5),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                              ),
+                              child: Text(
+                                '${index + 1}',
+                                style: TextStyle(
+                                  color: AppColors.blackColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 5),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        viewModel.stores[index].storeName,
-                                        style: TextStyle(
-                                          color: AppColors.blackColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      SizedBox(height: 3),
-                                      Text(
-                                        viewModel.stores[index].address,
-                                        style: TextStyle(
-                                          color: AppColors.blackColor,
-                                          fontSize: 13,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 2,
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Last Visted: ${viewModel.stores[index].lastVisitedDate}',
-                                            style: TextStyle(
-                                              color: AppColors.blackColor,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              viewModel.stores[index].visitStatusId == 0
-                                  ? Center(
-                                    child: InkWell(
-                                      onTap: () {},
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            'Check In',
-                                            style: TextStyle(
-                                              color: AppColors.blackColor,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 5),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      viewModel.stores[index].storeName,
+                                      style: TextStyle(
+                                        color: AppColors.blackColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                  )
-                                  : InkWell(
-                                    onTap: () {},
-                                    child: Column(
+                                    SizedBox(height: 3),
+                                    Text(
+                                      viewModel.stores[index].address,
+                                      style: TextStyle(
+                                        color: AppColors.blackColor,
+                                        fontSize: 13,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
+                                    ),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '14@In : ${viewModel.stores[index].checkInTime}',
+                                          'Last Visted: ${viewModel.stores[index].lastVisitedDate}',
                                           style: TextStyle(
-                                            color: AppColors.secondary,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Check Out',
-                                          style: TextStyle(
-                                            color: AppColors.secondary,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.blackColor,
+                                            fontSize: 13,
                                           ),
                                         ),
                                       ],
                                     ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            viewModel.stores[index].visitStatusId == 0
+                                ? InkWell(
+                                  onTap: () {
+                                    showCustomPopup(
+                                      context: context,
+                                      title: viewModel.stores[index].storeName,
+                                      checkStatus:
+                                          viewModel
+                                                      .stores[index]
+                                                      .visitStatusId ==
+                                                  0
+                                              ? LabelService().getLabel(14)
+                                              : LabelService().getLabel(15),
+
+                                      checkRemarks:
+                                          viewModel
+                                                      .stores[index]
+                                                      .visitStatusId ==
+                                                  0
+                                              ? LabelService().getLabel(21)
+                                              : LabelService().getLabel(22),
+                                      onSubmit: (value) {
+                                        if (viewModel
+                                                .stores[index]
+                                                .visitStatusId ==
+                                            0) {
+                                          viewModel.coverageCheckIn(
+                                            context,
+                                            viewModel.stores[index].storeId,
+                                            remarks: value,
+                                          );
+                                        } else {
+                                          viewModel.coverageCheckout(
+                                            context,
+                                            viewModel
+                                                .stores[index]
+                                                .visitStatusId,
+                                            remarks: value,
+                                          );
+                                        }
+                                      },
+                                    );
+                                  },
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        LabelService().getLabel(14),
+                                        style: TextStyle(
+                                          color: AppColors.blackColor,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                            ],
-                          ),
+                                )
+                                : InkWell(
+                                  onTap: () {
+                                    showCustomPopup(
+                                      context: context,
+                                      title: viewModel.stores[index].storeName,
+                                      checkStatus:
+                                          viewModel
+                                                      .stores[index]
+                                                      .visitStatusId ==
+                                                  0
+                                              ? LabelService().getLabel(14)
+                                              : LabelService().getLabel(15),
+
+                                      checkRemarks:
+                                          viewModel
+                                                      .stores[index]
+                                                      .visitStatusId ==
+                                                  0
+                                              ? LabelService().getLabel(21)
+                                              : LabelService().getLabel(22),
+                                      onSubmit: (value) {
+                                        if (viewModel
+                                                .stores[index]
+                                                .visitStatusId ==
+                                            0) {
+                                          viewModel.coverageCheckIn(
+                                            context,
+                                            viewModel.stores[index].storeId,
+                                            remarks: value,
+                                          );
+                                        } else {
+                                          viewModel.coverageCheckout(
+                                            context,
+                                            viewModel
+                                                .stores[index]
+                                                .visitStatusId,
+                                            remarks: value,
+                                          );
+                                        }
+                                      },
+                                    );
+                                  },
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        '${LabelService().getLabel(14)} : ${viewModel.stores[index].checkInTime}',
+                                        style: TextStyle(
+                                          color: AppColors.primary,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        LabelService().getLabel(15),
+                                        style: TextStyle(
+                                          color: AppColors.secondary,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                          ],
                         ),
                       );
                     },
