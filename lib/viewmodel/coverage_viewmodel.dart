@@ -1,6 +1,7 @@
 import 'package:aleedz/core/controllers/coverage_controller.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
+import 'package:aleedz/models/brand_model.dart';
 import 'package:aleedz/models/chanel_mode.dart';
 import 'package:aleedz/models/store_model.dart';
 import 'package:aleedz/models/user_model.dart';
@@ -23,6 +24,8 @@ class CoverageViewModel extends ChangeNotifier {
   List<StoreModel> stores = [];
 
   List<ChannelModel> channelList = [];
+  List<Brand> brands = [];
+
   ChannelModel? selectedChannel;
 
   void selectChannel(ChannelModel? channel, BuildContext context) async {
@@ -204,6 +207,34 @@ class CoverageViewModel extends ChangeNotifier {
       await getCoverageList(context);
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> checkSummary(int storeId, int brandId) async {
+    loader = true;
+    brands = [];
+    notifyListeners();
+    final response = await _coverageController.displayCheckSummany(
+      storeId: storeId.toString(),
+      branddId: brandId.toString(),
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final List<Brand> brandList = List<Brand>.from(
+        response['data']['data'].map((x) => Brand.fromJson(x)),
+      );
+      // print(brandList);
+      brands = brandList; // ✅ Save the result
+      loader = false;
+      notifyListeners();
+
+      // Save it to a variable if needed (e.g. in a provider field)
+      // this.brands = brandList;
+    } else {
+      debugPrint("coverage list Error: ${response?['data']}");
+      loader = false;
+      notifyListeners();
     }
   }
 }

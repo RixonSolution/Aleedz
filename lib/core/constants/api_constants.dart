@@ -18,5 +18,7 @@ class ApiConstants {
       "${baseUrl}/StoreVisit.asmx/TeamMemberCheckInDirect";
 
   static const String checkOut = "${baseUrl}/CheckOut.asmx/CheckOutImg";
-  static const String loginLogo = "${baseUrl}/AppImages/Login_background.png";
+
+  static const String displayCheckSummary =
+      "${baseUrl}/DisplayCount.asmx/DisplayCheckSummary";
 }

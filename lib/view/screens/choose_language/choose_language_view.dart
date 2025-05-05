@@ -1,3 +1,4 @@
+import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_constants.dart';
 import 'package:aleedz/core/constants/assets/app_images.dart';
@@ -45,7 +46,14 @@ class _ChooseLanguageViewState extends ConsumerState<ChooseLanguageView> {
           children: [
             // Top Area (Logo and Text)
             SizedBox(height: 60),
-            Image.asset(AppImages.logo1, height: 110, width: 200),
+            Container(
+              // color: Colors.red,
+              child: Image.network(
+                '${ApiConstants.baseUrl}/AppImages/Client_logo.png',
+                height: 150,
+                width: 200,
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(left: 25),
               child: Text(
@@ -146,9 +154,14 @@ class _ChooseLanguageViewState extends ConsumerState<ChooseLanguageView> {
             Spacer(),
 
             // Bottom Area (Copyright)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Center(child: Text(AppConstants.copyright)),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 25),
+              // color: Colors.red,
+              child: Image.network(
+                '${ApiConstants.baseUrl}/AppImages/Footer_info.png',
+                // height: 150,
+                // width: 200,
+              ),
             ),
           ],
         ),

@@ -78,4 +78,17 @@ class CoverageController {
       token: token,
     );
   }
+
+  Future<Map<String, dynamic>?> displayCheckSummany({
+    required String storeId,
+    required String branddId,
+
+    required String token,
+  }) async {
+    return await _apiService.displayCheckSummary(
+      storeId: storeId,
+      brandId: branddId,
+      token: token,
+    );
+  }
 }

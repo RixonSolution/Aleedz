@@ -156,4 +156,31 @@ class CoverageServices {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>?> displayCheckSummary({
+    required String storeId,
+    required String brandId,
+    required String token,
+  }) async {
+    final encodedStoreId = Uri.encodeComponent(storeId);
+    final encodedBrandId = Uri.encodeComponent(brandId);
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse(
+      '${ApiConstants.displayCheckSummary}?StoreID=$encodedStoreId&BrandID=$encodedBrandId&_token=$encodedToken',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
 }

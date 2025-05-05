@@ -1,6 +1,8 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/view/screens/store/store_home.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -320,43 +322,65 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                               ),
                             ),
                             Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 5),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      viewModel.stores[index].storeName,
-                                      style: TextStyle(
-                                        color: AppColors.blackColor,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
+                              child: InkWell(
+                                onTap: () {
+                                  if (viewModel.stores[index].visitStatusId ==
+                                      0) {
+                                  } else {
+                                    NavigationService.navigateTo(
+                                      StoreHome(
+                                        storeName:
+                                            viewModel.stores[index].storeName,
+                                        checkInTime:
+                                            viewModel.stores[index].checkInTime,
+                                        grade: 'A',
+                                        address:
+                                            viewModel.stores[index].address,
+                                        storeId:
+                                            viewModel.stores[index].storeId,
                                       ),
-                                    ),
-                                    SizedBox(height: 3),
-                                    Text(
-                                      viewModel.stores[index].address,
-                                      style: TextStyle(
-                                        color: AppColors.blackColor,
-                                        fontSize: 13,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 2,
-                                    ),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Last Visted: ${viewModel.stores[index].lastVisitedDate}',
-                                          style: TextStyle(
-                                            color: AppColors.blackColor,
-                                            fontSize: 13,
-                                          ),
+                                    );
+                                  }
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 5),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        viewModel.stores[index].storeName,
+                                        style: TextStyle(
+                                          color: AppColors.blackColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
                                         ),
-                                      ],
-                                    ),
-                                  ],
+                                      ),
+                                      SizedBox(height: 3),
+                                      Text(
+                                        viewModel.stores[index].address,
+                                        style: TextStyle(
+                                          color: AppColors.blackColor,
+                                          fontSize: 13,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                      ),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Last Visted: ${viewModel.stores[index].lastVisitedDate}',
+                                            style: TextStyle(
+                                              color: AppColors.blackColor,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
