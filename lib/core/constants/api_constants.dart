@@ -24,4 +24,7 @@ class ApiConstants {
 
   static const String displayCheckSummary =
       "${baseUrl}/DisplayCount.asmx/DisplayCheckSummary";
+
+  static const String checkAudit =
+      "${baseUrl}/DisplayCount.asmx/DisplayCheckProductListByStore";
 }

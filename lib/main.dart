@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/view/screens/store/display_audit_check.dart';
 import 'package:aleedz/view/screens/store/display_audit_check_summary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,10 +60,12 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
           ),
           navigatorKey: NavigationService.navigatorKey,
-          // home: DisplayAuditCheckSummary(
+          // home: DisplayAuditCheck(
           //   storeName: 'XCITE JABRIYA EXPRESS',
           //   checkInTime: '10:59',
           //   storeId: 4,
+          //   categoryId: 1,
+          //   categoryName: 'B2C Headsets',
           // ),
           home: snapshot.data!,
           routes: {

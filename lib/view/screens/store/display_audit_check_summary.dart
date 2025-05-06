@@ -2,6 +2,7 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/view/screens/store/display_audit_check.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -210,43 +211,56 @@ class _DisplayAuditCheckSummaryState
                                 entry.key + 1; // Start from 1 (optional)
                             var item = entry.value;
 
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 6,
-                                horizontal: 12,
-                              ),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 8),
-                                color: AppColors.lightGreyBackground,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            '$productIndex. ',
-                                          ), // ✅ This is your index
-                                          Text(item.productCategoryName),
-                                        ],
+                            return GestureDetector(
+                              onTap: () {
+                                NavigationService.navigateTo(
+                                  DisplayAuditCheck(
+                                    storeName: widget.storeName,
+                                    checkInTime: widget.checkInTime,
+                                    storeId: widget.storeId,
+                                    categoryId: item.productCategoryId,
+                                    categoryName: item.productCategoryName,
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 6,
+                                  horizontal: 12,
+                                ),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: 8),
+                                  color: AppColors.lightGreyBackground,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              '$productIndex. ',
+                                            ), // ✅ This is your index
+                                            Text(item.productCategoryName),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(
-                                      width: 65,
-                                      child: Text(
-                                        item.modelCount.toString(),
-                                        textAlign: TextAlign.center,
+                                      SizedBox(
+                                        width: 65,
+                                        child: Text(
+                                          item.modelCount.toString(),
+                                          textAlign: TextAlign.center,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(
-                                      width: 65,
-                                      child: Text(
-                                        item.displayCheckCount.toString(),
-                                        textAlign: TextAlign.center,
+                                      SizedBox(
+                                        width: 65,
+                                        child: Text(
+                                          item.displayCheckCount.toString(),
+                                          textAlign: TextAlign.center,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             );

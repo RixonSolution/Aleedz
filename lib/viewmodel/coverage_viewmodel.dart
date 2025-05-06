@@ -1,5 +1,6 @@
 import 'package:aleedz/core/controllers/coverage_controller.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
+import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/brand_list_model.dart';
 import 'package:aleedz/models/brand_model.dart';
 import 'package:aleedz/models/chanel_mode.dart';
@@ -25,6 +26,7 @@ class CoverageViewModel extends ChangeNotifier {
   List<BrandListModel> brandList = [];
 
   List<Brand> brands = [];
+  List<AuditItem> auditList = [];
 
   ChannelModel? selectedChannel;
   BrandListModel? selectedBrand;
@@ -264,6 +266,30 @@ class CoverageViewModel extends ChangeNotifier {
       notifyListeners();
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> checkAudit(int storeId, int categoryId) async {
+    loader = true;
+    auditList = [];
+    notifyListeners();
+    final response = await _coverageController.checkAudit(
+      storeId: storeId.toString(),
+      categoryId: categoryId.toString(),
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final List<AuditItem> items = List<AuditItem>.from(
+        response['data']['data'].map((x) => AuditItem.fromJson(x)),
+      );
+      auditList = items;
+      loader = false;
+      notifyListeners();
+    } else {
+      debugPrint("coverage list Error: ${response?['data']}");
+      loader = false;
+      notifyListeners();
     }
   }
 }

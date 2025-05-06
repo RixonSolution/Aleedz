@@ -95,4 +95,16 @@ class CoverageController {
       token: token,
     );
   }
+
+  Future<Map<String, dynamic>?> checkAudit({
+    required String storeId,
+    required String categoryId,
+    required String token,
+  }) async {
+    return await _apiService.checkAudit(
+      storeId: storeId,
+      categoryId: categoryId,
+      token: token,
+    );
+  }
 }
