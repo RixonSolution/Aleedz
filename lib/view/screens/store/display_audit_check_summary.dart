@@ -27,6 +27,7 @@ class _DisplayAuditCheckSummaryState
   void initState() {
     super.initState();
     Future.microtask(() {
+      ref.read(coverageModelProvider.notifier).getBrandDropDown();
       ref.read(coverageModelProvider.notifier).checkSummary(widget.storeId, 0);
     });
   }
@@ -79,6 +80,7 @@ class _DisplayAuditCheckSummaryState
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Divider(color: AppColors.primary, height: 0),
             ),
+
             SizedBox(height: 5),
             Center(
               child: Text(
@@ -101,6 +103,44 @@ class _DisplayAuditCheckSummaryState
               ),
             ),
             SizedBox(height: 20),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: DropdownButtonFormField<int>(
+                value: viewModel.selectedBrand?.brandId,
+                decoration: InputDecoration(
+                  hintText: 'All Brands ',
+                  border: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.secondary),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 0,
+                    vertical: 12,
+                  ),
+                ),
+                items:
+                    viewModel.brandList.map((brand) {
+                      return DropdownMenuItem<int>(
+                        value: brand.brandId,
+                        child: Text(brand.brandName),
+                      );
+                    }).toList(),
+                onChanged: (int? branddlId) {
+                  final selected = viewModel.brandList.firstWhere(
+                    (c) => c.brandId == branddlId,
+                  );
+                  viewModel.selectBrand(widget.storeId, selected, context);
+                },
+              ),
+            ),
+
+            SizedBox(height: 5),
             viewModel.loader
                 ? Center(
                   child: CircularProgressIndicator(color: AppColors.secondary),
@@ -110,6 +150,7 @@ class _DisplayAuditCheckSummaryState
                     itemCount: viewModel.brands.length,
                     itemBuilder: (context, brandIndex) {
                       final brand = viewModel.brands[brandIndex];
+                      int index = brandIndex++;
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -164,37 +205,53 @@ class _DisplayAuditCheckSummaryState
                               ],
                             ),
                           ),
-                          ...brand.products.map(
-                            (item) => Padding(
+                          ...brand.products.asMap().entries.map((entry) {
+                            int productIndex =
+                                entry.key + 1; // Start from 1 (optional)
+                            var item = entry.value;
+
+                            return Padding(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 6,
                                 horizontal: 12,
                               ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(item.productCategoryName),
-                                  ),
-                                  SizedBox(
-                                    width: 65,
-                                    child: Text(
-                                      item.modelCount.toString(),
-                                      textAlign: TextAlign.center,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                color: AppColors.lightGreyBackground,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            '$productIndex. ',
+                                          ), // ✅ This is your index
+                                          Text(item.productCategoryName),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: 65,
-                                    child: Text(
-                                      item.displayCheckCount.toString(),
-                                      textAlign: TextAlign.center,
+                                    SizedBox(
+                                      width: 65,
+                                      child: Text(
+                                        item.modelCount.toString(),
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                    SizedBox(
+                                      width: 65,
+                                      child: Text(
+                                        item.displayCheckCount.toString(),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ),
+                            );
+                          }),
+
                           const Divider(thickness: 1),
                         ],
                       );

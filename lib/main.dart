@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/view/screens/store/display_audit_check_summary.dart';
-import 'package:aleedz/view/screens/store/store_home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
@@ -41,31 +40,31 @@ class MyApp extends StatelessWidget {
     return FutureBuilder<Widget>(
       future: _getInitialRoute(),
       builder: (context, snapshot) {
-        // While loading, show a loading spinner
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const MaterialApp(
             debugShowCheckedModeBanner: false,
-            home: Center(
-              child: CircularProgressIndicator(),
-            ), // You can customize this loading UI
+            home: Center(child: CircularProgressIndicator()),
           );
         }
 
-        // Once the initial route is determined, build the app
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Aleedz',
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
               seedColor: AppColors.primary,
-              primary: AppColors.primary,
+              primary: AppColors.secondary,
               secondary: AppColors.secondary,
             ),
             useMaterial3: true,
           ),
           navigatorKey: NavigationService.navigatorKey,
-          home: snapshot.data!, // Use the determined initial screen
-
+          // home: DisplayAuditCheckSummary(
+          //   storeName: 'XCITE JABRIYA EXPRESS',
+          //   checkInTime: '10:59',
+          //   storeId: 4,
+          // ),
+          home: snapshot.data!,
           routes: {
             '/choose-language': (context) => ChooseLanguageView(),
             '/dashboard': (context) => DashboardView(),

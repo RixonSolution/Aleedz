@@ -14,6 +14,9 @@ class ApiConstants {
   static const String coverageDropDown =
       "${baseUrl}/WebService.asmx/ChannelList";
 
+  static const String brandDropDown =
+      "${baseUrl}/WebService.asmx/BrandList_General";
+
   static const String checkIn =
       "${baseUrl}/StoreVisit.asmx/TeamMemberCheckInDirect";
 

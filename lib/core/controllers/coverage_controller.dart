@@ -35,6 +35,10 @@ class CoverageController {
     return await _apiService.getCoverageDropDown(token: token);
   }
 
+  Future<Map<String, dynamic>?> brandDropDown({required String token}) async {
+    return await _apiService.getBrandDropDown(token: token);
+  }
+
   Future<Map<String, dynamic>?> coverageCheckIn({
     required String teamMemberId,
     required String storeID,

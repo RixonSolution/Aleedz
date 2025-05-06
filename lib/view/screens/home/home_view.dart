@@ -5,7 +5,6 @@ import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
-import 'package:aleedz/viewmodel/dashboard_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,9 +21,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
-    ref.read(coverageModelProvider.notifier).getCoverageCount(context);
+    loadUserAndFetchCoverage();
+  }
 
-    loadUserFromPrefs();
+  Future<void> loadUserAndFetchCoverage() async {
+    await loadUserFromPrefs(); // Make sure user is ready
+    ref
+        .read(coverageModelProvider.notifier)
+        .getCoverageCount(context); // Now call
   }
 
   Future<void> loadUserFromPrefs() async {
@@ -52,7 +56,22 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   // Profile
                   Row(
                     children: [
-                      const Icon(Icons.person, size: 100),
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 5),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.blackColor,
+                            width: 1,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.person,
+                          size: 70,
+                          color: AppColors.blackColor,
+                        ),
+                      ),
                       const SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,6 +129,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  Image.asset(
+                                    AppIcons.coverageNetwork,
+                                    height: 20,
+                                    width: 20,
+                                  ),
                                   SizedBox(
                                     width: 85,
                                     child: Text(
@@ -117,11 +141,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                       textAlign: TextAlign.center,
                                       style: AppTextStyles.labelStyle,
                                     ),
-                                  ),
-                                  Image.asset(
-                                    AppIcons.coverageNetwork,
-                                    height: 20,
-                                    width: 20,
                                   ),
                                 ],
                               ),
@@ -152,18 +171,17 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  SizedBox(
-                                    width: 85,
-
-                                    child: Text(
-                                      LabelService().getLabel(12),
-                                      style: AppTextStyles.labelStyle,
-                                    ),
-                                  ),
                                   Image.asset(
                                     AppIcons.toddayPlan,
                                     height: 20,
                                     width: 20,
+                                  ),
+                                  SizedBox(
+                                    width: 85,
+                                    child: Text(
+                                      LabelService().getLabel(12),
+                                      style: AppTextStyles.labelStyle,
+                                    ),
                                   ),
                                 ],
                               ),

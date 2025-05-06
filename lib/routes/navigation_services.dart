@@ -8,7 +8,25 @@ class NavigationService {
   // Push a new screen
   static Future<void> navigateTo(Widget screen) async {
     await navigatorKey.currentState?.push(
-      MaterialPageRoute(builder: (_) => screen),
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => screen,
+        transitionsBuilder: (_, animation, __, child) {
+          const begin = Offset(1.0, 0.0); // Right to left
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 300),
+      ),
     );
   }
 

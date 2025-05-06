@@ -7,14 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DashboardView extends ConsumerStatefulWidget {
-  DashboardView({super.key});
+  final int initialIndex;
+
+  DashboardView({super.key, this.initialIndex = 0});
 
   @override
   _DashboardViewState createState() => _DashboardViewState();
 }
 
 class _DashboardViewState extends ConsumerState<DashboardView> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
   final List<Widget> _screens = [
     HomeView(),
@@ -22,6 +24,12 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     HomeView(),
     CoverageView(),
   ];
+
+  @override
+  void initState() {
+    _selectedIndex = widget.initialIndex;
+    super.initState();
+  }
 
   void _onItemTapped(int index) {
     setState(() {

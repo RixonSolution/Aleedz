@@ -225,6 +225,5 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
         ),
       ),
     );
-    ;
   }
 }

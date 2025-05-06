@@ -2,8 +2,10 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:aleedz/view/screens/store/store_home.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
+import 'package:aleedz/widgets/tap_animated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -174,7 +176,18 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Image.asset(AppIcons.backArrow, height: 30, width: 30),
+                  GestureDetector(
+                    onTap: () {
+                      NavigationService.navigateTo(
+                        DashboardView(initialIndex: 0),
+                      ); // or any index like 2
+                    },
+                    child: Image.asset(
+                      AppIcons.backArrow,
+                      height: 30,
+                      width: 30,
+                    ),
+                  ),
                   Text(
                     LabelService().getLabel(16),
                     style: TextStyle(
@@ -237,7 +250,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                     borderSide: BorderSide(color: Colors.grey),
                   ),
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
+                    borderSide: BorderSide(color: AppColors.secondary),
                   ),
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 0,
@@ -261,7 +274,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                     borderSide: BorderSide(color: Colors.grey),
                   ),
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
+                    borderSide: BorderSide(color: AppColors.secondary),
                   ),
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 0,
@@ -284,6 +297,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                 },
               ),
             ),
+
             SizedBox(height: 5),
             viewModel.loader
                 ? Center(
@@ -313,7 +327,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                 horizontal: 5,
                               ),
                               child: Text(
-                                '${index + 1}',
+                                '${index + 1}.',
                                 style: TextStyle(
                                   color: AppColors.blackColor,
                                   fontSize: 14,
@@ -322,8 +336,8 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                               ),
                             ),
                             Expanded(
-                              child: InkWell(
-                                onTap: () {
+                              child: GestureDetector(
+                                onTap: () async {
                                   if (viewModel.stores[index].visitStatusId ==
                                       0) {
                                   } else {
@@ -384,6 +398,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                 ),
                               ),
                             ),
+
                             viewModel.stores[index].visitStatusId == 0
                                 ? InkWell(
                                   onTap: () {
