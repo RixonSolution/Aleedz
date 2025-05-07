@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:aleedz/core/constants/app_colors.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:image/image.dart' as img;
 
 class CoverageView extends ConsumerStatefulWidget {
   const CoverageView({super.key});
@@ -602,7 +604,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                 ? InkWell(
                                   onTap: () async {
                                     if (checkInCamera == 'Y') {
-                                      await viewModel.getLatLong();
+                                      // await viewModel.getLatLong();
                                       double myLat = viewModel.latitude;
                                       double myLng = viewModel.longitude;
 
@@ -636,6 +638,13 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
 
                                       if (pickedFile != null) {
                                         final imageFile = File(pickedFile.path);
+                                        List<int> imageBytes =
+                                            File(
+                                              pickedFile.path,
+                                            ).readAsBytesSync();
+                                        String base64Image = base64Encode(
+                                          imageBytes,
+                                        );
 
                                         showImagePopup(
                                           context: context,
@@ -664,6 +673,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                 context,
                                                 viewModel.stores[index].storeId,
                                                 remarks: value,
+                                                base64: base64Image,
                                               );
                                             } else {
                                               viewModel.coverageCheckout(
@@ -672,6 +682,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                     .stores[index]
                                                     .visitStatusId,
                                                 remarks: value,
+                                                base64: base64Image,
                                               );
                                             }
                                           },
@@ -702,7 +713,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                 : InkWell(
                                   onTap: () async {
                                     if (checkoutCamera == 'Y') {
-                                      await viewModel.getLatLong();
+                                      // await viewModel.getLatLong();
                                       double myLat = viewModel.latitude;
                                       double myLng = viewModel.longitude;
 
@@ -755,6 +766,14 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                           final imageFile = File(
                                             pickedFile.path,
                                           );
+                                          List<int> imageBytes =
+                                              File(
+                                                pickedFile.path,
+                                              ).readAsBytesSync();
+
+                                          String base64Image = base64Encode(
+                                            imageBytes,
+                                          );
 
                                           showImagePopup(
                                             context: context,
@@ -795,6 +814,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                       .stores[index]
                                                       .storeId,
                                                   remarks: value,
+                                                  base64: base64Image,
                                                 );
                                               } else {
                                                 viewModel.coverageCheckout(
@@ -803,6 +823,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                       .stores[index]
                                                       .visitStatusId,
                                                   remarks: value,
+                                                  base64: base64Image,
                                                 );
                                               }
                                             },

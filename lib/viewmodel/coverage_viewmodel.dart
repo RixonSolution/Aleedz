@@ -14,7 +14,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
-
+import 'dart:convert';
+import 'package:image/image.dart' as img;
 import 'package:shared_preferences/shared_preferences.dart';
 
 final coverageModelProvider = ChangeNotifierProvider<CoverageViewModel>((ref) {
@@ -229,8 +230,11 @@ class CoverageViewModel extends ChangeNotifier {
     String planRemarks = '',
     String remarks = '',
     bool isLocationAvailable = false,
+    String base64 = '',
   }) async {
+    // String compressedBase64 = await compressBase64Image(base64);
     loader = true;
+
     notifyListeners();
     final response = await _coverageController.coverageCheckIn(
       teamMemberId: user?.teamMemberID.toString() ?? '',
@@ -247,6 +251,8 @@ class CoverageViewModel extends ChangeNotifier {
 
     if (response != null && response["status"] == 200) {
       await getCoverageList(context);
+      loader = false;
+      notifyListeners();
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
     }
@@ -258,7 +264,9 @@ class CoverageViewModel extends ChangeNotifier {
     String planRemarks = '',
     String remarks = '',
     bool isLocationAvailable = false,
+    String base64 = '',
   }) async {
+    // String compressedBase64 = await compressBase64Image(base64);
     loader = true;
     notifyListeners();
     final response = await _coverageController.coverageCheckOut(
@@ -272,6 +280,8 @@ class CoverageViewModel extends ChangeNotifier {
 
     if (response != null && response["status"] == 200) {
       await getCoverageList(context);
+      loader = false;
+      notifyListeners();
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
     }
@@ -340,5 +350,27 @@ class CoverageViewModel extends ChangeNotifier {
       loader = false;
       notifyListeners();
     }
+  }
+
+  Future<String> compressBase64Image(
+    String base64Str, {
+    int width = 50,
+    int quality = 10,
+  }) async {
+    // Step 1: Decode Base64 to bytes
+    final imageBytes = base64Decode(base64Str);
+
+    // Step 2: Decode image bytes to image object
+    img.Image? image = img.decodeImage(imageBytes);
+    if (image == null) throw Exception("Unable to decode image");
+
+    // Step 3: Resize the image
+    img.Image resized = img.copyResize(image, width: width);
+
+    // Step 4: Compress image to JPEG with quality
+    final compressedBytes = img.encodeJpg(resized, quality: quality);
+
+    // Step 5: Encode back to Base64
+    return base64Encode(compressedBytes);
   }
 }
