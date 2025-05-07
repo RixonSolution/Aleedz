@@ -26,12 +26,20 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(coverageModelProvider.notifier).loadUser();
-      ref.read(coverageModelProvider.notifier).getLatLong();
-      ref.read(coverageModelProvider.notifier).getCoverageCount(context);
-      ref.read(coverageModelProvider.notifier).getCoverageDropDown();
-      ref.read(coverageModelProvider.notifier).getCoverageList(context);
+      loadData();
     });
+  }
+
+  void loadData() async {
+    ref.read(coverageModelProvider.notifier).loader = true;
+    ref.read(coverageModelProvider.notifier).notifyListeners();
+    await ref.read(coverageModelProvider.notifier).loadUser();
+    await ref.read(coverageModelProvider.notifier).getLatLong();
+    await ref.read(coverageModelProvider.notifier).getCoverageCount(context);
+    await ref.read(coverageModelProvider.notifier).getCoverageDropDown();
+    await ref.read(coverageModelProvider.notifier).getCoverageList(context);
+    ref.read(coverageModelProvider.notifier).loader = false;
+    ref.read(coverageModelProvider.notifier).notifyListeners();
   }
 
   Future<void> showImagePopup({

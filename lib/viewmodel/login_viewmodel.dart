@@ -77,6 +77,8 @@ class LoginViewModel extends ChangeNotifier {
           debugPrint("Login Success: Token: ${userData.apiToken}");
           AppSnackBar.showSuccess(context, 'Login successful!');
           NavigationService.navigateTo(DashboardView());
+          loader = false;
+          notifyListeners();
 
           // You can store token using SharedPreferences, GetStorage, etc.
         } else {
@@ -104,9 +106,6 @@ class LoginViewModel extends ChangeNotifier {
     String token,
     int teamId,
   ) async {
-    loader = true;
-    notifyListeners();
-
     final response = await _authController.requestUserPermission(
       userTeamId: teamId,
       userToken: token.trim(),

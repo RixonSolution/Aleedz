@@ -25,7 +25,7 @@ class CoverageViewModel extends ChangeNotifier {
   final CoverageController _coverageController = CoverageController();
 
   UserModel? user;
-  int? storeCount;
+  int? storeCount = 0;
   List<StoreModel> stores = [];
 
   List<ChannelModel> channelList = [];
@@ -57,6 +57,8 @@ class CoverageViewModel extends ChangeNotifier {
     if (channel != null) {
       await getCoverageList(context, channelId: channel.channelId);
     }
+    loader = false;
+    notifyListeners();
     // You can also call getCoverageList here with the selectedChannel.channelId
   }
 
@@ -143,9 +145,7 @@ class CoverageViewModel extends ChangeNotifier {
     return degrees * pi / 180;
   }
 
-  void loadUser() async {
-    loader = true;
-    notifyListeners();
+  Future loadUser() async {
     final store = StoreLocalData();
 
     user = await store.getUserFromPrefs();
@@ -162,6 +162,8 @@ class CoverageViewModel extends ChangeNotifier {
   bool loader = false;
 
   Future<void> getCoverageCount(BuildContext context) async {
+    selectedChannel = null;
+    notifyListeners();
     final response = await _coverageController.coverageCount(
       teamMemberId: user?.teamMemberID ?? 0,
       token: user?.apiToken ?? '',
@@ -196,7 +198,6 @@ class CoverageViewModel extends ChangeNotifier {
 
       if (dataList != null && dataList is List && dataList.isNotEmpty) {
         stores = dataList.map((e) => StoreModel.fromJson(e)).toList();
-        loader = false;
         notifyListeners();
       }
     } else {
@@ -209,7 +210,6 @@ class CoverageViewModel extends ChangeNotifier {
       token: user?.apiToken ?? '',
     );
 
-    loader = false;
     notifyListeners();
 
     if (response != null && response["status"] == 200) {
@@ -302,6 +302,9 @@ class CoverageViewModel extends ChangeNotifier {
   }
 
   Future<void> getBrandDropDown() async {
+    selectedBrand = null;
+    brandList = [];
+    notifyListeners();
     final response = await _coverageController.brandDropDown(
       token: user?.apiToken ?? '',
     );
