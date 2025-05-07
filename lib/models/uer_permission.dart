@@ -15,6 +15,14 @@ class UserPermission {
   Map<String, dynamic> toJson() {
     return {'data': data?.map((e) => e.toJson()).toList()};
   }
+
+  String getPermissionValue(String permissionName) {
+    final permissionItem = data?.firstWhere(
+      (item) => item.permissionName == permissionName,
+      orElse: () => Permission(permission: "N"),
+    );
+    return permissionItem?.permission?.toString() ?? "N";
+  }
 }
 
 class Permission {

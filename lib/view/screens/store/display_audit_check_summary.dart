@@ -220,6 +220,7 @@ class _DisplayAuditCheckSummaryState
                                     storeId: widget.storeId,
                                     categoryId: item.productCategoryId,
                                     categoryName: item.productCategoryName,
+                                    lastUpdate: item.lastUpdate,
                                   ),
                                 );
                               },
@@ -236,12 +237,32 @@ class _DisplayAuditCheckSummaryState
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
-                                        child: Row(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              '$productIndex. ',
-                                            ), // ✅ This is your index
-                                            Text(item.productCategoryName),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  '$productIndex. ',
+                                                ), // ✅ This is your index
+                                                Text(item.productCategoryName),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  '$productIndex. ',
+                                                  style: TextStyle(
+                                                    color:
+                                                        AppColors
+                                                            .lightGreyBackground,
+                                                  ),
+                                                ),
+                                                Text(item.lastUpdate),
+                                              ],
+                                            ),
+                                            // SizedBox(width: 24),
                                           ],
                                         ),
                                       ),

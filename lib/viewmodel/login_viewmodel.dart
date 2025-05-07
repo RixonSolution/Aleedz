@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:aleedz/core/controllers/auth_controller.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
@@ -8,6 +10,7 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/%20login/login_view.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final AuthController _authController = AuthController();
@@ -17,6 +20,7 @@ class LoginViewModel extends ChangeNotifier {
   final FocusNode usernameFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  UserPermission? userPermission;
 
   UserModel? user;
 
@@ -85,7 +89,17 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> requestUserPermission(
+  Future<UserPermission?> loadStoredPermissions() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('user_permission');
+    if (jsonString != null) {
+      final jsonMap = jsonDecode(jsonString);
+      return UserPermission.fromJson(jsonMap);
+    }
+    return null;
+  }
+
+  Future<UserPermission?> requestUserPermission(
     BuildContext context,
     String token,
     int teamId,
@@ -108,17 +122,21 @@ class LoginViewModel extends ChangeNotifier {
           nestedData["data"].isNotEmpty) {
         final userPermission = UserPermission.fromJson(nestedData);
 
-        // for (var permission in userPermission.data!) {
-        //   print(
-        //     'Permission: ${permission.permissionID} - ${permission.permission}',
-        //   );
-        // }
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          'user_permission',
+          jsonEncode(userPermission.toJson()),
+        );
+
+        return userPermission;
       } else {
         AppSnackBar.showError(context, 'No user data found.');
       }
     } else {
       AppSnackBar.showError(context, 'Permission error: ${response?['data']}');
     }
+
+    return null;
   }
 
   Future<void> chooseLanguage(BuildContext context, String languageId) async {

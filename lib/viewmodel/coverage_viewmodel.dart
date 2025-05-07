@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:aleedz/core/controllers/coverage_controller.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/audit_model.dart';
@@ -5,11 +7,15 @@ import 'package:aleedz/models/brand_list_model.dart';
 import 'package:aleedz/models/brand_model.dart';
 import 'package:aleedz/models/chanel_mode.dart';
 import 'package:aleedz/models/store_model.dart';
+import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+import 'dart:math';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 final coverageModelProvider = ChangeNotifierProvider<CoverageViewModel>((ref) {
   return CoverageViewModel();
@@ -24,12 +30,23 @@ class CoverageViewModel extends ChangeNotifier {
 
   List<ChannelModel> channelList = [];
   List<BrandListModel> brandList = [];
+  UserPermission? permission;
 
   List<Brand> brands = [];
   List<AuditItem> auditList = [];
 
   ChannelModel? selectedChannel;
   BrandListModel? selectedBrand;
+
+  Future<UserPermission?> loadStoredPermissions() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('user_permission');
+    if (jsonString != null) {
+      final jsonMap = jsonDecode(jsonString);
+      return UserPermission.fromJson(jsonMap);
+    }
+    return null;
+  }
 
   void selectChannel(ChannelModel? channel, BuildContext context) async {
     loader = true;
@@ -99,12 +116,41 @@ class CoverageViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  double calculateDistanceInMeters(
+    double startLat,
+    double startLng,
+    double endLat,
+    double endLng,
+  ) {
+    const earthRadius = 6371000; // in meters
+
+    final dLat = _degreesToRadians(endLat - latitude);
+    final dLng = _degreesToRadians(endLng - longitude);
+
+    final a =
+        sin(dLat / 2) * sin(dLat / 2) +
+        cos(_degreesToRadians(startLat)) *
+            cos(_degreesToRadians(endLat)) *
+            sin(dLng / 2) *
+            sin(dLng / 2);
+
+    final c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    return earthRadius * c;
+  }
+
+  double _degreesToRadians(double degrees) {
+    return degrees * pi / 180;
+  }
+
   void loadUser() async {
     loader = true;
     notifyListeners();
     final store = StoreLocalData();
 
     user = await store.getUserFromPrefs();
+    permission = await loadStoredPermissions();
+    notifyListeners();
 
     if (user != null) {
       print('Welcome ${user!.teamMemberName}');
@@ -191,8 +237,8 @@ class CoverageViewModel extends ChangeNotifier {
       storeID: storeId.toString(),
       planRemarks: planRemarks,
       planDate: formattedDate,
-      longitude: latitude.toString(),
-      latitude: longitude.toString(),
+      longitude: longitude.toString(),
+      latitude: latitude.toString(),
       remarks: remarks,
       isLocationAvailable: isLocationAvailable.toString(),
       checkInImg: '',
@@ -217,8 +263,8 @@ class CoverageViewModel extends ChangeNotifier {
     notifyListeners();
     final response = await _coverageController.coverageCheckOut(
       visitedId: visitedId.toString(),
-      longitude: latitude.toString(),
-      latitude: longitude.toString(),
+      longitude: longitude.toString(),
+      latitude: latitude.toString(),
       remarks: remarks,
       checkInImg: '',
       token: user?.apiToken ?? '',

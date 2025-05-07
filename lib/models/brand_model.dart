@@ -26,6 +26,7 @@ class ProductCategory {
   final int storeId;
   final int modelCount;
   final int displayCheckCount;
+  final String lastUpdate;
 
   ProductCategory({
     required this.productCategoryId,
@@ -33,6 +34,7 @@ class ProductCategory {
     required this.storeId,
     required this.modelCount,
     required this.displayCheckCount,
+    required this.lastUpdate,
   });
 
   factory ProductCategory.fromJson(Map<String, dynamic> json) {
@@ -42,6 +44,7 @@ class ProductCategory {
       storeId: json['StoreID'],
       modelCount: json['ModelCount'],
       displayCheckCount: json['DisplayCheckCount'],
+      lastUpdate: json['LastUpdateDate'],
     );
   }
 }

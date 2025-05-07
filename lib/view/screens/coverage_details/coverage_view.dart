@@ -1,13 +1,17 @@
+import 'dart:io';
+
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/core/utils/app_snackbar.dart';
+import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:aleedz/view/screens/store/store_home.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
-import 'package:aleedz/widgets/tap_animated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 class CoverageView extends ConsumerStatefulWidget {
@@ -30,13 +34,152 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
     });
   }
 
-  Future<void> showCustomPopup({
+  Future<void> showImagePopup({
     required BuildContext context,
     required String title,
     required String checkStatus,
     required String checkRemarks,
+    required File? imageFile, // 🔹 new parameter
 
     required void Function(String value) onSubmit,
+  }) {
+    final TextEditingController _controller = TextEditingController();
+
+    return showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Dialog(
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: 10,
+          ), // Remove default dialog padding
+          backgroundColor:
+              Colors
+                  .transparent, // Make dialog transparent to handle full custom layout
+          child: Align(
+            alignment: Alignment.center, // Position to top if needed
+            child: Material(
+              color: AppColors.whiteColor,
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.all(16), // Optional internal padding
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Icon(Icons.close),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: AppColors.blackColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      DateFormat('hh:mm a').format(DateTime.now()),
+                      style: TextStyle(
+                        color: AppColors.blackColor,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    imageFile != null
+                        ? Image.file(
+                          imageFile,
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                        : Container(
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: AppColors.blackColor,
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Camera will open and taken image will\nappear here.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppColors.whiteColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _controller,
+                      style: TextStyle(color: AppColors.blackColor),
+                      decoration: InputDecoration(
+                        hintText: checkRemarks,
+                        hintStyle: TextStyle(color: AppColors.blackColor),
+                        border: UnderlineInputBorder(),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.blackColor),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.blackColor),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                        onSubmit(_controller.text);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary,
+                          border: Border(
+                            bottom: BorderSide(
+                              color: AppColors.primary,
+                              width: 4.0,
+                            ),
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            checkStatus,
+                            style: TextStyle(
+                              color: AppColors.whiteColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> showLocationPopup({
+    required BuildContext context,
+    required String title,
+    required String checkStatus,
+    required String meter,
   }) {
     final TextEditingController _controller = TextEditingController();
 
@@ -96,7 +239,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                       decoration: BoxDecoration(color: AppColors.blackColor),
                       child: Center(
                         child: Text(
-                          'Camera will open and taken image will\nappear here.',
+                          'Google Map incase of distance is far',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColors.whiteColor,
@@ -107,50 +250,43 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    TextField(
-                      controller: _controller,
-                      style: TextStyle(color: AppColors.blackColor),
-                      decoration: InputDecoration(
-                        hintText: checkRemarks,
-                        hintStyle: TextStyle(color: AppColors.blackColor),
-                        border: UnderlineInputBorder(),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.blackColor),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.blackColor),
-                        ),
+                    Text(
+                      '${LabelService().getLabel(25)} $meter',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 10),
-                    InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                        onSubmit(_controller.text);
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          border: Border(
-                            bottom: BorderSide(
-                              color: AppColors.primary,
-                              width: 4.0,
-                            ),
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            checkStatus,
-                            style: TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+
+                    // InkWell(
+                    //   onTap: () {
+                    //     Navigator.pop(context);
+                    //   },
+                    //   child: Container(
+                    //     padding: EdgeInsets.symmetric(vertical: 15),
+                    //     decoration: BoxDecoration(
+                    //       color: AppColors.secondary,
+                    //       border: Border(
+                    //         bottom: BorderSide(
+                    //           color: AppColors.primary,
+                    //           width: 4.0,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     child: Center(
+                    //       child: Text(
+                    //         checkStatus,
+                    //         style: TextStyle(
+                    //           color: AppColors.whiteColor,
+                    //           fontSize: 14,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -164,6 +300,15 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(coverageModelProvider);
+    String distancePermission =
+        viewModel.permission?.getPermissionValue("LocationLimit") ?? "N";
+    String checkInCamera =
+        viewModel.permission?.getPermissionValue("CheckIn_Camera") ?? "N";
+    String checkoutCamera =
+        viewModel.permission?.getPermissionValue("CheckOut_Camera") ?? "N";
+    String allowMultiCheckIn =
+        viewModel.permission?.getPermissionValue("AllowMultipleCheckIn") ?? "N";
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
@@ -338,23 +483,69 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () async {
-                                  if (viewModel.stores[index].visitStatusId ==
-                                      0) {
-                                  } else {
+                                  final allowMultiCheckIn = viewModel.permission
+                                      ?.getPermissionValue(
+                                        'AllowMultipleCheckIn',
+                                      );
+                                  final allowStoreInWithoutCheckIn = viewModel
+                                      .permission
+                                      ?.getPermissionValue(
+                                        'Allow_StoreIn_WithoutCheckIn',
+                                      );
+
+                                  final selectedStore = viewModel.stores[index];
+
+                                  // 1. Check: StoreIn not allowed without check-in
+                                  if (allowStoreInWithoutCheckIn == 'N' &&
+                                      selectedStore.visitStatusId == 0) {
+                                    AppSnackBar.showError(
+                                      context,
+                                      "You must check in before entering the store.",
+                                    );
+                                    return;
+                                  }
+
+                                  // 2. If multi-check-in allowed, allow navigation
+                                  if (allowMultiCheckIn == 'Y') {
                                     NavigationService.navigateTo(
                                       StoreHome(
-                                        storeName:
-                                            viewModel.stores[index].storeName,
-                                        checkInTime:
-                                            viewModel.stores[index].checkInTime,
+                                        storeName: selectedStore.storeName,
+                                        checkInTime: selectedStore.checkInTime,
                                         grade: 'A',
-                                        address:
-                                            viewModel.stores[index].address,
-                                        storeId:
-                                            viewModel.stores[index].storeId,
+                                        address: selectedStore.address,
+                                        storeId: selectedStore.storeId,
                                       ),
                                     );
+                                    return;
                                   }
+
+                                  // 3. If multi-check-in not allowed, check if user is already checked into another store
+                                  final isAlreadyCheckedIn = viewModel.stores
+                                      .any(
+                                        (store) =>
+                                            store.visitStatusId != 0 &&
+                                            store.storeId !=
+                                                selectedStore.storeId,
+                                      );
+
+                                  if (isAlreadyCheckedIn) {
+                                    AppSnackBar.showError(
+                                      context,
+                                      "You are already checked in to another store. Multiple check-ins are not allowed.",
+                                    );
+                                    return;
+                                  }
+
+                                  // ✅ All good, navigate
+                                  NavigationService.navigateTo(
+                                    StoreHome(
+                                      storeName: selectedStore.storeName,
+                                      checkInTime: selectedStore.checkInTime,
+                                      grade: 'A',
+                                      address: selectedStore.address,
+                                      storeId: selectedStore.storeId,
+                                    ),
+                                  );
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.only(right: 5),
@@ -401,46 +592,91 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
 
                             viewModel.stores[index].visitStatusId == 0
                                 ? InkWell(
-                                  onTap: () {
-                                    showCustomPopup(
-                                      context: context,
-                                      title: viewModel.stores[index].storeName,
-                                      checkStatus:
-                                          viewModel
-                                                      .stores[index]
-                                                      .visitStatusId ==
-                                                  0
-                                              ? LabelService().getLabel(14)
-                                              : LabelService().getLabel(15),
+                                  onTap: () async {
+                                    if (checkInCamera == 'Y') {
+                                      await viewModel.getLatLong();
+                                      double myLat = viewModel.latitude;
+                                      double myLng = viewModel.longitude;
 
-                                      checkRemarks:
-                                          viewModel
-                                                      .stores[index]
-                                                      .visitStatusId ==
-                                                  0
-                                              ? LabelService().getLabel(21)
-                                              : LabelService().getLabel(22),
-                                      onSubmit: (value) {
-                                        if (viewModel
-                                                .stores[index]
-                                                .visitStatusId ==
-                                            0) {
-                                          viewModel.coverageCheckIn(
-                                            context,
-                                            viewModel.stores[index].storeId,
-                                            remarks: value,
+                                      double otherLat = double.parse(
+                                        viewModel.stores[index].latitude,
+                                      );
+                                      double otherLng = double.parse(
+                                        viewModel.stores[index].longitude,
+                                      );
+                                      print('myLat$myLat myLong$myLng');
+                                      print(
+                                        'otherLat$otherLat otherLng$otherLng',
+                                      );
+
+                                      double distance = viewModel
+                                          .calculateDistanceInMeters(
+                                            myLat,
+                                            myLng,
+                                            otherLat,
+                                            otherLng,
                                           );
-                                        } else {
-                                          viewModel.coverageCheckout(
-                                            context,
-                                            viewModel
-                                                .stores[index]
-                                                .visitStatusId,
-                                            remarks: value,
-                                          );
-                                        }
-                                      },
-                                    );
+
+                                      print(
+                                        'Distance is ${distance.toStringAsFixed(2)} meters',
+                                      );
+
+                                      final picker = ImagePicker();
+                                      final pickedFile = await picker.pickImage(
+                                        source: ImageSource.camera,
+                                      );
+
+                                      if (pickedFile != null) {
+                                        final imageFile = File(pickedFile.path);
+
+                                        showImagePopup(
+                                          context: context,
+                                          title:
+                                              viewModel.stores[index].storeName,
+                                          checkStatus:
+                                              viewModel
+                                                          .stores[index]
+                                                          .visitStatusId ==
+                                                      0
+                                                  ? LabelService().getLabel(14)
+                                                  : LabelService().getLabel(15),
+                                          checkRemarks:
+                                              viewModel
+                                                          .stores[index]
+                                                          .visitStatusId ==
+                                                      0
+                                                  ? LabelService().getLabel(21)
+                                                  : LabelService().getLabel(22),
+                                          onSubmit: (value) async {
+                                            if (viewModel
+                                                    .stores[index]
+                                                    .visitStatusId ==
+                                                0) {
+                                              viewModel.coverageCheckIn(
+                                                context,
+                                                viewModel.stores[index].storeId,
+                                                remarks: value,
+                                              );
+                                            } else {
+                                              viewModel.coverageCheckout(
+                                                context,
+                                                viewModel
+                                                    .stores[index]
+                                                    .visitStatusId,
+                                                remarks: value,
+                                              );
+                                            }
+                                          },
+                                          imageFile:
+                                              imageFile, // 🔹 pass the image to dialog
+                                        );
+                                      }
+                                    } else {
+                                      AppSnackBar.showError(
+                                        context,
+                                        "You don't have camera permission.",
+                                      );
+                                    }
                                   },
                                   child: Column(
                                     children: [
@@ -456,46 +692,123 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                   ),
                                 )
                                 : InkWell(
-                                  onTap: () {
-                                    showCustomPopup(
-                                      context: context,
-                                      title: viewModel.stores[index].storeName,
-                                      checkStatus:
-                                          viewModel
-                                                      .stores[index]
-                                                      .visitStatusId ==
-                                                  0
-                                              ? LabelService().getLabel(14)
-                                              : LabelService().getLabel(15),
+                                  onTap: () async {
+                                    if (checkoutCamera == 'Y') {
+                                      await viewModel.getLatLong();
+                                      double myLat = viewModel.latitude;
+                                      double myLng = viewModel.longitude;
 
-                                      checkRemarks:
-                                          viewModel
+                                      double otherLat = double.parse(
+                                        viewModel.stores[index].latitude,
+                                      );
+                                      double otherLng = double.parse(
+                                        viewModel.stores[index].longitude,
+                                      );
+                                      print('myLat$myLat myLong$myLng');
+                                      print(
+                                        'otherLat$otherLat otherLng$otherLng',
+                                      );
+
+                                      double distance = viewModel
+                                          .calculateDistanceInMeters(
+                                            myLat,
+                                            myLng,
+                                            otherLat,
+                                            otherLng,
+                                          );
+
+                                      print(
+                                        'Distance is ${distance.toStringAsFixed(2)} meters',
+                                      );
+
+                                      if (distance >
+                                          double.parse(distancePermission)) {
+                                        showLocationPopup(
+                                          context: context,
+                                          title:
+                                              viewModel.stores[index].storeName,
+                                          checkStatus:
+                                              viewModel
+                                                          .stores[index]
+                                                          .visitStatusId ==
+                                                      0
+                                                  ? LabelService().getLabel(14)
+                                                  : LabelService().getLabel(15),
+                                          meter: distance.toStringAsFixed(2),
+                                        );
+                                      } else {
+                                        final picker = ImagePicker();
+                                        final pickedFile = await picker
+                                            .pickImage(
+                                              source: ImageSource.camera,
+                                            );
+
+                                        if (pickedFile != null) {
+                                          final imageFile = File(
+                                            pickedFile.path,
+                                          );
+
+                                          showImagePopup(
+                                            context: context,
+                                            title:
+                                                viewModel
+                                                    .stores[index]
+                                                    .storeName,
+                                            checkStatus:
+                                                viewModel
+                                                            .stores[index]
+                                                            .visitStatusId ==
+                                                        0
+                                                    ? LabelService().getLabel(
+                                                      14,
+                                                    )
+                                                    : LabelService().getLabel(
+                                                      15,
+                                                    ),
+                                            checkRemarks:
+                                                viewModel
+                                                            .stores[index]
+                                                            .visitStatusId ==
+                                                        0
+                                                    ? LabelService().getLabel(
+                                                      21,
+                                                    )
+                                                    : LabelService().getLabel(
+                                                      22,
+                                                    ),
+                                            onSubmit: (value) {
+                                              if (viewModel
                                                       .stores[index]
                                                       .visitStatusId ==
-                                                  0
-                                              ? LabelService().getLabel(21)
-                                              : LabelService().getLabel(22),
-                                      onSubmit: (value) {
-                                        if (viewModel
-                                                .stores[index]
-                                                .visitStatusId ==
-                                            0) {
-                                          viewModel.coverageCheckIn(
-                                            context,
-                                            viewModel.stores[index].storeId,
-                                            remarks: value,
-                                          );
-                                        } else {
-                                          viewModel.coverageCheckout(
-                                            context,
-                                            viewModel
-                                                .stores[index]
-                                                .visitStatusId,
-                                            remarks: value,
+                                                  0) {
+                                                viewModel.coverageCheckIn(
+                                                  context,
+                                                  viewModel
+                                                      .stores[index]
+                                                      .storeId,
+                                                  remarks: value,
+                                                );
+                                              } else {
+                                                viewModel.coverageCheckout(
+                                                  context,
+                                                  viewModel
+                                                      .stores[index]
+                                                      .visitStatusId,
+                                                  remarks: value,
+                                                );
+                                              }
+                                            },
+                                            imageFile:
+                                                imageFile, // 🔹 pass the image to dialog
                                           );
                                         }
-                                      },
-                                    );
+                                      }
+                                    } else {
+                                      AppSnackBar.showError(
+                                        context,
+                                        "You don't have camera permission.",
+                                      );
+                                    }
                                   },
                                   child: Column(
                                     children: [

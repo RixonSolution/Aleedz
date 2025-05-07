@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:aleedz/core/controllers/coverage_controller.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/audit_model.dart';
@@ -7,6 +8,7 @@ import 'package:aleedz/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 
 final storeModelProvider = ChangeNotifierProvider<StoreViewModel>((ref) {
   return StoreViewModel();
@@ -16,7 +18,9 @@ class StoreViewModel extends ChangeNotifier {
   final CoverageController _coverageController = CoverageController();
 
   UserModel? user;
-  int? storeCount;
+  File? cameraImage;
+  File? galleryImage;
+  final ImagePicker picker = ImagePicker();
 
   List<BrandListModel> brandList = [];
 
@@ -137,5 +141,27 @@ class StoreViewModel extends ChangeNotifier {
       loader = false;
       notifyListeners();
     }
+  }
+
+  Future<void> pickFromCamera() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      cameraImage = File(pickedFile.path);
+      notifyListeners();
+    }
+  }
+
+  Future<void> pickFromGallery() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      galleryImage = File(pickedFile.path);
+      notifyListeners();
+    }
+  }
+
+  void clearData() {
+    cameraImage = null;
+    galleryImage = null;
+    notifyListeners();
   }
 }
