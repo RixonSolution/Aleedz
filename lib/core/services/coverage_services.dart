@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:http/http.dart' as http;
 
@@ -113,34 +114,39 @@ class CoverageServices {
     required String latitude,
     required String remarks,
     required String isLocationAvailable,
-    required String checkInImg,
+    required File checkInImgFile,
     required String token,
   }) async {
-    final encodedTeamMemberId = Uri.encodeComponent(teamMemberId);
-    final encodedStoreId = Uri.encodeComponent(storeID);
-    final encodedPlanRemarks = Uri.encodeComponent(planRemarks);
-    final encodedPlanData = Uri.encodeComponent(planDate);
-    final encodedLongitude = Uri.encodeComponent(longitude);
-    final encodedLatitude = Uri.encodeComponent(latitude);
-    final encodedRemarks = Uri.encodeComponent(remarks);
-    final encodedLocationAvailable = Uri.encodeComponent(isLocationAvailable);
-    final encodedCheckInImg = Uri.encodeComponent(checkInImg);
-    final encodedToken = Uri.encodeComponent(token);
-
-    final url = Uri.parse(
-      '${ApiConstants.checkIn}?TeamMemberID=$encodedTeamMemberId&StoreID=$encodedStoreId&PlanRemarks=$encodedPlanRemarks&PlanDate=$encodedPlanData&Longitude=$encodedLongitude&Latitude=$encodedLatitude&Remarks=$encodedRemarks&IsLocationAvailable=$encodedLocationAvailable&CheckInImg=$encodedCheckInImg&_token=$encodedToken',
-    );
-
     try {
-      final response = await http.get(
-        url,
-        headers: {'Accept': 'application/json'},
+      // Step 1: Create URL with query parameters
+      final url = Uri.parse(
+        '${ApiConstants.checkIn}?'
+        'TeamMemberID=${Uri.encodeComponent(teamMemberId)}&'
+        'StoreID=${Uri.encodeComponent(storeID)}&'
+        'PlanRemarks=${Uri.encodeComponent(planRemarks)}&'
+        'PlanDate=${Uri.encodeComponent(planDate)}&'
+        'Longitude=${Uri.encodeComponent(longitude)}&'
+        'Latitude=${Uri.encodeComponent(latitude)}&'
+        'Remarks=${Uri.encodeComponent(remarks)}&'
+        'IsLocationAvailable=${Uri.encodeComponent(isLocationAvailable)}&'
+        '_token=${Uri.encodeComponent(token)}',
       );
+
+      // Step 2: Create multipart request with only the image in the body
+      var request = http.MultipartRequest('POST', url);
+
+      request.files.add(
+        await http.MultipartFile.fromPath('CheckInImg', checkInImgFile.path),
+      );
+
+      // Step 3: Send request
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       final data = json.decode(response.body);
       return {"status": response.statusCode, "data": data};
     } catch (e) {
-      print('Unhandled error: $e');
+      print('Error during check-in: $e');
       return null;
     }
   }
@@ -150,30 +156,38 @@ class CoverageServices {
     required String longitude,
     required String latitude,
     required String remarks,
-    required String checkInImg,
+    required File checkOutImgFile,
     required String token,
   }) async {
-    final encodedVisitedId = Uri.encodeComponent(visitedId);
-    final encodedLongitude = Uri.encodeComponent(longitude);
-    final encodedLatitude = Uri.encodeComponent(latitude);
-    final encodedRemarks = Uri.encodeComponent(remarks);
-    final encodedCheckInImg = Uri.encodeComponent(checkInImg);
-    final encodedToken = Uri.encodeComponent(token);
-
-    final url = Uri.parse(
-      '${ApiConstants.checkOut}?VisitID=$encodedVisitedId&Longitude=$encodedLongitude&Latitude=$encodedLatitude&Remarks=$encodedRemarks&CheckOutImage=$encodedCheckInImg&_token=$encodedToken',
-    );
-
     try {
-      final response = await http.get(
-        url,
-        headers: {'Accept': 'application/json'},
+      // Step 1: Build URL with query parameters
+      final url = Uri.parse(
+        '${ApiConstants.checkOut}?'
+        'VisitID=${Uri.encodeComponent(visitedId)}&'
+        'Longitude=${Uri.encodeComponent(longitude)}&'
+        'Latitude=${Uri.encodeComponent(latitude)}&'
+        'Remarks=${Uri.encodeComponent(remarks)}&'
+        '_token=${Uri.encodeComponent(token)}',
       );
+
+      // Step 2: Create multipart request (image in body)
+      final request = http.MultipartRequest('POST', url);
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'CheckOutImage',
+          checkOutImgFile.path,
+        ),
+      );
+
+      // Step 3: Send request
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       final data = json.decode(response.body);
       return {"status": response.statusCode, "data": data};
     } catch (e) {
-      print('Unhandled error: $e');
+      print('Error during checkout: $e');
       return null;
     }
   }
@@ -272,6 +286,43 @@ class CoverageServices {
           'Accept': 'application/json',
         },
         body: jsonEncode(body),
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> cancelVisite({
+    required String visiteId,
+    required String lng,
+    required String lat,
+    required String remark,
+    required String planDate,
+    required String teamMemberId,
+    required String storeId,
+    required String token,
+  }) async {
+    final encodedVisiteId = Uri.encodeComponent(visiteId);
+    final encodedLongitude = Uri.encodeComponent(lng);
+    final encodedLatitude = Uri.encodeComponent(lat);
+    final encodedRemarks = Uri.encodeComponent(remark);
+    final encodedPlanDate = Uri.encodeComponent(planDate);
+    final encodedTeamMemberId = Uri.encodeComponent(teamMemberId);
+    final encodedStoreId = Uri.encodeComponent(storeId);
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse(
+      '${ApiConstants.cancelVisite}?VisitID=$encodedVisiteId&Longitude=$encodedLongitude&Latitude=$encodedLatitude&Remarks=$encodedRemarks&PlanDate=$encodedPlanDate&_token=$encodedToken&TeamMemberID=$encodedTeamMemberId&StoreID=$encodedStoreId',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
       );
 
       final data = json.decode(response.body);

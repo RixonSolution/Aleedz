@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
-import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/coverage_details/google_map.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
@@ -665,13 +663,6 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
 
                                       if (pickedFile != null) {
                                         final imageFile = File(pickedFile.path);
-                                        List<int> imageBytes =
-                                            File(
-                                              pickedFile.path,
-                                            ).readAsBytesSync();
-                                        String base64Image = base64Encode(
-                                          imageBytes,
-                                        );
 
                                         showImagePopup(
                                           context: context,
@@ -701,7 +692,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                 context,
                                                 viewModel.stores[index].storeId,
                                                 remarks: value,
-                                                base64: base64Image,
+                                                checkInImgFile: imageFile,
                                               );
                                             } else {
                                               viewModel.coverageCheckout(
@@ -710,11 +701,17 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                     .stores[index]
                                                     .visitStatusId,
                                                 remarks: value,
-                                                base64: base64Image,
+                                                checkOutImgFile: imageFile,
                                               );
                                             }
                                           },
-                                          cancel: (value) async {},
+                                          cancel: (value) async {
+                                            viewModel.cancelVisite(
+                                              context,
+                                              viewModel.stores[index].storeId,
+                                              remarks: value,
+                                            );
+                                          },
                                           imageFile:
                                               imageFile, // 🔹 pass the image to dialog
                                         );
@@ -849,7 +846,8 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                       .stores[index]
                                                       .storeId,
                                                   remarks: value,
-                                                  base64: base64Image,
+                                                  checkInImgFile:
+                                                      imageFile, // ✅ Required parameter now
                                                 );
                                               } else {
                                                 viewModel.coverageCheckout(
@@ -858,11 +856,17 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                       .stores[index]
                                                       .visitStatusId,
                                                   remarks: value,
-                                                  base64: base64Image,
+                                                  checkOutImgFile: imageFile,
                                                 );
                                               }
                                             },
-                                            cancel: (value) async {},
+                                            cancel: (value) async {
+                                              viewModel.cancelVisite(
+                                                context,
+                                                viewModel.stores[index].storeId,
+                                                remarks: value,
+                                              );
+                                            },
 
                                             imageFile:
                                                 imageFile, // 🔹 pass the image to dialog

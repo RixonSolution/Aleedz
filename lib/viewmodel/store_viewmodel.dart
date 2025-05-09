@@ -24,6 +24,24 @@ class StoreViewModel extends ChangeNotifier {
   File? leftImage;
   File? rightImage;
   final ImagePicker picker = ImagePicker();
+  BrandListModel? selectedBrand;
+  void selectBrand(
+    int storeId,
+    BrandListModel? brand,
+    BuildContext context,
+  ) async {
+    loader = true;
+    notifyListeners();
+    selectedBrand = brand;
+    notifyListeners();
+    print("Selected Channel ID: ${brand?.brandId}");
+    if (brand != null) {
+      await checkSummary(storeId, brand.brandId);
+    }
+    loader = false;
+    notifyListeners();
+    // You can also call getCoverageList here with the selectedChannel.channelId
+  }
 
   List<BrandListModel> brandList = [];
   List<ProductSelection> selectedProducts = [];
@@ -127,6 +145,7 @@ class StoreViewModel extends ChangeNotifier {
   Future<void> checkAudit(int storeId, int categoryId) async {
     loader = true;
     auditList = [];
+    selectedProducts = [];
     notifyListeners();
     final response = await _coverageController.checkAudit(
       storeId: storeId.toString(),
@@ -139,6 +158,20 @@ class StoreViewModel extends ChangeNotifier {
         response['data']['data'].map((x) => AuditItem.fromJson(x)),
       );
       auditList = items;
+      auditList.forEach((auditItem) {
+        final product = ProductSelection(
+          displayCheck: auditItem.displayCheck,
+          displayCheckCount: auditItem.displayCheckCount,
+          productId: auditItem.productId,
+          token: user?.apiToken ?? '',
+          storeId: storeId.toString(),
+          teamMemberId: user!.teamMemberID.toString(),
+          // Add other relevant fields
+        );
+
+        selectedProducts.add(product);
+      });
+
       loader = false;
       notifyListeners();
     } else {
@@ -177,6 +210,8 @@ class StoreViewModel extends ChangeNotifier {
   Future<void> addDisplayCheck(
     List<Map<String, dynamic>> dataList,
     BuildContext context,
+    int storeId,
+    int categoryId,
   ) async {
     loader = true;
     notifyListeners();
@@ -184,15 +219,15 @@ class StoreViewModel extends ChangeNotifier {
     final response = await _coverageController.displayCheckAddController(
       dataList: dataList,
     );
+
+    await checkSummary(storeId, 0);
     AppSnackBar.showSuccess(context, 'Display Check added successfully');
 
-    NavigationService.goBack();
-
-    if (response != null && response["status"] == 200) {
-      debugPrint("Display Check added successfully: ${response['data']}");
-    } else {
-      debugPrint("Display Check Error: ${response?['data']}");
-    }
+    // if (response != null && response["status"] == 200) {
+    //   debugPrint("Display Check added successfully: ${response['data']}");
+    // } else {
+    //   debugPrint("Display Check Error: ${response?['data']}");
+    // }
 
     loader = false;
     notifyListeners();

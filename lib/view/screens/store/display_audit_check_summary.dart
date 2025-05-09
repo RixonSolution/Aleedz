@@ -4,6 +4,7 @@ import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/store/display_audit_check.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
+import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,14 +29,14 @@ class _DisplayAuditCheckSummaryState
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(coverageModelProvider.notifier).getBrandDropDown();
-      ref.read(coverageModelProvider.notifier).checkSummary(widget.storeId, 0);
+      ref.read(storeModelProvider.notifier).getBrandDropDown();
+      ref.read(storeModelProvider.notifier).checkSummary(widget.storeId, 0);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(coverageModelProvider);
+    final viewModel = ref.watch(storeModelProvider);
 
     return SafeArea(
       child: Scaffold(

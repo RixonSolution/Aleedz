@@ -121,7 +121,12 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                 .map((product) => product.toJson())
                                 .toList();
 
-                        viewModel.addDisplayCheck(dataList, context);
+                        viewModel.addDisplayCheck(
+                          dataList,
+                          context,
+                          widget.storeId,
+                          widget.categoryId,
+                        );
                         // Your submit logic
                       },
                       style: ElevatedButton.styleFrom(

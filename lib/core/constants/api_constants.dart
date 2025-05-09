@@ -30,4 +30,6 @@ class ApiConstants {
 
   static const String checkDisplayAdd =
       "${baseUrl}/DisplayCount.asmx/DisplayCheckAdd";
+
+  static const String cancelVisite = "${baseUrl}/JourneyPlan.asmx/CancelVisit";
 }

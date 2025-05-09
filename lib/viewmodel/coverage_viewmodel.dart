@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:aleedz/core/controllers/coverage_controller.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
@@ -37,7 +38,6 @@ class CoverageViewModel extends ChangeNotifier {
   List<AuditItem> auditList = [];
 
   ChannelModel? selectedChannel;
-  BrandListModel? selectedBrand;
 
   Future<UserPermission?> loadStoredPermissions() async {
     final prefs = await SharedPreferences.getInstance();
@@ -57,24 +57,6 @@ class CoverageViewModel extends ChangeNotifier {
     print("Selected Channel ID: ${channel?.channelId}");
     if (channel != null) {
       await getCoverageList(context, channelId: channel.channelId);
-    }
-    loader = false;
-    notifyListeners();
-    // You can also call getCoverageList here with the selectedChannel.channelId
-  }
-
-  void selectBrand(
-    int storeId,
-    BrandListModel? brand,
-    BuildContext context,
-  ) async {
-    loader = true;
-    notifyListeners();
-    selectedBrand = brand;
-    notifyListeners();
-    print("Selected Channel ID: ${brand?.brandId}");
-    if (brand != null) {
-      await checkSummary(storeId, brand.brandId);
     }
     loader = false;
     notifyListeners();
@@ -230,12 +212,11 @@ class CoverageViewModel extends ChangeNotifier {
     String planRemarks = '',
     String remarks = '',
     bool isLocationAvailable = false,
-    String base64 = '',
+    required File checkInImgFile, // ✅ NEW parameter
   }) async {
-    // String compressedBase64 = await compressBase64Image(base64);
     loader = true;
-
     notifyListeners();
+
     final response = await _coverageController.coverageCheckIn(
       teamMemberId: user?.teamMemberID.toString() ?? '',
       storeID: storeId.toString(),
@@ -245,7 +226,7 @@ class CoverageViewModel extends ChangeNotifier {
       latitude: latitude.toString(),
       remarks: remarks,
       isLocationAvailable: isLocationAvailable.toString(),
-      checkInImg: '',
+      checkInImgFile: checkInImgFile, // ✅ Pass image as File
       token: user?.apiToken ?? '',
     );
 
@@ -255,6 +236,8 @@ class CoverageViewModel extends ChangeNotifier {
       notifyListeners();
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
+      loader = false;
+      notifyListeners();
     }
   }
 
@@ -264,17 +247,25 @@ class CoverageViewModel extends ChangeNotifier {
     String planRemarks = '',
     String remarks = '',
     bool isLocationAvailable = false,
-    String base64 = '',
+    File? checkOutImgFile, // Now passing a File object instead of base64
   }) async {
-    // String compressedBase64 = await compressBase64Image(base64);
     loader = true;
     notifyListeners();
+
+    // Ensure that an image file is passed, otherwise show an error
+    if (checkOutImgFile == null) {
+      debugPrint("No image selected for checkout.");
+      loader = false;
+      notifyListeners();
+      return;
+    }
+
     final response = await _coverageController.coverageCheckOut(
       visitedId: visitedId.toString(),
       longitude: longitude.toString(),
       latitude: latitude.toString(),
       remarks: remarks,
-      checkInImg: '',
+      checkOutImgFile: checkOutImgFile, // Pass the image file here
       token: user?.apiToken ?? '',
     );
 
@@ -283,48 +274,39 @@ class CoverageViewModel extends ChangeNotifier {
       loader = false;
       notifyListeners();
     } else {
-      debugPrint("coverage list Error: ${response?['data']}");
+      debugPrint("coverage checkout Error: ${response?['data']}");
+      loader = false;
+      notifyListeners();
     }
   }
 
-  Future<void> checkSummary(int storeId, int brandId) async {
+  Future<void> cancelVisite(
+    BuildContext context,
+    int storeId, {
+    String remarks = '',
+  }) async {
     loader = true;
-    brands = [];
     notifyListeners();
-    final response = await _coverageController.displayCheckSummany(
+
+    final response = await _coverageController.cancelVisite(
+      teamMemberId: user?.teamMemberID.toString() ?? '',
       storeId: storeId.toString(),
-      branddId: brandId.toString(),
+      remark: remarks,
+      planDate: formattedDate,
+      lng: longitude.toString(),
+      lat: latitude.toString(),
       token: user?.apiToken ?? '',
+      visiteId: '0',
     );
 
     if (response != null && response["status"] == 200) {
-      final List<Brand> brandList = List<Brand>.from(
-        response['data']['data'].map((x) => Brand.fromJson(x)),
-      );
-      brands = brandList;
+      await getCoverageList(context);
       loader = false;
       notifyListeners();
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
       loader = false;
       notifyListeners();
-    }
-  }
-
-  Future<void> getBrandDropDown() async {
-    selectedBrand = null;
-    brandList = [];
-    notifyListeners();
-    final response = await _coverageController.brandDropDown(
-      token: user?.apiToken ?? '',
-    );
-
-    if (response != null && response["status"] == 200) {
-      final data = response["data"]['data'] as List;
-      brandList = data.map((e) => BrandListModel.fromJson(e)).toList();
-      notifyListeners();
-    } else {
-      debugPrint("coverage list Error: ${response?['data']}");
     }
   }
 

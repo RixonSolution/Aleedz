@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aleedz/core/services/coverage_services.dart';
 
 class CoverageController {
@@ -48,7 +50,7 @@ class CoverageController {
     required String latitude,
     required String remarks,
     required String isLocationAvailable,
-    required String checkInImg,
+    required File checkInImgFile, // ✅ Changed from String to File
     required String token,
   }) async {
     return await _apiService.coverageCheckIn(
@@ -60,7 +62,7 @@ class CoverageController {
       latitude: latitude,
       remarks: remarks,
       isLocationAvailable: isLocationAvailable,
-      checkInImg: checkInImg,
+      checkInImgFile: checkInImgFile, // ✅ Pass File
       token: token,
     );
   }
@@ -70,7 +72,7 @@ class CoverageController {
     required String longitude,
     required String latitude,
     required String remarks,
-    required String checkInImg,
+    required File checkOutImgFile, // Now using File instead of base64 string
     required String token,
   }) async {
     return await _apiService.coverageCheckOut(
@@ -78,7 +80,7 @@ class CoverageController {
       longitude: longitude,
       latitude: latitude,
       remarks: remarks,
-      checkInImg: checkInImg,
+      checkOutImgFile: checkOutImgFile, // Pass image file here
       token: token,
     );
   }
@@ -112,5 +114,27 @@ class CoverageController {
     required List<Map<String, dynamic>> dataList,
   }) async {
     return await _apiService.displayCheckAddService(dataList: dataList);
+  }
+
+  Future<Map<String, dynamic>?> cancelVisite({
+    required String visiteId,
+    required String lng,
+    required String lat,
+    required String remark,
+    required String planDate,
+    required String teamMemberId,
+    required String storeId,
+    required String token,
+  }) async {
+    return await _apiService.cancelVisite(
+      visiteId: visiteId,
+      lng: lng,
+      lat: lat,
+      remark: remark,
+      planDate: planDate,
+      teamMemberId: teamMemberId,
+      storeId: storeId,
+      token: storeId,
+    );
   }
 }
