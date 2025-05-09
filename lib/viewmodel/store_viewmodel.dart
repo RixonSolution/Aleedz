@@ -1,10 +1,13 @@
 import 'dart:io';
 import 'package:aleedz/core/controllers/coverage_controller.dart';
+import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/brand_list_model.dart';
 import 'package:aleedz/models/brand_model.dart';
+import 'package:aleedz/models/product_selection_model.dart';
 import 'package:aleedz/models/user_model.dart';
+import 'package:aleedz/routes/navigation_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -18,11 +21,12 @@ class StoreViewModel extends ChangeNotifier {
   final CoverageController _coverageController = CoverageController();
 
   UserModel? user;
-  File? cameraImage;
-  File? galleryImage;
+  File? leftImage;
+  File? rightImage;
   final ImagePicker picker = ImagePicker();
 
   List<BrandListModel> brandList = [];
+  List<ProductSelection> selectedProducts = [];
 
   List<Brand> brands = [];
   List<AuditItem> auditList = [];
@@ -71,6 +75,7 @@ class StoreViewModel extends ChangeNotifier {
     final store = StoreLocalData();
 
     user = await store.getUserFromPrefs();
+    notifyListeners();
 
     if (user != null) {
       print('Welcome ${user!.teamMemberName}');
@@ -143,25 +148,60 @@ class StoreViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> pickFromCamera() async {
+  Future<void> pickFromCamera(String direction) async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
-      cameraImage = File(pickedFile.path);
-      notifyListeners();
+      if (direction == 'left') {
+        leftImage = File(pickedFile.path);
+        notifyListeners();
+      } else {
+        rightImage = File(pickedFile.path);
+        notifyListeners();
+      }
     }
   }
 
-  Future<void> pickFromGallery() async {
+  Future<void> pickFromGallery(String direction) async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      galleryImage = File(pickedFile.path);
-      notifyListeners();
+      if (direction == 'left') {
+        leftImage = File(pickedFile.path);
+        notifyListeners();
+      } else {
+        rightImage = File(pickedFile.path);
+        notifyListeners();
+      }
     }
+  }
+
+  Future<void> addDisplayCheck(
+    List<Map<String, dynamic>> dataList,
+    BuildContext context,
+  ) async {
+    loader = true;
+    notifyListeners();
+
+    final response = await _coverageController.displayCheckAddController(
+      dataList: dataList,
+    );
+    AppSnackBar.showSuccess(context, 'Display Check added successfully');
+
+    NavigationService.goBack();
+
+    if (response != null && response["status"] == 200) {
+      debugPrint("Display Check added successfully: ${response['data']}");
+    } else {
+      debugPrint("Display Check Error: ${response?['data']}");
+    }
+
+    loader = false;
+    notifyListeners();
   }
 
   void clearData() {
-    cameraImage = null;
-    galleryImage = null;
+    leftImage = null;
+    rightImage = null;
+    selectedProducts.clear();
     notifyListeners();
   }
 }

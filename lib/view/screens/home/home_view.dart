@@ -2,6 +2,9 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_text_style.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
+import 'package:aleedz/view/screens/today_plan/today_plan_view.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,17 +26,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   Future<void> loadUserAndFetchCoverage() async {
-    ref.read(coverageModelProvider.notifier).loader = true;
-    ref.read(coverageModelProvider.notifier).notifyListeners();
-
-    await ref
-        .read(coverageModelProvider.notifier)
-        .loadUser(); // Make sure user is ready
-    await ref
-        .read(coverageModelProvider.notifier)
-        .getCoverageCount(context); // Now call
-    ref.read(coverageModelProvider.notifier).loader = false;
-    ref.read(coverageModelProvider.notifier).notifyListeners();
+    await ref.read(coverageModelProvider.notifier).loadDashboard(context);
   }
 
   @override
@@ -111,94 +104,106 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         Row(
                           children: [
                             Expanded(
-                              child: Container(
-                                height: 110,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Image.asset(
-                                          AppIcons.coverageNetwork,
-                                          height: 20,
-                                          width: 20,
-                                        ),
-                                        SizedBox(
-                                          width: 85,
-                                          child: Text(
-                                            LabelService().getLabel(11),
-                                            textAlign: TextAlign.center,
-                                            style: AppTextStyles.labelStyle,
+                              child: GestureDetector(
+                                onTap: () {
+                                  NavigationService.navigateTo(
+                                    DashboardView(initialIndex: 1),
+                                  ); //
+                                },
+                                child: Container(
+                                  height: 110,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 0,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Image.asset(
+                                            AppIcons.coverageNetwork,
+                                            height: 20,
+                                            width: 20,
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    Text(
-                                      "${viewModel.storeCount ?? 0}",
-                                      style: AppTextStyles.bigTextStyle,
-                                    ),
-                                  ],
+                                          SizedBox(
+                                            width: 85,
+                                            child: Text(
+                                              LabelService().getLabel(11),
+                                              textAlign: TextAlign.center,
+                                              style: AppTextStyles.labelStyle,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        "${viewModel.storeCount ?? 0}",
+                                        style: AppTextStyles.bigTextStyle,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
-                              child: Container(
-                                height: 110,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Image.asset(
-                                          AppIcons.toddayPlan,
-                                          height: 20,
-                                          width: 20,
-                                        ),
-                                        SizedBox(
-                                          width: 85,
-                                          child: Text(
-                                            LabelService().getLabel(12),
-                                            style: AppTextStyles.labelStyle,
+                              child: GestureDetector(
+                                onTap: () {
+                                  NavigationService.navigateTo(TodayPlanView());
+                                },
+                                child: Container(
+                                  height: 110,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 0,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Image.asset(
+                                            AppIcons.toddayPlan,
+                                            height: 20,
+                                            width: 20,
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    Text(
-                                      '10-Jan-2025',
-                                      style: AppTextStyles.subLabelStyle,
-                                    ),
-                                    Text(
-                                      '6',
-                                      style: AppTextStyles.bigTextStyle,
-                                    ),
-                                  ],
+                                          SizedBox(
+                                            width: 85,
+                                            child: Text(
+                                              LabelService().getLabel(12),
+                                              style: AppTextStyles.labelStyle,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        '10-Jan-2025',
+                                        style: AppTextStyles.subLabelStyle,
+                                      ),
+                                      Text(
+                                        '6',
+                                        style: AppTextStyles.bigTextStyle,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

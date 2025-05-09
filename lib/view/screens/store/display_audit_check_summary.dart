@@ -175,26 +175,26 @@ class _DisplayAuditCheckSummaryState
                                     Row(
                                       children: [
                                         SizedBox(
-                                          width: 60,
+                                          width: 70,
                                           child: Text(
                                             LabelService().getLabel(41),
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               color: AppColors.blackColor,
-                                              fontSize: 16,
+                                              fontSize: 15,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 10),
+                                        SizedBox(width: 8),
                                         SizedBox(
-                                          width: 60,
+                                          width: 70,
                                           child: Text(
                                             LabelService().getLabel(42),
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               color: AppColors.blackColor,
-                                              fontSize: 16,
+                                              fontSize: 15,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -221,6 +221,7 @@ class _DisplayAuditCheckSummaryState
                                     categoryId: item.productCategoryId,
                                     categoryName: item.productCategoryName,
                                     lastUpdate: item.lastUpdate,
+                                    updateBy: item.updateBy,
                                   ),
                                 );
                               },
@@ -243,9 +244,7 @@ class _DisplayAuditCheckSummaryState
                                           children: [
                                             Row(
                                               children: [
-                                                Text(
-                                                  '$productIndex. ',
-                                                ), // ✅ This is your index
+                                                Text('$productIndex. '),
                                                 Text(item.productCategoryName),
                                               ],
                                             ),
@@ -259,7 +258,16 @@ class _DisplayAuditCheckSummaryState
                                                             .lightGreyBackground,
                                                   ),
                                                 ),
-                                                Text(item.lastUpdate),
+                                                Text(
+                                                  item.lastUpdate,
+                                                  style: TextStyle(
+                                                    color:
+                                                        item.updateBy == '1'
+                                                            ? AppColors.primary
+                                                            : AppColors
+                                                                .blackColor,
+                                                  ),
+                                                ),
                                               ],
                                             ),
                                             // SizedBox(width: 24),
@@ -267,14 +275,14 @@ class _DisplayAuditCheckSummaryState
                                         ),
                                       ),
                                       SizedBox(
-                                        width: 65,
+                                        width: 70,
                                         child: Text(
                                           item.modelCount.toString(),
                                           textAlign: TextAlign.center,
                                         ),
                                       ),
                                       SizedBox(
-                                        width: 65,
+                                        width: 70,
                                         child: Text(
                                           item.displayCheckCount.toString(),
                                           textAlign: TextAlign.center,

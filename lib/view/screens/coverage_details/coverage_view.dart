@@ -7,6 +7,7 @@ import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/view/screens/coverage_details/google_map.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:aleedz/view/screens/store/store_home.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
@@ -33,25 +34,20 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
   }
 
   void loadData() async {
-    ref.read(coverageModelProvider.notifier).loader = true;
-    ref.read(coverageModelProvider.notifier).notifyListeners();
-    await ref.read(coverageModelProvider.notifier).loadUser();
-    await ref.read(coverageModelProvider.notifier).getLatLong();
-    await ref.read(coverageModelProvider.notifier).getCoverageCount(context);
-    await ref.read(coverageModelProvider.notifier).getCoverageDropDown();
-    await ref.read(coverageModelProvider.notifier).getCoverageList(context);
-    ref.read(coverageModelProvider.notifier).loader = false;
-    ref.read(coverageModelProvider.notifier).notifyListeners();
+    ref.read(coverageModelProvider.notifier).loadCoverageData(context);
   }
 
   Future<void> showImagePopup({
     required BuildContext context,
     required String title,
     required String checkStatus,
+    required String checkStatus1,
+
     required String checkRemarks,
     required File? imageFile, // 🔹 new parameter
 
     required void Function(String value) onSubmit,
+    required void Function(String value) cancel,
   }) {
     final TextEditingController _controller = TextEditingController();
 
@@ -147,33 +143,66 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                        onSubmit(_controller.text);
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          border: Border(
-                            bottom: BorderSide(
-                              color: AppColors.primary,
-                              width: 4.0,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                              onSubmit(_controller.text);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 15),
+                              decoration: BoxDecoration(
+                                color: AppColors.secondary,
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: AppColors.primary,
+                                    width: 4.0,
+                                  ),
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  checkStatus,
+                                  style: TextStyle(
+                                    color: AppColors.whiteColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                        child: Center(
-                          child: Text(
-                            checkStatus,
-                            style: TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                        if (checkStatus1 != '') SizedBox(width: 5),
+                        if (checkStatus1 != '')
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                                cancel(_controller.text);
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 15),
+                                decoration: BoxDecoration(
+                                  color: AppColors.error,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    checkStatus1,
+                                    style: TextStyle(
+                                      color: AppColors.whiteColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
@@ -190,6 +219,10 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
     required String title,
     required String checkStatus,
     required String meter,
+    required double myLat,
+    required double myLng,
+    required double otherLat,
+    required double otherLng,
   }) {
     final TextEditingController _controller = TextEditingController();
 
@@ -245,18 +278,12 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                     const SizedBox(height: 10),
 
                     Container(
-                      height: 200,
-                      decoration: BoxDecoration(color: AppColors.blackColor),
-                      child: Center(
-                        child: Text(
-                          'Google Map incase of distance is far',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: AppColors.whiteColor,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                      height: 300,
+                      child: GoogleMapScreen(
+                        myLat: myLat,
+                        myLang: myLng,
+                        otherLat: otherLat,
+                        otherLang: otherLng,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -333,7 +360,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      NavigationService.navigateTo(
+                      NavigationService.resetTo(
                         DashboardView(initialIndex: 0),
                       ); // or any index like 2
                     },
@@ -363,8 +390,8 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
             SizedBox(height: 5),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     LabelService().getLabel(17),
@@ -381,7 +408,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                         "${viewModel.storeCount ?? 0}",
                         style: TextStyle(
                           color: AppColors.blackColor,
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -657,6 +684,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                       0
                                                   ? LabelService().getLabel(14)
                                                   : LabelService().getLabel(15),
+                                          checkStatus1: 'Cancel',
                                           checkRemarks:
                                               viewModel
                                                           .stores[index]
@@ -686,6 +714,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                               );
                                             }
                                           },
+                                          cancel: (value) async {},
                                           imageFile:
                                               imageFile, // 🔹 pass the image to dialog
                                         );
@@ -723,6 +752,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                       double otherLng = double.parse(
                                         viewModel.stores[index].longitude,
                                       );
+
                                       print('myLat$myLat myLong$myLng');
                                       print(
                                         'otherLat$otherLat otherLng$otherLng',
@@ -754,6 +784,10 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                   ? LabelService().getLabel(14)
                                                   : LabelService().getLabel(15),
                                           meter: distance.toStringAsFixed(2),
+                                          myLat: myLat,
+                                          myLng: myLng,
+                                          otherLat: otherLat,
+                                          otherLng: otherLng,
                                         );
                                       } else {
                                         final picker = ImagePicker();
@@ -792,6 +826,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                     : LabelService().getLabel(
                                                       15,
                                                     ),
+                                            checkStatus1: '',
                                             checkRemarks:
                                                 viewModel
                                                             .stores[index]
@@ -827,6 +862,8 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                 );
                                               }
                                             },
+                                            cancel: (value) async {},
+
                                             imageFile:
                                                 imageFile, // 🔹 pass the image to dialog
                                           );

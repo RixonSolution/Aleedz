@@ -231,4 +231,54 @@ class CoverageServices {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>?> displayCheckAdd({
+    required List<Map<String, dynamic>> dataList,
+  }) async {
+    final url = Uri.parse(ApiConstants.checkDisplayAdd);
+
+    final body = {"data": dataList};
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> displayCheckAddService({
+    required List<Map<String, dynamic>> dataList,
+  }) async {
+    final url = Uri.parse(ApiConstants.checkDisplayAdd);
+
+    final body = {"data": dataList};
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
 }

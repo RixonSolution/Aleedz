@@ -373,4 +373,26 @@ class CoverageViewModel extends ChangeNotifier {
     // Step 5: Encode back to Base64
     return base64Encode(compressedBytes);
   }
+
+  Future loadDashboard(context) async {
+    loader = true;
+    notifyListeners();
+    await loadUser();
+    await getCoverageCount(context);
+    loader = false;
+    notifyListeners();
+  }
+
+  Future loadCoverageData(context) async {
+    loader = true;
+    notifyListeners();
+    await loadUser();
+    await getLatLong();
+    await getCoverageCount(context);
+    await getCoverageDropDown();
+    await getCoverageList(context);
+
+    loader = false;
+    notifyListeners();
+  }
 }

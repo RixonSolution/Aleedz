@@ -91,7 +91,14 @@ class _ChooseLanguageViewState extends ConsumerState<ChooseLanguageView> {
                     _languages.map((String language) {
                       return DropdownMenuItem<String>(
                         value: language,
-                        child: Text(language),
+                        child: Text(
+                          language,
+                          style: TextStyle(
+                            color: AppColors.blackColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       );
                     }).toList(),
                 onChanged: (String? newValue) {

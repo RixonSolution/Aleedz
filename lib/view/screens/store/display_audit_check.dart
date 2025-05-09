@@ -1,14 +1,16 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/models/audit_model.dart';
+import 'package:aleedz/models/product_selection_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DisplayAuditCheck extends ConsumerStatefulWidget {
-  String storeName, checkInTime, categoryName, lastUpdate;
+  String storeName, checkInTime, categoryName, lastUpdate, updateBy;
   int storeId, categoryId;
   DisplayAuditCheck({
     Key? key,
@@ -18,6 +20,7 @@ class DisplayAuditCheck extends ConsumerStatefulWidget {
     required this.categoryId,
     required this.categoryName,
     required this.lastUpdate,
+    required this.updateBy,
   }) : super(key: key);
 
   @override
@@ -32,9 +35,67 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
       ref
           .read(storeModelProvider.notifier)
           .checkAudit(widget.storeId, widget.categoryId);
+      ref.read(storeModelProvider.notifier).loadUser();
 
       ref.read(storeModelProvider.notifier).clearData();
     });
+  }
+
+  // Function to show image picker dialog for Camera or Gallery
+  void _showImagePickerDialog(String directiion) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.secondary,
+          title: Text(
+            'Pick an image',
+            style: TextStyle(color: AppColors.whiteColor),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text(
+                  'From Camera',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+                onTap: () {
+                  ref
+                      .read(storeModelProvider.notifier)
+                      .pickFromCamera(directiion);
+
+                  Navigator.pop(context);
+                  // if (source == 'camera') {
+                  // } else {
+                  //   ref.read(storeModelProvider.notifier).pickFromGallery();
+                  // }
+                },
+              ),
+              ListTile(
+                title: const Text(
+                  'From Gallery',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+
+                onTap: () {
+                  ref
+                      .read(storeModelProvider.notifier)
+                      .pickFromGallery(directiion);
+
+                  Navigator.pop(context);
+
+                  // if (source == 'camera') {
+                  //   ref.read(storeModelProvider.notifier).pickFromCamera();
+                  // } else {
+                  // }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -43,32 +104,44 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(12),
-          child: SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () {
-                // Your submit logic
-              },
-              style: ElevatedButton.styleFrom(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.zero, // Removes rounded corners
+        bottomNavigationBar:
+            viewModel.loader
+                ? Center(
+                  child: CircularProgressIndicator(color: AppColors.secondary),
+                )
+                : Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        List<Map<String, dynamic>> dataList =
+                            viewModel.selectedProducts
+                                .map((product) => product.toJson())
+                                .toList();
+
+                        viewModel.addDisplayCheck(dataList, context);
+                        // Your submit logic
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.zero, // Removes rounded corners
+                        ),
+                        backgroundColor: AppColors.secondary,
+                      ),
+                      child: const Text(
+                        "Submit",
+                        style: TextStyle(
+                          color: AppColors.whiteColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                backgroundColor: AppColors.secondary,
-              ),
-              child: const Text(
-                "Submit",
-                style: TextStyle(
-                  color: AppColors.whiteColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ),
-        ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -182,9 +255,12 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                         ),
                                         Text(
                                           widget.lastUpdate,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 12,
-                                            color: AppColors.blackColor,
+                                            color:
+                                                widget.updateBy == '1'
+                                                    ? AppColors.primary
+                                                    : AppColors.blackColor,
                                           ),
                                         ),
                                       ],
@@ -315,40 +391,154 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                               ),
 
                                               // Availability Check
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                  right: 5,
-                                                ),
-                                                child: SizedBox(
-                                                  width: 60,
-                                                  child: Icon(
-                                                    item.displayCheck == 0
-                                                        ? Icons
-                                                            .check_circle_outline
-                                                        : Icons.check_circle,
-                                                    color:
-                                                        item.displayCheck == 0
-                                                            ? Colors
-                                                                .grey
-                                                                .shade400
-                                                            : Colors.black,
+                                              GestureDetector(
+                                                onTap: () {
+                                                  final existing = viewModel
+                                                      .selectedProducts
+                                                      .firstWhereOrNull(
+                                                        (e) =>
+                                                            e.productId ==
+                                                            item.productId,
+                                                      );
+
+                                                  if (existing != null) {
+                                                    existing.displayCheck =
+                                                        existing.displayCheck ==
+                                                                1
+                                                            ? 0
+                                                            : 1;
+                                                  } else {
+                                                    viewModel.selectedProducts
+                                                        .add(
+                                                          ProductSelection(
+                                                            productId:
+                                                                item.productId,
+                                                            displayCheck: 1,
+                                                            displayCheckCount:
+                                                                0,
+                                                            token:
+                                                                viewModel
+                                                                    .user!
+                                                                    .apiToken
+                                                                    .toString(),
+                                                            storeId:
+                                                                widget.storeId
+                                                                    .toString(),
+                                                            teamMemberId:
+                                                                viewModel
+                                                                    .user!
+                                                                    .teamMemberID
+                                                                    .toString(),
+                                                          ),
+                                                        );
+                                                  }
+                                                  viewModel.notifyListeners();
+                                                },
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        right: 5,
+                                                      ),
+                                                  child: SizedBox(
+                                                    width: 60,
+                                                    child: Icon(
+                                                      viewModel.selectedProducts.any(
+                                                            (e) =>
+                                                                e.productId ==
+                                                                    item.productId &&
+                                                                e.displayCheck ==
+                                                                    1,
+                                                          )
+                                                          ? Icons.check_circle
+                                                          : Icons
+                                                              .check_circle_outline,
+                                                      color:
+                                                          viewModel.selectedProducts.any(
+                                                                (e) =>
+                                                                    e.productId ==
+                                                                        item.productId &&
+                                                                    e.displayCheck ==
+                                                                        1,
+                                                              )
+                                                              ? Colors.black
+                                                              : Colors
+                                                                  .grey
+                                                                  .shade400,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
 
                                               // Less than 2 Check
-                                              SizedBox(
-                                                width: 60,
-                                                child: Icon(
-                                                  item.displayCheckCount == 0
-                                                      ? Icons
-                                                          .check_circle_outline
-                                                      : Icons.check_circle,
-                                                  color:
-                                                      item.displayCheckCount ==
-                                                              0
-                                                          ? Colors.grey.shade400
-                                                          : Colors.black,
+                                              GestureDetector(
+                                                onTap: () {
+                                                  final existing = viewModel
+                                                      .selectedProducts
+                                                      .firstWhereOrNull(
+                                                        (e) =>
+                                                            e.productId ==
+                                                            item.productId,
+                                                      );
+
+                                                  if (existing != null) {
+                                                    existing.displayCheckCount =
+                                                        existing.displayCheckCount ==
+                                                                1
+                                                            ? 0
+                                                            : 1;
+                                                  } else {
+                                                    viewModel.selectedProducts
+                                                        .add(
+                                                          ProductSelection(
+                                                            productId:
+                                                                item.productId,
+                                                            displayCheckCount:
+                                                                1,
+                                                            displayCheck: 0,
+                                                            token:
+                                                                viewModel
+                                                                    .user!
+                                                                    .apiToken
+                                                                    .toString(),
+                                                            storeId:
+                                                                widget.storeId
+                                                                    .toString(),
+                                                            teamMemberId:
+                                                                viewModel
+                                                                    .user!
+                                                                    .teamMemberID
+                                                                    .toString(),
+                                                          ),
+                                                        );
+                                                  }
+                                                  viewModel.notifyListeners();
+                                                },
+                                                child: SizedBox(
+                                                  width: 60,
+                                                  child: Icon(
+                                                    viewModel.selectedProducts.any(
+                                                          (e) =>
+                                                              e.productId ==
+                                                                  item.productId &&
+                                                              e.displayCheckCount ==
+                                                                  1,
+                                                        )
+                                                        ? Icons.check_circle
+                                                        : Icons
+                                                            .check_circle_outline,
+                                                    color:
+                                                        viewModel.selectedProducts.any(
+                                                              (e) =>
+                                                                  e.productId ==
+                                                                      item.productId &&
+                                                                  e.displayCheckCount ==
+                                                                      1,
+                                                            )
+                                                            ? Colors.black
+                                                            : Colors
+                                                                .grey
+                                                                .shade400,
+                                                  ),
                                                 ),
                                               ),
                                             ],
@@ -368,38 +558,48 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                       ),
                                     ),
                                   ),
+
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 12,
                                     ),
                                     child: Row(
                                       children: [
-                                        // Camera Image Picker
+                                        // Camera Icon with Image Picker
                                         Expanded(
-                                          child:
-                                              viewModel.cameraImage != null
-                                                  ? Stack(
-                                                    children: [
-                                                      Image.file(
-                                                        viewModel.cameraImage!,
-                                                        fit: BoxFit.cover,
-                                                        height: 150,
-                                                        width: double.infinity,
-                                                      ),
-                                                      Positioned(
-                                                        top: 4,
-                                                        right: 4,
-                                                        child: GestureDetector(
-                                                          onTap: () {
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              // Open a dialog to pick an image from the camera
+                                              _showImagePickerDialog('left');
+                                            },
+                                            child: Container(
+                                              height: 150,
+                                              color: Colors.grey.shade300,
+                                              child:
+                                                  viewModel.leftImage != null
+                                                      ? Stack(
+                                                        children: [
+                                                          Image.file(
                                                             viewModel
-                                                                    .cameraImage =
-                                                                null;
-                                                            viewModel
-                                                                .notifyListeners(); // if using ChangeNotifier
-                                                          },
-                                                          child: Container(
-                                                            decoration:
-                                                                const BoxDecoration(
+                                                                .leftImage!,
+                                                            fit: BoxFit.cover,
+                                                            height: 150,
+                                                            width:
+                                                                double.infinity,
+                                                          ),
+                                                          Positioned(
+                                                            top: 4,
+                                                            right: 4,
+                                                            child: GestureDetector(
+                                                              onTap: () {
+                                                                viewModel
+                                                                        .leftImage =
+                                                                    null;
+                                                                viewModel
+                                                                    .notifyListeners(); // If using ChangeNotifier
+                                                              },
+                                                              child: Container(
+                                                                decoration: const BoxDecoration(
                                                                   color:
                                                                       AppColors
                                                                           .secondary,
@@ -407,67 +607,68 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                       BoxShape
                                                                           .circle,
                                                                 ),
-                                                            padding:
-                                                                const EdgeInsets.all(
-                                                                  4,
+                                                                padding:
+                                                                    const EdgeInsets.all(
+                                                                      4,
+                                                                    ),
+                                                                child: const Icon(
+                                                                  Icons.close,
+                                                                  size: 16,
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
                                                                 ),
-                                                            child: const Icon(
-                                                              Icons.close,
-                                                              size: 16,
-                                                              color:
-                                                                  Colors.white,
+                                                              ),
                                                             ),
                                                           ),
+                                                        ],
+                                                      )
+                                                      : const Center(
+                                                        child: Icon(
+                                                          Icons.camera_alt,
+                                                          color: Colors.grey,
                                                         ),
                                                       ),
-                                                    ],
-                                                  )
-                                                  : GestureDetector(
-                                                    onTap: () {
-                                                      viewModel
-                                                          .pickFromCamera();
-                                                    },
-                                                    child: Container(
-                                                      height: 150,
-                                                      color:
-                                                          Colors.grey.shade300,
-                                                      child: const Center(
-                                                        child: Text(
-                                                          "Pick from Camera",
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
+                                            ),
+                                          ),
                                         ),
-
                                         const SizedBox(width: 10),
 
-                                        // Gallery Image Picker
+                                        // Gallery Icon with Image Picker
                                         Expanded(
-                                          child:
-                                              viewModel.galleryImage != null
-                                                  ? Stack(
-                                                    children: [
-                                                      Image.file(
-                                                        viewModel.galleryImage!,
-                                                        fit: BoxFit.cover,
-                                                        height: 150,
-                                                        width: double.infinity,
-                                                      ),
-                                                      Positioned(
-                                                        top: 4,
-                                                        right: 4,
-                                                        child: GestureDetector(
-                                                          onTap: () {
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              // Open a dialog to pick an image from the gallery
+                                              _showImagePickerDialog('right');
+                                            },
+                                            child: Container(
+                                              height: 150,
+                                              color: Colors.grey.shade300,
+                                              child:
+                                                  viewModel.rightImage != null
+                                                      ? Stack(
+                                                        children: [
+                                                          Image.file(
                                                             viewModel
-                                                                    .galleryImage =
-                                                                null;
-                                                            viewModel
-                                                                .notifyListeners(); // if using ChangeNotifier
-                                                          },
-                                                          child: Container(
-                                                            decoration:
-                                                                const BoxDecoration(
+                                                                .rightImage!,
+                                                            fit: BoxFit.cover,
+                                                            height: 150,
+                                                            width:
+                                                                double.infinity,
+                                                          ),
+                                                          Positioned(
+                                                            top: 4,
+                                                            right: 4,
+                                                            child: GestureDetector(
+                                                              onTap: () {
+                                                                viewModel
+                                                                        .rightImage =
+                                                                    null;
+                                                                viewModel
+                                                                    .notifyListeners(); // If using ChangeNotifier
+                                                              },
+                                                              child: Container(
+                                                                decoration: const BoxDecoration(
                                                                   color:
                                                                       AppColors
                                                                           .secondary,
@@ -475,37 +676,30 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                       BoxShape
                                                                           .circle,
                                                                 ),
-                                                            padding:
-                                                                const EdgeInsets.all(
-                                                                  4,
+                                                                padding:
+                                                                    const EdgeInsets.all(
+                                                                      4,
+                                                                    ),
+                                                                child: const Icon(
+                                                                  Icons.close,
+                                                                  size: 16,
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
                                                                 ),
-                                                            child: const Icon(
-                                                              Icons.close,
-                                                              size: 16,
-                                                              color:
-                                                                  Colors.white,
+                                                              ),
                                                             ),
                                                           ),
+                                                        ],
+                                                      )
+                                                      : const Center(
+                                                        child: Icon(
+                                                          Icons.camera_alt,
+                                                          color: Colors.grey,
                                                         ),
                                                       ),
-                                                    ],
-                                                  )
-                                                  : GestureDetector(
-                                                    onTap: () {
-                                                      viewModel
-                                                          .pickFromGallery();
-                                                    },
-                                                    child: Container(
-                                                      height: 150,
-                                                      color:
-                                                          Colors.grey.shade300,
-                                                      child: const Center(
-                                                        child: Text(
-                                                          "Pick from Gallery",
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),

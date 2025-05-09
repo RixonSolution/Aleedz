@@ -1,6 +1,7 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/view/screens/account/account_view.dart';
 import 'package:aleedz/view/screens/coverage_details/coverage_view.dart';
 import 'package:aleedz/view/screens/home/home_view.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     HomeView(),
     CoverageView(),
     HomeView(),
-    CoverageView(),
+    LogoutScreen(),
   ];
 
   @override

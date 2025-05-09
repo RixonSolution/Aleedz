@@ -107,4 +107,10 @@ class CoverageController {
       token: token,
     );
   }
+
+  Future<Map<String, dynamic>?> displayCheckAddController({
+    required List<Map<String, dynamic>> dataList,
+  }) async {
+    return await _apiService.displayCheckAddService(dataList: dataList);
+  }
 }
