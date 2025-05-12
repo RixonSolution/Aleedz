@@ -3,7 +3,6 @@ import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/product_selection_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +27,8 @@ class DisplayAuditCheck extends ConsumerStatefulWidget {
 }
 
 class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
+  TextEditingController remarksController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -116,6 +117,14 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
+                        viewModel.auditMediaSubmit(
+                          context,
+                          widget.storeId,
+                          widget.categoryId.toString(),
+                          remarksController.text,
+                          checkInImgFile1: viewModel.leftImage!,
+                          checkInImgFile2: viewModel.rightImage!,
+                        );
                         List<Map<String, dynamic>> dataList =
                             viewModel.selectedProducts
                                 .map((product) => product.toJson())
@@ -147,6 +156,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                     ),
                   ),
                 ),
+
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -556,6 +566,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                   Padding(
                                     padding: const EdgeInsets.all(12),
                                     child: TextField(
+                                      controller: remarksController,
                                       maxLines: 5,
                                       decoration: InputDecoration(
                                         hintText: 'Enter your comments...',

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aleedz/core/services/store_services.dart';
 
 class StoreController {
@@ -30,5 +32,31 @@ class StoreController {
       categoryId: categoryId,
       token: token,
     );
+  }
+
+  Future<Map<String, dynamic>?> auditMediaSubmit({
+    required String token,
+    required String productCategoryId,
+    required String storeID,
+    required String displayCheckMark,
+    required String teamMemberId,
+    File? checkInImgFile1,
+    File? checkInImgFile2,
+  }) async {
+    return await _apiService.auditMediaSubmit(
+      token: token,
+      productCategoryId: productCategoryId,
+      storeID: storeID,
+      displayCheckMark: displayCheckMark,
+      teamMemberId: teamMemberId,
+      checkInImgFile1: checkInImgFile1,
+      checkInImgFile2: checkInImgFile2,
+    );
+  }
+
+  Future<Map<String, dynamic>?> getROSLabels({
+    required String languageId,
+  }) async {
+    return await _apiService.getROSLabels(languageId: languageId);
   }
 }

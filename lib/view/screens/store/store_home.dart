@@ -1,8 +1,11 @@
+import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/store/display_audit_check_summary.dart';
+import 'package:aleedz/view/screens/store/display_picture.dart';
+import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,7 +27,17 @@ class StoreHome extends ConsumerStatefulWidget {
 
 class _StoreHomeState extends ConsumerState<StoreHome> {
   @override
+  void initState() {
+    Future.microtask(() {
+      ref.read(storeModelProvider.notifier).getROSLabels();
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final viewModel = ref.watch(storeModelProvider);
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
@@ -175,52 +188,78 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                 ],
               ),
             ),
-
+            // use this button as a grid view return
             SizedBox(height: 10),
-            InkWell(
-              onTap: () {
-                NavigationService.navigateTo(
-                  DisplayAuditCheckSummary(
-                    storeName: widget.storeName,
-                    checkInTime: widget.checkInTime,
-                    storeId: widget.storeId,
-                  ),
-                );
-              },
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 10),
-                padding: EdgeInsets.only(top: 15, bottom: 15),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.blackColor),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Column(
-                          children: [
-                            Icon(Icons.home, size: 40),
-                            SizedBox(height: 10),
-                            Text(
-                              LabelService().getLabel(32),
-                              style: TextStyle(
-                                color: AppColors.blackColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
+            viewModel.loader
+                ? Center(child: CircularProgressIndicator())
+                : Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: GridView.builder(
+                      itemCount: viewModel.rosLabels.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                        childAspectRatio: 1.5,
+                      ),
+                      itemBuilder: (context, index) {
+                        final ros = viewModel.rosLabels[index];
+                        return InkWell(
+                          onTap: () {
+                            if (viewModel.rosLabels[index].rosLabelID == 31) {
+                              NavigationService.navigateTo(
+                                DisplayPicture(
+                                  storeName: widget.storeName,
+                                  checkInTime: widget.checkInTime,
+                                  storeId: widget.storeId,
+                                ),
+                              );
+                            } else if (viewModel.rosLabels[index].rosLabelID ==
+                                32) {
+                              NavigationService.navigateTo(
+                                DisplayAuditCheckSummary(
+                                  storeName: widget.storeName,
+                                  checkInTime: widget.checkInTime,
+                                  storeId: widget.storeId,
+                                ),
+                              );
+                            } else {}
+                          },
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 5),
+                            padding: EdgeInsets.only(top: 15, bottom: 15),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppColors.blackColor),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          ],
-                        ),
-                      ],
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.network(
+                                  '${ApiConstants.baseUrl}${viewModel.rosLabels[index].imageLocation}',
+                                  height: 50,
+                                  width: 50,
+                                  fit: BoxFit.cover,
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  viewModel.rosLabels[index].rosLabelName,
+                                  style: TextStyle(
+                                    color: AppColors.blackColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+            SizedBox(height: 20),
           ],
         ),
       ),

@@ -6,6 +6,7 @@ class AppColors {
   static const Color whiteColor = Color(0xFFFFFFFF); // White
   static const blackColor = Color(0xFF000000); // Black color hex
   static const Color lightGreyBackground = Color(0xFFF8F8F8);
+  static const Color greyText = Color(0xFF888888);
   static const Color darkGreyBackground = Color(0xFFEDEDED);
 
   static const Color success = Color(0xFF4CAF50); // Green

@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'package:aleedz/core/controllers/coverage_controller.dart';
+import 'package:aleedz/core/controllers/store_controller.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/brand_list_model.dart';
 import 'package:aleedz/models/brand_model.dart';
 import 'package:aleedz/models/product_selection_model.dart';
+import 'package:aleedz/models/ros_label.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +21,8 @@ final storeModelProvider = ChangeNotifierProvider<StoreViewModel>((ref) {
 
 class StoreViewModel extends ChangeNotifier {
   final CoverageController _coverageController = CoverageController();
+  final StoreController _storeController = StoreController();
+  List<ROSLabel> rosLabels = [];
 
   UserModel? user;
   File? leftImage;
@@ -213,9 +217,6 @@ class StoreViewModel extends ChangeNotifier {
     int storeId,
     int categoryId,
   ) async {
-    loader = true;
-    notifyListeners();
-
     final response = await _coverageController.displayCheckAddController(
       dataList: dataList,
     );
@@ -231,6 +232,63 @@ class StoreViewModel extends ChangeNotifier {
 
     loader = false;
     notifyListeners();
+  }
+
+  Future<void> auditMediaSubmit(
+    BuildContext context,
+    int storeId,
+    String productCategoryId,
+    String displayCheckMark, {
+    File? checkInImgFile1,
+    File? checkInImgFile2,
+  }) async {
+    loader = true;
+    notifyListeners();
+
+    final response = await _storeController.auditMediaSubmit(
+      token: user?.apiToken ?? '',
+      productCategoryId: productCategoryId,
+      storeID: storeId.toString(),
+      displayCheckMark: displayCheckMark,
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      checkInImgFile1: checkInImgFile1,
+      checkInImgFile2: checkInImgFile2,
+    );
+
+    if (response != null && response["status"] == 200) {
+      notifyListeners();
+    } else {
+      debugPrint("auditMediaSubmit Error: ${response?['data']}");
+      notifyListeners();
+    }
+  }
+
+  Future<void> getROSLabels() async {
+    rosLabels = [];
+    loader = true;
+    notifyListeners();
+    final response = await _storeController.getROSLabels(languageId: '1');
+
+    if (response != null && response["status"] == 200) {
+      final dataList = response["data"]['data'];
+
+      // Check if dataList has at least 43 items (for index 29 to 42)
+      if (dataList != null && dataList is List && dataList.length > 40) {
+        // Extract data from indices 29 to 42
+        final filteredData = dataList.sublist(28, 40);
+
+        // Convert the filtered data into ROSLabel models and update the rosLabels list
+        rosLabels =
+            filteredData.map((data) => ROSLabel.fromJson(data)).toList();
+
+        loader = false;
+        notifyListeners();
+      }
+    } else {
+      loader = false;
+      notifyListeners();
+      debugPrint("Error fetching ROS Labels: ${response?['data']}");
+    }
   }
 
   void clearData() {

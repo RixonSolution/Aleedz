@@ -4,6 +4,7 @@ import 'package:aleedz/view/screens/coverage_details/coverage_view.dart';
 import 'package:aleedz/view/screens/coverage_details/google_map.dart';
 import 'package:aleedz/view/screens/store/display_audit_check.dart';
 import 'package:aleedz/view/screens/store/display_audit_check_summary.dart';
+import 'package:aleedz/view/screens/store/display_picture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
@@ -68,9 +69,9 @@ class MyApp extends StatelessWidget {
           //   storeId: 4,
           // ),
           // home: DisplayAuditCheck(
-          //   storeName: 'XCITE JABRIYA EXPRESS',
-          //   checkInTime: '10:59',
-          //   storeId: 4,
+          // storeName: 'XCITE JABRIYA EXPRESS',
+          // checkInTime: '10:59',
+          // storeId: 4,
           //   categoryId: 1,
           //   categoryName: 'B2C Headsets',
           //   lastUpdate: "/Date(1746601200000)/",
@@ -78,6 +79,11 @@ class MyApp extends StatelessWidget {
           // home: CoverageView(),
           // home: GoogleMapScreen(),
           home: snapshot.data!,
+          // home: DisplayPicture(
+          //   storeName: 'XCITE JABRIYA EXPRESS',
+          //   checkInTime: '10:59',
+          //   storeId: 4,
+          // ),
           routes: {
             '/choose-language': (context) => ChooseLanguageView(),
             '/dashboard': (context) => DashboardView(),
