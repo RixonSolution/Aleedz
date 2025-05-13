@@ -1,10 +1,14 @@
+import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shimmer/shimmer.dart';
 
 class DisplayPicture extends ConsumerStatefulWidget {
   String storeName, checkInTime;
@@ -26,8 +30,71 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(storeModelProvider.notifier).getBrandDropDown();
+      ref
+          .read(storeModelProvider.notifier)
+          .clearDisplayPicture(widget.storeId.toString());
+      ref
+          .read(storeModelProvider.notifier)
+          .loadDisplayPicture(widget.storeId.toString(), '0', '1');
     });
+  }
+
+  TextEditingController remarksControll = TextEditingController();
+
+  void _showImagePickerDialog(String directiion) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.secondary,
+          title: Text(
+            'Pick an image',
+            style: TextStyle(color: AppColors.whiteColor),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text(
+                  'From Camera',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+                onTap: () {
+                  ref
+                      .read(storeModelProvider.notifier)
+                      .pickFromCamera(directiion);
+
+                  Navigator.pop(context);
+                  // if (source == 'camera') {
+                  // } else {
+                  //   ref.read(storeModelProvider.notifier).pickFromGallery();
+                  // }
+                },
+              ),
+              ListTile(
+                title: const Text(
+                  'From Gallery',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+
+                onTap: () {
+                  ref
+                      .read(storeModelProvider.notifier)
+                      .pickFromGallery(directiion);
+
+                  Navigator.pop(context);
+
+                  // if (source == 'camera') {
+                  //   ref.read(storeModelProvider.notifier).pickFromCamera();
+                  // } else {
+                  // }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -161,7 +228,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: DropdownButtonFormField<int>(
-                        value: viewModel.selectedBrand?.brandId,
+                        value: viewModel.selectedPictureModel?.pictureElementId,
                         decoration: const InputDecoration(
                           hintText: 'Select Display Type',
                           border: InputBorder.none, // Removes underline
@@ -171,21 +238,17 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                           ),
                         ),
                         items:
-                            viewModel.brandList.map((brand) {
+                            viewModel.pictureList.map((brand) {
                               return DropdownMenuItem<int>(
-                                value: brand.brandId,
-                                child: Text(brand.brandName),
+                                value: brand.pictureElementId,
+                                child: Text(brand.pictureElementName),
                               );
                             }).toList(),
-                        onChanged: (int? branddlId) {
-                          final selected = viewModel.brandList.firstWhere(
-                            (c) => c.brandId == branddlId,
+                        onChanged: (int? picListId) {
+                          final selected = viewModel.pictureList.firstWhere(
+                            (c) => c.pictureElementId == picListId,
                           );
-                          viewModel.selectBrand(
-                            widget.storeId,
-                            selected,
-                            context,
-                          );
+                          viewModel.selectPictureDrop(selected, context);
                         },
                       ),
                     ),
@@ -198,8 +261,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Camera icon container
-
                         // Multiline TextField
                         Expanded(
                           child: Container(
@@ -209,11 +270,12 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: TextField(
+                              controller: remarksControll,
                               maxLines: 3,
                               minLines: 2,
                               decoration: const InputDecoration(
                                 border: InputBorder.none,
-                                hintText: 'Enter your text here...',
+                                hintText: 'Remarks',
                                 contentPadding: EdgeInsets.symmetric(
                                   vertical: 12,
                                 ),
@@ -222,14 +284,59 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                           ),
                         ),
                         SizedBox(width: 10),
-                        Container(
-                          height: 70,
-                          width: 80,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(8),
+                        GestureDetector(
+                          onTap: () {
+                            _showImagePickerDialog('left');
+                          },
+                          child: Container(
+                            height: 70,
+                            width: 80,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child:
+                                viewModel.leftImage != null
+                                    ? Stack(
+                                      children: [
+                                        Image.file(
+                                          viewModel.leftImage!,
+                                          fit: BoxFit.cover,
+                                          height: 70,
+                                          width: 80,
+                                        ),
+                                        Positioned(
+                                          top: 4,
+                                          right: 4,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              viewModel.leftImage = null;
+                                              viewModel
+                                                  .notifyListeners(); // If using ChangeNotifier
+                                            },
+                                            child: Container(
+                                              decoration: const BoxDecoration(
+                                                color: AppColors.secondary,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              padding: const EdgeInsets.all(4),
+                                              child: const Icon(
+                                                Icons.close,
+                                                size: 16,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                    : const Center(
+                                      child: Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
                           ),
-                          child: Icon(Icons.camera_alt, color: Colors.black54),
                         ),
                       ],
                     ),
@@ -239,24 +346,66 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                     child: SizedBox(
                       width: double.infinity,
                       height: 50,
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.zero, // Removes rounded corners
-                          ),
-                          backgroundColor: AppColors.secondary,
-                        ),
-                        child: const Text(
-                          "Submit",
-                          style: TextStyle(
-                            color: AppColors.whiteColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
+                      child:
+                          viewModel.loader
+                              ? Center(child: CircularProgressIndicator())
+                              : ElevatedButton(
+                                onPressed: () async {
+                                  if (viewModel.selectedPictureModel == null) {
+                                    AppSnackBar.showError(
+                                      context,
+                                      'Please select brand',
+                                    );
+                                  } else if (viewModel.selectedBrand == null) {
+                                    AppSnackBar.showError(
+                                      context,
+                                      'Please select display type',
+                                    );
+                                  } else if (remarksControll.text.isEmpty) {
+                                    AppSnackBar.showError(
+                                      context,
+                                      'Please add remarks',
+                                    );
+                                  } else if (viewModel.leftImage == null) {
+                                    AppSnackBar.showError(
+                                      context,
+                                      'Please add image',
+                                    );
+                                  } else {
+                                    await viewModel.submitDisplayPicture(
+                                      storeId: widget.storeId.toString(),
+                                      pictureElementId:
+                                          viewModel
+                                              .selectedPictureModel!
+                                              .pictureElementId
+                                              .toString(),
+                                      remarks: remarksControll.text,
+                                      pictureId: '0',
+                                      elementImg: viewModel.leftImage!,
+                                      brandId:
+                                          viewModel.selectedBrand!.brandId
+                                              .toString(),
+                                    );
+                                    remarksControll.clear();
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius
+                                            .zero, // Removes rounded corners
+                                  ),
+                                  backgroundColor: AppColors.secondary,
+                                ),
+                                child: const Text(
+                                  "Submit",
+                                  style: TextStyle(
+                                    color: AppColors.whiteColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
                     ),
                   ),
                 ],
@@ -264,57 +413,153 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
             ),
 
             SizedBox(height: 5),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            Expanded(
+              child: ListView.builder(
+                itemCount: viewModel.viewPicture.length,
+                shrinkWrap: true,
+                physics: ScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(
-                          'Logitech',
-                          style: TextStyle(
-                            color: AppColors.blackColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 12),
+                                  child: CachedNetworkImage(
+                                    imageUrl:
+                                        '${ApiConstants.baseUrl}${viewModel.viewPicture[index].column1 ?? ''}',
+                                    height: 70,
+                                    width: 80,
+                                    placeholder:
+                                        (context, url) => Shimmer.fromColors(
+                                          baseColor: Colors.grey[300]!,
+                                          highlightColor: Colors.grey[100]!,
+                                          child: Container(
+                                            height: 70,
+                                            width: 80,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                    errorWidget:
+                                        (context, url, error) => Icon(
+                                          Icons.error,
+                                        ), // optional error widget
+                                    fit: BoxFit.cover, // optional fit
+                                  ),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      child: SizedBox(
+                                        width: 190,
+                                        // color: Colors.red,
+                                        child: Text(
+                                          viewModel
+                                                  .viewPicture[index]
+                                                  .brandName ??
+                                              '',
+                                          style: TextStyle(
+                                            color: AppColors.blackColor,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      child: SizedBox(
+                                        width: 190,
+                                        // color: Colors.red,
+                                        child: Text(
+                                          viewModel
+                                                  .viewPicture[index]
+                                                  .storePictureElementName ??
+                                              '',
+                                          style: TextStyle(
+                                            color: AppColors.greyText,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      child: SizedBox(
+                                        width: 190,
+                                        // color: Colors.red,
+                                        child: Text(
+                                          viewModel
+                                                  .viewPicture[index]
+                                                  .remarks ??
+                                              '',
+                                          style: TextStyle(
+                                            color: AppColors.greyText,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      child: Text(
+                                        viewModel
+                                                .viewPicture[index]
+                                                .creationDateTime ??
+                                            '',
+                                        style: TextStyle(
+                                          color: AppColors.greyText,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              viewModel.deleteDisplayPicture(
+                                storeId: widget.storeId.toString(),
+                                pictureId:
+                                    viewModel.viewPicture[index].pictureID
+                                        .toString(),
+                                pictureName:
+                                    viewModel.viewPicture[index].pictureName ??
+                                    '',
+                              );
+                              // Add your delete logic here
+                              // viewModel.deleteItem(index);
+                            },
+                          ),
+                        ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(
-                          'Branded Wall \nMix products display',
-                          style: TextStyle(
-                            color: AppColors.greyText,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(
-                          'Uploaded 10-10-2025',
-                          style: TextStyle(
-                            color: AppColors.greyText,
-                            fontSize: 14,
-                          ),
-                        ),
+
+                      Divider(
+                        color: Colors.grey[300],
+                        thickness: 1,
+                        indent: 12,
+                        endIndent: 12,
                       ),
                     ],
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 12),
-                  height: 70,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(Icons.camera_alt, color: Colors.black54),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
           ],
         ),

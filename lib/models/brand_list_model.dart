@@ -14,3 +14,23 @@ class BrandListModel {
   @override
   String toString() => brandName; // For UI display
 }
+
+class PictureListModel {
+  final int pictureElementId;
+  final String pictureElementName;
+
+  PictureListModel({
+    required this.pictureElementId,
+    required this.pictureElementName,
+  });
+
+  factory PictureListModel.fromJson(Map<String, dynamic> json) {
+    return PictureListModel(
+      pictureElementId: json['StorePictureElementID'] ?? 0,
+      pictureElementName: json['StorePictureElementName'] ?? '',
+    );
+  }
+
+  @override
+  String toString() => pictureElementName; // For UI display
+}

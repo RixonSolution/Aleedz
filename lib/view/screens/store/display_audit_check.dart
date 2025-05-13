@@ -1,12 +1,15 @@
+import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/product_selection_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shimmer/shimmer.dart';
 
 class DisplayAuditCheck extends ConsumerStatefulWidget {
   String storeName, checkInTime, categoryName, lastUpdate, updateBy;
@@ -33,6 +36,12 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
   void initState() {
     super.initState();
     Future.microtask(() {
+      ref
+          .read(storeModelProvider.notifier)
+          .getDisplayCheckMaster(
+            storeId: widget.storeId.toString(),
+            categoryId: widget.categoryId.toString(),
+          );
       ref
           .read(storeModelProvider.notifier)
           .checkAudit(widget.storeId, widget.categoryId);
@@ -116,14 +125,14 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {
-                        viewModel.auditMediaSubmit(
+                      onPressed: () async {
+                        await viewModel.auditMediaSubmit(
                           context,
                           widget.storeId,
                           widget.categoryId.toString(),
                           remarksController.text,
-                          checkInImgFile1: viewModel.leftImage!,
-                          checkInImgFile2: viewModel.rightImage!,
+                          checkInImgFile1: viewModel.leftImage,
+                          checkInImgFile2: viewModel.rightImage,
                         );
                         List<Map<String, dynamic>> dataList =
                             viewModel.selectedProducts
@@ -494,6 +503,26 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                             e.productId ==
                                                             item.productId,
                                                       );
+                                                  // ✅ Check if product is marked as available
+                                                  final isAvailable =
+                                                      existing?.displayCheck ==
+                                                      1;
+
+                                                  if (!isAvailable) {
+                                                    // ❌ Show snackbar if not marked as available
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text(
+                                                          "Please mark this product as available first.",
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.red,
+                                                      ),
+                                                    );
+                                                    return;
+                                                  }
 
                                                   if (existing != null) {
                                                     existing.displayCheckCount =
@@ -574,7 +603,6 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                       ),
                                     ),
                                   ),
-
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 12,
@@ -592,7 +620,92 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                               height: 150,
                                               color: Colors.grey.shade300,
                                               child:
-                                                  viewModel.leftImage != null
+                                                  (viewModel.leftImageRemoved ==
+                                                          false)
+                                                      ? Stack(
+                                                        children: [
+                                                          CachedNetworkImage(
+                                                            imageUrl:
+                                                                ApiConstants
+                                                                    .baseUrl +
+                                                                viewModel
+                                                                    .checkMaster
+                                                                    .last
+                                                                    .image1,
+                                                            fit: BoxFit.cover,
+                                                            height: 150,
+                                                            width:
+                                                                double.infinity,
+                                                            placeholder:
+                                                                (
+                                                                  context,
+                                                                  url,
+                                                                ) => Shimmer.fromColors(
+                                                                  baseColor:
+                                                                      Colors
+                                                                          .grey
+                                                                          .shade300,
+                                                                  highlightColor:
+                                                                      Colors
+                                                                          .grey
+                                                                          .shade100,
+                                                                  child: Container(
+                                                                    width:
+                                                                        double
+                                                                            .infinity,
+                                                                    height: 150,
+                                                                    color:
+                                                                        Colors
+                                                                            .white,
+                                                                  ),
+                                                                ),
+                                                            errorWidget:
+                                                                (
+                                                                  context,
+                                                                  url,
+                                                                  error,
+                                                                ) => const Icon(
+                                                                  Icons.error,
+                                                                ),
+                                                          ),
+                                                          Positioned(
+                                                            top: 4,
+                                                            right: 4,
+                                                            child: GestureDetector(
+                                                              onTap: () {
+                                                                viewModel
+                                                                        .leftImageRemoved =
+                                                                    true;
+                                                                viewModel
+                                                                    .notifyListeners();
+                                                              },
+                                                              child: Container(
+                                                                decoration: const BoxDecoration(
+                                                                  color:
+                                                                      AppColors
+                                                                          .secondary,
+                                                                  shape:
+                                                                      BoxShape
+                                                                          .circle,
+                                                                ),
+                                                                padding:
+                                                                    const EdgeInsets.all(
+                                                                      4,
+                                                                    ),
+                                                                child: const Icon(
+                                                                  Icons.close,
+                                                                  size: 16,
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                      : viewModel.leftImage !=
+                                                          null
                                                       ? Stack(
                                                         children: [
                                                           Image.file(
@@ -612,7 +725,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                         .leftImage =
                                                                     null;
                                                                 viewModel
-                                                                    .notifyListeners(); // If using ChangeNotifier
+                                                                    .notifyListeners();
                                                               },
                                                               child: Container(
                                                                 decoration: const BoxDecoration(
@@ -648,6 +761,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                             ),
                                           ),
                                         ),
+
                                         const SizedBox(width: 10),
 
                                         // Gallery Icon with Image Picker
@@ -661,7 +775,92 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                               height: 150,
                                               color: Colors.grey.shade300,
                                               child:
-                                                  viewModel.rightImage != null
+                                                  (viewModel.rightImageRemoved ==
+                                                          false)
+                                                      ? Stack(
+                                                        children: [
+                                                          CachedNetworkImage(
+                                                            imageUrl:
+                                                                ApiConstants
+                                                                    .baseUrl +
+                                                                viewModel
+                                                                    .checkMaster
+                                                                    .last
+                                                                    .image2,
+                                                            fit: BoxFit.cover,
+                                                            height: 150,
+                                                            width:
+                                                                double.infinity,
+                                                            placeholder:
+                                                                (
+                                                                  context,
+                                                                  url,
+                                                                ) => Shimmer.fromColors(
+                                                                  baseColor:
+                                                                      Colors
+                                                                          .grey
+                                                                          .shade300,
+                                                                  highlightColor:
+                                                                      Colors
+                                                                          .grey
+                                                                          .shade100,
+                                                                  child: Container(
+                                                                    width:
+                                                                        double
+                                                                            .infinity,
+                                                                    height: 150,
+                                                                    color:
+                                                                        Colors
+                                                                            .white,
+                                                                  ),
+                                                                ),
+                                                            errorWidget:
+                                                                (
+                                                                  context,
+                                                                  url,
+                                                                  error,
+                                                                ) => const Icon(
+                                                                  Icons.error,
+                                                                ),
+                                                          ),
+                                                          Positioned(
+                                                            top: 4,
+                                                            right: 4,
+                                                            child: GestureDetector(
+                                                              onTap: () {
+                                                                viewModel
+                                                                        .rightImageRemoved =
+                                                                    true;
+                                                                viewModel
+                                                                    .notifyListeners();
+                                                              },
+                                                              child: Container(
+                                                                decoration: const BoxDecoration(
+                                                                  color:
+                                                                      AppColors
+                                                                          .secondary,
+                                                                  shape:
+                                                                      BoxShape
+                                                                          .circle,
+                                                                ),
+                                                                padding:
+                                                                    const EdgeInsets.all(
+                                                                      4,
+                                                                    ),
+                                                                child: const Icon(
+                                                                  Icons.close,
+                                                                  size: 16,
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                      : viewModel.rightImage !=
+                                                          null
                                                       ? Stack(
                                                         children: [
                                                           Image.file(
@@ -681,7 +880,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                         .rightImage =
                                                                     null;
                                                                 viewModel
-                                                                    .notifyListeners(); // If using ChangeNotifier
+                                                                    .notifyListeners();
                                                               },
                                                               child: Container(
                                                                 decoration: const BoxDecoration(

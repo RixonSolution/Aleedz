@@ -35,4 +35,19 @@ class ApiConstants {
 
   static const String checkDisplayAddMedia =
       "${baseUrl}/DisplayCount.asmx/DisplayCheckMasterAdd";
+
+  static const String pictureDropDown =
+      "${baseUrl}/WebService.asmx/StorePicture_GeneralElement";
+
+  static const String submitDisplayPicture =
+      "${baseUrl}/WebService.asmx/GeneralPictureAdd";
+
+  static const String pictureApiView =
+      "${baseUrl}/WebService.asmx/GeneralPictureView";
+
+  static const String deleteDisplayPicture =
+      "${baseUrl}/WebService.asmx/RemoveGeneralPicture";
+
+  static const String checkMasterDisplay =
+      "${baseUrl}/DisplayCount.asmx/DisplayCheckMasterView";
 }

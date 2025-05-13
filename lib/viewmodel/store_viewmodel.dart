@@ -6,6 +6,8 @@ import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/brand_list_model.dart';
 import 'package:aleedz/models/brand_model.dart';
+import 'package:aleedz/models/display_check_model.dart';
+import 'package:aleedz/models/picture_view_model.dart';
 import 'package:aleedz/models/product_selection_model.dart';
 import 'package:aleedz/models/ros_label.dart';
 import 'package:aleedz/models/user_model.dart';
@@ -23,12 +25,21 @@ class StoreViewModel extends ChangeNotifier {
   final CoverageController _coverageController = CoverageController();
   final StoreController _storeController = StoreController();
   List<ROSLabel> rosLabels = [];
+  List<DisplayCheckModel> checkMaster = [];
+
+  List<PictureViewModel> viewPicture = [];
+  bool leftImageRemoved = false; // Add this in your ViewModel
+  bool rightImageRemoved = false;
+
+  String storeId = '0';
 
   UserModel? user;
   File? leftImage;
   File? rightImage;
   final ImagePicker picker = ImagePicker();
   BrandListModel? selectedBrand;
+  PictureListModel? selectedPictureModel;
+
   void selectBrand(
     int storeId,
     BrandListModel? brand,
@@ -39,15 +50,40 @@ class StoreViewModel extends ChangeNotifier {
     selectedBrand = brand;
     notifyListeners();
     print("Selected Channel ID: ${brand?.brandId}");
+    await getPictureView(
+      storeId: storeId.toString(),
+      brandId: selectedBrand?.brandId.toString() ?? '0',
+      elementId: selectedPictureModel?.pictureElementId.toString() ?? '1',
+    );
     if (brand != null) {
       await checkSummary(storeId, brand.brandId);
     }
+    loader = false;
+    notifyListeners();
+  }
+
+  void selectPictureDrop(
+    PictureListModel? pictureList,
+    BuildContext context,
+  ) async {
+    loader = true;
+    notifyListeners();
+    await getPictureView(
+      storeId: storeId,
+      brandId: selectedBrand?.brandId.toString() ?? '0',
+      elementId: selectedPictureModel?.pictureElementId.toString() ?? '1',
+    );
+    selectedPictureModel = pictureList;
+    print("Selected Picture ID: ${pictureList?.pictureElementId}");
+
     loader = false;
     notifyListeners();
     // You can also call getCoverageList here with the selectedChannel.channelId
   }
 
   List<BrandListModel> brandList = [];
+  List<PictureListModel> pictureList = [];
+
   List<ProductSelection> selectedProducts = [];
 
   List<Brand> brands = [];
@@ -91,7 +127,7 @@ class StoreViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void loadUser() async {
+  Future loadUser() async {
     loader = true;
     notifyListeners();
     final store = StoreLocalData();
@@ -140,6 +176,21 @@ class StoreViewModel extends ChangeNotifier {
     if (response != null && response["status"] == 200) {
       final data = response["data"]['data'] as List;
       brandList = data.map((e) => BrandListModel.fromJson(e)).toList();
+
+      notifyListeners();
+    } else {
+      debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> getPictureDropDown() async {
+    final response = await _storeController.pictureDropDown(
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'] as List;
+      pictureList = data.map((e) => PictureListModel.fromJson(e)).toList();
       notifyListeners();
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
@@ -291,10 +342,172 @@ class StoreViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> getDisplayCheckMaster({
+    required String storeId,
+    required String categoryId,
+  }) async {
+    checkMaster = [];
+    // loader = true;
+    notifyListeners();
+    final response = await _storeController.checkDisplayMaster(
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      storeId: storeId,
+      categoryId: categoryId,
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final dataList = response["data"]['data'] as List;
+
+      // Check if dataList has at least 43 items (for index 29 to 42)
+      checkMaster =
+          dataList.map((item) => DisplayCheckModel.fromJson(item)).toList();
+      notifyListeners();
+    } else {
+      // loader = false;
+      notifyListeners();
+      debugPrint("Error fetching ROS Labels: ${response?['data']}");
+    }
+  }
+
+  Future<void> submitDisplayPicture({
+    required String storeId,
+    required String brandId,
+    required String pictureElementId,
+    required String remarks,
+    required String pictureId,
+    required File elementImg,
+  }) async {
+    loader = true;
+    notifyListeners();
+
+    final response = await _storeController.submitDisplayPicture(
+      token: user?.apiToken ?? '',
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      storeId: storeId.toString(),
+      brandId: brandId,
+      pictureElementId: pictureElementId,
+      remarks: remarks,
+      pictureId: pictureId,
+      elementImg: leftImage,
+    );
+
+    if (response != null && response["status"] == 200) {
+      await getPictureView(
+        storeId: storeId.toString(),
+        brandId: brandId,
+        elementId: selectedPictureModel!.pictureElementId.toString(),
+      );
+      // selectedPictureModel = null;
+      // selectedBrand = null;
+      leftImage = null;
+      // loader = false;
+      notifyListeners();
+    } else {
+      selectedPictureModel = null;
+      selectedBrand = null;
+      leftImage = null;
+      debugPrint("auditMediaSubmit Error: ${response?['data']}");
+      // loader = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getPictureView({
+    required String storeId,
+    required String brandId,
+    required String elementId,
+  }) async {
+    viewPicture = [];
+    loader = true;
+    notifyListeners();
+
+    final response = await _storeController.viewPicture(
+      token: user?.apiToken ?? '',
+      storeId: storeId,
+      brandId: brandId,
+      elementId: elementId,
+    );
+
+    if (response != null && response["status"] == 200) {
+      final dataList = response["data"]["data"];
+
+      if (dataList != null && dataList is List && dataList.isNotEmpty) {
+        viewPicture =
+            dataList
+                .map<PictureViewModel>(
+                  (data) => PictureViewModel.fromJson(data),
+                )
+                .toList();
+      }
+
+      loader = false;
+      notifyListeners();
+    } else {
+      loader = false;
+      notifyListeners();
+      debugPrint("Error fetching ROS Labels: ${response?['data']}");
+    }
+  }
+
+  Future<void> deleteDisplayPicture({
+    required String storeId,
+    required String pictureId,
+    required String pictureName,
+  }) async {
+    final response = await _storeController.deleteDisplayPicture(
+      token: user?.apiToken ?? '',
+      storeId: storeId,
+      pictureId: pictureId,
+      pictureName: pictureName,
+    );
+
+    if (response != null && response["status"] == 200) {
+      await getPictureView(
+        storeId: storeId,
+        brandId: selectedBrand?.brandId.toString() ?? '0',
+        elementId: selectedPictureModel?.pictureElementId.toString() ?? '1',
+      );
+
+      notifyListeners();
+    } else {
+      debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  Future loadDisplayPicture(
+    String storeId,
+    String brandId,
+    String elementId,
+  ) async {
+    loader = true;
+    notifyListeners();
+    await loadUser();
+    await getBrandDropDown();
+    await getPictureDropDown();
+    await getPictureView(
+      storeId: storeId,
+      brandId: brandId,
+      elementId: elementId,
+    );
+    loader = false;
+    notifyListeners();
+  }
+
   void clearData() {
     leftImage = null;
     rightImage = null;
+    leftImageRemoved = false;
+    rightImageRemoved = false;
+
     selectedProducts.clear();
+    notifyListeners();
+  }
+
+  void clearDisplayPicture(String sId) {
+    storeId = sId;
+    selectedBrand = null;
+    selectedPictureModel = null;
     notifyListeners();
   }
 }
