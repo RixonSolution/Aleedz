@@ -73,6 +73,16 @@ class StoreController {
     return await _apiService.getROSLabels(languageId: languageId);
   }
 
+  Future<Map<String, dynamic>?> getPermissionRequest({
+    required String teamMemberId,
+    required String token,
+  }) async {
+    return await _apiService.getPermissionRequest(
+      teamMemberId: teamMemberId,
+      token: token,
+    );
+  }
+
   Future<Map<String, dynamic>?> pictureDropDown({required String token}) async {
     return await _apiService.getPictureDropDown(token: token);
   }

@@ -6,6 +6,7 @@ import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/brand_list_model.dart';
 import 'package:aleedz/models/brand_model.dart';
+import 'package:aleedz/models/dashboard_model.dart';
 import 'package:aleedz/models/display_check_model.dart';
 import 'package:aleedz/models/picture_view_model.dart';
 import 'package:aleedz/models/product_selection_model.dart';
@@ -16,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 final storeModelProvider = ChangeNotifierProvider<StoreViewModel>((ref) {
   return StoreViewModel();
@@ -28,6 +30,8 @@ class StoreViewModel extends ChangeNotifier {
   List<DisplayCheckModel> checkMaster = [];
 
   List<PictureViewModel> viewPicture = [];
+  List<DashboardModel> dashBoardList = [];
+
   bool leftImageRemoved = false; // Add this in your ViewModel
   bool rightImageRemoved = false;
 
@@ -318,19 +322,37 @@ class StoreViewModel extends ChangeNotifier {
     rosLabels = [];
     loader = true;
     notifyListeners();
+    await loadUser();
     final response = await _storeController.getROSLabels(languageId: '1');
+    final response1 = await _storeController.getPermissionRequest(
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      token: user?.apiToken.toString() ?? '',
+    );
 
-    if (response != null && response["status"] == 200) {
+    if (response != null && response1 != null) {
       final dataList = response["data"]['data'];
+      final dataList1 = response1["data"]['data'];
+      if (dataList is List && dataList1 is List) {
+        rosLabels = [];
 
-      // Check if dataList has at least 43 items (for index 29 to 42)
-      if (dataList != null && dataList is List && dataList.length > 40) {
-        // Extract data from indices 29 to 42
-        final filteredData = dataList.sublist(28, 40);
+        for (var permissionItem in dataList1) {
+          final int? permissionId = permissionItem["PermissionID"];
+          final String? permissionValue = permissionItem["Permission"];
 
-        // Convert the filtered data into ROSLabel models and update the rosLabels list
-        rosLabels =
-            filteredData.map((data) => ROSLabel.fromJson(data)).toList();
+          // Filter PermissionIDs 28–40 with value "Y"
+          if (permissionId != null &&
+              permissionId >= 28 &&
+              permissionId <= 40 &&
+              permissionValue == "Y") {
+            final int dataIndex = permissionId - 1;
+
+            // Ensure the index is valid in dataList
+            if (dataIndex >= 0 && dataIndex < dataList.length) {
+              final rosLabelItem = dataList[dataIndex];
+              rosLabels.add(ROSLabel.fromJson(rosLabelItem));
+            }
+          }
+        }
 
         loader = false;
         notifyListeners();

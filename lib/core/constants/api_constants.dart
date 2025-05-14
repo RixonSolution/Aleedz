@@ -50,4 +50,7 @@ class ApiConstants {
 
   static const String checkMasterDisplay =
       "${baseUrl}/DisplayCount.asmx/DisplayCheckMasterView";
+
+  static const String dashboardApi =
+      "${baseUrl}/JourneyPlan.asmx/TeamJourneyPlan";
 }

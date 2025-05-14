@@ -7,6 +7,7 @@ import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/brand_list_model.dart';
 import 'package:aleedz/models/brand_model.dart';
 import 'package:aleedz/models/chanel_mode.dart';
+import 'package:aleedz/models/dashboard_model.dart';
 import 'package:aleedz/models/store_model.dart';
 import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/models/user_model.dart';
@@ -32,6 +33,8 @@ class CoverageViewModel extends ChangeNotifier {
 
   List<ChannelModel> channelList = [];
   List<BrandListModel> brandList = [];
+  List<DashboardModel> dashBoardList = [];
+
   UserPermission? permission;
 
   List<Brand> brands = [];
@@ -280,6 +283,32 @@ class CoverageViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> getDashboard() async {
+    DateTime date = DateTime.now(); // or DateTime.now()
+    String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+    final response = await _coverageController.getDashboard(
+      token: user?.apiToken ?? '',
+      planDate: formattedDate,
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      visiteSatue: '0',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final dataList = response["data"]["data"];
+
+      if (dataList != null && dataList is List && dataList.isNotEmpty) {
+        dashBoardList =
+            dataList
+                .map<DashboardModel>((data) => DashboardModel.fromJson(data))
+                .toList();
+      }
+
+      notifyListeners();
+    } else {
+      debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
   Future<void> cancelVisite(
     BuildContext context,
     int storeId, {
@@ -361,6 +390,8 @@ class CoverageViewModel extends ChangeNotifier {
     notifyListeners();
     await loadUser();
     await getCoverageCount(context);
+    await getDashboard();
+
     loader = false;
     notifyListeners();
   }
@@ -373,6 +404,7 @@ class CoverageViewModel extends ChangeNotifier {
     await getCoverageCount(context);
     await getCoverageDropDown();
     await getCoverageList(context);
+    await getDashboard();
 
     loader = false;
     notifyListeners();

@@ -213,6 +213,30 @@ class StoreServices {
     }
   }
 
+  Future<Map<String, dynamic>?> getPermissionRequest({
+    required String teamMemberId,
+    required String token,
+  }) async {
+    final encodedTeamMemberId = Uri.encodeComponent(teamMemberId);
+    final encodedToken = Uri.encodeComponent(token);
+    final url = Uri.parse(
+      '${ApiConstants.requestPermission}?TeamMemberID=$encodedTeamMemberId&_token=$encodedToken',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
   Future<Map<String, dynamic>?> getPictureDropDown({
     required String token,
   }) async {

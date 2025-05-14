@@ -137,4 +137,18 @@ class CoverageController {
       token: storeId,
     );
   }
+
+  Future<Map<String, dynamic>?> getDashboard({
+    required String token,
+    required String planDate,
+    required String teamMemberId,
+    required String visiteSatue,
+  }) async {
+    return await _apiService.getDashboard(
+      token: token,
+      planDate: planDate,
+      teamMemberId: teamMemberId,
+      visiteStatus: visiteSatue,
+    );
+  }
 }
