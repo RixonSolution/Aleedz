@@ -41,6 +41,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
 
   TextEditingController remarksControll = TextEditingController();
 
+  bool deleteLoader = false;
+
   void _showImagePickerDialog(String directiion) {
     showDialog(
       context: context,
@@ -94,6 +96,55 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
           ),
         );
       },
+    );
+  }
+
+  Future<void> _showLogoutDialog(
+    BuildContext context,
+    String pictureId,
+    String pictureName,
+  ) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent closing by tapping outside
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: AppColors.secondary,
+            title: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.whiteColor),
+            ),
+            content: const Text(
+              'Are you sure you want to delete?',
+              style: TextStyle(color: AppColors.whiteColor),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(), // Close dialog
+                child: const Text(
+                  'No',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+              ),
+              TextButton(
+                onPressed: () async {
+                  await ref
+                      .read(storeModelProvider.notifier)
+                      .deleteDisplayPicture(
+                        storeId: widget.storeId.toString(),
+                        pictureId: pictureId,
+                        pictureName: pictureName,
+                      );
+
+                  NavigationService.goBack();
+                },
+                child: const Text(
+                  'Yes',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+              ),
+            ],
+          ),
     );
   }
 
@@ -534,17 +585,19 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                           IconButton(
                             icon: Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
-                              viewModel.deleteDisplayPicture(
-                                storeId: widget.storeId.toString(),
-                                pictureId:
-                                    viewModel.viewPicture[index].pictureID
-                                        .toString(),
-                                pictureName:
-                                    viewModel.viewPicture[index].pictureName ??
-                                    '',
+                              setState(() {
+                                deleteLoader = true;
+                              });
+                              _showLogoutDialog(
+                                context,
+                                viewModel.viewPicture[index].pictureID
+                                    .toString(),
+                                viewModel.viewPicture[index].pictureName
+                                    .toString(),
                               );
-                              // Add your delete logic here
-                              // viewModel.deleteItem(index);
+                              setState(() {
+                                deleteLoader = false;
+                              });
                             },
                           ),
                         ],

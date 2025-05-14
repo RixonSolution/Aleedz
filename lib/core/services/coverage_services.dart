@@ -1,7 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 class CoverageServices {
   Future<Map<String, dynamic>?> getCoverageCount({
@@ -118,7 +121,25 @@ class CoverageServices {
     required String token,
   }) async {
     try {
-      // Step 1: Create URL with query parameters
+      // Compress image before upload
+      Future<File?> compressImage(File file) async {
+        final dir = await getTemporaryDirectory();
+        final targetPath = path.join(
+          dir.path,
+          '${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
+
+        final result = await FlutterImageCompress.compressAndGetFile(
+          file.absolute.path,
+          targetPath,
+          quality: 30,
+        );
+
+        return result != null ? File(result.path) : null;
+      }
+
+      File? compressedImage = await compressImage(checkInImgFile);
+
       final url = Uri.parse(
         '${ApiConstants.checkIn}?'
         'TeamMemberID=${Uri.encodeComponent(teamMemberId)}&'
@@ -132,14 +153,14 @@ class CoverageServices {
         '_token=${Uri.encodeComponent(token)}',
       );
 
-      // Step 2: Create multipart request with only the image in the body
       var request = http.MultipartRequest('POST', url);
 
-      request.files.add(
-        await http.MultipartFile.fromPath('CheckInImg', checkInImgFile.path),
-      );
+      if (compressedImage != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath('CheckInImg', compressedImage.path),
+        );
+      }
 
-      // Step 3: Send request
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
@@ -160,7 +181,26 @@ class CoverageServices {
     required String token,
   }) async {
     try {
-      // Step 1: Build URL with query parameters
+      // Compress image before upload
+      Future<File?> compressImage(File file) async {
+        final dir = await getTemporaryDirectory();
+        final targetPath = path.join(
+          dir.path,
+          '${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
+
+        final result = await FlutterImageCompress.compressAndGetFile(
+          file.absolute.path,
+          targetPath,
+          quality: 70,
+        );
+
+        return result != null ? File(result.path) : null;
+      }
+
+      File? compressedImage = await compressImage(checkOutImgFile);
+
+      // Build URL with query parameters
       final url = Uri.parse(
         '${ApiConstants.checkOut}?'
         'VisitID=${Uri.encodeComponent(visitedId)}&'
@@ -170,17 +210,19 @@ class CoverageServices {
         '_token=${Uri.encodeComponent(token)}',
       );
 
-      // Step 2: Create multipart request (image in body)
-      final request = http.MultipartRequest('POST', url);
+      // Create multipart request (image in body)
+      var request = http.MultipartRequest('POST', url);
 
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'CheckOutImage',
-          checkOutImgFile.path,
-        ),
-      );
+      if (compressedImage != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'CheckOutImage',
+            compressedImage.path,
+          ),
+        );
+      }
 
-      // Step 3: Send request
+      // Send request
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 

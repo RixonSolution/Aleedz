@@ -634,7 +634,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                     .baseUrl +
                                                                 viewModel
                                                                     .checkMaster
-                                                                    .last
+                                                                    .first
                                                                     .image1,
                                                             fit: BoxFit.cover,
                                                             height: 150,
@@ -789,7 +789,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                     .baseUrl +
                                                                 viewModel
                                                                     .checkMaster
-                                                                    .last
+                                                                    .first
                                                                     .image2,
                                                             fit: BoxFit.cover,
                                                             height: 150,

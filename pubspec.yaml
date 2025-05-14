@@ -25,6 +25,9 @@ dependencies:
   google_maps_flutter: ^2.12.1
   cached_network_image: ^3.4.1
   shimmer: ^3.0.0
+  flutter_image_compress: ^2.4.0
+  path_provider: ^2.0.14
+  path: ^1.8.3
 
 dev_dependencies:
   flutter_test:

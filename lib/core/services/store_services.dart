@@ -1,7 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:aleedz/core/constants/api_constants.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart'; //
+import 'package:path/path.dart' as path;
 
 class StoreServices {
   Future<Map<String, dynamic>?> getBrandDropDown({
@@ -118,6 +122,29 @@ class StoreServices {
     File? checkInImgFile2,
   }) async {
     try {
+      // Function to compress image
+      Future<File?> compressImage(File file) async {
+        final dir = await getTemporaryDirectory();
+        final targetPath = path.join(
+          dir.path,
+          '${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
+
+        final result = await FlutterImageCompress.compressAndGetFile(
+          file.absolute.path,
+          targetPath,
+          quality: 30,
+        );
+
+        return result != null ? File(result.path) : null;
+      }
+
+      // Compress if image is not null
+      File? compressedImage1 =
+          checkInImgFile1 != null ? await compressImage(checkInImgFile1) : null;
+      File? compressedImage2 =
+          checkInImgFile2 != null ? await compressImage(checkInImgFile2) : null;
+
       final url = Uri.parse(ApiConstants.checkDisplayAddMedia);
       var request = http.MultipartRequest('POST', url);
 
@@ -130,22 +157,22 @@ class StoreServices {
       request.fields['DisplayCheckRemarks'] = displayCheckMark;
       request.fields['TeamMemberID'] = teamMemberId;
 
-      if (checkInImgFile1 != null) {
-        print("Image 1 path: ${checkInImgFile1.path}");
+      if (compressedImage1 != null) {
+        print("Compressed Image 1 path: ${compressedImage1.path}");
         request.files.add(
           await http.MultipartFile.fromPath(
             'DisplayCheckImage1',
-            checkInImgFile1.path,
+            compressedImage1.path,
           ),
         );
       }
 
-      if (checkInImgFile2 != null) {
-        print("Image 2 path: ${checkInImgFile2.path}");
+      if (compressedImage2 != null) {
+        print("Compressed Image 2 path: ${compressedImage2.path}");
         request.files.add(
           await http.MultipartFile.fromPath(
             'DisplayCheckImage2',
-            checkInImgFile2.path,
+            compressedImage2.path,
           ),
         );
       }
@@ -220,11 +247,30 @@ class StoreServices {
     File? elementImg,
   }) async {
     try {
-      final url = Uri.parse(ApiConstants.submitDisplayPicture);
+      // Compression function
+      Future<File?> compressImage(File file) async {
+        final dir = await getTemporaryDirectory();
+        final targetPath = path.join(
+          dir.path,
+          '${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
 
+        final result = await FlutterImageCompress.compressAndGetFile(
+          file.absolute.path,
+          targetPath,
+          quality: 30,
+        );
+
+        return result != null ? File(result.path) : null;
+      }
+
+      // Compress image before upload
+      File? compressedElementImg =
+          elementImg != null ? await compressImage(elementImg) : null;
+
+      final url = Uri.parse(ApiConstants.submitDisplayPicture);
       var request = http.MultipartRequest('POST', url);
 
-      // Add all fields as multipart fields (not as query parameters)
       request.fields['_token'] = token;
       request.fields['StoreID'] = storeId;
       request.fields['TeamMemberID'] = teamMemberId;
@@ -233,10 +279,12 @@ class StoreServices {
       request.fields['Remarks'] = remarks;
       request.fields['PictureID'] = pictureId;
 
-      // Add image file if available
-      if (elementImg != null) {
+      if (compressedElementImg != null) {
         request.files.add(
-          await http.MultipartFile.fromPath('ElementImg', elementImg.path),
+          await http.MultipartFile.fromPath(
+            'ElementImg',
+            compressedElementImg.path,
+          ),
         );
       }
 
@@ -301,5 +349,22 @@ class StoreServices {
       print('Unhandled error: $e');
       return null;
     }
+  }
+
+  Future<File?> compressImage(File file) async {
+    final dir = await getTemporaryDirectory();
+    final targetPath = path.join(
+      dir.path,
+      '${DateTime.now().millisecondsSinceEpoch}.jpg',
+    );
+
+    final XFile? result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      targetPath,
+      quality: 70,
+    );
+
+    // ✅ Convert XFile? to File?
+    return result != null ? File(result.path) : null;
   }
 }
