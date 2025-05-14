@@ -166,78 +166,80 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                   ),
                 ),
 
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      NavigationService.goBack();
-                    },
-                    child: Image.asset(
-                      AppIcons.backArrow,
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        NavigationService.goBack();
+                      },
+                      child: Image.asset(
+                        AppIcons.backArrow,
+                        height: 30,
+                        width: 30,
+                      ),
+                    ),
+                    Text(
+                      'Display Audit',
+                      style: TextStyle(
+                        color: AppColors.blackColor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Image.asset(
+                      AppIcons.locationIcon,
                       height: 30,
                       width: 30,
+                      color: AppColors.whiteColor,
                     ),
-                  ),
-                  Text(
-                    'Display Audit',
-                    style: TextStyle(
-                      color: AppColors.blackColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Image.asset(
-                    AppIcons.locationIcon,
-                    height: 30,
-                    width: 30,
-                    color: AppColors.whiteColor,
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 5),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(color: AppColors.primary, height: 0),
-            ),
-
-            SizedBox(height: 5),
-            Center(
-              child: Text(
-                widget.storeName,
-                style: TextStyle(
-                  color: AppColors.blackColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  ],
                 ),
               ),
-            ),
-            Center(
-              child: Text(
-                'Checked In ${widget.checkInTime}',
-                style: TextStyle(
-                  color: AppColors.blackColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+              SizedBox(height: 5),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Divider(color: AppColors.primary, height: 0),
+              ),
+
+              SizedBox(height: 5),
+              Center(
+                child: Text(
+                  widget.storeName,
+                  style: TextStyle(
+                    color: AppColors.blackColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
+              Center(
+                child: Text(
+                  'Checked In ${widget.checkInTime}',
+                  style: TextStyle(
+                    color: AppColors.blackColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
 
-            SizedBox(height: 5),
-            viewModel.loader
-                ? Center(
-                  child: CircularProgressIndicator(color: AppColors.secondary),
-                )
-                : Expanded(
-                  child: Builder(
+              SizedBox(height: 5),
+              viewModel.loader
+                  ? Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.secondary,
+                    ),
+                  )
+                  : Builder(
                     builder: (context) {
                       // Group audit items by brand name
                       final groupedAudit = <String, List<AuditItem>>{};
@@ -250,6 +252,8 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                       final brandNames = groupedAudit.keys.toList();
 
                       return ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
                         itemCount: brandNames.length,
                         itemBuilder: (context, brandIndex) {
                           final brandName = brandNames[brandIndex];
@@ -929,8 +933,8 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                       );
                     },
                   ),
-                ),
-          ],
+            ],
+          ),
         ),
       ),
     );
