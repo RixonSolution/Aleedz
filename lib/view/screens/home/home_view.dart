@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_text_style.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
@@ -317,6 +318,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
         viewModel.permission?.getPermissionValue("CheckOut_Camera") ?? "N";
     String allowMultiCheckIn =
         viewModel.permission?.getPermissionValue("AllowMultipleCheckIn") ?? "N";
+    DateTime today = DateTime.now();
+    String formattedDate = DateFormat('dd-MMM-yyyy').format(today);
 
     return SafeArea(
       child: Scaffold(
@@ -438,6 +441,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               ),
                             ),
                           ),
+
                           const SizedBox(width: 10),
                           Expanded(
                             child: GestureDetector(
@@ -479,11 +483,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                       ],
                                     ),
                                     Text(
-                                      '10-Jan-2025',
+                                      formattedDate,
                                       style: AppTextStyles.subLabelStyle,
                                     ),
                                     Text(
-                                      '6',
+                                      '${viewModel.visitType1Count}/${viewModel.visitStatus3Count}',
                                       style: AppTextStyles.bigTextStyle,
                                     ),
                                   ],
@@ -493,7 +497,107 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 5),
 
+                      GestureDetector(
+                        onTap: () {
+                          //
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Image.network(
+                                    '${ApiConstants.baseUrl}/AppImages/StoreMenu_Icons/45.png',
+                                    height: 20,
+                                    width: 20,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    LabelService().getLabel(45),
+                                    style: TextStyle(
+                                      color: AppColors.blackColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                '04:12',
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 5),
+
+                      GestureDetector(
+                        onTap: () {
+                          //
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Image.network(
+                                    '${ApiConstants.baseUrl}/AppImages/StoreMenu_Icons/46.png',
+                                    height: 20,
+                                    width: 20,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    LabelService().getLabel(46),
+                                    style: TextStyle(
+                                      color: AppColors.blackColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                '31 KM',
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 10),
                       const SizedBox(height: 5),
                       viewModel.loader
                           ? Center(
@@ -507,488 +611,551 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               itemCount: viewModel.dashBoardList.length,
                               padding: EdgeInsets.zero,
                               itemBuilder: (context, index) {
-                                return Container(
-                                  color:
-                                      viewModel
-                                                  .dashBoardList[index]
-                                                  .visitStatusId ==
-                                              3
-                                          ? AppColors.whiteColor
-                                          : AppColors.darkGreyBackground,
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 15,
-                                  ),
-                                  margin: EdgeInsets.symmetric(horizontal: 5),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 5,
-                                        ),
-                                        child: Text(
-                                          '${index + 1}.',
+                                final visitStatusId =
+                                    viewModel
+                                        .dashBoardList[index]
+                                        .visitStatusId;
+
+                                Widget statusWidget;
+
+                                if (visitStatusId == 1) {
+                                  // Plan (Check-in)
+                                  statusWidget = InkWell(
+                                    onTap: () async {
+                                      // Add check-in logic here
+                                      if (checkInCamera == 'Y') {
+                                        // await viewModel.getLatLong();
+                                        double myLat = viewModel.latitude;
+                                        double myLng = viewModel.longitude;
+
+                                        double otherLat = double.parse(
+                                          viewModel
+                                              .dashBoardList[index]
+                                              .latitude,
+                                        );
+                                        double otherLng = double.parse(
+                                          viewModel
+                                              .dashBoardList[index]
+                                              .longitude,
+                                        );
+                                        print('myLat$myLat myLong$myLng');
+                                        print(
+                                          'otherLat$otherLat otherLng$otherLng',
+                                        );
+
+                                        double distance = viewModel
+                                            .calculateDistanceInMeters(
+                                              myLat,
+                                              myLng,
+                                              otherLat,
+                                              otherLng,
+                                            );
+
+                                        print(
+                                          'Distance is ${distance.toStringAsFixed(2)} meters',
+                                        );
+
+                                        final picker = ImagePicker();
+                                        final pickedFile = await picker
+                                            .pickImage(
+                                              source: ImageSource.camera,
+                                            );
+
+                                        if (pickedFile != null) {
+                                          final imageFile = File(
+                                            pickedFile.path,
+                                          );
+
+                                          showImagePopup(
+                                            context: context,
+                                            title:
+                                                viewModel
+                                                    .dashBoardList[index]
+                                                    .storeName,
+                                            checkStatus:
+                                                viewModel
+                                                            .dashBoardList[index]
+                                                            .visitStatusId ==
+                                                        0
+                                                    ? LabelService().getLabel(
+                                                      14,
+                                                    )
+                                                    : LabelService().getLabel(
+                                                      15,
+                                                    ),
+                                            checkStatus1: 'Cancel',
+                                            checkRemarks:
+                                                viewModel
+                                                            .dashBoardList[index]
+                                                            .visitStatusId ==
+                                                        0
+                                                    ? LabelService().getLabel(
+                                                      21,
+                                                    )
+                                                    : LabelService().getLabel(
+                                                      22,
+                                                    ),
+                                            onSubmit: (value) async {
+                                              if (viewModel
+                                                      .dashBoardList[index]
+                                                      .visitStatusId ==
+                                                  0) {
+                                                viewModel.coverageCheckIn(
+                                                  context,
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .storeId,
+                                                  remarks: value,
+                                                  checkInImgFile: imageFile,
+                                                );
+                                              } else {
+                                                viewModel.coverageCheckout(
+                                                  context,
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .visitStatusId,
+                                                  remarks: value,
+                                                  checkOutImgFile: imageFile,
+                                                );
+                                              }
+                                            },
+                                            cancel: (value) async {
+                                              viewModel.cancelVisite(
+                                                context,
+                                                viewModel
+                                                    .dashBoardList[index]
+                                                    .storeId,
+                                                remarks: value,
+                                              );
+                                            },
+                                            imageFile:
+                                                imageFile, // 🔹 pass the image to dialog
+                                          );
+                                        }
+                                      } else {
+                                        AppSnackBar.showError(
+                                          context,
+                                          "You don't have camera permission.",
+                                        );
+                                      }
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          LabelService().getLabel(14),
                                           style: TextStyle(
                                             color: AppColors.blackColor,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      ),
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: () async {
-                                            final allowMultiCheckIn = viewModel
-                                                .permission
-                                                ?.getPermissionValue(
-                                                  'AllowMultipleCheckIn',
-                                                );
-                                            final allowStoreInWithoutCheckIn =
-                                                viewModel.permission
-                                                    ?.getPermissionValue(
-                                                      'Allow_StoreIn_WithoutCheckIn',
-                                                    );
+                                      ],
+                                    ),
+                                  );
+                                } else if (visitStatusId == 2) {
+                                  // Checkout process
+                                  statusWidget = InkWell(
+                                    onTap: () async {
+                                      // Add checkout logic here
+                                      if (checkoutCamera == 'Y') {
+                                        // await viewModel.getLatLong();
+                                        double myLat = viewModel.latitude;
+                                        double myLng = viewModel.longitude;
 
-                                            final selectedStore =
-                                                viewModel.dashBoardList[index];
+                                        double otherLat = double.parse(
+                                          viewModel
+                                              .dashBoardList[index]
+                                              .latitude,
+                                        );
+                                        double otherLng = double.parse(
+                                          viewModel
+                                              .dashBoardList[index]
+                                              .longitude,
+                                        );
 
-                                            // 1. Check: StoreIn not allowed without check-in
-                                            if (allowStoreInWithoutCheckIn ==
-                                                    'N' &&
-                                                selectedStore.visitStatusId ==
-                                                    0) {
-                                              AppSnackBar.showError(
-                                                context,
-                                                "You must check in before entering the store.",
-                                              );
-                                              return;
-                                            }
+                                        print('myLat$myLat myLong$myLng');
+                                        print(
+                                          'otherLat$otherLat otherLng$otherLng',
+                                        );
 
-                                            // 2. If multi-check-in allowed, allow navigation
-                                            if (allowMultiCheckIn == 'Y') {
-                                              NavigationService.navigateTo(
-                                                StoreHome(
-                                                  storeName:
-                                                      selectedStore.storeName,
-                                                  checkInTime:
-                                                      selectedStore.checkInTime,
-                                                  grade: 'A',
-                                                  address:
-                                                      selectedStore.address,
-                                                  storeId:
-                                                      selectedStore.storeId,
-                                                ),
-                                              );
-                                              return;
-                                            }
-
-                                            // 3. If multi-check-in not allowed, check if user is already checked into another store
-                                            final isAlreadyCheckedIn = viewModel
-                                                .stores
-                                                .any(
-                                                  (store) =>
-                                                      store.visitStatusId !=
-                                                          0 &&
-                                                      store.storeId !=
-                                                          selectedStore.storeId,
-                                                );
-
-                                            if (isAlreadyCheckedIn) {
-                                              AppSnackBar.showError(
-                                                context,
-                                                "You are already checked in to another store. Multiple check-ins are not allowed.",
-                                              );
-                                              return;
-                                            }
-
-                                            // ✅ All good, navigate
-                                            NavigationService.navigateTo(
-                                              StoreHome(
-                                                storeName:
-                                                    selectedStore.storeName,
-                                                checkInTime:
-                                                    selectedStore.checkInTime,
-                                                grade: 'A',
-                                                address: selectedStore.address,
-                                                storeId: selectedStore.storeId,
-                                              ),
+                                        double distance = viewModel
+                                            .calculateDistanceInMeters(
+                                              myLat,
+                                              myLng,
+                                              otherLat,
+                                              otherLng,
                                             );
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              right: 5,
-                                            ),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
+
+                                        print(
+                                          'Distance is ${distance.toStringAsFixed(2)} meters',
+                                        );
+
+                                        if (distance >
+                                            double.parse(distancePermission)) {
+                                          showLocationPopup(
+                                            context: context,
+                                            title:
+                                                viewModel
+                                                    .dashBoardList[index]
+                                                    .storeName,
+                                            checkStatus:
+                                                viewModel
+                                                            .dashBoardList[index]
+                                                            .visitStatusId ==
+                                                        0
+                                                    ? LabelService().getLabel(
+                                                      14,
+                                                    )
+                                                    : LabelService().getLabel(
+                                                      15,
+                                                    ),
+                                            meter: distance.toStringAsFixed(2),
+                                            myLat: myLat,
+                                            myLng: myLng,
+                                            otherLat: otherLat,
+                                            otherLng: otherLng,
+                                          );
+                                        } else {
+                                          final picker = ImagePicker();
+                                          final pickedFile = await picker
+                                              .pickImage(
+                                                source: ImageSource.camera,
+                                              );
+
+                                          if (pickedFile != null) {
+                                            final imageFile = File(
+                                              pickedFile.path,
+                                            );
+                                            List<int> imageBytes =
+                                                File(
+                                                  pickedFile.path,
+                                                ).readAsBytesSync();
+
+                                            String base64Image = base64Encode(
+                                              imageBytes,
+                                            );
+
+                                            showImagePopup(
+                                              context: context,
+                                              title:
                                                   viewModel
                                                       .dashBoardList[index]
                                                       .storeName,
-                                                  style: TextStyle(
-                                                    color: AppColors.blackColor,
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                                SizedBox(height: 3),
-                                                Text(
+                                              checkStatus:
+                                                  viewModel
+                                                              .dashBoardList[index]
+                                                              .visitStatusId ==
+                                                          0
+                                                      ? LabelService().getLabel(
+                                                        14,
+                                                      )
+                                                      : LabelService().getLabel(
+                                                        15,
+                                                      ),
+                                              checkStatus1: '',
+                                              checkRemarks:
+                                                  viewModel
+                                                              .dashBoardList[index]
+                                                              .visitStatusId ==
+                                                          0
+                                                      ? LabelService().getLabel(
+                                                        21,
+                                                      )
+                                                      : LabelService().getLabel(
+                                                        22,
+                                                      ),
+                                              onSubmit: (value) {
+                                                if (viewModel
+                                                        .dashBoardList[index]
+                                                        .visitStatusId ==
+                                                    0) {
+                                                  viewModel.coverageCheckIn(
+                                                    context,
+                                                    viewModel
+                                                        .dashBoardList[index]
+                                                        .storeId,
+                                                    remarks: value,
+                                                    checkInImgFile:
+                                                        imageFile, // ✅ Required parameter now
+                                                  );
+                                                } else {
+                                                  viewModel.coverageCheckout(
+                                                    context,
+                                                    viewModel
+                                                        .dashBoardList[index]
+                                                        .visitStatusId,
+                                                    remarks: value,
+                                                    checkOutImgFile: imageFile,
+                                                  );
+                                                }
+                                              },
+                                              cancel: (value) async {
+                                                viewModel.cancelVisite(
+                                                  context,
                                                   viewModel
                                                       .dashBoardList[index]
-                                                      .address,
-                                                  style: TextStyle(
-                                                    color: AppColors.blackColor,
-                                                    fontSize: 13,
+                                                      .storeId,
+                                                  remarks: value,
+                                                );
+                                              },
+
+                                              imageFile:
+                                                  imageFile, // 🔹 pass the image to dialog
+                                            );
+                                          }
+                                        }
+                                      } else {
+                                        AppSnackBar.showError(
+                                          context,
+                                          "You don't have camera permission.",
+                                        );
+                                      }
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${LabelService().getLabel(14)} : ${viewModel.dashBoardList[index].checkInTime}',
+                                          style: TextStyle(
+                                            color: AppColors.primary,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          LabelService().getLabel(15),
+                                          style: TextStyle(
+                                            color: AppColors.secondary,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                } else if (visitStatusId == 3) {
+                                  // Visited
+                                  statusWidget = Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Visited',
+                                        style: TextStyle(
+                                          color: AppColors.secondary,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else if (visitStatusId == 4) {
+                                  // Cancelled
+                                  statusWidget = Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Cancelled',
+                                        style: TextStyle(
+                                          color: AppColors.blackColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  // Fallback for unknown statuses
+                                  statusWidget = Text('Unknown Status');
+                                }
+
+                                return Column(
+                                  children: [
+                                    Container(
+                                      color:
+                                          viewModel
+                                                      .dashBoardList[index]
+                                                      .visitStatusId ==
+                                                  3
+                                              ? AppColors.darkGreyBackground
+                                              : AppColors.whiteColor,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 15,
+                                      ),
+                                      margin: EdgeInsets.symmetric(
+                                        horizontal: 5,
+                                      ),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 5,
+                                            ),
+                                            child: Text(
+                                              '${index + 1}.',
+                                              style: TextStyle(
+                                                color: AppColors.blackColor,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: GestureDetector(
+                                              onTap: () async {
+                                                final allowMultiCheckIn =
+                                                    viewModel.permission
+                                                        ?.getPermissionValue(
+                                                          'AllowMultipleCheckIn',
+                                                        );
+                                                final allowStoreInWithoutCheckIn =
+                                                    viewModel.permission
+                                                        ?.getPermissionValue(
+                                                          'Allow_StoreIn_WithoutCheckIn',
+                                                        );
+
+                                                final selectedStore =
+                                                    viewModel
+                                                        .dashBoardList[index];
+
+                                                // 1. Check: StoreIn not allowed without check-in
+                                                if (allowStoreInWithoutCheckIn ==
+                                                        'N' &&
+                                                    selectedStore
+                                                            .visitStatusId ==
+                                                        0) {
+                                                  AppSnackBar.showError(
+                                                    context,
+                                                    "You must check in before entering the store.",
+                                                  );
+                                                  return;
+                                                }
+
+                                                // 2. If multi-check-in allowed, allow navigation
+                                                if (allowMultiCheckIn == 'Y') {
+                                                  NavigationService.navigateTo(
+                                                    StoreHome(
+                                                      storeName:
+                                                          selectedStore
+                                                              .storeName,
+                                                      checkInTime:
+                                                          selectedStore
+                                                              .checkInTime,
+                                                      grade: 'A',
+                                                      address:
+                                                          selectedStore.address,
+                                                      storeId:
+                                                          selectedStore.storeId,
+                                                    ),
+                                                  );
+                                                  return;
+                                                }
+
+                                                // 3. If multi-check-in not allowed, check if user is already checked into another store
+                                                final isAlreadyCheckedIn =
+                                                    viewModel.stores.any(
+                                                      (store) =>
+                                                          store.visitStatusId !=
+                                                              0 &&
+                                                          store.storeId !=
+                                                              selectedStore
+                                                                  .storeId,
+                                                    );
+
+                                                if (isAlreadyCheckedIn) {
+                                                  AppSnackBar.showError(
+                                                    context,
+                                                    "You are already checked in to another store. Multiple check-ins are not allowed.",
+                                                  );
+                                                  return;
+                                                }
+
+                                                // ✅ All good, navigate
+                                                NavigationService.navigateTo(
+                                                  StoreHome(
+                                                    storeName:
+                                                        selectedStore.storeName,
+                                                    checkInTime:
+                                                        selectedStore
+                                                            .checkInTime,
+                                                    grade: 'A',
+                                                    address:
+                                                        selectedStore.address,
+                                                    storeId:
+                                                        selectedStore.storeId,
                                                   ),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  maxLines: 2,
+                                                );
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                  right: 5,
                                                 ),
-                                                Row(
+                                                child: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      '${viewModel.dashBoardList[index].planDate}',
+                                                      viewModel
+                                                          .dashBoardList[index]
+                                                          .storeName,
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColors
+                                                                .blackColor,
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 3),
+                                                    Text(
+                                                      viewModel
+                                                          .dashBoardList[index]
+                                                          .address,
                                                       style: TextStyle(
                                                         color:
                                                             AppColors
                                                                 .blackColor,
                                                         fontSize: 13,
                                                       ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 2,
+                                                    ),
+                                                    Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          '${viewModel.dashBoardList[index].planDate}',
+                                                          style: TextStyle(
+                                                            color:
+                                                                AppColors
+                                                                    .blackColor,
+                                                            fontSize: 13,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
-                                              ],
+                                              ),
                                             ),
                                           ),
-                                        ),
+
+                                          statusWidget,
+                                        ],
                                       ),
-
-                                      viewModel
-                                                  .dashBoardList[index]
-                                                  .visitStatusId ==
-                                              1
-                                          ? InkWell(
-                                            onTap: () async {
-                                              if (checkInCamera == 'Y') {
-                                                // await viewModel.getLatLong();
-                                                double myLat =
-                                                    viewModel.latitude;
-                                                double myLng =
-                                                    viewModel.longitude;
-
-                                                double otherLat = double.parse(
-                                                  viewModel
-                                                      .stores[index]
-                                                      .latitude,
-                                                );
-                                                double otherLng = double.parse(
-                                                  viewModel
-                                                      .stores[index]
-                                                      .longitude,
-                                                );
-                                                print(
-                                                  'myLat$myLat myLong$myLng',
-                                                );
-                                                print(
-                                                  'otherLat$otherLat otherLng$otherLng',
-                                                );
-
-                                                double distance = viewModel
-                                                    .calculateDistanceInMeters(
-                                                      myLat,
-                                                      myLng,
-                                                      otherLat,
-                                                      otherLng,
-                                                    );
-
-                                                print(
-                                                  'Distance is ${distance.toStringAsFixed(2)} meters',
-                                                );
-
-                                                final picker = ImagePicker();
-                                                final pickedFile = await picker
-                                                    .pickImage(
-                                                      source:
-                                                          ImageSource.camera,
-                                                    );
-
-                                                if (pickedFile != null) {
-                                                  final imageFile = File(
-                                                    pickedFile.path,
-                                                  );
-
-                                                  showImagePopup(
-                                                    context: context,
-                                                    title:
-                                                        viewModel
-                                                            .dashBoardList[index]
-                                                            .storeName,
-                                                    checkStatus:
-                                                        viewModel
-                                                                    .dashBoardList[index]
-                                                                    .visitStatusId ==
-                                                                0
-                                                            ? LabelService()
-                                                                .getLabel(14)
-                                                            : LabelService()
-                                                                .getLabel(15),
-                                                    checkStatus1: 'Cancel',
-                                                    checkRemarks:
-                                                        viewModel
-                                                                    .dashBoardList[index]
-                                                                    .visitStatusId ==
-                                                                0
-                                                            ? LabelService()
-                                                                .getLabel(21)
-                                                            : LabelService()
-                                                                .getLabel(22),
-                                                    onSubmit: (value) async {
-                                                      if (viewModel
-                                                              .dashBoardList[index]
-                                                              .visitStatusId ==
-                                                          0) {
-                                                        viewModel.coverageCheckIn(
-                                                          context,
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .storeId,
-                                                          remarks: value,
-                                                          checkInImgFile:
-                                                              imageFile,
-                                                        );
-                                                      } else {
-                                                        viewModel.coverageCheckout(
-                                                          context,
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .visitStatusId,
-                                                          remarks: value,
-                                                          checkOutImgFile:
-                                                              imageFile,
-                                                        );
-                                                      }
-                                                    },
-                                                    cancel: (value) async {
-                                                      viewModel.cancelVisite(
-                                                        context,
-                                                        viewModel
-                                                            .dashBoardList[index]
-                                                            .storeId,
-                                                        remarks: value,
-                                                      );
-                                                    },
-                                                    imageFile:
-                                                        imageFile, // 🔹 pass the image to dialog
-                                                  );
-                                                }
-                                              } else {
-                                                AppSnackBar.showError(
-                                                  context,
-                                                  "You don't have camera permission.",
-                                                );
-                                              }
-                                            },
-                                            child: Column(
-                                              children: [
-                                                Text(
-                                                  LabelService().getLabel(14),
-                                                  style: TextStyle(
-                                                    color: AppColors.blackColor,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                          : InkWell(
-                                            onTap: () async {
-                                              if (checkoutCamera == 'Y') {
-                                                // await viewModel.getLatLong();
-                                                double myLat =
-                                                    viewModel.latitude;
-                                                double myLng =
-                                                    viewModel.longitude;
-
-                                                double otherLat = double.parse(
-                                                  viewModel
-                                                      .stores[index]
-                                                      .latitude,
-                                                );
-                                                double otherLng = double.parse(
-                                                  viewModel
-                                                      .stores[index]
-                                                      .longitude,
-                                                );
-
-                                                print(
-                                                  'myLat$myLat myLong$myLng',
-                                                );
-                                                print(
-                                                  'otherLat$otherLat otherLng$otherLng',
-                                                );
-
-                                                double distance = viewModel
-                                                    .calculateDistanceInMeters(
-                                                      myLat,
-                                                      myLng,
-                                                      otherLat,
-                                                      otherLng,
-                                                    );
-
-                                                print(
-                                                  'Distance is ${distance.toStringAsFixed(2)} meters',
-                                                );
-
-                                                if (distance >
-                                                    double.parse(
-                                                      distancePermission,
-                                                    )) {
-                                                  showLocationPopup(
-                                                    context: context,
-                                                    title:
-                                                        viewModel
-                                                            .dashBoardList[index]
-                                                            .storeName,
-                                                    checkStatus:
-                                                        viewModel
-                                                                    .dashBoardList[index]
-                                                                    .visitStatusId ==
-                                                                0
-                                                            ? LabelService()
-                                                                .getLabel(14)
-                                                            : LabelService()
-                                                                .getLabel(15),
-                                                    meter: distance
-                                                        .toStringAsFixed(2),
-                                                    myLat: myLat,
-                                                    myLng: myLng,
-                                                    otherLat: otherLat,
-                                                    otherLng: otherLng,
-                                                  );
-                                                } else {
-                                                  final picker = ImagePicker();
-                                                  final pickedFile =
-                                                      await picker.pickImage(
-                                                        source:
-                                                            ImageSource.camera,
-                                                      );
-
-                                                  if (pickedFile != null) {
-                                                    final imageFile = File(
-                                                      pickedFile.path,
-                                                    );
-                                                    List<int> imageBytes =
-                                                        File(
-                                                          pickedFile.path,
-                                                        ).readAsBytesSync();
-
-                                                    String base64Image =
-                                                        base64Encode(
-                                                          imageBytes,
-                                                        );
-
-                                                    showImagePopup(
-                                                      context: context,
-                                                      title:
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .storeName,
-                                                      checkStatus:
-                                                          viewModel
-                                                                      .dashBoardList[index]
-                                                                      .visitStatusId ==
-                                                                  0
-                                                              ? LabelService()
-                                                                  .getLabel(14)
-                                                              : LabelService()
-                                                                  .getLabel(15),
-                                                      checkStatus1: '',
-                                                      checkRemarks:
-                                                          viewModel
-                                                                      .dashBoardList[index]
-                                                                      .visitStatusId ==
-                                                                  0
-                                                              ? LabelService()
-                                                                  .getLabel(21)
-                                                              : LabelService()
-                                                                  .getLabel(22),
-                                                      onSubmit: (value) {
-                                                        if (viewModel
-                                                                .dashBoardList[index]
-                                                                .visitStatusId ==
-                                                            0) {
-                                                          viewModel.coverageCheckIn(
-                                                            context,
-                                                            viewModel
-                                                                .dashBoardList[index]
-                                                                .storeId,
-                                                            remarks: value,
-                                                            checkInImgFile:
-                                                                imageFile, // ✅ Required parameter now
-                                                          );
-                                                        } else {
-                                                          viewModel.coverageCheckout(
-                                                            context,
-                                                            viewModel
-                                                                .dashBoardList[index]
-                                                                .visitStatusId,
-                                                            remarks: value,
-                                                            checkOutImgFile:
-                                                                imageFile,
-                                                          );
-                                                        }
-                                                      },
-                                                      cancel: (value) async {
-                                                        viewModel.cancelVisite(
-                                                          context,
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .storeId,
-                                                          remarks: value,
-                                                        );
-                                                      },
-
-                                                      imageFile:
-                                                          imageFile, // 🔹 pass the image to dialog
-                                                    );
-                                                  }
-                                                }
-                                              } else {
-                                                AppSnackBar.showError(
-                                                  context,
-                                                  "You don't have camera permission.",
-                                                );
-                                              }
-                                            },
-                                            child: Column(
-                                              children: [
-                                                Text(
-                                                  '${LabelService().getLabel(14)} : ${viewModel.dashBoardList[index].checkInTime}',
-                                                  style: TextStyle(
-                                                    color: AppColors.primary,
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  LabelService().getLabel(15),
-                                                  style: TextStyle(
-                                                    color: AppColors.secondary,
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 );
                               },
                               separatorBuilder:

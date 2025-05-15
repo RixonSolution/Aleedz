@@ -74,6 +74,7 @@ class LoginViewModel extends ChangeNotifier {
             userData.apiToken!,
             userData.teamMemberID!,
           );
+          await chooseLanguage('1', language: false);
           debugPrint("Login Success: Token: ${userData.apiToken}");
           AppSnackBar.showSuccess(context, 'Login successful!');
           NavigationService.navigateTo(DashboardView());
@@ -138,7 +139,7 @@ class LoginViewModel extends ChangeNotifier {
     return null;
   }
 
-  Future<void> chooseLanguage(BuildContext context, String languageId) async {
+  Future<void> chooseLanguage(String languageId, {bool language = true}) async {
     loader = true;
     notifyListeners();
 
@@ -155,10 +156,11 @@ class LoginViewModel extends ChangeNotifier {
           (nestedData as List).map((e) => LabelModel.fromJson(e)).toList();
       await localData.saveLabelsToPrefs(labels);
       final List<LabelModel> savedLabels = await localData.getLabelsFromPrefs();
+      if (language == true) {
+        NavigationService.navigateTo(LoginView());
+      } else {}
 
-      NavigationService.navigateTo(LoginView());
-
-      AppSnackBar.showSuccess(context, 'Language is set as English}');
+      // AppSnackBar.showSuccess(context, 'Language is set as English}');
     } else {}
   }
 }

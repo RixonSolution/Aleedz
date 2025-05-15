@@ -733,6 +733,38 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
+                                      viewModel
+                                                  .stores[index]
+                                                  .completionStatus ==
+                                              '1'
+                                          ? Container(
+                                            width: 25,
+                                            height: 25,
+                                            decoration: BoxDecoration(
+                                              color: Colors.green,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                              size: 18,
+                                            ),
+                                          )
+                                          : Container(
+                                            width: 25,
+                                            height: 25,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  Colors
+                                                      .grey[300], // Light grey background
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                              size: 18,
+                                            ),
+                                          ),
                                     ],
                                   ),
                                 )
@@ -898,6 +930,38 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
+                                      viewModel
+                                                  .stores[index]
+                                                  .completionStatus ==
+                                              '1'
+                                          ? Container(
+                                            width: 25,
+                                            height: 25,
+                                            decoration: BoxDecoration(
+                                              color: Colors.green,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                              size: 18,
+                                            ),
+                                          )
+                                          : Container(
+                                            width: 25,
+                                            height: 25,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  Colors
+                                                      .grey[300], // Light grey background
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                              size: 18,
+                                            ),
+                                          ),
                                     ],
                                   ),
                                 ),

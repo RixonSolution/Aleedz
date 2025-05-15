@@ -35,6 +35,12 @@ class CoverageViewModel extends ChangeNotifier {
   List<BrandListModel> brandList = [];
   List<DashboardModel> dashBoardList = [];
 
+  int visitType1Count = 0;
+  List<DashboardModel> visitType1List = [];
+
+  int visitStatus3Count = 0;
+  List<DashboardModel> visitStatus3List = [];
+
   UserPermission? permission;
 
   List<Brand> brands = [];
@@ -315,6 +321,8 @@ class CoverageViewModel extends ChangeNotifier {
     String remarks = '',
   }) async {
     loader = true;
+    visitType1List = [];
+    visitStatus3List = [];
     notifyListeners();
 
     final response = await _coverageController.cancelVisite(
@@ -329,6 +337,15 @@ class CoverageViewModel extends ChangeNotifier {
     );
 
     if (response != null && response["status"] == 200) {
+      // Count and store VisitTypeID == 1
+      visitType1List =
+          dashBoardList.where((item) => item.visitTypeId == 1).toList();
+      visitType1Count = visitType1List.length;
+
+      // Count and store VisitStatusID == 3
+      visitStatus3List =
+          dashBoardList.where((item) => item.visitStatusId == 3).toList();
+      visitStatus3Count = visitStatus3List.length;
       await getCoverageList(context);
       loader = false;
       notifyListeners();

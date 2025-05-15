@@ -115,7 +115,7 @@ class _ChooseLanguageViewState extends ConsumerState<ChooseLanguageView> {
                   padding: const EdgeInsets.only(left: 25, right: 25, top: 20),
                   child: InkWell(
                     onTap: () {
-                      viewModel.chooseLanguage(context, '1');
+                      viewModel.chooseLanguage('1');
                     },
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 15),

@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/view/screens/%20login/login_view.dart';
 import 'package:aleedz/view/screens/choose_language/choose_language_view.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,7 +38,7 @@ class LogoutScreen extends StatelessWidget {
                   await prefs.clear();
 
                   // Navigate to LoginScreen (replace this with your actual login screen route)
-                  NavigationService.resetTo(ChooseLanguageView());
+                  NavigationService.resetTo(LoginView());
                 },
                 child: const Text(
                   'Yes',

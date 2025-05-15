@@ -18,6 +18,7 @@ class StoreModel {
   final String isOtherLocation;
   final int visitStatusId;
   final String checkInTime;
+  final String completionStatus;
 
   StoreModel({
     required this.storeId,
@@ -39,6 +40,7 @@ class StoreModel {
     required this.isOtherLocation,
     required this.visitStatusId,
     required this.checkInTime,
+    required this.completionStatus,
   });
 
   factory StoreModel.fromJson(Map<String, dynamic> json) {
@@ -62,6 +64,7 @@ class StoreModel {
       isOtherLocation: json["isOtherLocation"] ?? "",
       visitStatusId: json["VisitStatusID"] ?? 0,
       checkInTime: json["CheckInTime"] ?? "",
+      completionStatus: json["CompletionStatus"] ?? "",
     );
   }
 }
