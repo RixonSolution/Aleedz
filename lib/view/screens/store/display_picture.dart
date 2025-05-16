@@ -463,7 +463,42 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
               ),
             ),
 
-            SizedBox(height: 5),
+            const SizedBox(height: 10),
+
+            GestureDetector(
+              onTap: () {
+                //
+              },
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      LabelService().getLabel(53),
+                      style: TextStyle(
+                        color: AppColors.blackColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 5),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 12),
+              child: const Divider(color: AppColors.primary, height: 5),
+            ),
             Expanded(
               child: ListView.builder(
                 itemCount: viewModel.viewPicture.length,

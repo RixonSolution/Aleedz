@@ -519,8 +519,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 children: [
                                   Image.network(
                                     '${ApiConstants.baseUrl}/AppImages/StoreMenu_Icons/45.png',
-                                    height: 20,
-                                    width: 20,
+                                    height: 30,
+                                    width: 30,
                                     fit: BoxFit.cover,
                                   ),
                                   SizedBox(width: 4),
@@ -569,8 +569,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 children: [
                                   Image.network(
                                     '${ApiConstants.baseUrl}/AppImages/StoreMenu_Icons/46.png',
-                                    height: 20,
-                                    width: 20,
+                                    height: 30,
+                                    width: 30,
                                     fit: BoxFit.cover,
                                   ),
                                   SizedBox(width: 4),
@@ -596,9 +596,38 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 10),
 
-                      const SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: () {
+                          //
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                LabelService().getLabel(51),
+                                style: TextStyle(
+                                  color: AppColors.blackColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 5),
+                      const Divider(color: AppColors.primary, height: 5),
                       viewModel.loader
                           ? Center(
                             child: CircularProgressIndicator(
@@ -744,7 +773,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          LabelService().getLabel(14),
+                                          'Plan',
                                           style: TextStyle(
                                             color: AppColors.blackColor,
                                             fontSize: 16,
@@ -984,15 +1013,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                               ? AppColors.darkGreyBackground
                                               : AppColors.whiteColor,
                                       padding: EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 15,
+                                        horizontal: 0,
+                                        vertical: 12,
                                       ),
                                       margin: EdgeInsets.symmetric(
-                                        horizontal: 5,
+                                        horizontal: 0,
                                       ),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                      child: Stack(
                                         children: [
                                           Padding(
                                             padding: const EdgeInsets.symmetric(
@@ -1007,151 +1034,177 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                               ),
                                             ),
                                           ),
-                                          Expanded(
-                                            child: GestureDetector(
-                                              onTap: () async {
-                                                final allowMultiCheckIn =
-                                                    viewModel.permission
-                                                        ?.getPermissionValue(
-                                                          'AllowMultipleCheckIn',
-                                                        );
-                                                final allowStoreInWithoutCheckIn =
-                                                    viewModel.permission
-                                                        ?.getPermissionValue(
-                                                          'Allow_StoreIn_WithoutCheckIn',
-                                                        );
-
-                                                final selectedStore =
-                                                    viewModel
-                                                        .dashBoardList[index];
-
-                                                // 1. Check: StoreIn not allowed without check-in
-                                                if (allowStoreInWithoutCheckIn ==
-                                                        'N' &&
-                                                    selectedStore
-                                                            .visitStatusId ==
-                                                        0) {
-                                                  AppSnackBar.showError(
-                                                    context,
-                                                    "You must check in before entering the store.",
-                                                  );
-                                                  return;
-                                                }
-
-                                                // 2. If multi-check-in allowed, allow navigation
-                                                if (allowMultiCheckIn == 'Y') {
-                                                  NavigationService.navigateTo(
-                                                    StoreHome(
-                                                      storeName:
-                                                          selectedStore
-                                                              .storeName,
-                                                      checkInTime:
-                                                          selectedStore
-                                                              .checkInTime,
-                                                      grade: 'A',
-                                                      address:
-                                                          selectedStore.address,
-                                                      storeId:
-                                                          selectedStore.storeId,
+                                          Row(
+                                            children: [
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 5,
                                                     ),
-                                                  );
-                                                  return;
-                                                }
+                                                child: Text(
+                                                  '${index + 1}.',
+                                                  style: TextStyle(
+                                                    color: Colors.transparent,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: GestureDetector(
+                                                  onTap: () async {
+                                                    final allowMultiCheckIn =
+                                                        viewModel.permission
+                                                            ?.getPermissionValue(
+                                                              'AllowMultipleCheckIn',
+                                                            );
+                                                    final allowStoreInWithoutCheckIn =
+                                                        viewModel.permission
+                                                            ?.getPermissionValue(
+                                                              'Allow_StoreIn_WithoutCheckIn',
+                                                            );
 
-                                                // 3. If multi-check-in not allowed, check if user is already checked into another store
-                                                final isAlreadyCheckedIn =
-                                                    viewModel.stores.any(
-                                                      (store) =>
-                                                          store.visitStatusId !=
-                                                              0 &&
-                                                          store.storeId !=
+                                                    final selectedStore =
+                                                        viewModel
+                                                            .dashBoardList[index];
+
+                                                    // 1. Check: StoreIn not allowed without check-in
+                                                    if (allowStoreInWithoutCheckIn ==
+                                                            'N' &&
+                                                        selectedStore
+                                                                .visitStatusId ==
+                                                            0) {
+                                                      AppSnackBar.showError(
+                                                        context,
+                                                        "You must check in before entering the store.",
+                                                      );
+                                                      return;
+                                                    }
+
+                                                    // 2. If multi-check-in allowed, allow navigation
+                                                    if (allowMultiCheckIn ==
+                                                        'Y') {
+                                                      NavigationService.navigateTo(
+                                                        StoreHome(
+                                                          storeName:
+                                                              selectedStore
+                                                                  .storeName,
+                                                          checkInTime:
+                                                              selectedStore
+                                                                  .checkInTime,
+                                                          grade: 'A',
+                                                          address:
+                                                              selectedStore
+                                                                  .address,
+                                                          storeId:
                                                               selectedStore
                                                                   .storeId,
+                                                        ),
+                                                      );
+                                                      return;
+                                                    }
+
+                                                    // 3. If multi-check-in not allowed, check if user is already checked into another store
+                                                    final isAlreadyCheckedIn =
+                                                        viewModel.stores.any(
+                                                          (store) =>
+                                                              store.visitStatusId !=
+                                                                  0 &&
+                                                              store.storeId !=
+                                                                  selectedStore
+                                                                      .storeId,
+                                                        );
+
+                                                    if (isAlreadyCheckedIn) {
+                                                      AppSnackBar.showError(
+                                                        context,
+                                                        "You are already checked in to another store. Multiple check-ins are not allowed.",
+                                                      );
+                                                      return;
+                                                    }
+
+                                                    // ✅ All good, navigate
+                                                    NavigationService.navigateTo(
+                                                      StoreHome(
+                                                        storeName:
+                                                            selectedStore
+                                                                .storeName,
+                                                        checkInTime:
+                                                            selectedStore
+                                                                .checkInTime,
+                                                        grade: 'A',
+                                                        address:
+                                                            selectedStore
+                                                                .address,
+                                                        storeId:
+                                                            selectedStore
+                                                                .storeId,
+                                                      ),
                                                     );
-
-                                                if (isAlreadyCheckedIn) {
-                                                  AppSnackBar.showError(
-                                                    context,
-                                                    "You are already checked in to another store. Multiple check-ins are not allowed.",
-                                                  );
-                                                  return;
-                                                }
-
-                                                // ✅ All good, navigate
-                                                NavigationService.navigateTo(
-                                                  StoreHome(
-                                                    storeName:
-                                                        selectedStore.storeName,
-                                                    checkInTime:
-                                                        selectedStore
-                                                            .checkInTime,
-                                                    grade: 'A',
-                                                    address:
-                                                        selectedStore.address,
-                                                    storeId:
-                                                        selectedStore.storeId,
-                                                  ),
-                                                );
-                                              },
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                  right: 5,
-                                                ),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      viewModel
-                                                          .dashBoardList[index]
-                                                          .storeName,
-                                                      style: TextStyle(
-                                                        color:
-                                                            AppColors
-                                                                .blackColor,
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
-                                                    ),
-                                                    SizedBox(height: 3),
-                                                    Text(
-                                                      viewModel
-                                                          .dashBoardList[index]
-                                                          .address,
-                                                      style: TextStyle(
-                                                        color:
-                                                            AppColors
-                                                                .blackColor,
-                                                        fontSize: 13,
-                                                      ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 2,
-                                                    ),
-                                                    Row(
+                                                  },
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                          right: 5,
+                                                        ),
+                                                    child: Column(
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
                                                               .start,
                                                       children: [
                                                         Text(
-                                                          '${viewModel.dashBoardList[index].planDate}',
+                                                          viewModel
+                                                              .dashBoardList[index]
+                                                              .storeName,
+                                                          style: TextStyle(
+                                                            color:
+                                                                AppColors
+                                                                    .blackColor,
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                        SizedBox(height: 3),
+                                                        Text(
+                                                          viewModel
+                                                              .dashBoardList[index]
+                                                              .address,
                                                           style: TextStyle(
                                                             color:
                                                                 AppColors
                                                                     .blackColor,
                                                             fontSize: 13,
                                                           ),
+                                                          overflow:
+                                                              TextOverflow
+                                                                  .ellipsis,
+                                                          maxLines: 2,
+                                                        ),
+                                                        Row(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              '${viewModel.dashBoardList[index].planDate}',
+                                                              style: TextStyle(
+                                                                color:
+                                                                    AppColors
+                                                                        .blackColor,
+                                                                fontSize: 13,
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
                                                       ],
                                                     ),
-                                                  ],
+                                                  ),
                                                 ),
                                               ),
-                                            ),
+                                              statusWidget,
+                                            ],
                                           ),
-
-                                          statusWidget,
                                         ],
                                       ),
                                     ),

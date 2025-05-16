@@ -290,6 +290,7 @@ class CoverageViewModel extends ChangeNotifier {
   }
 
   Future<void> getDashboard() async {
+    dashBoardList = [];
     DateTime date = DateTime.now(); // or DateTime.now()
     String formattedDate = DateFormat('yyyy-MM-dd').format(date);
     final response = await _coverageController.getDashboard(
