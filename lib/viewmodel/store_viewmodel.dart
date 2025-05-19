@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:aleedz/core/controllers/coverage_controller.dart';
 import 'package:aleedz/core/controllers/store_controller.dart';
@@ -11,6 +12,7 @@ import 'package:aleedz/models/display_check_model.dart';
 import 'package:aleedz/models/picture_view_model.dart';
 import 'package:aleedz/models/product_selection_model.dart';
 import 'package:aleedz/models/ros_label.dart';
+import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final storeModelProvider = ChangeNotifierProvider<StoreViewModel>((ref) {
   return StoreViewModel();
@@ -28,6 +31,7 @@ class StoreViewModel extends ChangeNotifier {
   final StoreController _storeController = StoreController();
   List<ROSLabel> rosLabels = [];
   List<DisplayCheckModel> checkMaster = [];
+  UserPermission? permission;
 
   List<PictureViewModel> viewPicture = [];
   List<DashboardModel> dashBoardList = [];
@@ -36,6 +40,15 @@ class StoreViewModel extends ChangeNotifier {
   bool rightImageRemoved = false;
 
   String storeId = '0';
+  Future<UserPermission?> loadStoredPermissions() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('user_permission');
+    if (jsonString != null) {
+      final jsonMap = jsonDecode(jsonString);
+      return UserPermission.fromJson(jsonMap);
+    }
+    return null;
+  }
 
   UserModel? user;
   File? leftImage;
@@ -137,6 +150,8 @@ class StoreViewModel extends ChangeNotifier {
     final store = StoreLocalData();
 
     user = await store.getUserFromPrefs();
+    permission = await loadStoredPermissions();
+
     notifyListeners();
 
     if (user != null) {

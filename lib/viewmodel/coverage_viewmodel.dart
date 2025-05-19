@@ -35,11 +35,11 @@ class CoverageViewModel extends ChangeNotifier {
   List<BrandListModel> brandList = [];
   List<DashboardModel> dashBoardList = [];
 
-  int visitType1Count = 0;
-  List<DashboardModel> visitType1List = [];
+  int userPlan = 0;
+  List<DashboardModel> userPlanList = [];
 
-  int visitStatus3Count = 0;
-  List<DashboardModel> visitStatus3List = [];
+  int userVisited = 0;
+  List<DashboardModel> userVisitedList = [];
 
   UserPermission? permission;
 
@@ -250,6 +250,35 @@ class CoverageViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> dashboardCheckIn(
+    BuildContext context,
+    int visiteId, {
+    String remarks = '',
+    required File checkInImgFile,
+  }) async {
+    loader = true;
+    notifyListeners();
+
+    final response = await _coverageController.dashboardCheckIn(
+      longitude: longitude.toString(),
+      latitude: latitude.toString(),
+      remarks: remarks,
+      checkInImgFile: checkInImgFile, // ✅ Pass image as File
+      token: user?.apiToken ?? '',
+      visiteId: visiteId.toString(),
+    );
+
+    if (response != null && response["status"] == 200) {
+      await getDashboard();
+      loader = false;
+      notifyListeners();
+    } else {
+      debugPrint("coverage list Error: ${response?['data']}");
+      loader = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> coverageCheckout(
     BuildContext context,
     int visitedId, {
@@ -280,6 +309,8 @@ class CoverageViewModel extends ChangeNotifier {
 
     if (response != null && response["status"] == 200) {
       await getCoverageList(context);
+      await getDashboard();
+
       loader = false;
       notifyListeners();
     } else {
@@ -296,6 +327,7 @@ class CoverageViewModel extends ChangeNotifier {
     final response = await _coverageController.getDashboard(
       token: user?.apiToken ?? '',
       planDate: formattedDate,
+      // planDate: '2025-05-17',
       teamMemberId: user?.teamMemberID.toString() ?? '',
       visiteSatue: '0',
     );
@@ -308,6 +340,19 @@ class CoverageViewModel extends ChangeNotifier {
             dataList
                 .map<DashboardModel>((data) => DashboardModel.fromJson(data))
                 .toList();
+        // Count and store VisitTypeID == 1
+        userPlanList =
+            dashBoardList.where((item) => item.visitTypeId == 1).toList();
+        userPlan = userPlanList.length;
+
+        // Count and store VisitStatusID == 3
+        userVisitedList =
+            dashBoardList
+                .where(
+                  (item) => item.visitStatusId == 3 && item.visitTypeId == 1,
+                )
+                .toList();
+        userVisited = userVisitedList.length;
       }
 
       notifyListeners();
@@ -318,12 +363,13 @@ class CoverageViewModel extends ChangeNotifier {
 
   Future<void> cancelVisite(
     BuildContext context,
-    int storeId, {
+    int storeId,
+    int visiteId, {
     String remarks = '',
   }) async {
     loader = true;
-    visitType1List = [];
-    visitStatus3List = [];
+    userPlanList = [];
+    userVisitedList = [];
     notifyListeners();
 
     final response = await _coverageController.cancelVisite(
@@ -334,20 +380,12 @@ class CoverageViewModel extends ChangeNotifier {
       lng: longitude.toString(),
       lat: latitude.toString(),
       token: user?.apiToken ?? '',
-      visiteId: '0',
+      visiteId: visiteId.toString(),
     );
 
     if (response != null && response["status"] == 200) {
-      // Count and store VisitTypeID == 1
-      visitType1List =
-          dashBoardList.where((item) => item.visitTypeId == 1).toList();
-      visitType1Count = visitType1List.length;
-
-      // Count and store VisitStatusID == 3
-      visitStatus3List =
-          dashBoardList.where((item) => item.visitStatusId == 3).toList();
-      visitStatus3Count = visitStatus3List.length;
       await getCoverageList(context);
+      await getDashboard();
       loader = false;
       notifyListeners();
     } else {
@@ -381,32 +419,11 @@ class CoverageViewModel extends ChangeNotifier {
     }
   }
 
-  Future<String> compressBase64Image(
-    String base64Str, {
-    int width = 50,
-    int quality = 10,
-  }) async {
-    // Step 1: Decode Base64 to bytes
-    final imageBytes = base64Decode(base64Str);
-
-    // Step 2: Decode image bytes to image object
-    img.Image? image = img.decodeImage(imageBytes);
-    if (image == null) throw Exception("Unable to decode image");
-
-    // Step 3: Resize the image
-    img.Image resized = img.copyResize(image, width: width);
-
-    // Step 4: Compress image to JPEG with quality
-    final compressedBytes = img.encodeJpg(resized, quality: quality);
-
-    // Step 5: Encode back to Base64
-    return base64Encode(compressedBytes);
-  }
-
   Future loadDashboard(context) async {
     loader = true;
     notifyListeners();
     await loadUser();
+    await getLatLong();
     await getCoverageCount(context);
     await getDashboard();
 

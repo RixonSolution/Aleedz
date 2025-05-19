@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_text_style.dart';
@@ -178,7 +177,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           ),
                         ),
                         if (checkStatus1 != '') SizedBox(width: 5),
-                        if (checkStatus1 != '')
+                        if (checkRemarks == 'Check In Remarks')
                           Expanded(
                             child: InkWell(
                               onTap: () {
@@ -224,6 +223,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
     required double myLng,
     required double otherLat,
     required double otherLng,
+    required String checkStatus1,
+
+    required void Function(String value) cancel,
   }) {
     final TextEditingController _controller = TextEditingController();
 
@@ -297,6 +299,26 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       ),
                     ),
                     const SizedBox(height: 10),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                        cancel(_controller.text);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        decoration: BoxDecoration(color: AppColors.error),
+                        child: Center(
+                          child: Text(
+                            checkStatus1,
+                            style: TextStyle(
+                              color: AppColors.whiteColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -320,6 +342,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         viewModel.permission?.getPermissionValue("AllowMultipleCheckIn") ?? "N";
     DateTime today = DateTime.now();
     String formattedDate = DateFormat('dd-MMM-yyyy').format(today);
+    // print('distancePermission$distancePermission');
 
     return SafeArea(
       child: Scaffold(
@@ -487,7 +510,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                       style: AppTextStyles.subLabelStyle,
                                     ),
                                     Text(
-                                      '${viewModel.visitType1Count}/${viewModel.visitStatus3Count}',
+                                      '${viewModel.userVisited}/${viewModel.userPlan}',
                                       style: AppTextStyles.bigTextStyle,
                                     ),
                                   ],
@@ -612,13 +635,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 LabelService().getLabel(51),
                                 style: TextStyle(
-                                  color: AppColors.blackColor,
-                                  fontSize: 14,
+                                  color: AppColors.secondary,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -705,7 +728,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                 viewModel
                                                             .dashBoardList[index]
                                                             .visitStatusId ==
-                                                        0
+                                                        1
                                                     ? LabelService().getLabel(
                                                       14,
                                                     )
@@ -717,7 +740,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                 viewModel
                                                             .dashBoardList[index]
                                                             .visitStatusId ==
-                                                        0
+                                                        1
                                                     ? LabelService().getLabel(
                                                       21,
                                                     )
@@ -725,26 +748,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                       22,
                                                     ),
                                             onSubmit: (value) async {
-                                              if (viewModel
-                                                      .dashBoardList[index]
-                                                      .visitStatusId ==
-                                                  0) {
-                                                viewModel.coverageCheckIn(
+                                              {
+                                                viewModel.dashboardCheckIn(
                                                   context,
                                                   viewModel
                                                       .dashBoardList[index]
-                                                      .storeId,
+                                                      .visitId,
                                                   remarks: value,
                                                   checkInImgFile: imageFile,
-                                                );
-                                              } else {
-                                                viewModel.coverageCheckout(
-                                                  context,
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .visitStatusId,
-                                                  remarks: value,
-                                                  checkOutImgFile: imageFile,
                                                 );
                                               }
                                             },
@@ -754,6 +765,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                 viewModel
                                                     .dashBoardList[index]
                                                     .storeId,
+                                                viewModel
+                                                    .dashBoardList[index]
+                                                    .visitId,
                                                 remarks: value,
                                               );
                                             },
@@ -773,7 +787,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Plan',
+                                          'Check In',
                                           style: TextStyle(
                                             color: AppColors.blackColor,
                                             fontSize: 16,
@@ -845,6 +859,19 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                             myLng: myLng,
                                             otherLat: otherLat,
                                             otherLng: otherLng,
+                                            checkStatus1: 'Cancel',
+                                            cancel: (value) async {
+                                              viewModel.cancelVisite(
+                                                context,
+                                                viewModel
+                                                    .dashBoardList[index]
+                                                    .storeId,
+                                                viewModel
+                                                    .dashBoardList[index]
+                                                    .visitId,
+                                                remarks: value,
+                                              );
+                                            },
                                           );
                                         } else {
                                           final picker = ImagePicker();
@@ -876,7 +903,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                   viewModel
                                                               .dashBoardList[index]
                                                               .visitStatusId ==
-                                                          0
+                                                          1
                                                       ? LabelService().getLabel(
                                                         14,
                                                       )
@@ -888,7 +915,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                   viewModel
                                                               .dashBoardList[index]
                                                               .visitStatusId ==
-                                                          0
+                                                          1
                                                       ? LabelService().getLabel(
                                                         21,
                                                       )
@@ -896,29 +923,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                         22,
                                                       ),
                                               onSubmit: (value) {
-                                                if (viewModel
-                                                        .dashBoardList[index]
-                                                        .visitStatusId ==
-                                                    0) {
-                                                  viewModel.coverageCheckIn(
-                                                    context,
-                                                    viewModel
-                                                        .dashBoardList[index]
-                                                        .storeId,
-                                                    remarks: value,
-                                                    checkInImgFile:
-                                                        imageFile, // ✅ Required parameter now
-                                                  );
-                                                } else {
-                                                  viewModel.coverageCheckout(
-                                                    context,
-                                                    viewModel
-                                                        .dashBoardList[index]
-                                                        .visitStatusId,
-                                                    remarks: value,
-                                                    checkOutImgFile: imageFile,
-                                                  );
-                                                }
+                                                viewModel.coverageCheckout(
+                                                  context,
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .visitId,
+                                                  remarks: value,
+                                                  checkOutImgFile: imageFile,
+                                                );
                                               },
                                               cancel: (value) async {
                                                 viewModel.cancelVisite(
@@ -926,6 +938,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                   viewModel
                                                       .dashBoardList[index]
                                                       .storeId,
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .visitId,
                                                   remarks: value,
                                                 );
                                               },
@@ -974,7 +989,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                       Text(
                                         'Visited',
                                         style: TextStyle(
-                                          color: AppColors.secondary,
+                                          color: AppColors.success,
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -990,7 +1005,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                       Text(
                                         'Cancelled',
                                         style: TextStyle(
-                                          color: AppColors.blackColor,
+                                          color: AppColors.error,
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
                                         ),

@@ -2,6 +2,7 @@ import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/product_selection_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
@@ -112,6 +113,12 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(storeModelProvider);
+
+    String cameraPermission =
+        viewModel.permission?.getPermissionValue(
+          "DisplayCheckImagesMandatory",
+        ) ??
+        "N";
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
@@ -627,10 +634,18 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                             Expanded(
                                               child: GestureDetector(
                                                 onTap: () {
+                                                  if (cameraPermission == 'Y') {
+                                                    _showImagePickerDialog(
+                                                      'left',
+                                                    );
+                                                  } else {
+                                                    AppSnackBar.showError(
+                                                      context,
+                                                      "You don't have camera permission.",
+                                                    );
+                                                  }
+
                                                   // Open a dialog to pick an image from the camera
-                                                  _showImagePickerDialog(
-                                                    'left',
-                                                  );
                                                 },
                                                 child: Column(
                                                   children: [
@@ -804,10 +819,16 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                             Expanded(
                                               child: GestureDetector(
                                                 onTap: () {
-                                                  // Open a dialog to pick an image from the gallery
-                                                  _showImagePickerDialog(
-                                                    'right',
-                                                  );
+                                                  if (cameraPermission == 'Y') {
+                                                    _showImagePickerDialog(
+                                                      'right',
+                                                    );
+                                                  } else {
+                                                    AppSnackBar.showError(
+                                                      context,
+                                                      "You don't have camera permission.",
+                                                    );
+                                                  }
                                                 },
                                                 child: Column(
                                                   children: [
@@ -987,10 +1008,16 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                             Expanded(
                                               child: GestureDetector(
                                                 onTap: () {
-                                                  // Open a dialog to pick an image from the camera
-                                                  _showImagePickerDialog(
-                                                    'left',
-                                                  );
+                                                  if (cameraPermission == 'Y') {
+                                                    _showImagePickerDialog(
+                                                      'left',
+                                                    );
+                                                  } else {
+                                                    AppSnackBar.showError(
+                                                      context,
+                                                      "You don't have camera permission.",
+                                                    );
+                                                  }
                                                 },
                                                 child: Column(
                                                   children: [
@@ -1081,10 +1108,16 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                             Expanded(
                                               child: GestureDetector(
                                                 onTap: () {
-                                                  // Open a dialog to pick an image from the gallery
-                                                  _showImagePickerDialog(
-                                                    'right',
-                                                  );
+                                                  if (cameraPermission == 'Y') {
+                                                    _showImagePickerDialog(
+                                                      'right',
+                                                    );
+                                                  } else {
+                                                    AppSnackBar.showError(
+                                                      context,
+                                                      "You don't have camera permission.",
+                                                    );
+                                                  }
                                                 },
                                                 child: Column(
                                                   children: [

@@ -172,6 +172,62 @@ class CoverageServices {
     }
   }
 
+  Future<Map<String, dynamic>?> dashboardCheckIn({
+    required String visiteId,
+    required String longitude,
+    required String latitude,
+    required String remarks,
+    required File checkInImgFile,
+    required String token,
+  }) async {
+    try {
+      // Compress image before upload
+      Future<File?> compressImage(File file) async {
+        final dir = await getTemporaryDirectory();
+        final targetPath = path.join(
+          dir.path,
+          '${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
+
+        final result = await FlutterImageCompress.compressAndGetFile(
+          file.absolute.path,
+          targetPath,
+          quality: 30,
+        );
+
+        return result != null ? File(result.path) : null;
+      }
+
+      File? compressedImage = await compressImage(checkInImgFile);
+
+      final url = Uri.parse(
+        '${ApiConstants.dashboardCheckIn}?'
+        '_token=${Uri.encodeComponent(token)}&'
+        'VisitID=${Uri.encodeComponent(visiteId)}&'
+        'Longitude=${Uri.encodeComponent(longitude)}&'
+        'Latitude=${Uri.encodeComponent(latitude)}&'
+        'Remarks=${Uri.encodeComponent(remarks)}',
+      );
+
+      var request = http.MultipartRequest('POST', url);
+
+      if (compressedImage != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath('CheckInImg', compressedImage.path),
+        );
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Error during check-in: $e');
+      return null;
+    }
+  }
+
   Future<Map<String, dynamic>?> coverageCheckOut({
     required String visitedId,
     required String longitude,

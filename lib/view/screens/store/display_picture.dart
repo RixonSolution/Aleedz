@@ -480,13 +480,13 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       LabelService().getLabel(53),
                       style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 14,
+                        color: AppColors.secondary,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

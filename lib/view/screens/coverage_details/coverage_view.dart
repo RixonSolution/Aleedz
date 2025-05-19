@@ -745,6 +745,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                   viewModel
                                                       .stores[index]
                                                       .storeId,
+                                                  0,
                                                   remarks: value,
                                                 );
                                               },
@@ -943,6 +944,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                     viewModel
                                                         .stores[index]
                                                         .storeId,
+                                                    0,
                                                     remarks: value,
                                                   );
                                                 },

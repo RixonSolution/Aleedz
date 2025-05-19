@@ -67,6 +67,24 @@ class CoverageController {
     );
   }
 
+  Future<Map<String, dynamic>?> dashboardCheckIn({
+    required String visiteId,
+    required String longitude,
+    required String latitude,
+    required String remarks,
+    required File checkInImgFile,
+    required String token,
+  }) async {
+    return await _apiService.dashboardCheckIn(
+      longitude: longitude,
+      latitude: latitude,
+      remarks: remarks,
+      checkInImgFile: checkInImgFile,
+      token: token,
+      visiteId: visiteId,
+    );
+  }
+
   Future<Map<String, dynamic>?> coverageCheckOut({
     required String visitedId,
     required String longitude,
@@ -134,7 +152,7 @@ class CoverageController {
       planDate: planDate,
       teamMemberId: teamMemberId,
       storeId: storeId,
-      token: storeId,
+      token: token,
     );
   }
 

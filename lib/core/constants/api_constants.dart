@@ -20,6 +20,8 @@ class ApiConstants {
   static const String checkIn =
       "${baseUrl}/StoreVisit.asmx/TeamMemberCheckInDirect";
 
+  static const String dashboardCheckIn = "${baseUrl}/CheckIn.asmx/CheckInImg";
+
   static const String checkOut = "${baseUrl}/CheckOut.asmx/CheckOutImg";
 
   static const String displayCheckSummary =
