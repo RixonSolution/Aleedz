@@ -73,8 +73,29 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        Icon(Icons.close, color: AppColors.whiteColor),
+                        Container(
+                          decoration: BoxDecoration(color: AppColors.secondary),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 30,
+                              vertical: 8,
+                            ),
+                            child: Center(
+                              child: Text(
+                                checkStatus,
+                                style: TextStyle(
+                                  color: AppColors.whiteColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
                         InkWell(
                           onTap: () {
                             Navigator.pop(context);
@@ -83,6 +104,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 10),
+
                     Text(
                       title,
                       style: TextStyle(
@@ -251,8 +274,29 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        Icon(Icons.close, color: AppColors.whiteColor),
+                        Container(
+                          decoration: BoxDecoration(color: AppColors.secondary),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 30,
+                              vertical: 8,
+                            ),
+                            child: Center(
+                              child: Text(
+                                checkStatus,
+                                style: TextStyle(
+                                  color: AppColors.whiteColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
                         InkWell(
                           onTap: () {
                             Navigator.pop(context);
@@ -261,6 +305,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 10),
+
                     Text(
                       title,
                       style: TextStyle(
@@ -298,27 +344,27 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                        cancel(_controller.text);
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        decoration: BoxDecoration(color: AppColors.error),
-                        child: Center(
-                          child: Text(
-                            checkStatus1,
-                            style: TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    // const SizedBox(height: 10),
+                    // InkWell(
+                    //   onTap: () {
+                    //     Navigator.pop(context);
+                    //     cancel(_controller.text);
+                    //   },
+                    //   child: Container(
+                    //     padding: EdgeInsets.symmetric(vertical: 15),
+                    //     decoration: BoxDecoration(color: AppColors.error),
+                    //     child: Center(
+                    //       child: Text(
+                    //         checkStatus1,
+                    //         style: TextStyle(
+                    //           color: AppColors.whiteColor,
+                    //           fontSize: 14,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -351,7 +397,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
             viewModel.loader
                 ? Center(child: CircularProgressIndicator())
                 : Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -631,7 +677,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
+                            color: AppColors.darkGreyBackground,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Row(
@@ -787,7 +833,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Check In',
+                                          'Check In ',
                                           style: TextStyle(
                                             color: AppColors.blackColor,
                                             fontSize: 16,
@@ -959,7 +1005,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                     },
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Text(
                                           '${LabelService().getLabel(14)} : ${viewModel.dashBoardList[index].checkInTime}',
@@ -987,7 +1033,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Visited',
+                                        'Visited ',
                                         style: TextStyle(
                                           color: AppColors.success,
                                           fontSize: 14,
@@ -1003,7 +1049,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Cancelled',
+                                        'Cancelled ',
                                         style: TextStyle(
                                           color: AppColors.error,
                                           fontSize: 14,

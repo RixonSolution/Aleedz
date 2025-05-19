@@ -106,6 +106,7 @@ class CoverageViewModel extends ChangeNotifier {
     // Separate variables
     latitude = position.latitude;
     longitude = position.longitude;
+    print('latitude:$latitude, longitude:$longitude');
 
     notifyListeners();
   }

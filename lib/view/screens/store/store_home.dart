@@ -2,6 +2,7 @@ import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/store/display_audit_check_summary.dart';
 import 'package:aleedz/view/screens/store/display_picture.dart';
@@ -33,6 +34,8 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
     });
     super.initState();
   }
+
+  bool isChecked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +109,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
             SizedBox(height: 20),
             Container(
               margin: EdgeInsets.symmetric(horizontal: 10),
-              padding: EdgeInsets.only(left: 10, top: 8, bottom: 8),
+              padding: EdgeInsets.only(left: 8, top: 8, bottom: 8),
               decoration: BoxDecoration(
                 border: Border.all(color: AppColors.blackColor),
                 borderRadius: BorderRadius.circular(12),
@@ -119,9 +122,10 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                       Expanded(
                         child: Text(
                           LabelService().getLabel(27),
+                          maxLines: 1,
                           style: TextStyle(
                             color: AppColors.blackColor,
-                            fontSize: 14,
+                            fontSize: 13,
                           ),
                         ),
                       ),
@@ -155,9 +159,10 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                       Expanded(
                         child: Text(
                           LabelService().getLabel(28),
+                          maxLines: 1,
                           style: TextStyle(
                             color: AppColors.blackColor,
-                            fontSize: 14,
+                            fontSize: 13,
                           ),
                         ),
                       ),
@@ -190,6 +195,48 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
             ),
             // use this button as a grid view return
             SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  isChecked = !isChecked;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        LabelService().getLabel(54),
+                        maxLines: 2,
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: isChecked ? Colors.green : Colors.transparent,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.grey,
+                        ), // Optional border when unchecked
+                      ),
+                      child:
+                          isChecked
+                              ? Icon(Icons.check, color: Colors.white, size: 15)
+                              : null,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+
             viewModel.loader
                 ? Center(child: CircularProgressIndicator())
                 : Expanded(
@@ -217,13 +264,20 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                               );
                             } else if (viewModel.rosLabels[index].rosLabelID ==
                                 32) {
-                              NavigationService.navigateTo(
-                                DisplayAuditCheckSummary(
-                                  storeName: widget.storeName,
-                                  checkInTime: widget.checkInTime,
-                                  storeId: widget.storeId,
-                                ),
-                              );
+                              if (isChecked == false) {
+                                AppSnackBar.showError(
+                                  context,
+                                  'Select the checkbox if you updated the store stock.',
+                                );
+                              } else {
+                                NavigationService.navigateTo(
+                                  DisplayAuditCheckSummary(
+                                    storeName: widget.storeName,
+                                    checkInTime: widget.checkInTime,
+                                    storeId: widget.storeId,
+                                  ),
+                                );
+                              }
                             } else {}
                           },
                           child: Container(

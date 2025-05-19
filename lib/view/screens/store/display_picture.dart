@@ -476,7 +476,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
+                  color: AppColors.darkGreyBackground,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(

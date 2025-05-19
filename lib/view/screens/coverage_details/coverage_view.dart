@@ -627,8 +627,41 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                           ),
                                           Row(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                                CrossAxisAlignment.center,
                                             children: [
+                                              viewModel
+                                                          .stores[index]
+                                                          .completionStatus ==
+                                                      '1'
+                                                  ? Container(
+                                                    width: 12,
+                                                    height: 12,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.green,
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: Icon(
+                                                      Icons.check,
+                                                      color: Colors.white,
+                                                      size: 8,
+                                                    ),
+                                                  )
+                                                  : Container(
+                                                    width: 12,
+                                                    height: 12,
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          Colors
+                                                              .grey[300], // Light grey background
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: Icon(
+                                                      Icons.check,
+                                                      color: Colors.white,
+                                                      size: 8,
+                                                    ),
+                                                  ),
+                                              SizedBox(width: 10),
                                               Text(
                                                 'Last Visted: ${viewModel.stores[index].lastVisitedDate}',
                                                 style: TextStyle(
@@ -770,40 +803,6 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          SizedBox(height: 5),
-
-                                          viewModel
-                                                      .stores[index]
-                                                      .completionStatus ==
-                                                  '1'
-                                              ? Container(
-                                                width: 20,
-                                                height: 20,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.green,
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: Icon(
-                                                  Icons.check,
-                                                  color: Colors.white,
-                                                  size: 15,
-                                                ),
-                                              )
-                                              : Container(
-                                                width: 20,
-                                                height: 20,
-                                                decoration: BoxDecoration(
-                                                  color:
-                                                      Colors
-                                                          .grey[300], // Light grey background
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: Icon(
-                                                  Icons.check,
-                                                  color: Colors.white,
-                                                  size: 15,
-                                                ),
-                                              ),
                                         ],
                                       ),
                                     )
@@ -979,40 +978,6 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          SizedBox(height: 5),
-
-                                          viewModel
-                                                      .stores[index]
-                                                      .completionStatus ==
-                                                  '1'
-                                              ? Container(
-                                                width: 20,
-                                                height: 20,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.green,
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: Icon(
-                                                  Icons.check,
-                                                  color: Colors.white,
-                                                  size: 15,
-                                                ),
-                                              )
-                                              : Container(
-                                                width: 20,
-                                                height: 20,
-                                                decoration: BoxDecoration(
-                                                  color:
-                                                      Colors
-                                                          .grey[300], // Light grey background
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: Icon(
-                                                  Icons.check,
-                                                  color: Colors.white,
-                                                  size: 15,
-                                                ),
-                                              ),
                                         ],
                                       ),
                                     ),
