@@ -260,6 +260,29 @@ class StoreServices {
     }
   }
 
+  Future<Map<String, dynamic>?> getIssueCategoryDropDown({
+    required String token,
+  }) async {
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse(
+      '${ApiConstants.issueCategoryDropDown}?_token=$encodedToken',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
   Future<Map<String, dynamic>?> submitDisplayPicture({
     required String token,
     required String storeId,
@@ -268,6 +291,8 @@ class StoreServices {
     required String pictureElementId,
     required String remarks,
     required String pictureId,
+    required String issueCategoryId,
+
     File? elementImg,
   }) async {
     try {
@@ -302,7 +327,7 @@ class StoreServices {
       request.fields['PictureElementID'] = pictureElementId;
       request.fields['Remarks'] = remarks;
       request.fields['PictureID'] = pictureId;
-
+      request.fields['IssueCategoryID'] = issueCategoryId;
       if (compressedElementImg != null) {
         request.files.add(
           await http.MultipartFile.fromPath(

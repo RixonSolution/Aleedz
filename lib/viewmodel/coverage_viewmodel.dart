@@ -28,7 +28,10 @@ class CoverageViewModel extends ChangeNotifier {
   final CoverageController _coverageController = CoverageController();
 
   UserModel? user;
-  int? storeCount = 0;
+  String? storeCount = '0';
+  String? storeTimeSpend = '0';
+  String? storeTotalTravel = '0';
+
   List<StoreModel> stores = [];
 
   List<ChannelModel> channelList = [];
@@ -166,6 +169,8 @@ class CoverageViewModel extends ChangeNotifier {
       final dataList = response["data"]['data'];
       if (dataList != null && dataList is List && dataList.isNotEmpty) {
         storeCount = dataList[0]["MyCoverageStoresCount"];
+        storeTimeSpend = dataList[1]["MyCoverageStoresCount"];
+        storeTotalTravel = dataList[2]["MyCoverageStoresCount"];
         notifyListeners();
       }
     } else {

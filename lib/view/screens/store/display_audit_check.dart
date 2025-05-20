@@ -134,26 +134,32 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () async {
-                        await viewModel.auditMediaSubmit(
-                          context,
-                          widget.storeId,
-                          widget.categoryId.toString(),
-                          remarksController.text,
-                          checkInImgFile1: viewModel.leftImage,
-                          checkInImgFile2: viewModel.rightImage,
-                        );
-                        List<Map<String, dynamic>> dataList =
-                            viewModel.selectedProducts
-                                .map((product) => product.toJson())
-                                .toList();
+                        if (cameraPermission == 'Y') {
+                          await viewModel.auditMediaSubmit(
+                            context,
+                            widget.storeId,
+                            widget.categoryId.toString(),
+                            remarksController.text,
+                            checkInImgFile1: viewModel.leftImage,
+                            checkInImgFile2: viewModel.rightImage,
+                          );
+                          List<Map<String, dynamic>> dataList =
+                              viewModel.selectedProducts
+                                  .map((product) => product.toJson())
+                                  .toList();
 
-                        viewModel.addDisplayCheck(
-                          dataList,
-                          context,
-                          widget.storeId,
-                          widget.categoryId,
-                        );
-                        // Your submit logic
+                          viewModel.addDisplayCheck(
+                            dataList,
+                            context,
+                            widget.storeId,
+                            widget.categoryId,
+                          );
+                        } else {
+                          AppSnackBar.showError(
+                            context,
+                            "You don't have camera permission.",
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         shape: const RoundedRectangleBorder(
@@ -634,16 +640,9 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                             Expanded(
                                               child: GestureDetector(
                                                 onTap: () {
-                                                  if (cameraPermission == 'Y') {
-                                                    _showImagePickerDialog(
-                                                      'left',
-                                                    );
-                                                  } else {
-                                                    AppSnackBar.showError(
-                                                      context,
-                                                      "You don't have camera permission.",
-                                                    );
-                                                  }
+                                                  _showImagePickerDialog(
+                                                    'left',
+                                                  );
 
                                                   // Open a dialog to pick an image from the camera
                                                 },
@@ -819,16 +818,9 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                             Expanded(
                                               child: GestureDetector(
                                                 onTap: () {
-                                                  if (cameraPermission == 'Y') {
-                                                    _showImagePickerDialog(
-                                                      'right',
-                                                    );
-                                                  } else {
-                                                    AppSnackBar.showError(
-                                                      context,
-                                                      "You don't have camera permission.",
-                                                    );
-                                                  }
+                                                  _showImagePickerDialog(
+                                                    'right',
+                                                  );
                                                 },
                                                 child: Column(
                                                   children: [
@@ -1008,16 +1000,9 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                             Expanded(
                                               child: GestureDetector(
                                                 onTap: () {
-                                                  if (cameraPermission == 'Y') {
-                                                    _showImagePickerDialog(
-                                                      'left',
-                                                    );
-                                                  } else {
-                                                    AppSnackBar.showError(
-                                                      context,
-                                                      "You don't have camera permission.",
-                                                    );
-                                                  }
+                                                  _showImagePickerDialog(
+                                                    'left',
+                                                  );
                                                 },
                                                 child: Column(
                                                   children: [
@@ -1108,16 +1093,9 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                             Expanded(
                                               child: GestureDetector(
                                                 onTap: () {
-                                                  if (cameraPermission == 'Y') {
-                                                    _showImagePickerDialog(
-                                                      'right',
-                                                    );
-                                                  } else {
-                                                    AppSnackBar.showError(
-                                                      context,
-                                                      "You don't have camera permission.",
-                                                    );
-                                                  }
+                                                  _showImagePickerDialog(
+                                                    'right',
+                                                  );
                                                 },
                                                 child: Column(
                                                   children: [

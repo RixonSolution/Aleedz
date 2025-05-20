@@ -10,6 +10,7 @@ class PictureViewModel {
   String? brandName;
   String? pictureName;
   String? column1;
+  String? categoryIssueName;
 
   PictureViewModel({
     this.pictureID,
@@ -23,6 +24,7 @@ class PictureViewModel {
     this.brandName,
     this.pictureName,
     this.column1,
+    this.categoryIssueName,
   });
 
   PictureViewModel.fromJson(Map<String, dynamic> json) {
@@ -37,6 +39,7 @@ class PictureViewModel {
     brandName = json['BrandName'];
     pictureName = json['PictureName'];
     column1 = json['Column1'];
+    categoryIssueName = json['IssueCategoryName'];
   }
 
   Map<String, dynamic> toJson() {
@@ -52,6 +55,7 @@ class PictureViewModel {
       "BrandName": this.brandName,
       "PictureName": this.pictureName,
       "Column1": this.column1,
+      "IssueCategoryName": this.categoryIssueName,
     };
   }
 }

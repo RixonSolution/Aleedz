@@ -14,6 +14,7 @@ import 'package:aleedz/models/product_selection_model.dart';
 import 'package:aleedz/models/ros_label.dart';
 import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/models/user_model.dart';
+import 'package:aleedz/routes/navigation_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -54,12 +55,23 @@ class StoreViewModel extends ChangeNotifier {
   final ImagePicker picker = ImagePicker();
   BrandListModel? selectedBrand;
   PictureListModel? selectedPictureModel;
+  CategoryIssueModel? selectedIssueCategory;
 
-  void selectBrand(
-    int storeId,
-    BrandListModel? brand,
-    BuildContext context,
-  ) async {
+  void selectCategoryIssue(int storeId, CategoryIssueModel? category) async {
+    loader = true;
+    notifyListeners();
+    selectedIssueCategory = category;
+    await getPictureView(
+      storeId: storeId.toString(),
+      brandId: selectedBrand?.brandId.toString() ?? '0',
+      elementId: selectedPictureModel?.pictureElementId.toString() ?? '1',
+    );
+
+    loader = false;
+    notifyListeners();
+  }
+
+  void selectBrand(int storeId, BrandListModel? brand) async {
     loader = true;
     notifyListeners();
     selectedBrand = brand;
@@ -98,6 +110,7 @@ class StoreViewModel extends ChangeNotifier {
 
   List<BrandListModel> brandList = [];
   List<PictureListModel> pictureList = [];
+  List<CategoryIssueModel> categoryIssue = [];
 
   List<ProductSelection> selectedProducts = [];
 
@@ -208,9 +221,24 @@ class StoreViewModel extends ChangeNotifier {
     if (response != null && response["status"] == 200) {
       final data = response["data"]['data'] as List;
       pictureList = data.map((e) => PictureListModel.fromJson(e)).toList();
+      // print(pictureList.length);
       notifyListeners();
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> categoryIssueDropDown() async {
+    final response = await _storeController.categoryIssueDropDown(
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'] as List;
+      categoryIssue = data.map((e) => CategoryIssueModel.fromJson(e)).toList();
+      notifyListeners();
+    } else {
+      debugPrint("Category Issue DropDown: ${response?['data']}");
     }
   }
 
@@ -289,8 +317,7 @@ class StoreViewModel extends ChangeNotifier {
       dataList: dataList,
     );
 
-    await checkSummary(storeId, 0);
-    AppSnackBar.showSuccess(context, 'Display Check added successfully');
+    // AppSnackBar.showSuccess(context, 'Display Check added successfully');
 
     // if (response != null && response["status"] == 200) {
     //   debugPrint("Display Check added successfully: ${response['data']}");
@@ -324,6 +351,15 @@ class StoreViewModel extends ChangeNotifier {
     );
 
     if (response != null && response["status"] == 200) {
+      await checkSummary(storeId, 0);
+      // await checkSummary(storeId, selectedBrand?.brandId ?? 0);
+
+      // selectBrand(
+      //                       storeId,
+      //                       selectedBrand?.brandId??0,
+
+      //                     );
+      NavigationService.goBack();
       notifyListeners();
     } else {
       debugPrint("auditMediaSubmit Error: ${response?['data']}");
@@ -411,6 +447,8 @@ class StoreViewModel extends ChangeNotifier {
     required String pictureElementId,
     required String remarks,
     required String pictureId,
+    required String issueCategoryId,
+
     required File elementImg,
   }) async {
     loader = true;
@@ -425,6 +463,7 @@ class StoreViewModel extends ChangeNotifier {
       remarks: remarks,
       pictureId: pictureId,
       elementImg: leftImage,
+      issueCategoryId: issueCategoryId,
     );
 
     if (response != null && response["status"] == 200) {
@@ -520,6 +559,7 @@ class StoreViewModel extends ChangeNotifier {
     await loadUser();
     await getBrandDropDown();
     await getPictureDropDown();
+    await categoryIssueDropDown();
     await getPictureView(
       storeId: storeId,
       brandId: brandId,
@@ -543,6 +583,8 @@ class StoreViewModel extends ChangeNotifier {
     storeId = sId;
     selectedBrand = null;
     selectedPictureModel = null;
+    selectedIssueCategory = null;
+    leftImage = null;
     notifyListeners();
   }
 }

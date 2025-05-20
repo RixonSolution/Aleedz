@@ -34,3 +34,26 @@ class PictureListModel {
   @override
   String toString() => pictureElementName; // For UI display
 }
+
+class CategoryIssueModel {
+  final int categoryId;
+  final String categoryName;
+  final int activeStatus;
+
+  CategoryIssueModel({
+    required this.categoryId,
+    required this.categoryName,
+    required this.activeStatus,
+  });
+
+  factory CategoryIssueModel.fromJson(Map<String, dynamic> json) {
+    return CategoryIssueModel(
+      categoryId: json['IssueCategoryID'] ?? 0,
+      categoryName: json['IssueCategory'] ?? '',
+      activeStatus: json['ActiveStatus'] ?? 0,
+    );
+  }
+
+  @override
+  String toString() => categoryName; // For UI display
+}

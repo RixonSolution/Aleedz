@@ -137,7 +137,7 @@ class _DisplayAuditCheckSummaryState
                   final selected = viewModel.brandList.firstWhere(
                     (c) => c.brandId == branddlId,
                   );
-                  viewModel.selectBrand(widget.storeId, selected, context);
+                  viewModel.selectBrand(widget.storeId, selected);
                 },
               ),
             ),

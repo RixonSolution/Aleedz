@@ -87,6 +87,12 @@ class StoreController {
     return await _apiService.getPictureDropDown(token: token);
   }
 
+  Future<Map<String, dynamic>?> categoryIssueDropDown({
+    required String token,
+  }) async {
+    return await _apiService.getIssueCategoryDropDown(token: token);
+  }
+
   Future<Map<String, dynamic>?> submitDisplayPicture({
     required String token,
     required String storeId,
@@ -95,6 +101,8 @@ class StoreController {
     required String pictureElementId,
     required String remarks,
     required String pictureId,
+    required String issueCategoryId,
+
     File? elementImg,
   }) async {
     return await _apiService.submitDisplayPicture(
@@ -106,6 +114,7 @@ class StoreController {
       remarks: remarks,
       pictureId: pictureId,
       elementImg: elementImg,
+      issueCategoryId: issueCategoryId,
     );
   }
 

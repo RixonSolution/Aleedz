@@ -41,6 +41,9 @@ class ApiConstants {
   static const String pictureDropDown =
       "${baseUrl}/WebService.asmx/StorePicture_GeneralElement";
 
+  static const String issueCategoryDropDown =
+      "${baseUrl}/WebService.asmx/IssueCategoryList_General";
+
   static const String submitDisplayPicture =
       "${baseUrl}/WebService.asmx/GeneralPictureAdd";
 

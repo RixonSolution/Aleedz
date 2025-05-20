@@ -42,10 +42,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
     required String title,
     required String checkStatus,
     required String checkStatus1,
-
     required String checkRemarks,
-    required File? imageFile, // 🔹 new parameter
-
+    required File? imageFile,
     required void Function(String value) onSubmit,
     required void Function(String value) cancel,
   }) {
@@ -57,7 +55,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       builder: (context) {
         return Dialog(
           insetPadding: EdgeInsets.symmetric(
-            horizontal: 10,
+            horizontal: 0,
           ), // Remove default dialog padding
           backgroundColor:
               Colors
@@ -68,17 +66,20 @@ class _HomeViewState extends ConsumerState<HomeView> {
               color: AppColors.whiteColor,
               child: Container(
                 width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.all(16), // Optional internal padding
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Icon(Icons.close, color: AppColors.whiteColor),
-                        Container(
-                          decoration: BoxDecoration(color: AppColors.secondary),
-                          child: Padding(
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 5,
+                        horizontal: 10,
+                      ),
+                      decoration: BoxDecoration(color: AppColors.secondary),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(Icons.close, color: AppColors.secondary),
+                          Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 30,
                               vertical: 8,
@@ -94,45 +95,59 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               ),
                             ),
                           ),
-                        ),
 
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Icon(Icons.close),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Icon(
+                              Icons.close,
+                              color: AppColors.whiteColor,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      DateFormat('hh:mm a').format(DateTime.now()),
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        DateFormat('hh:mm a').format(DateTime.now()),
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
 
                     imageFile != null
-                        ? Image.file(
-                          imageFile,
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
+                        ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Image.file(
+                            imageFile,
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
                         )
                         : Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+
                           height: 200,
                           decoration: BoxDecoration(
                             color: AppColors.blackColor,
@@ -150,71 +165,51 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           ),
                         ),
                     const SizedBox(height: 10),
-                    TextField(
-                      controller: _controller,
-                      style: TextStyle(color: AppColors.blackColor),
-                      decoration: InputDecoration(
-                        hintText: checkRemarks,
-                        hintStyle: TextStyle(color: AppColors.blackColor),
-                        border: UnderlineInputBorder(),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.blackColor),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.blackColor),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+
+                      child: TextField(
+                        controller: _controller,
+                        style: TextStyle(color: AppColors.blackColor),
+                        decoration: InputDecoration(
+                          hintText: checkRemarks,
+                          hintStyle: TextStyle(color: AppColors.blackColor),
+                          border: UnderlineInputBorder(),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.blackColor),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.blackColor),
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                              onSubmit(_controller.text);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 15),
-                              decoration: BoxDecoration(
-                                color: AppColors.secondary,
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: AppColors.primary,
-                                    width: 4.0,
-                                  ),
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  checkStatus,
-                                  style: TextStyle(
-                                    color: AppColors.whiteColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (checkStatus1 != '') SizedBox(width: 5),
-                        if (checkRemarks == 'Check In Remarks')
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           Expanded(
                             child: InkWell(
                               onTap: () {
                                 Navigator.pop(context);
-                                cancel(_controller.text);
+                                onSubmit(_controller.text);
                               },
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 15),
                                 decoration: BoxDecoration(
-                                  color: AppColors.error,
+                                  color: AppColors.secondary,
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: AppColors.primary,
+                                      width: 4.0,
+                                    ),
+                                  ),
                                 ),
                                 child: Center(
                                   child: Text(
-                                    checkStatus1,
+                                    checkStatus,
                                     style: TextStyle(
                                       color: AppColors.whiteColor,
                                       fontSize: 14,
@@ -225,8 +220,36 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               ),
                             ),
                           ),
-                      ],
+                          if (checkStatus1 != '') SizedBox(width: 5),
+                          if (checkRemarks == 'Check In Remarks')
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  cancel(_controller.text);
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: 15),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.error,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      checkStatus1,
+                                      style: TextStyle(
+                                        color: AppColors.whiteColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 10),
                   ],
                 ),
               ),
@@ -258,7 +281,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       builder: (context) {
         return Dialog(
           insetPadding: EdgeInsets.symmetric(
-            horizontal: 10,
+            horizontal: 0,
           ), // Remove default dialog padding
           backgroundColor:
               Colors
@@ -269,17 +292,20 @@ class _HomeViewState extends ConsumerState<HomeView> {
               color: AppColors.whiteColor,
               child: Container(
                 width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.all(16), // Optional internal padding
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Icon(Icons.close, color: AppColors.whiteColor),
-                        Container(
-                          decoration: BoxDecoration(color: AppColors.secondary),
-                          child: Padding(
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 5,
+                        horizontal: 10,
+                      ),
+                      decoration: BoxDecoration(color: AppColors.secondary),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(Icons.close, color: AppColors.secondary),
+                          Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 30,
                               vertical: 8,
@@ -295,38 +321,47 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               ),
                             ),
                           ),
-                        ),
 
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Icon(Icons.close),
-                        ),
-                      ],
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Icon(
+                              Icons.close,
+                              color: AppColors.whiteColor,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 10),
 
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      DateFormat('hh:mm a').format(DateTime.now()),
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        DateFormat('hh:mm a').format(DateTime.now()),
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
 
                     Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       height: 300,
                       child: GoogleMapScreen(
                         myLat: myLat,
@@ -336,14 +371,19 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      '${LabelService().getLabel(25)} $meter',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        '${LabelService().getLabel(25)} $meter',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 10),
+
                     // const SizedBox(height: 10),
                     // InkWell(
                     //   onTap: () {
@@ -604,7 +644,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 ],
                               ),
                               Text(
-                                '04:12',
+                                viewModel.storeTimeSpend.toString(),
                                 style: TextStyle(
                                   color: AppColors.primary,
                                   fontSize: 14,
@@ -654,7 +694,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 ],
                               ),
                               Text(
-                                '31 KM',
+                                viewModel.storeTotalTravel.toString(),
                                 style: TextStyle(
                                   color: AppColors.primary,
                                   fontSize: 14,
@@ -722,7 +762,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                     onTap: () async {
                                       // Add check-in logic here
                                       if (checkInCamera == 'Y') {
-                                        // await viewModel.getLatLong();
                                         double myLat = viewModel.latitude;
                                         double myLng = viewModel.longitude;
 
@@ -736,10 +775,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                               .dashBoardList[index]
                                               .longitude,
                                         );
-                                        print('myLat$myLat myLong$myLng');
+
+                                        print('myLat $myLat, myLong $myLng');
                                         print(
-                                          'otherLat$otherLat otherLng$otherLng',
+                                          'otherLat $otherLat, otherLng $otherLng',
                                         );
+
+                                        bool isOtherLocationEmpty =
+                                            otherLat == 0.0 && otherLng == 0.0;
 
                                         double distance = viewModel
                                             .calculateDistanceInMeters(
@@ -753,18 +796,80 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                           'Distance is ${distance.toStringAsFixed(2)} meters',
                                         );
 
-                                        final picker = ImagePicker();
-                                        final pickedFile = await picker
-                                            .pickImage(
-                                              source: ImageSource.camera,
+                                        // If otherLat/otherLng are 0.0 — directly proceed to camera
+
+                                        if (isOtherLocationEmpty) {
+                                          final picker = ImagePicker();
+                                          final pickedFile = await picker
+                                              .pickImage(
+                                                source: ImageSource.camera,
+                                              );
+
+                                          if (pickedFile != null) {
+                                            final imageFile = File(
+                                              pickedFile.path,
                                             );
 
-                                        if (pickedFile != null) {
-                                          final imageFile = File(
-                                            pickedFile.path,
-                                          );
-
-                                          showImagePopup(
+                                            showImagePopup(
+                                              context: context,
+                                              title:
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .storeName,
+                                              checkStatus:
+                                                  viewModel
+                                                              .dashBoardList[index]
+                                                              .visitStatusId ==
+                                                          1
+                                                      ? LabelService().getLabel(
+                                                        14,
+                                                      )
+                                                      : LabelService().getLabel(
+                                                        15,
+                                                      ),
+                                              checkStatus1: 'Cancel',
+                                              checkRemarks:
+                                                  viewModel
+                                                              .dashBoardList[index]
+                                                              .visitStatusId ==
+                                                          1
+                                                      ? LabelService().getLabel(
+                                                        21,
+                                                      )
+                                                      : LabelService().getLabel(
+                                                        22,
+                                                      ),
+                                              onSubmit: (value) async {
+                                                {
+                                                  viewModel.dashboardCheckIn(
+                                                    context,
+                                                    viewModel
+                                                        .dashBoardList[index]
+                                                        .visitId,
+                                                    remarks: value,
+                                                    checkInImgFile: imageFile,
+                                                  );
+                                                }
+                                              },
+                                              cancel: (value) async {
+                                                viewModel.cancelVisite(
+                                                  context,
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .storeId,
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .visitId,
+                                                  remarks: value,
+                                                );
+                                              },
+                                              imageFile:
+                                                  imageFile, // 🔹 pass the image to dialog
+                                            );
+                                          }
+                                        } else if (distance >
+                                            double.parse(distancePermission)) {
+                                          showLocationPopup(
                                             context: context,
                                             title:
                                                 viewModel
@@ -774,37 +879,19 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                 viewModel
                                                             .dashBoardList[index]
                                                             .visitStatusId ==
-                                                        1
+                                                        0
                                                     ? LabelService().getLabel(
                                                       14,
                                                     )
                                                     : LabelService().getLabel(
                                                       15,
                                                     ),
+                                            meter: distance.toStringAsFixed(2),
+                                            myLat: myLat,
+                                            myLng: myLng,
+                                            otherLat: otherLat,
+                                            otherLng: otherLng,
                                             checkStatus1: 'Cancel',
-                                            checkRemarks:
-                                                viewModel
-                                                            .dashBoardList[index]
-                                                            .visitStatusId ==
-                                                        1
-                                                    ? LabelService().getLabel(
-                                                      21,
-                                                    )
-                                                    : LabelService().getLabel(
-                                                      22,
-                                                    ),
-                                            onSubmit: (value) async {
-                                              {
-                                                viewModel.dashboardCheckIn(
-                                                  context,
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .visitId,
-                                                  remarks: value,
-                                                  checkInImgFile: imageFile,
-                                                );
-                                              }
-                                            },
                                             cancel: (value) async {
                                               viewModel.cancelVisite(
                                                 context,
@@ -817,8 +904,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                 remarks: value,
                                               );
                                             },
-                                            imageFile:
-                                                imageFile, // 🔹 pass the image to dialog
                                           );
                                         }
                                       } else {
@@ -1251,8 +1336,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                               '${viewModel.dashBoardList[index].planDate}',
                                                               style: TextStyle(
                                                                 color:
-                                                                    AppColors
-                                                                        .blackColor,
+                                                                    viewModel.dashBoardList[index].planDate ==
+                                                                            'Pending'
+                                                                        ? AppColors
+                                                                            .primary
+                                                                        : AppColors
+                                                                            .blackColor,
                                                                 fontSize: 13,
                                                               ),
                                                             ),

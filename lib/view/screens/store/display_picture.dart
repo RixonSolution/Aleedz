@@ -258,11 +258,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                           final selected = viewModel.brandList.firstWhere(
                             (c) => c.brandId == branddlId,
                           );
-                          viewModel.selectBrand(
-                            widget.storeId,
-                            selected,
-                            context,
-                          );
+                          viewModel.selectBrand(widget.storeId, selected);
                         },
                       ),
                     ),
@@ -304,6 +300,48 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                       ),
                     ),
                   ),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100, // Light grey background
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: DropdownButtonFormField<int>(
+                        value: viewModel.selectedIssueCategory?.categoryId,
+                        decoration: const InputDecoration(
+                          hintText: 'Select Issue Category',
+                          border: InputBorder.none, // Removes underline
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 0,
+                            vertical: 12,
+                          ),
+                        ),
+                        items:
+                            viewModel.categoryIssue.map((category) {
+                              return DropdownMenuItem<int>(
+                                value: category.categoryId,
+                                child: Text(category.categoryName),
+                              );
+                            }).toList(),
+                        onChanged: (int? cateId) {
+                          final selected = viewModel.categoryIssue.firstWhere(
+                            (c) => c.categoryId == cateId,
+                          );
+                          viewModel.selectCategoryIssue(
+                            widget.storeId,
+                            selected,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -402,15 +440,22 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                               ? Center(child: CircularProgressIndicator())
                               : ElevatedButton(
                                 onPressed: () async {
-                                  if (viewModel.selectedPictureModel == null) {
+                                  if (viewModel.selectedBrand == null) {
                                     AppSnackBar.showError(
                                       context,
                                       'Please select brand',
                                     );
-                                  } else if (viewModel.selectedBrand == null) {
+                                  } else if (viewModel.selectedPictureModel ==
+                                      null) {
                                     AppSnackBar.showError(
                                       context,
                                       'Please select display type',
+                                    );
+                                  } else if (viewModel.selectedIssueCategory ==
+                                      null) {
+                                    AppSnackBar.showError(
+                                      context,
+                                      'Please select Issue category',
                                     );
                                   } else if (remarksControll.text.isEmpty) {
                                     AppSnackBar.showError(
@@ -424,6 +469,11 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                     );
                                   } else {
                                     await viewModel.submitDisplayPicture(
+                                      issueCategoryId:
+                                          viewModel
+                                              .selectedIssueCategory!
+                                              .categoryId
+                                              .toString(),
                                       storeId: widget.storeId.toString(),
                                       pictureElementId:
                                           viewModel
@@ -499,26 +549,167 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
               margin: EdgeInsets.symmetric(horizontal: 12),
               child: const Divider(color: AppColors.primary, height: 5),
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 8, top: 5, bottom: 10),
+                  child: Text(
+                    'Long press on row to delete any record',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             Expanded(
               child: ListView.builder(
                 itemCount: viewModel.viewPicture.length,
                 shrinkWrap: true,
                 physics: ScrollPhysics(),
                 itemBuilder: (context, index) {
-                  return Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Row(
+                  return InkWell(
+                    onLongPress: () {
+                      _showLogoutDialog(
+                        context,
+                        viewModel.viewPicture[index].pictureID.toString(),
+                        viewModel.viewPicture[index].pictureName.toString(),
+                      );
+                    },
+                    child: Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Text(
+                                '${index + 1}.',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: SizedBox(
+                                          width: 190,
+                                          // color: Colors.red,
+                                          child: Text(
+                                            viewModel
+                                                    .viewPicture[index]
+                                                    .brandName ??
+                                                '',
+                                            style: TextStyle(
+                                              color: AppColors.blackColor,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: SizedBox(
+                                          width: 190,
+                                          // color: Colors.red,
+                                          child: Text(
+                                            viewModel
+                                                    .viewPicture[index]
+                                                    .storePictureElementName ??
+                                                '',
+                                            style: TextStyle(
+                                              color: AppColors.greyText,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: SizedBox(
+                                          width: 190,
+                                          // color: Colors.red,
+                                          child: Text(
+                                            viewModel
+                                                    .viewPicture[index]
+                                                    .categoryIssueName ??
+                                                '',
+                                            style: TextStyle(
+                                              color: AppColors.greyText,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: SizedBox(
+                                          width: 190,
+                                          // color: Colors.red,
+                                          child: Text(
+                                            viewModel
+                                                    .viewPicture[index]
+                                                    .remarks ??
+                                                '',
+                                            style: TextStyle(
+                                              color: AppColors.greyText,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: Text(
+                                          viewModel
+                                                  .viewPicture[index]
+                                                  .creationDateTime ??
+                                              '',
+                                          style: TextStyle(
+                                            color: AppColors.greyText,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(left: 12),
                                   child: CachedNetworkImage(
                                     imageUrl:
                                         '${ApiConstants.baseUrl}${viewModel.viewPicture[index].column1 ?? ''}',
-                                    height: 70,
-                                    width: 80,
+                                    height: 100,
+                                    width: 90,
+
                                     placeholder:
                                         (context, url) => Shimmer.fromColors(
                                           baseColor: Colors.grey[300]!,
@@ -536,115 +727,19 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                     fit: BoxFit.cover, // optional fit
                                   ),
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      child: SizedBox(
-                                        width: 190,
-                                        // color: Colors.red,
-                                        child: Text(
-                                          viewModel
-                                                  .viewPicture[index]
-                                                  .brandName ??
-                                              '',
-                                          style: TextStyle(
-                                            color: AppColors.blackColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      child: SizedBox(
-                                        width: 190,
-                                        // color: Colors.red,
-                                        child: Text(
-                                          viewModel
-                                                  .viewPicture[index]
-                                                  .storePictureElementName ??
-                                              '',
-                                          style: TextStyle(
-                                            color: AppColors.greyText,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      child: SizedBox(
-                                        width: 190,
-                                        // color: Colors.red,
-                                        child: Text(
-                                          viewModel
-                                                  .viewPicture[index]
-                                                  .remarks ??
-                                              '',
-                                          style: TextStyle(
-                                            color: AppColors.greyText,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      child: Text(
-                                        viewModel
-                                                .viewPicture[index]
-                                                .creationDateTime ??
-                                            '',
-                                        style: TextStyle(
-                                          color: AppColors.greyText,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
                               ],
                             ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              setState(() {
-                                deleteLoader = true;
-                              });
-                              _showLogoutDialog(
-                                context,
-                                viewModel.viewPicture[index].pictureID
-                                    .toString(),
-                                viewModel.viewPicture[index].pictureName
-                                    .toString(),
-                              );
-                              setState(() {
-                                deleteLoader = false;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
 
-                      Divider(
-                        color: Colors.grey[300],
-                        thickness: 1,
-                        indent: 12,
-                        endIndent: 12,
-                      ),
-                    ],
+                        Divider(
+                          color: Colors.grey[300],
+                          thickness: 1,
+                          indent: 12,
+                          endIndent: 12,
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),

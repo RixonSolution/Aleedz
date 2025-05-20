@@ -55,7 +55,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
       builder: (context) {
         return Dialog(
           insetPadding: EdgeInsets.symmetric(
-            horizontal: 10,
+            horizontal: 0,
           ), // Remove default dialog padding
           backgroundColor:
               Colors
@@ -66,48 +66,88 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
               color: AppColors.whiteColor,
               child: Container(
                 width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.all(16), // Optional internal padding
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Icon(Icons.close),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 5,
+                        horizontal: 10,
+                      ),
+                      decoration: BoxDecoration(color: AppColors.secondary),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(Icons.close, color: AppColors.secondary),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 30,
+                              vertical: 8,
+                            ),
+                            child: Center(
+                              child: Text(
+                                checkStatus,
+                                style: TextStyle(
+                                  color: AppColors.whiteColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Icon(
+                              Icons.close,
+                              color: AppColors.whiteColor,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      DateFormat('hh:mm a').format(DateTime.now()),
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        DateFormat('hh:mm a').format(DateTime.now()),
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
 
                     imageFile != null
-                        ? Image.file(
-                          imageFile,
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
+                        ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Image.file(
+                            imageFile,
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
                         )
                         : Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+
                           height: 200,
                           decoration: BoxDecoration(
                             color: AppColors.blackColor,
@@ -125,71 +165,50 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                           ),
                         ),
                     const SizedBox(height: 10),
-                    TextField(
-                      controller: _controller,
-                      style: TextStyle(color: AppColors.blackColor),
-                      decoration: InputDecoration(
-                        hintText: checkRemarks,
-                        hintStyle: TextStyle(color: AppColors.blackColor),
-                        border: UnderlineInputBorder(),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.blackColor),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.blackColor),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: TextField(
+                        controller: _controller,
+                        style: TextStyle(color: AppColors.blackColor),
+                        decoration: InputDecoration(
+                          hintText: checkRemarks,
+                          hintStyle: TextStyle(color: AppColors.blackColor),
+                          border: UnderlineInputBorder(),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.blackColor),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.blackColor),
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                              onSubmit(_controller.text);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 15),
-                              decoration: BoxDecoration(
-                                color: AppColors.secondary,
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: AppColors.primary,
-                                    width: 4.0,
-                                  ),
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  checkStatus,
-                                  style: TextStyle(
-                                    color: AppColors.whiteColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (checkStatus1 != '') SizedBox(width: 5),
-                        if (checkStatus1 != '')
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           Expanded(
                             child: InkWell(
                               onTap: () {
                                 Navigator.pop(context);
-                                cancel(_controller.text);
+                                onSubmit(_controller.text);
                               },
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 15),
                                 decoration: BoxDecoration(
-                                  color: AppColors.error,
+                                  color: AppColors.secondary,
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: AppColors.primary,
+                                      width: 4.0,
+                                    ),
+                                  ),
                                 ),
                                 child: Center(
                                   child: Text(
-                                    checkStatus1,
+                                    checkStatus,
                                     style: TextStyle(
                                       color: AppColors.whiteColor,
                                       fontSize: 14,
@@ -200,8 +219,36 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                               ),
                             ),
                           ),
-                      ],
+                          if (checkStatus1 != '') SizedBox(width: 5),
+                          if (checkStatus1 != '')
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  cancel(_controller.text);
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: 15),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.error,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      checkStatus1,
+                                      style: TextStyle(
+                                        color: AppColors.whiteColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 10),
                   ],
                 ),
               ),
@@ -230,7 +277,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
       builder: (context) {
         return Dialog(
           insetPadding: EdgeInsets.symmetric(
-            horizontal: 10,
+            horizontal: 0,
           ), // Remove default dialog padding
           backgroundColor:
               Colors
@@ -241,41 +288,78 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
               color: AppColors.whiteColor,
               child: Container(
                 width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.all(16), // Optional internal padding
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Icon(Icons.close),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 5,
+                        horizontal: 10,
+                      ),
+                      decoration: BoxDecoration(color: AppColors.secondary),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(Icons.close, color: AppColors.secondary),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 30,
+                              vertical: 8,
+                            ),
+                            child: Center(
+                              child: Text(
+                                checkStatus,
+                                style: TextStyle(
+                                  color: AppColors.whiteColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Icon(
+                              Icons.close,
+                              color: AppColors.whiteColor,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      DateFormat('hh:mm a').format(DateTime.now()),
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        DateFormat('hh:mm a').format(DateTime.now()),
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
 
                     Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+
                       height: 300,
                       child: GoogleMapScreen(
                         myLat: myLat,
@@ -285,12 +369,15 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      '${LabelService().getLabel(25)} $meter',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        '${LabelService().getLabel(25)} $meter',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -663,7 +750,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                   ),
                                               SizedBox(width: 10),
                                               Text(
-                                                'Last Visted: ${viewModel.stores[index].lastVisitedDate}',
+                                                '${viewModel.stores[index].lastVisitedDate}',
                                                 style: TextStyle(
                                                   color: AppColors.blackColor,
                                                   fontSize: 13,
