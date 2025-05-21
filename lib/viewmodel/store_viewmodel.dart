@@ -351,15 +351,14 @@ class StoreViewModel extends ChangeNotifier {
     );
 
     if (response != null && response["status"] == 200) {
-      await checkSummary(storeId, 0);
-      // await checkSummary(storeId, selectedBrand?.brandId ?? 0);
+      // await checkSummary(storeId, 0);
 
       // selectBrand(
       //                       storeId,
       //                       selectedBrand?.brandId??0,
 
       //                     );
-      NavigationService.goBack();
+      // NavigationService.goBack();
       notifyListeners();
     } else {
       debugPrint("auditMediaSubmit Error: ${response?['data']}");

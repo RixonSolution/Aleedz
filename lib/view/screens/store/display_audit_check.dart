@@ -119,6 +119,8 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
           "DisplayCheckImagesMandatory",
         ) ??
         "N";
+    // String cameraPermission = 'N';
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
@@ -134,7 +136,10 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () async {
-                        if (cameraPermission == 'Y') {
+                        if (cameraPermission == 'Y' ||
+                            (cameraPermission == 'N' &&
+                                viewModel.leftImage != null &&
+                                viewModel.rightImage != null)) {
                           await viewModel.auditMediaSubmit(
                             context,
                             widget.storeId,
@@ -143,21 +148,27 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                             checkInImgFile1: viewModel.leftImage,
                             checkInImgFile2: viewModel.rightImage,
                           );
+
                           List<Map<String, dynamic>> dataList =
                               viewModel.selectedProducts
                                   .map((product) => product.toJson())
                                   .toList();
 
-                          viewModel.addDisplayCheck(
+                          await viewModel.addDisplayCheck(
                             dataList,
                             context,
                             widget.storeId,
                             widget.categoryId,
                           );
+                          await viewModel.checkSummary(
+                            widget.storeId,
+                            viewModel.selectedBrand?.brandId ?? 0,
+                          );
+                          NavigationService.goBack();
                         } else {
                           AppSnackBar.showError(
                             context,
-                            "You don't have camera permission.",
+                            "Please select the brand and competition picture.",
                           );
                         }
                       },
@@ -244,9 +255,8 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 25),
 
-              SizedBox(height: 5),
               viewModel.loader
                   ? Center(
                     child: CircularProgressIndicator(

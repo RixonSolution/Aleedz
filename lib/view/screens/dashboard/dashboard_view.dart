@@ -40,57 +40,60 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: _screens[_selectedIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          backgroundColor: AppColors.secondary,
-          selectedItemColor: AppColors.whiteColor,
-          unselectedItemColor: AppColors.whiteColor,
-          items: [
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                AppIcons.dashboardIcon,
-                height: 30,
-                width: 30,
-                color: AppColors.whiteColor,
-              ),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: SafeArea(
+        child: Scaffold(
+          body: _screens[_selectedIndex],
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            backgroundColor: AppColors.secondary,
+            selectedItemColor: AppColors.whiteColor,
+            unselectedItemColor: AppColors.whiteColor,
+            items: [
+              BottomNavigationBarItem(
+                icon: Image.asset(
+                  AppIcons.dashboardIcon,
+                  height: 30,
+                  width: 30,
+                  color: AppColors.whiteColor,
+                ),
 
-              label: LabelService().getLabel(7),
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                AppIcons.coverageIcon,
-                height: 30,
-                width: 30,
-                color: AppColors.whiteColor,
+                label: LabelService().getLabel(7),
               ),
+              BottomNavigationBarItem(
+                icon: Image.asset(
+                  AppIcons.coverageIcon,
+                  height: 30,
+                  width: 30,
+                  color: AppColors.whiteColor,
+                ),
 
-              label: LabelService().getLabel(8),
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                AppIcons.notificationIcon,
-                height: 30,
-                width: 30,
-                color: AppColors.whiteColor,
+                label: LabelService().getLabel(8),
               ),
+              BottomNavigationBarItem(
+                icon: Image.asset(
+                  AppIcons.notificationIcon,
+                  height: 30,
+                  width: 30,
+                  color: AppColors.whiteColor,
+                ),
 
-              label: LabelService().getLabel(9),
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                AppIcons.accountIcon,
-                height: 30,
-                width: 30,
-                color: AppColors.whiteColor,
+                label: LabelService().getLabel(9),
               ),
-              label: LabelService().getLabel(10),
-            ),
-          ],
+              BottomNavigationBarItem(
+                icon: Image.asset(
+                  AppIcons.accountIcon,
+                  height: 30,
+                  width: 30,
+                  color: AppColors.whiteColor,
+                ),
+                label: LabelService().getLabel(10),
+              ),
+            ],
+          ),
         ),
       ),
     );

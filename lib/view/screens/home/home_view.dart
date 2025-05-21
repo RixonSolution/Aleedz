@@ -220,6 +220,200 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               ),
                             ),
                           ),
+
+                          // if (checkStatus1 != '') SizedBox(width: 5),
+                          // if (checkRemarks == 'Check In Remarks')
+                          //   Expanded(
+                          //     child: InkWell(
+                          //       onTap: () {
+                          //         Navigator.pop(context);
+                          //         cancel(_controller.text);
+                          //       },
+                          //       child: Container(
+                          //         padding: EdgeInsets.symmetric(vertical: 15),
+                          //         decoration: BoxDecoration(
+                          //           color: AppColors.error,
+                          //         ),
+                          //         child: Center(
+                          //           child: Text(
+                          //             checkStatus1,
+                          //             style: TextStyle(
+                          //               color: AppColors.whiteColor,
+                          //               fontSize: 14,
+                          //               fontWeight: FontWeight.w600,
+                          //             ),
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> showCancelPopup({
+    required BuildContext context,
+    required String title,
+    required String checkStatus,
+    required String checkStatus1,
+    required String checkRemarks,
+    required File? imageFile,
+    required void Function(String value) onSubmit,
+    required void Function(String value) cancel,
+  }) {
+    final TextEditingController _controller = TextEditingController();
+
+    return showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Dialog(
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: 0,
+          ), // Remove default dialog padding
+          backgroundColor:
+              Colors
+                  .transparent, // Make dialog transparent to handle full custom layout
+          child: Align(
+            alignment: Alignment.center, // Position to top if needed
+            child: Material(
+              color: AppColors.whiteColor,
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 5,
+                        horizontal: 10,
+                      ),
+                      decoration: BoxDecoration(color: AppColors.secondary),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(Icons.close, color: AppColors.secondary),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 30,
+                              vertical: 8,
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  color: AppColors.whiteColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Icon(
+                              Icons.close,
+                              color: AppColors.whiteColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        DateFormat('hh:mm a').format(DateTime.now()),
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    imageFile != null
+                        ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Image.file(
+                            imageFile,
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                        : Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: AppColors.blackColor,
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Camera will open and taken image will\nappear here.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppColors.whiteColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+
+                      child: TextField(
+                        controller: _controller,
+                        style: TextStyle(color: AppColors.blackColor),
+                        decoration: InputDecoration(
+                          hintText: 'Cancel Remarks',
+                          hintStyle: TextStyle(color: AppColors.blackColor),
+                          border: UnderlineInputBorder(),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.blackColor),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.blackColor),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           if (checkStatus1 != '') SizedBox(width: 5),
                           if (checkRemarks == 'Check In Remarks')
                             Expanded(
@@ -235,7 +429,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      checkStatus1,
+                                      'Cancel',
                                       style: TextStyle(
                                         color: AppColors.whiteColor,
                                         fontSize: 14,
@@ -249,6 +443,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         ],
                       ),
                     ),
+
                     const SizedBox(height: 10),
                   ],
                 ),
@@ -737,6 +932,25 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       ),
                       const SizedBox(height: 5),
                       const Divider(color: AppColors.primary, height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              right: 8,
+                              top: 5,
+                              bottom: 5,
+                            ),
+                            child: Text(
+                              'Long press on the row to cancel the check-in record.',
+                              style: TextStyle(
+                                color: AppColors.greyText,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                       viewModel.loader
                           ? Center(
                             child: CircularProgressIndicator(
@@ -1198,6 +1412,83 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                               ),
                                               Expanded(
                                                 child: GestureDetector(
+                                                  onLongPress: () async {
+                                                    if (visitStatusId == 1) {
+                                                      if (checkInCamera ==
+                                                          'Y') {
+                                                        final picker =
+                                                            ImagePicker();
+                                                        final pickedFile =
+                                                            await picker.pickImage(
+                                                              source:
+                                                                  ImageSource
+                                                                      .camera,
+                                                            );
+
+                                                        if (pickedFile !=
+                                                            null) {
+                                                          final imageFile =
+                                                              File(
+                                                                pickedFile.path,
+                                                              );
+
+                                                          showCancelPopup(
+                                                            context: context,
+                                                            title:
+                                                                viewModel
+                                                                    .dashBoardList[index]
+                                                                    .storeName,
+                                                            checkStatus:
+                                                                viewModel
+                                                                            .dashBoardList[index]
+                                                                            .visitStatusId ==
+                                                                        1
+                                                                    ? LabelService()
+                                                                        .getLabel(
+                                                                          14,
+                                                                        )
+                                                                    : LabelService()
+                                                                        .getLabel(
+                                                                          15,
+                                                                        ),
+                                                            checkStatus1: '',
+                                                            checkRemarks:
+                                                                viewModel
+                                                                            .dashBoardList[index]
+                                                                            .visitStatusId ==
+                                                                        1
+                                                                    ? LabelService()
+                                                                        .getLabel(
+                                                                          21,
+                                                                        )
+                                                                    : LabelService()
+                                                                        .getLabel(
+                                                                          22,
+                                                                        ),
+                                                            onSubmit:
+                                                                (value) {},
+                                                            cancel: (
+                                                              value,
+                                                            ) async {
+                                                              viewModel.cancelVisite(
+                                                                context,
+                                                                viewModel
+                                                                    .dashBoardList[index]
+                                                                    .storeId,
+                                                                viewModel
+                                                                    .dashBoardList[index]
+                                                                    .visitId,
+                                                                remarks: value,
+                                                              );
+                                                            },
+
+                                                            imageFile:
+                                                                imageFile, // 🔹 pass the image to dialog
+                                                          );
+                                                        }
+                                                      }
+                                                    }
+                                                  },
                                                   onTap: () async {
                                                     final allowMultiCheckIn =
                                                         viewModel.permission

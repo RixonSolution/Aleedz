@@ -555,12 +555,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                 Padding(
                   padding: const EdgeInsets.only(right: 8, top: 5, bottom: 10),
                   child: Text(
-                    'Long press on row to delete any record',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    LabelService().getLabel(56),
+                    style: TextStyle(color: AppColors.greyText, fontSize: 12),
                   ),
                 ),
               ],
@@ -703,7 +699,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 12),
+                                  padding: const EdgeInsets.only(right: 12),
                                   child: CachedNetworkImage(
                                     imageUrl:
                                         '${ApiConstants.baseUrl}${viewModel.viewPicture[index].column1 ?? ''}',
