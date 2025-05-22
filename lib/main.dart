@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/view/screens/activity/activity_view.dart';
 import 'package:aleedz/view/screens/coverage_details/coverage_view.dart';
 import 'package:aleedz/view/screens/coverage_details/google_map.dart';
 import 'package:aleedz/view/screens/store/display_audit_check.dart';
@@ -87,10 +88,15 @@ class MyApp extends StatelessWidget {
           // home: CoverageView(),
           // home: GoogleMapScreen(),
           home: snapshot.data!,
-          // home: DisplayPicture(
+          // home: ActivityView(
           //   storeName: 'XCITE JABRIYA EXPRESS',
           //   checkInTime: '10:59',
           //   storeId: 4,
+          // ),
+          // home: DisplayPicture(
+          // storeName: 'XCITE JABRIYA EXPRESS',
+          // checkInTime: '10:59',
+          // storeId: 4,
           // ),
           routes: {
             '/choose-language': (context) => ChooseLanguageView(),

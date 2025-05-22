@@ -1,0 +1,545 @@
+import 'package:aleedz/core/constants/app_colors.dart';
+import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/viewmodel/activity_viewmodel.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shimmer/shimmer.dart';
+
+class ActivitySubmitView extends ConsumerStatefulWidget {
+  String checkInTime, storeName;
+  int storeId;
+
+  ActivitySubmitView({
+    Key? key,
+    required this.checkInTime,
+    required this.storeName,
+    required this.storeId,
+  }) : super(key: key);
+
+  @override
+  ConsumerState<ActivitySubmitView> createState() => _MyConsumerState();
+}
+
+class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
+  void _showImagePickerDialog(String directiion) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.secondary,
+          title: Text(
+            'Pick an image',
+            style: TextStyle(color: AppColors.whiteColor),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text(
+                  'From Camera',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+                onTap: () {
+                  // ref
+                  //     .read(storeModelProvider.notifier)
+                  //     .pickFromCamera(directiion);
+
+                  Navigator.pop(context);
+                  // if (source == 'camera') {
+                  // } else {
+                  //   ref.read(storeModelProvider.notifier).pickFromGallery();
+                  // }
+                },
+              ),
+              ListTile(
+                title: const Text(
+                  'From Gallery',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+
+                onTap: () {
+                  // ref
+                  //     .read(storeModelProvider.notifier)
+                  //     .pickFromGallery(directiion);
+
+                  Navigator.pop(context);
+
+                  // if (source == 'camera') {
+                  //   ref.read(storeModelProvider.notifier).pickFromCamera();
+                  // } else {
+                  // }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  TextEditingController searchController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = ref.watch(activityModelProvider);
+
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColors.whiteColor,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
+          children: [
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      NavigationService.goBack();
+                    },
+                    child: Image.asset(
+                      AppIcons.backArrow,
+                      height: 30,
+                      width: 30,
+                    ),
+                  ),
+                  Text(
+                    'Activity Category',
+                    style: TextStyle(
+                      color: AppColors.blackColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Image.asset(
+                    AppIcons.locationIcon,
+                    height: 30,
+                    width: 30,
+                    color: AppColors.whiteColor,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Divider(color: AppColors.primary, height: 0),
+            ),
+            SizedBox(height: 5),
+            Center(
+              child: Text(
+                widget.storeName,
+                style: TextStyle(
+                  color: AppColors.blackColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Center(
+              child: Text(
+                'Checked In ${widget.checkInTime}',
+                style: TextStyle(
+                  color: AppColors.blackColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.blackColor),
+              ),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 10),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: TextField(
+                            maxLines: 3,
+                            minLines: 2,
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              hintText: 'Description',
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: TextField(
+                            maxLines: 3,
+                            minLines: 2,
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              hintText: 'Quantity (if any)',
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+
+                        GestureDetector(
+                          onTap: () {
+                            _showImagePickerDialog('left');
+                          },
+                          child: Container(
+                            height: 70,
+                            width: 80,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child:
+                                viewModel.leftImage != null
+                                    ? Stack(
+                                      children: [
+                                        Image.file(
+                                          viewModel.leftImage!,
+                                          fit: BoxFit.cover,
+                                          height: 70,
+                                          width: 80,
+                                        ),
+                                        Positioned(
+                                          top: 4,
+                                          right: 4,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              viewModel.leftImage = null;
+                                              viewModel
+                                                  .notifyListeners(); // If using ChangeNotifier
+                                            },
+                                            child: Container(
+                                              decoration: const BoxDecoration(
+                                                color: AppColors.secondary,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              padding: const EdgeInsets.all(4),
+                                              child: const Icon(
+                                                Icons.close,
+                                                size: 16,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                    : const Center(
+                                      child: Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child:
+                          viewModel.loader
+                              ? Center(child: CircularProgressIndicator())
+                              : ElevatedButton(
+                                onPressed: () async {
+                                  // if (viewModel.selectedBrand == null) {
+                                  //   AppSnackBar.showError(
+                                  //     context,
+                                  //     'Please select brand',
+                                  //   );
+                                  // } else if (viewModel.selectedPictureModel ==
+                                  //     null) {
+                                  //   AppSnackBar.showError(
+                                  //     context,
+                                  //     'Please select display type',
+                                  //   );
+                                  // } else if (viewModel.selectedIssueCategory ==
+                                  //     null) {
+                                  //   AppSnackBar.showError(
+                                  //     context,
+                                  //     'Please select Issue category',
+                                  //   );
+                                  // } else if (viewModel.leftImage == null) {
+                                  //   AppSnackBar.showError(
+                                  //     context,
+                                  //     'Please add image',
+                                  //   );
+                                  // } else {
+
+                                  // }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius
+                                            .zero, // Removes rounded corners
+                                  ),
+                                  backgroundColor: AppColors.secondary,
+                                ),
+                                child: const Text(
+                                  "Submit",
+                                  style: TextStyle(
+                                    color: AppColors.whiteColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            GestureDetector(
+              onTap: () {
+                //
+              },
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.darkGreyBackground,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Recent Activity',
+                      style: TextStyle(
+                        color: AppColors.secondary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 5),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 12),
+              child: const Divider(color: AppColors.primary, height: 5),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 8, top: 5, bottom: 10),
+                  child: Text(
+                    LabelService().getLabel(56),
+                    style: TextStyle(color: AppColors.greyText, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: 5,
+                shrinkWrap: true,
+                physics: ScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    onLongPress: () {
+                      // _showLogoutDialog(
+                      //   context,
+                      //   viewModel.viewPicture[index].pictureID.toString(),
+                      //   viewModel.viewPicture[index].pictureName.toString(),
+                      // );
+                    },
+                    child: Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Text(
+                                '${index + 1}.',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: SizedBox(
+                                          width: 190,
+                                          // color: Colors.red,
+                                          child: Text(
+                                            'Activity Type - Category',
+                                            style: TextStyle(
+                                              color: AppColors.blackColor,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: SizedBox(
+                                          width: 190,
+                                          // color: Colors.red,
+                                          child: Text(
+                                            'Activity description will be here.Activity',
+                                            style: TextStyle(
+                                              color: AppColors.greyText,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: SizedBox(
+                                          width: 190,
+                                          // color: Colors.red,
+                                          child: Text(
+                                            'Activity description will be here.Activity',
+                                            style: TextStyle(
+                                              color: AppColors.greyText,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: SizedBox(
+                                          width: 190,
+                                          // color: Colors.red,
+                                          child: Text(
+                                            'Activity description ',
+                                            style: TextStyle(
+                                              color: AppColors.greyText,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: Text(
+                                          'Activity description ',
+                                          style: TextStyle(
+                                            color: AppColors.greyText,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 12),
+                                  child: CachedNetworkImage(
+                                    imageUrl: '',
+                                    // imageUrl:
+                                    //     '${ApiConstants.baseUrl}${viewModel.viewPicture[index].column1 ?? ''}',
+                                    height: 100,
+                                    width: 90,
+
+                                    placeholder:
+                                        (context, url) => Shimmer.fromColors(
+                                          baseColor: Colors.grey[300]!,
+                                          highlightColor: Colors.grey[100]!,
+                                          child: Container(
+                                            height: 70,
+                                            width: 80,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                    errorWidget:
+                                        (context, url, error) => Icon(
+                                          Icons.error,
+                                        ), // optional error widget
+                                    fit: BoxFit.cover, // optional fit
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        Divider(
+                          color: Colors.grey[300],
+                          thickness: 1,
+                          indent: 12,
+                          endIndent: 12,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

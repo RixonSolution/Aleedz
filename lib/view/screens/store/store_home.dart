@@ -4,6 +4,7 @@ import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/view/screens/activity/activity_view.dart';
 import 'package:aleedz/view/screens/store/display_audit_check_summary.dart';
 import 'package:aleedz/view/screens/store/display_picture.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
@@ -278,6 +279,15 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                                   ),
                                 );
                               }
+                            } else if (viewModel.rosLabels[index].rosLabelID ==
+                                35) {
+                              NavigationService.navigateTo(
+                                ActivityView(
+                                  storeName: widget.storeName,
+                                  checkInTime: widget.checkInTime,
+                                  storeId: widget.storeId,
+                                ),
+                              );
                             } else {}
                           },
                           child: Container(
