@@ -264,11 +264,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Future<void> showCancelPopup({
     required BuildContext context,
     required String title,
-    required String checkStatus,
-    required String checkStatus1,
-    required String checkRemarks,
-    required File? imageFile,
-    required void Function(String value) onSubmit,
     required void Function(String value) cancel,
   }) {
     final TextEditingController _controller = TextEditingController();
@@ -276,6 +271,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     return showDialog(
       context: context,
       barrierDismissible: true,
+      barrierColor: Colors.transparent,
       builder: (context) {
         return Dialog(
           insetPadding: EdgeInsets.symmetric(
@@ -287,7 +283,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           child: Align(
             alignment: Alignment.center, // Position to top if needed
             child: Material(
-              color: AppColors.whiteColor,
+              color: AppColors.secondary,
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 child: Column(
@@ -332,78 +328,48 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    // const SizedBox(height: 10),
 
+                    // Padding(
+                    //   padding: const EdgeInsets.symmetric(horizontal: 16),
+                    //   child: Text(
+                    //     title,
+                    //     style: TextStyle(
+                    //       color: AppColors.whiteColor,
+                    //       fontSize: 14,
+                    //       fontWeight: FontWeight.w600,
+                    //     ),
+                    //   ),
+                    // ),
+                    const SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        title,
+                        LabelService().getLabel(55),
                         style: TextStyle(
-                          color: AppColors.blackColor,
+                          color: AppColors.whiteColor,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        DateFormat('hh:mm a').format(DateTime.now()),
-                        style: TextStyle(
-                          color: AppColors.blackColor,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
 
-                    imageFile != null
-                        ? Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Image.file(
-                            imageFile,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                        : Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-
-                          height: 200,
-                          decoration: BoxDecoration(
-                            color: AppColors.blackColor,
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Camera will open and taken image will\nappear here.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: AppColors.whiteColor,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
                     const SizedBox(height: 10),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
 
                       child: TextField(
                         controller: _controller,
-                        style: TextStyle(color: AppColors.blackColor),
+                        style: TextStyle(color: AppColors.whiteColor),
                         decoration: InputDecoration(
                           hintText: 'Cancel Remarks',
-                          hintStyle: TextStyle(color: AppColors.blackColor),
+                          hintStyle: TextStyle(color: AppColors.whiteColor),
                           border: UnderlineInputBorder(),
                           enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.blackColor),
+                            borderSide: BorderSide(color: AppColors.whiteColor),
                           ),
                           focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.blackColor),
+                            borderSide: BorderSide(color: AppColors.whiteColor),
                           ),
                         ),
                       ),
@@ -412,39 +378,60 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          if (checkStatus1 != '') SizedBox(width: 5),
-                          if (checkRemarks == 'Check In Remarks')
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  cancel(_controller.text);
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 15),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.error,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'Cancel',
-                                      style: TextStyle(
-                                        color: AppColors.whiteColor,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(),
+                              child: Center(
+                                child: Text(
+                                  'No',
+                                  style: TextStyle(
+                                    color: AppColors.whiteColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
                             ),
+                          ),
+
+                          InkWell(
+                            onTap: () {
+                              if (_controller.text.isEmpty) {
+                                AppSnackBar.showError(
+                                  context,
+                                  "Please enter your cancel remarks.",
+                                );
+                              } else {
+                                Navigator.pop(context);
+                                cancel(_controller.text);
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.only(right: 20),
+                              decoration: BoxDecoration(),
+                              child: Center(
+                                child: Text(
+                                  'Yes',
+                                  style: TextStyle(
+                                    color: AppColors.whiteColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -1414,79 +1401,26 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                 child: GestureDetector(
                                                   onLongPress: () async {
                                                     if (visitStatusId == 1) {
-                                                      if (checkInCamera ==
-                                                          'Y') {
-                                                        final picker =
-                                                            ImagePicker();
-                                                        final pickedFile =
-                                                            await picker.pickImage(
-                                                              source:
-                                                                  ImageSource
-                                                                      .camera,
-                                                            );
+                                                      showCancelPopup(
+                                                        context: context,
+                                                        title:
+                                                            viewModel
+                                                                .dashBoardList[index]
+                                                                .storeName,
 
-                                                        if (pickedFile !=
-                                                            null) {
-                                                          final imageFile =
-                                                              File(
-                                                                pickedFile.path,
-                                                              );
-
-                                                          showCancelPopup(
-                                                            context: context,
-                                                            title:
-                                                                viewModel
-                                                                    .dashBoardList[index]
-                                                                    .storeName,
-                                                            checkStatus:
-                                                                viewModel
-                                                                            .dashBoardList[index]
-                                                                            .visitStatusId ==
-                                                                        1
-                                                                    ? LabelService()
-                                                                        .getLabel(
-                                                                          14,
-                                                                        )
-                                                                    : LabelService()
-                                                                        .getLabel(
-                                                                          15,
-                                                                        ),
-                                                            checkStatus1: '',
-                                                            checkRemarks:
-                                                                viewModel
-                                                                            .dashBoardList[index]
-                                                                            .visitStatusId ==
-                                                                        1
-                                                                    ? LabelService()
-                                                                        .getLabel(
-                                                                          21,
-                                                                        )
-                                                                    : LabelService()
-                                                                        .getLabel(
-                                                                          22,
-                                                                        ),
-                                                            onSubmit:
-                                                                (value) {},
-                                                            cancel: (
-                                                              value,
-                                                            ) async {
-                                                              viewModel.cancelVisite(
-                                                                context,
-                                                                viewModel
-                                                                    .dashBoardList[index]
-                                                                    .storeId,
-                                                                viewModel
-                                                                    .dashBoardList[index]
-                                                                    .visitId,
-                                                                remarks: value,
-                                                              );
-                                                            },
-
-                                                            imageFile:
-                                                                imageFile, // 🔹 pass the image to dialog
+                                                        cancel: (value) async {
+                                                          viewModel.cancelVisite(
+                                                            context,
+                                                            viewModel
+                                                                .dashBoardList[index]
+                                                                .storeId,
+                                                            viewModel
+                                                                .dashBoardList[index]
+                                                                .visitId,
+                                                            remarks: value,
                                                           );
-                                                        }
-                                                      }
+                                                        },
+                                                      );
                                                     }
                                                   },
                                                   onTap: () async {

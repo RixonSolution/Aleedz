@@ -135,8 +135,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                         pictureId: pictureId,
                         pictureName: pictureName,
                       );
-
-                  NavigationService.goBack();
                 },
                 child: const Text(
                   'Yes',

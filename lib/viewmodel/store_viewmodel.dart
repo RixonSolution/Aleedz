@@ -541,6 +541,7 @@ class StoreViewModel extends ChangeNotifier {
         brandId: selectedBrand?.brandId.toString() ?? '0',
         elementId: selectedPictureModel?.pictureElementId.toString() ?? '1',
       );
+      NavigationService.goBack();
 
       notifyListeners();
     } else {
