@@ -98,10 +98,7 @@ class MyApp extends StatelessWidget {
           // checkInTime: '10:59',
           // storeId: 4,
           // ),
-          routes: {
-            '/choose-language': (context) => ChooseLanguageView(),
-            '/dashboard': (context) => DashboardView(),
-          },
+          routes: {'/choose-language': (context) => ChooseLanguageView()},
         );
       },
     );

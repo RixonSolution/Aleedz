@@ -58,4 +58,10 @@ class ApiConstants {
 
   static const String dashboardApi =
       "${baseUrl}/JourneyPlan.asmx/TeamJourneyPlan";
+
+  static const String activityTypeList =
+      "${baseUrl}/Activity.asmx/ActivityTypeList";
+
+  static const String activityCategoryId =
+      "${baseUrl}/Activity.asmx/ActivityCategoryList";
 }

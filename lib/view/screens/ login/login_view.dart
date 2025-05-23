@@ -3,7 +3,9 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_constants.dart';
 import 'package:aleedz/core/constants/assets/app_images.dart';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/%20login/login_provider.dart';
+import 'package:aleedz/view/screens/choose_language/choose_language_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -213,6 +215,16 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                   color: AppColors.blackColor,
                                   fontSize: 12,
                                 ),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            GestureDetector(
+                              onTap: () {
+                                NavigationService.resetTo(ChooseLanguageView());
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Icon(Icons.settings),
                               ),
                             ),
                           ],
