@@ -737,7 +737,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                NavigationService.navigateTo(TodayPlanView());
+                                // NavigationService.navigateTo(TodayPlanView());
                               },
                               child: Container(
                                 height: 110,
@@ -1042,13 +1042,36 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                       ),
                                               onSubmit: (value) async {
                                                 {
-                                                  viewModel.dashboardCheckIn(
-                                                    context,
-                                                    viewModel
-                                                        .dashBoardList[index]
-                                                        .visitId,
-                                                    remarks: value,
-                                                    checkInImgFile: imageFile,
+                                                  await viewModel
+                                                      .dashboardCheckIn(
+                                                        context,
+                                                        viewModel
+                                                            .dashBoardList[index]
+                                                            .visitId,
+                                                        remarks: value,
+                                                        checkInImgFile:
+                                                            imageFile,
+                                                      );
+                                                  NavigationService.navigateTo(
+                                                    StoreHome(
+                                                      storeName:
+                                                          viewModel
+                                                              .dashBoardList[index]
+                                                              .storeName,
+                                                      checkInTime:
+                                                          viewModel
+                                                              .dashBoardList[index]
+                                                              .checkInTime,
+                                                      grade: 'A',
+                                                      address:
+                                                          viewModel
+                                                              .dashBoardList[index]
+                                                              .address,
+                                                      storeId:
+                                                          viewModel
+                                                              .dashBoardList[index]
+                                                              .storeId,
+                                                    ),
                                                   );
                                                 }
                                               },

@@ -840,13 +840,36 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                         .stores[index]
                                                         .visitStatusId ==
                                                     0) {
-                                                  viewModel.coverageCheckIn(
-                                                    context,
-                                                    viewModel
-                                                        .stores[index]
-                                                        .storeId,
-                                                    remarks: value,
-                                                    checkInImgFile: imageFile,
+                                                  await viewModel
+                                                      .coverageCheckIn(
+                                                        context,
+                                                        viewModel
+                                                            .stores[index]
+                                                            .storeId,
+                                                        remarks: value,
+                                                        checkInImgFile:
+                                                            imageFile,
+                                                      );
+                                                  NavigationService.navigateTo(
+                                                    StoreHome(
+                                                      storeName:
+                                                          viewModel
+                                                              .stores[index]
+                                                              .storeName,
+                                                      checkInTime:
+                                                          viewModel
+                                                              .stores[index]
+                                                              .checkInTime,
+                                                      grade: 'A',
+                                                      address:
+                                                          viewModel
+                                                              .stores[index]
+                                                              .address,
+                                                      storeId:
+                                                          viewModel
+                                                              .stores[index]
+                                                              .storeId,
+                                                    ),
                                                   );
                                                 } else {
                                                   viewModel.coverageCheckout(

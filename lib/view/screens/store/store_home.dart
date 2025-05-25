@@ -207,19 +207,9 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: Text(
-                        LabelService().getLabel(54),
-                        maxLines: 2,
-                        style: TextStyle(
-                          color: AppColors.blackColor,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
                     Container(
-                      width: 20,
-                      height: 20,
+                      width: 30,
+                      height: 30,
                       decoration: BoxDecoration(
                         color: isChecked ? Colors.green : Colors.transparent,
                         shape: BoxShape.circle,
@@ -229,8 +219,20 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                       ),
                       child:
                           isChecked
-                              ? Icon(Icons.check, color: Colors.white, size: 15)
+                              ? Icon(Icons.check, color: Colors.white, size: 20)
                               : null,
+                    ),
+                    SizedBox(width: 10),
+
+                    Expanded(
+                      child: Text(
+                        LabelService().getLabel(54),
+                        maxLines: 2,
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 14,
+                        ),
+                      ),
                     ),
                   ],
                 ),
