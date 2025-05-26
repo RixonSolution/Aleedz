@@ -1,9 +1,12 @@
+import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_constants.dart';
 import 'package:aleedz/core/constants/assets/app_images.dart';
+import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/view/screens/%20login/login_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChooseLanguageView extends ConsumerStatefulWidget {
   @override
@@ -12,6 +15,7 @@ class ChooseLanguageView extends ConsumerStatefulWidget {
 
 class _ChooseLanguageViewState extends ConsumerState<ChooseLanguageView> {
   late int selectedLanguageId;
+  TextEditingController controller = TextEditingController();
 
   String _selectedLanguage = 'English';
 
@@ -30,6 +34,12 @@ class _ChooseLanguageViewState extends ConsumerState<ChooseLanguageView> {
     setState(() {
       selectedLanguageId = languageId;
     });
+  }
+
+  Future<void> saveBaseUrl(String url) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('baseUrl', url);
+    ApiConstants.setBaseUrl(url); // set immediately too
   }
 
   @override
@@ -59,6 +69,7 @@ class _ChooseLanguageViewState extends ConsumerState<ChooseLanguageView> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25),
               child: TextField(
+                controller: controller,
                 decoration: InputDecoration(
                   hintText: 'Enter Base URL',
                   hintStyle: TextStyle(
@@ -114,8 +125,19 @@ class _ChooseLanguageViewState extends ConsumerState<ChooseLanguageView> {
                 : Padding(
                   padding: const EdgeInsets.only(left: 25, right: 25, top: 20),
                   child: InkWell(
-                    onTap: () {
-                      viewModel.chooseLanguage('1');
+                    onTap: () async {
+                      String inputUrl = controller.text.trim();
+                      if (inputUrl.isNotEmpty) {
+                        await saveBaseUrl(inputUrl);
+                        viewModel.chooseLanguage('1');
+
+                        // Maybe navigate to your Home screen
+                      } else {
+                        AppSnackBar.showError(
+                          context,
+                          'Please enter the base URL.',
+                        );
+                      }
                     },
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 15),

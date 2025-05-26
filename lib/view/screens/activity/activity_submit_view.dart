@@ -1,21 +1,31 @@
+import 'dart:io';
+
+import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/activity_viewmodel.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ActivitySubmitView extends ConsumerStatefulWidget {
-  String checkInTime, storeName;
-  int storeId;
+  String checkInTime, storeName, activityTypeName, activityCategoryName;
+  int storeId, divisionId, activityTypeId, activitiCategoryId;
 
   ActivitySubmitView({
     Key? key,
     required this.checkInTime,
     required this.storeName,
+    required this.activityTypeName,
+    required this.activityCategoryName,
+    required this.divisionId,
+    required this.activityTypeId,
+    required this.activitiCategoryId,
     required this.storeId,
   }) : super(key: key);
 
@@ -24,7 +34,7 @@ class ActivitySubmitView extends ConsumerStatefulWidget {
 }
 
 class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
-  void _showImagePickerDialog(String directiion) {
+  void _showImagePickerDialog() {
     showDialog(
       context: context,
       builder: (context) {
@@ -42,16 +52,23 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                   'From Camera',
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
-                onTap: () {
-                  // ref
-                  //     .read(storeModelProvider.notifier)
-                  //     .pickFromCamera(directiion);
-
+                onTap: () async {
                   Navigator.pop(context);
-                  // if (source == 'camera') {
-                  // } else {
-                  //   ref.read(storeModelProvider.notifier).pickFromGallery();
-                  // }
+                  final pickedImage = await ImagePicker().pickImage(
+                    source: ImageSource.camera,
+                  );
+                  if (pickedImage != null &&
+                      ref
+                              .read(activityModelProvider.notifier)
+                              .beforeActivityImages
+                              .length <
+                          4) {
+                    ref
+                        .read(activityModelProvider.notifier)
+                        .beforeActivityImages
+                        .add(File(pickedImage.path));
+                    ref.read(activityModelProvider.notifier).notifyListeners();
+                  }
                 },
               ),
               ListTile(
@@ -59,18 +76,24 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                   'From Gallery',
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
-
-                onTap: () {
-                  // ref
-                  //     .read(storeModelProvider.notifier)
-                  //     .pickFromGallery(directiion);
-
+                onTap: () async {
                   Navigator.pop(context);
-
-                  // if (source == 'camera') {
-                  //   ref.read(storeModelProvider.notifier).pickFromCamera();
-                  // } else {
-                  // }
+                  final pickedImages = await ImagePicker().pickMultiImage();
+                  if (pickedImages.isNotEmpty) {
+                    for (var image in pickedImages) {
+                      if (ref
+                              .read(activityModelProvider.notifier)
+                              .beforeActivityImages
+                              .length >=
+                          4)
+                        break;
+                      ref
+                          .read(activityModelProvider.notifier)
+                          .beforeActivityImages
+                          .add(File(image.path));
+                    }
+                    ref.read(activityModelProvider.notifier).notifyListeners();
+                  }
                 },
               ),
             ],
@@ -81,6 +104,28 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
   }
 
   TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      loadUserAndFetchActivity();
+    });
+  }
+
+  Future<void> loadUserAndFetchActivity() async {
+    await ref
+        .read(activityModelProvider.notifier)
+        .getMarketActivityList(
+          storeId: widget.storeId.toString(),
+          activityCategoryId: widget.activitiCategoryId.toString(),
+          activityTypeId: widget.activityTypeId.toString(),
+          brandId: '1',
+        );
+  }
+
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController quantityController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +197,42 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(color: AppColors.secondary),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Text(
+                          widget.activityTypeName,
+                          style: TextStyle(
+                            color: AppColors.whiteColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Text(
+                          widget.activityCategoryName,
+                          style: TextStyle(
+                            color: AppColors.whiteColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 10),
             Container(
               margin: EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
@@ -176,6 +256,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                           ),
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: TextField(
+                            controller: descriptionController,
                             maxLines: 3,
                             minLines: 2,
                             decoration: const InputDecoration(
@@ -195,6 +276,8 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                           ),
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: TextField(
+                            keyboardType: TextInputType.number,
+                            controller: quantityController,
                             maxLines: 3,
                             minLines: 2,
                             decoration: const InputDecoration(
@@ -207,60 +290,108 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                           ),
                         ),
                         SizedBox(height: 10),
-
-                        GestureDetector(
-                          onTap: () {
-                            _showImagePickerDialog('left');
-                          },
-                          child: Container(
-                            height: 70,
-                            width: 80,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child:
-                                viewModel.leftImage != null
-                                    ? Stack(
-                                      children: [
-                                        Image.file(
-                                          viewModel.leftImage!,
-                                          fit: BoxFit.cover,
-                                          height: 70,
-                                          width: 80,
-                                        ),
-                                        Positioned(
-                                          top: 4,
-                                          right: 4,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              viewModel.leftImage = null;
-                                              viewModel
-                                                  .notifyListeners(); // If using ChangeNotifier
-                                            },
-                                            child: Container(
-                                              decoration: const BoxDecoration(
-                                                color: AppColors.secondary,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              padding: const EdgeInsets.all(4),
-                                              child: const Icon(
-                                                Icons.close,
-                                                size: 16,
-                                                color: Colors.white,
-                                              ),
-                                            ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    if (viewModel.beforeActivityImages.length <
+                                        4) {
+                                      _showImagePickerDialog();
+                                    } else {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            "Maximum 4 images allowed.",
                                           ),
                                         ),
-                                      ],
-                                    )
-                                    : const Center(
+                                      );
+                                    }
+                                  },
+                                  child: Container(
+                                    height: 80,
+                                    width: 80,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Center(
                                       child: Icon(
                                         Icons.camera_alt,
                                         color: Colors.grey,
                                       ),
                                     ),
-                          ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: SizedBox(
+                                    height: 80,
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount:
+                                          viewModel.beforeActivityImages.length,
+                                      itemBuilder: (context, index) {
+                                        final file =
+                                            viewModel
+                                                .beforeActivityImages[index];
+                                        return Stack(
+                                          children: [
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                right: 10,
+                                              ),
+                                              height: 70,
+                                              width: 80,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                image: DecorationImage(
+                                                  image: FileImage(file),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            ),
+                                            Positioned(
+                                              top: 4,
+                                              right: 4,
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  viewModel.beforeActivityImages
+                                                      .removeAt(index);
+                                                  viewModel.notifyListeners();
+                                                },
+                                                child: Container(
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                        color:
+                                                            AppColors.secondary,
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                  padding: const EdgeInsets.all(
+                                                    4,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.close,
+                                                    size: 16,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -275,6 +406,40 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                               ? Center(child: CircularProgressIndicator())
                               : ElevatedButton(
                                 onPressed: () async {
+                                  if (descriptionController.text.isEmpty) {
+                                    AppSnackBar.showError(
+                                      context,
+                                      'Please add description',
+                                    );
+                                  } else if (quantityController.text.isEmpty) {
+                                    AppSnackBar.showError(
+                                      context,
+                                      'Please add quantity',
+                                    );
+                                  } else if (viewModel
+                                      .beforeActivityImages
+                                      .isEmpty) {
+                                    AppSnackBar.showError(
+                                      context,
+                                      'Please add pictures',
+                                    );
+                                  } else {
+                                    viewModel.marketActivityAdd(
+                                      storeID: widget.storeId.toString(),
+                                      activityTypeId:
+                                          widget.activityTypeId.toString(),
+                                      activityCategoryId:
+                                          widget.activitiCategoryId.toString(),
+                                      brandId: '1',
+                                      activityDescription:
+                                          descriptionController.text,
+                                      statusId: '1',
+                                      quantity: quantityController.text,
+                                      deployementReason: '1',
+                                      beforeActivityPictures:
+                                          viewModel.beforeActivityImages,
+                                    );
+                                  }
                                   // if (viewModel.selectedBrand == null) {
                                   //   AppSnackBar.showError(
                                   //     context,
@@ -374,7 +539,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: 5,
+                itemCount: viewModel.marketActivityList.length,
                 shrinkWrap: true,
                 physics: ScrollPhysics(),
                 itemBuilder: (context, index) {
@@ -417,7 +582,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                           width: 190,
                                           // color: Colors.red,
                                           child: Text(
-                                            'Activity Type - Category',
+                                            '${viewModel.marketActivityList[index].activityTypeName} - ${viewModel.marketActivityList[index].activityCategoryName}',
                                             style: TextStyle(
                                               color: AppColors.blackColor,
                                               fontWeight: FontWeight.bold,
@@ -434,7 +599,10 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                           width: 190,
                                           // color: Colors.red,
                                           child: Text(
-                                            'Activity description will be here.Activity',
+                                            viewModel
+                                                .marketActivityList[index]
+                                                .activityDescription
+                                                .toString(),
                                             style: TextStyle(
                                               color: AppColors.greyText,
                                               fontSize: 14,
@@ -442,46 +610,17 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                           ),
                                         ),
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
-                                        child: SizedBox(
-                                          width: 190,
-                                          // color: Colors.red,
-                                          child: Text(
-                                            'Activity description will be here.Activity',
-                                            style: TextStyle(
-                                              color: AppColors.greyText,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
-                                        child: SizedBox(
-                                          width: 190,
-                                          // color: Colors.red,
-                                          child: Text(
-                                            'Activity description ',
-                                            style: TextStyle(
-                                              color: AppColors.greyText,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                      SizedBox(height: 15),
+
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 12,
                                         ),
                                         child: Text(
-                                          'Activity description ',
+                                          'Date: ${viewModel.marketActivityList[index].activityDateTime} | Quantity: ${viewModel.marketActivityList[index].quantity}',
                                           style: TextStyle(
-                                            color: AppColors.greyText,
+                                            color: AppColors.blackColor,
+                                            fontWeight: FontWeight.bold,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -497,7 +636,9 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                 Padding(
                                   padding: const EdgeInsets.only(right: 12),
                                   child: CachedNetworkImage(
-                                    imageUrl: '',
+                                    //
+                                    imageUrl:
+                                        '${ApiConstants.baseUrl}/${viewModel.marketActivityList[index].imageActivity}',
                                     // imageUrl:
                                     //     '${ApiConstants.baseUrl}${viewModel.viewPicture[index].column1 ?? ''}',
                                     height: 100,

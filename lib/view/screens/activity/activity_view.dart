@@ -129,7 +129,7 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
                     Expanded(
                       child: ListView.builder(
                         itemCount: viewModel.activityType.length,
@@ -152,7 +152,7 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                                       viewModel.activityType[index].divisionID
                                           ?.toInt() ??
                                       1,
-                                  categoryId:
+                                  activityTypeId:
                                       viewModel
                                           .activityType[index]
                                           .activityTypeID
@@ -161,38 +161,63 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                                 ),
                               );
                             },
+                            //
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 10,
+                                horizontal: 12,
                               ),
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment
+                                            .start, // Important for alignment
                                     children: [
-                                      Text(
-                                        '${index + 1}.  ',
-                                        style: TextStyle(
-                                          color: AppColors.blackColor,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      Text(
-                                        viewModel
-                                                .activityType[index]
-                                                .activityTypeName ??
-                                            '',
-                                        style: TextStyle(
-                                          color: AppColors.blackColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
+                                      Expanded(
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(
+                                              width:
+                                                  24, // Adjust width to fit index cleanly
+                                              child: Text(
+                                                '${index + 1}.  ',
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  color: AppColors.blackColor,
+                                                ),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    viewModel
+                                                            .activityType[index]
+                                                            .activityTypeName ??
+                                                        '',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14,
+                                                      color:
+                                                          AppColors.blackColor,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
                                   ),
-                                  Divider(height: 5),
+                                  Divider(height: 25),
                                 ],
                               ),
                             ),

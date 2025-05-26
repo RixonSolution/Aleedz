@@ -53,8 +53,10 @@ class StoreController {
     required String storeID,
     required String displayCheckMark,
     required String teamMemberId,
-    File? checkInImgFile1,
-    File? checkInImgFile2,
+    required List<File>
+    checkInImages1, // List for DisplayCheckImage1 variations
+    required List<File>
+    checkInImages2, // List for DisplayCheckImage2 variations
   }) async {
     return await _apiService.auditMediaSubmit(
       token: token,
@@ -62,8 +64,8 @@ class StoreController {
       storeID: storeID,
       displayCheckMark: displayCheckMark,
       teamMemberId: teamMemberId,
-      checkInImgFile1: checkInImgFile1,
-      checkInImgFile2: checkInImgFile2,
+      checkInImages1: checkInImages1,
+      checkInImages2: checkInImages2,
     );
   }
 

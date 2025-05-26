@@ -118,16 +118,16 @@ class StoreServices {
     required String storeID,
     required String displayCheckMark,
     required String teamMemberId,
-    File? checkInImgFile1,
-    File? checkInImgFile2,
+    required List<File> checkInImages1, // For DisplayCheckImage1, 1_2, 1_3
+    required List<File> checkInImages2, // For DisplayCheckImage2, 2_2, 2_3
   }) async {
     try {
-      // Function to compress image
-      Future<File?> compressImage(File file) async {
+      // Helper function to compress image
+      Future<File?> compressImage(File file, int index) async {
         final dir = await getTemporaryDirectory();
         final targetPath = path.join(
           dir.path,
-          '${DateTime.now().millisecondsSinceEpoch}.jpg',
+          '${DateTime.now().millisecondsSinceEpoch}_$index.jpg',
         );
 
         final result = await FlutterImageCompress.compressAndGetFile(
@@ -139,17 +139,28 @@ class StoreServices {
         return result != null ? File(result.path) : null;
       }
 
-      // Compress if image is not null
-      File? compressedImage1 =
-          checkInImgFile1 != null ? await compressImage(checkInImgFile1) : null;
-      File? compressedImage2 =
-          checkInImgFile2 != null ? await compressImage(checkInImgFile2) : null;
+      // Helper to compress and add multiple files to the request
+      Future<void> addCompressedImages({
+        required List<File> images,
+        required String baseKey,
+        required http.MultipartRequest request,
+      }) async {
+        for (int i = 0; i < images.length; i++) {
+          final compressed = await compressImage(images[i], i);
+          if (compressed != null) {
+            final fieldName = i == 0 ? baseKey : '${baseKey}_${i + 1}';
+            print("Compressed Image path ($fieldName): ${compressed.path}");
+            request.files.add(
+              await http.MultipartFile.fromPath(fieldName, compressed.path),
+            );
+          }
+        }
+      }
 
       final url = Uri.parse(ApiConstants.checkDisplayAddMedia);
       var request = http.MultipartRequest('POST', url);
 
       request.headers.addAll({'Accept': 'application/json'});
-      print(token);
 
       request.fields['_token'] = token;
       request.fields['ProductCategoryID'] = productCategoryId;
@@ -157,25 +168,18 @@ class StoreServices {
       request.fields['DisplayCheckRemarks'] = displayCheckMark;
       request.fields['TeamMemberID'] = teamMemberId;
 
-      if (compressedImage1 != null) {
-        print("Compressed Image 1 path: ${compressedImage1.path}");
-        request.files.add(
-          await http.MultipartFile.fromPath(
-            'DisplayCheckImage1',
-            compressedImage1.path,
-          ),
-        );
-      }
+      // Add multiple image files
+      await addCompressedImages(
+        images: checkInImages1,
+        baseKey: 'DisplayCheckImage1',
+        request: request,
+      );
 
-      if (compressedImage2 != null) {
-        print("Compressed Image 2 path: ${compressedImage2.path}");
-        request.files.add(
-          await http.MultipartFile.fromPath(
-            'DisplayCheckImage2',
-            compressedImage2.path,
-          ),
-        );
-      }
+      await addCompressedImages(
+        images: checkInImages2,
+        baseKey: 'DisplayCheckImage2',
+        request: request,
+      );
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);

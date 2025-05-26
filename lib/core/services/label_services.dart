@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/models/language_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,6 +20,14 @@ class LabelService {
           jsonList
               .map((jsonStr) => LabelModel.fromJson(json.decode(jsonStr)))
               .toList();
+    }
+  }
+
+  Future<void> loadBaseUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedUrl = prefs.getString('baseUrl');
+    if (savedUrl != null && savedUrl.isNotEmpty) {
+      ApiConstants.setBaseUrl(savedUrl);
     }
   }
 

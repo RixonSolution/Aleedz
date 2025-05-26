@@ -251,7 +251,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                         crossAxisCount: 2,
                         mainAxisSpacing: 12,
                         crossAxisSpacing: 12,
-                        childAspectRatio: 1.5,
+                        childAspectRatio: 1.3,
                       ),
                       itemBuilder: (context, index) {
                         final ros = viewModel.rosLabels[index];
@@ -304,11 +304,11 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                               children: [
                                 Image.network(
                                   '${ApiConstants.baseUrl}${viewModel.rosLabels[index].imageLocation}',
-                                  height: 50,
-                                  width: 50,
+                                  height: 60,
+                                  width: 60,
                                   fit: BoxFit.cover,
                                 ),
-                                SizedBox(height: 5),
+                                SizedBox(height: 3),
                                 Text(
                                   viewModel.rosLabels[index].rosLabelName,
                                   style: TextStyle(

@@ -25,6 +25,7 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
   await LabelService().loadLabels();
+  await LabelService().loadBaseUrl();
 
   runApp(const ProviderScope(child: MyApp()));
 }

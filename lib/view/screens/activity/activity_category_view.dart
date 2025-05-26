@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ActivityCategoryView extends ConsumerStatefulWidget {
   String checkInTime, storeName, activityTypeName;
-  int storeId, divisionId, categoryId;
+  int storeId, divisionId, activityTypeId;
 
   ActivityCategoryView({
     Key? key,
@@ -17,7 +17,7 @@ class ActivityCategoryView extends ConsumerStatefulWidget {
     required this.storeId,
     required this.activityTypeName,
     required this.divisionId,
-    required this.categoryId,
+    required this.activityTypeId,
   }) : super(key: key);
 
   @override
@@ -40,7 +40,7 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
         .read(activityModelProvider.notifier)
         .getActivityCategoryId(
           divisionId: widget.divisionId.toString(),
-          categoryTypeId: widget.categoryId.toString(),
+          categoryTypeId: widget.activityTypeId.toString(),
         );
   }
 
@@ -154,7 +154,7 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
 
                     Expanded(
                       child: ListView.builder(
@@ -169,41 +169,80 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
                                   storeName: widget.storeName,
                                   checkInTime: widget.checkInTime,
                                   storeId: widget.storeId,
+                                  activityTypeName: widget.activityTypeName,
+                                  activityCategoryName:
+                                      viewModel
+                                          .activityCategoryId[index]
+                                          .activityCategoryName ??
+                                      '',
+                                  divisionId: widget.divisionId,
+                                  activityTypeId: widget.activityTypeId,
+                                  activitiCategoryId:
+                                      viewModel
+                                          .activityCategoryId[index]
+                                          .activityCategoryID ??
+                                      0,
                                 ),
                               );
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 10,
+                                horizontal: 12,
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment
+                                            .start, // Important for alignment
                                     children: [
-                                      Text(
-                                        '${index + 1}.  ',
-                                        style: TextStyle(
-                                          color: AppColors.blackColor,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      Text(
-                                        viewModel
-                                                .activityCategoryId[index]
-                                                .activityCategoryName ??
-                                            '',
-                                        style: TextStyle(
-                                          color: AppColors.blackColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
+                                      Expanded(
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(
+                                              width:
+                                                  24, // Adjust width to fit index cleanly
+                                              child: Text(
+                                                '${index + 1}.  ',
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  color: AppColors.blackColor,
+                                                ),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    viewModel
+                                                            .activityCategoryId[index]
+                                                            .activityCategoryName ??
+                                                        '',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14,
+                                                      color:
+                                                          AppColors.blackColor,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
                                   ),
-                                  Divider(height: 5),
+                                  Divider(height: 25),
                                 ],
                               ),
                             ),

@@ -53,8 +53,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
     });
   }
 
-  // Function to show image picker dialog for Camera or Gallery
-  void _showImagePickerDialog(String directiion) {
+  void _showImagePickerDialog(String direction) {
     showDialog(
       context: context,
       builder: (context) {
@@ -75,13 +74,8 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                 onTap: () {
                   ref
                       .read(storeModelProvider.notifier)
-                      .pickFromCamera(directiion);
-
+                      .pickFromCameras(direction);
                   Navigator.pop(context);
-                  // if (source == 'camera') {
-                  // } else {
-                  //   ref.read(storeModelProvider.notifier).pickFromGallery();
-                  // }
                 },
               ),
               ListTile(
@@ -89,18 +83,11 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                   'From Gallery',
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
-
                 onTap: () {
                   ref
                       .read(storeModelProvider.notifier)
-                      .pickFromGallery(directiion);
-
+                      .pickFromGallerys(direction);
                   Navigator.pop(context);
-
-                  // if (source == 'camera') {
-                  //   ref.read(storeModelProvider.notifier).pickFromCamera();
-                  // } else {
-                  // }
                 },
               ),
             ],
@@ -138,15 +125,15 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                       onPressed: () async {
                         if (cameraPermission == 'Y' ||
                             (cameraPermission == 'N' &&
-                                viewModel.leftImage != null &&
-                                viewModel.rightImage != null)) {
+                                viewModel.leftImages != null &&
+                                viewModel.rightImages != null)) {
                           await viewModel.auditMediaSubmit(
                             context,
                             widget.storeId,
                             widget.categoryId.toString(),
                             remarksController.text,
-                            checkInImgFile1: viewModel.leftImage,
-                            checkInImgFile2: viewModel.rightImage,
+                            checkInImages1: viewModel.leftImages,
+                            checkInImages2: viewModel.rightImages,
                           );
 
                           List<Map<String, dynamic>> dataList =
@@ -382,6 +369,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                       ),
                                       child: Column(
                                         children: [
+                                          //
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -510,6 +498,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                           ? Icons.check_circle
                                                           : Icons
                                                               .check_circle_outline,
+                                                      size: 30,
                                                       color:
                                                           viewModel.selectedProducts.any(
                                                                 (e) =>
@@ -604,6 +593,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                         ? Icons.check_circle
                                                         : Icons
                                                             .check_circle_outline,
+                                                    size: 30,
                                                     color:
                                                         viewModel.selectedProducts.any(
                                                               (e) =>
@@ -639,561 +629,878 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                     ),
                                   ),
 
-                                  viewModel.checkMaster.isNotEmpty
-                                      ? Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          LabelService().getLabel(49),
+                                          style: TextStyle(
+                                            color: AppColors.blackColor,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                        child: Row(
+
+                                        const SizedBox(height: 10),
+                                        Row(
                                           children: [
-                                            // Camera Icon with Image Picker
-                                            Expanded(
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  _showImagePickerDialog(
-                                                    'left',
-                                                  );
-
-                                                  // Open a dialog to pick an image from the camera
-                                                },
-                                                child: Column(
-                                                  children: [
-                                                    Container(
-                                                      height: 150,
+                                            Consumer(
+                                              builder: (context, ref, _) {
+                                                final viewModel = ref.watch(
+                                                  storeModelProvider,
+                                                );
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    if (viewModel
+                                                            .leftImages
+                                                            .length <
+                                                        4) {
+                                                      _showImagePickerDialog(
+                                                        'left',
+                                                      );
+                                                    } else {
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        const SnackBar(
+                                                          content: Text(
+                                                            'Maximum 4 images allowed.',
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    height: 80,
+                                                    width: 80,
+                                                    decoration: BoxDecoration(
                                                       color:
-                                                          Colors.grey.shade300,
-                                                      child:
-                                                          (viewModel.leftImageRemoved ==
-                                                                  false)
-                                                              ? Stack(
-                                                                children: [
-                                                                  CachedNetworkImage(
-                                                                    imageUrl:
-                                                                        ApiConstants
-                                                                            .baseUrl +
-                                                                        viewModel
-                                                                            .checkMaster
-                                                                            .first
-                                                                            .image1,
-                                                                    fit:
-                                                                        BoxFit
-                                                                            .cover,
-                                                                    height: 150,
-                                                                    width:
-                                                                        double
-                                                                            .infinity,
-                                                                    placeholder:
-                                                                        (
-                                                                          context,
-                                                                          url,
-                                                                        ) => Shimmer.fromColors(
-                                                                          baseColor:
-                                                                              Colors.grey.shade300,
-                                                                          highlightColor:
-                                                                              Colors.grey.shade100,
-                                                                          child: Container(
-                                                                            width:
-                                                                                double.infinity,
-                                                                            height:
-                                                                                150,
-                                                                            color:
-                                                                                Colors.white,
-                                                                          ),
-                                                                        ),
-                                                                    errorWidget:
-                                                                        (
-                                                                          context,
-                                                                          url,
-                                                                          error,
-                                                                        ) => const Icon(
-                                                                          Icons
-                                                                              .error,
-                                                                        ),
-                                                                  ),
-                                                                  Positioned(
-                                                                    top: 4,
-                                                                    right: 4,
-                                                                    child: GestureDetector(
-                                                                      onTap: () {
-                                                                        viewModel.leftImageRemoved =
-                                                                            true;
-                                                                        viewModel
-                                                                            .notifyListeners();
-                                                                      },
-                                                                      child: Container(
-                                                                        decoration: const BoxDecoration(
-                                                                          color:
-                                                                              AppColors.secondary,
-                                                                          shape:
-                                                                              BoxShape.circle,
-                                                                        ),
-                                                                        padding:
-                                                                            const EdgeInsets.all(
-                                                                              4,
-                                                                            ),
-                                                                        child: const Icon(
-                                                                          Icons
-                                                                              .close,
-                                                                          size:
-                                                                              16,
-                                                                          color:
-                                                                              Colors.white,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              )
-                                                              : viewModel
-                                                                      .leftImage !=
-                                                                  null
-                                                              ? Stack(
-                                                                children: [
-                                                                  Image.file(
-                                                                    viewModel
-                                                                        .leftImage!,
-                                                                    fit:
-                                                                        BoxFit
-                                                                            .cover,
-                                                                    height: 150,
-                                                                    width:
-                                                                        double
-                                                                            .infinity,
-                                                                  ),
-                                                                  Positioned(
-                                                                    top: 4,
-                                                                    right: 4,
-                                                                    child: GestureDetector(
-                                                                      onTap: () {
-                                                                        viewModel.leftImage =
-                                                                            null;
-                                                                        viewModel
-                                                                            .notifyListeners();
-                                                                      },
-                                                                      child: Container(
-                                                                        decoration: const BoxDecoration(
-                                                                          color:
-                                                                              AppColors.secondary,
-                                                                          shape:
-                                                                              BoxShape.circle,
-                                                                        ),
-                                                                        padding:
-                                                                            const EdgeInsets.all(
-                                                                              4,
-                                                                            ),
-                                                                        child: const Icon(
-                                                                          Icons
-                                                                              .close,
-                                                                          size:
-                                                                              16,
-                                                                          color:
-                                                                              Colors.white,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              )
-                                                              : const Center(
-                                                                child: Icon(
-                                                                  Icons
-                                                                      .camera_alt,
-                                                                  color:
-                                                                      Colors
-                                                                          .grey,
-                                                                ),
-                                                              ),
+                                                          Colors.grey.shade100,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
                                                     ),
-                                                    Text(
-                                                      LabelService().getLabel(
-                                                        49,
-                                                      ),
-                                                      style: TextStyle(
-                                                        color:
-                                                            AppColors
-                                                                .blackColor,
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.bold,
+                                                    child: const Center(
+                                                      child: Icon(
+                                                        Icons.camera_alt,
+                                                        color: Colors.grey,
                                                       ),
                                                     ),
-                                                  ],
-                                                ),
-                                              ),
+                                                  ),
+                                                );
+                                              },
                                             ),
-
                                             const SizedBox(width: 10),
-
-                                            // Gallery Icon with Image Picker
                                             Expanded(
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  _showImagePickerDialog(
-                                                    'right',
+                                              child: Consumer(
+                                                builder: (context, ref, _) {
+                                                  final viewModel = ref.watch(
+                                                    storeModelProvider,
                                                   );
-                                                },
-                                                child: Column(
-                                                  children: [
-                                                    Container(
-                                                      height: 150,
-                                                      color:
-                                                          Colors.grey.shade300,
-                                                      child:
-                                                          (viewModel.rightImageRemoved ==
-                                                                  false)
-                                                              ? Stack(
-                                                                children: [
-                                                                  CachedNetworkImage(
-                                                                    imageUrl:
-                                                                        ApiConstants
-                                                                            .baseUrl +
-                                                                        viewModel
-                                                                            .checkMaster
-                                                                            .first
-                                                                            .image2,
-                                                                    fit:
-                                                                        BoxFit
-                                                                            .cover,
-                                                                    height: 150,
-                                                                    width:
-                                                                        double
-                                                                            .infinity,
-                                                                    placeholder:
-                                                                        (
-                                                                          context,
-                                                                          url,
-                                                                        ) => Shimmer.fromColors(
-                                                                          baseColor:
-                                                                              Colors.grey.shade300,
-                                                                          highlightColor:
-                                                                              Colors.grey.shade100,
-                                                                          child: Container(
-                                                                            width:
-                                                                                double.infinity,
-                                                                            height:
-                                                                                150,
-                                                                            color:
-                                                                                Colors.white,
-                                                                          ),
-                                                                        ),
-                                                                    errorWidget:
-                                                                        (
-                                                                          context,
-                                                                          url,
-                                                                          error,
-                                                                        ) => const Icon(
-                                                                          Icons
-                                                                              .error,
-                                                                        ),
+                                                  final leftImages =
+                                                      viewModel.leftImages;
+                                                  return SizedBox(
+                                                    height: 80,
+                                                    child: ListView.builder(
+                                                      scrollDirection:
+                                                          Axis.horizontal,
+                                                      itemCount:
+                                                          leftImages.length,
+                                                      itemBuilder: (
+                                                        context,
+                                                        index,
+                                                      ) {
+                                                        final file =
+                                                            leftImages[index];
+                                                        return Stack(
+                                                          children: [
+                                                            Container(
+                                                              margin:
+                                                                  const EdgeInsets.only(
+                                                                    right: 10,
                                                                   ),
-                                                                  Positioned(
-                                                                    top: 4,
-                                                                    right: 4,
-                                                                    child: GestureDetector(
-                                                                      onTap: () {
-                                                                        viewModel.rightImageRemoved =
-                                                                            true;
-                                                                        viewModel
-                                                                            .notifyListeners();
-                                                                      },
-                                                                      child: Container(
-                                                                        decoration: const BoxDecoration(
-                                                                          color:
-                                                                              AppColors.secondary,
-                                                                          shape:
-                                                                              BoxShape.circle,
-                                                                        ),
-                                                                        padding:
-                                                                            const EdgeInsets.all(
-                                                                              4,
-                                                                            ),
-                                                                        child: const Icon(
-                                                                          Icons
-                                                                              .close,
-                                                                          size:
-                                                                              16,
-                                                                          color:
-                                                                              Colors.white,
-                                                                        ),
-                                                                      ),
+                                                              height: 70,
+                                                              width: 80,
+                                                              decoration: BoxDecoration(
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      8,
                                                                     ),
-                                                                  ),
-                                                                ],
-                                                              )
-                                                              : viewModel
-                                                                      .rightImage !=
-                                                                  null
-                                                              ? Stack(
-                                                                children: [
-                                                                  Image.file(
-                                                                    viewModel
-                                                                        .rightImage!,
-                                                                    fit:
-                                                                        BoxFit
-                                                                            .cover,
-                                                                    height: 150,
-                                                                    width:
-                                                                        double
-                                                                            .infinity,
-                                                                  ),
-                                                                  Positioned(
-                                                                    top: 4,
-                                                                    right: 4,
-                                                                    child: GestureDetector(
-                                                                      onTap: () {
-                                                                        viewModel.rightImage =
-                                                                            null;
-                                                                        viewModel
-                                                                            .notifyListeners();
-                                                                      },
-                                                                      child: Container(
-                                                                        decoration: const BoxDecoration(
-                                                                          color:
-                                                                              AppColors.secondary,
-                                                                          shape:
-                                                                              BoxShape.circle,
-                                                                        ),
-                                                                        padding:
-                                                                            const EdgeInsets.all(
-                                                                              4,
-                                                                            ),
-                                                                        child: const Icon(
-                                                                          Icons
-                                                                              .close,
-                                                                          size:
-                                                                              16,
-                                                                          color:
-                                                                              Colors.white,
-                                                                        ),
+                                                                image: DecorationImage(
+                                                                  image:
+                                                                      FileImage(
+                                                                        file,
                                                                       ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              )
-                                                              : const Center(
-                                                                child: Icon(
-                                                                  Icons
-                                                                      .camera_alt,
-                                                                  color:
-                                                                      Colors
-                                                                          .grey,
+                                                                  fit:
+                                                                      BoxFit
+                                                                          .cover,
                                                                 ),
                                                               ),
+                                                            ),
+                                                            Positioned(
+                                                              top: 4,
+                                                              right: 4,
+                                                              child: GestureDetector(
+                                                                onTap: () {
+                                                                  viewModel
+                                                                      .leftImages
+                                                                      .removeAt(
+                                                                        index,
+                                                                      );
+                                                                  viewModel
+                                                                      .notifyListeners();
+                                                                },
+                                                                child: Container(
+                                                                  decoration: const BoxDecoration(
+                                                                    color:
+                                                                        Colors
+                                                                            .black54,
+                                                                    shape:
+                                                                        BoxShape
+                                                                            .circle,
+                                                                  ),
+                                                                  padding:
+                                                                      const EdgeInsets.all(
+                                                                        4,
+                                                                      ),
+                                                                  child: const Icon(
+                                                                    Icons.close,
+                                                                    size: 16,
+                                                                    color:
+                                                                        Colors
+                                                                            .white,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
                                                     ),
-                                                    Text(
-                                                      LabelService().getLabel(
-                                                        50,
-                                                      ),
-                                                      style: TextStyle(
-                                                        color:
-                                                            AppColors
-                                                                .blackColor,
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
+                                                  );
+                                                },
                                               ),
                                             ),
                                           ],
                                         ),
-                                      )
-                                      : Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
+                                        const SizedBox(height: 20),
+
+                                        /// --- Competitions Section ---
+                                        Text(
+                                          LabelService().getLabel(50),
+                                          style: TextStyle(
+                                            color: AppColors.blackColor,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                        child: Row(
+                                        const SizedBox(height: 10),
+                                        Row(
                                           children: [
-                                            // Camera Icon with Image Picker
-                                            Expanded(
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  _showImagePickerDialog(
-                                                    'left',
-                                                  );
-                                                },
-                                                child: Column(
-                                                  children: [
-                                                    Container(
-                                                      height: 150,
+                                            Consumer(
+                                              builder: (context, ref, _) {
+                                                final viewModel = ref.watch(
+                                                  storeModelProvider,
+                                                );
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    if (viewModel
+                                                            .rightImages
+                                                            .length <
+                                                        4) {
+                                                      _showImagePickerDialog(
+                                                        'right',
+                                                      );
+                                                    } else {
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        const SnackBar(
+                                                          content: Text(
+                                                            'Maximum 4 images allowed.',
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    height: 80,
+                                                    width: 80,
+                                                    decoration: BoxDecoration(
                                                       color:
-                                                          Colors.grey.shade300,
-                                                      child:
-                                                          viewModel.leftImage !=
-                                                                  null
-                                                              ? Stack(
-                                                                children: [
-                                                                  Image.file(
-                                                                    viewModel
-                                                                        .leftImage!,
-                                                                    fit:
-                                                                        BoxFit
-                                                                            .cover,
-                                                                    height: 150,
-                                                                    width:
-                                                                        double
-                                                                            .infinity,
-                                                                  ),
-                                                                  Positioned(
-                                                                    top: 4,
-                                                                    right: 4,
-                                                                    child: GestureDetector(
-                                                                      onTap: () {
-                                                                        viewModel.leftImage =
-                                                                            null;
-                                                                        viewModel
-                                                                            .notifyListeners(); // If using ChangeNotifier
-                                                                      },
-                                                                      child: Container(
-                                                                        decoration: const BoxDecoration(
-                                                                          color:
-                                                                              AppColors.secondary,
-                                                                          shape:
-                                                                              BoxShape.circle,
-                                                                        ),
-                                                                        padding:
-                                                                            const EdgeInsets.all(
-                                                                              4,
-                                                                            ),
-                                                                        child: const Icon(
-                                                                          Icons
-                                                                              .close,
-                                                                          size:
-                                                                              16,
-                                                                          color:
-                                                                              Colors.white,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              )
-                                                              : const Center(
-                                                                child: Icon(
-                                                                  Icons
-                                                                      .camera_alt,
-                                                                  color:
-                                                                      Colors
-                                                                          .grey,
-                                                                ),
-                                                              ),
+                                                          Colors.grey.shade100,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
                                                     ),
-                                                    Text(
-                                                      LabelService().getLabel(
-                                                        49,
-                                                      ),
-                                                      style: TextStyle(
-                                                        color:
-                                                            AppColors
-                                                                .blackColor,
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.bold,
+                                                    child: const Center(
+                                                      child: Icon(
+                                                        Icons.camera_alt,
+                                                        color: Colors.grey,
                                                       ),
                                                     ),
-                                                  ],
-                                                ),
-                                              ),
+                                                  ),
+                                                );
+                                              },
                                             ),
                                             const SizedBox(width: 10),
-
-                                            // Gallery Icon with Image Picker
                                             Expanded(
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  _showImagePickerDialog(
-                                                    'right',
+                                              child: Consumer(
+                                                builder: (context, ref, _) {
+                                                  final viewModel = ref.watch(
+                                                    storeModelProvider,
                                                   );
-                                                },
-                                                child: Column(
-                                                  children: [
-                                                    Container(
-                                                      height: 150,
-                                                      color:
-                                                          Colors.grey.shade300,
-                                                      child:
-                                                          viewModel.rightImage !=
-                                                                  null
-                                                              ? Stack(
-                                                                children: [
-                                                                  Image.file(
-                                                                    viewModel
-                                                                        .rightImage!,
-                                                                    fit:
-                                                                        BoxFit
-                                                                            .cover,
-                                                                    height: 150,
-                                                                    width:
-                                                                        double
-                                                                            .infinity,
+                                                  final rightImages =
+                                                      viewModel.rightImages;
+                                                  return SizedBox(
+                                                    height: 80,
+                                                    child: ListView.builder(
+                                                      scrollDirection:
+                                                          Axis.horizontal,
+                                                      itemCount:
+                                                          rightImages.length,
+                                                      itemBuilder: (
+                                                        context,
+                                                        index,
+                                                      ) {
+                                                        final file =
+                                                            rightImages[index];
+                                                        return Stack(
+                                                          children: [
+                                                            Container(
+                                                              margin:
+                                                                  const EdgeInsets.only(
+                                                                    right: 10,
                                                                   ),
-                                                                  Positioned(
-                                                                    top: 4,
-                                                                    right: 4,
-                                                                    child: GestureDetector(
-                                                                      onTap: () {
-                                                                        viewModel.rightImage =
-                                                                            null;
-                                                                        viewModel
-                                                                            .notifyListeners(); // If using ChangeNotifier
-                                                                      },
-                                                                      child: Container(
-                                                                        decoration: const BoxDecoration(
-                                                                          color:
-                                                                              AppColors.secondary,
-                                                                          shape:
-                                                                              BoxShape.circle,
-                                                                        ),
-                                                                        padding:
-                                                                            const EdgeInsets.all(
-                                                                              4,
-                                                                            ),
-                                                                        child: const Icon(
-                                                                          Icons
-                                                                              .close,
-                                                                          size:
-                                                                              16,
-                                                                          color:
-                                                                              Colors.white,
-                                                                        ),
-                                                                      ),
+                                                              height: 70,
+                                                              width: 80,
+                                                              decoration: BoxDecoration(
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      8,
                                                                     ),
-                                                                  ),
-                                                                ],
-                                                              )
-                                                              : const Center(
-                                                                child: Icon(
-                                                                  Icons
-                                                                      .camera_alt,
-                                                                  color:
-                                                                      Colors
-                                                                          .grey,
+                                                                image: DecorationImage(
+                                                                  image:
+                                                                      FileImage(
+                                                                        file,
+                                                                      ),
+                                                                  fit:
+                                                                      BoxFit
+                                                                          .cover,
                                                                 ),
                                                               ),
+                                                            ),
+                                                            Positioned(
+                                                              top: 4,
+                                                              right: 4,
+                                                              child: GestureDetector(
+                                                                onTap: () {
+                                                                  viewModel
+                                                                      .rightImages
+                                                                      .removeAt(
+                                                                        index,
+                                                                      );
+                                                                  viewModel
+                                                                      .notifyListeners();
+                                                                },
+                                                                child: Container(
+                                                                  decoration: const BoxDecoration(
+                                                                    color:
+                                                                        Colors
+                                                                            .black54,
+                                                                    shape:
+                                                                        BoxShape
+                                                                            .circle,
+                                                                  ),
+                                                                  padding:
+                                                                      const EdgeInsets.all(
+                                                                        4,
+                                                                      ),
+                                                                  child: const Icon(
+                                                                    Icons.close,
+                                                                    size: 16,
+                                                                    color:
+                                                                        Colors
+                                                                            .white,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
                                                     ),
-                                                    Text(
-                                                      LabelService().getLabel(
-                                                        50,
-                                                      ),
-                                                      style: TextStyle(
-                                                        color:
-                                                            AppColors
-                                                                .blackColor,
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
+                                                  );
+                                                },
                                               ),
                                             ),
                                           ],
                                         ),
-                                      ),
+                                      ],
+                                    ),
+                                  ),
 
+                                  // viewModel.checkMaster.isNotEmpty
+                                  //     ? Padding(
+                                  //       padding: const EdgeInsets.symmetric(
+                                  //         horizontal: 12,
+                                  //       ),
+                                  //       child: Row(
+                                  //         children: [
+                                  //           // Camera Icon with Image Picker
+                                  //           Expanded(
+                                  //             child: GestureDetector(
+                                  //               onTap: () {
+                                  //                 _showImagePickerDialog(
+                                  //                   'left',
+                                  //                 );
+
+                                  //                 // Open a dialog to pick an image from the camera
+                                  //               },
+                                  //               child: Column(
+                                  //                 children: [
+                                  //                   Container(
+                                  //                     height: 150,
+                                  //                     color:
+                                  //                         Colors.grey.shade300,
+                                  //                     child:
+                                  //                         (viewModel.leftImageRemoved ==
+                                  //                                 false)
+                                  //                             ? Stack(
+                                  //                               children: [
+                                  //                                 CachedNetworkImage(
+                                  //                                   imageUrl:
+                                  //                                       ApiConstants
+                                  //                                           .baseUrl +
+                                  //                                       viewModel
+                                  //                                           .checkMaster
+                                  //                                           .first
+                                  //                                           .image1,
+                                  //                                   fit:
+                                  //                                       BoxFit
+                                  //                                           .cover,
+                                  //                                   height: 150,
+                                  //                                   width:
+                                  //                                       double
+                                  //                                           .infinity,
+                                  //                                   placeholder:
+                                  //                                       (
+                                  //                                         context,
+                                  //                                         url,
+                                  //                                       ) => Shimmer.fromColors(
+                                  //                                         baseColor:
+                                  //                                             Colors.grey.shade300,
+                                  //                                         highlightColor:
+                                  //                                             Colors.grey.shade100,
+                                  //                                         child: Container(
+                                  //                                           width:
+                                  //                                               double.infinity,
+                                  //                                           height:
+                                  //                                               150,
+                                  //                                           color:
+                                  //                                               Colors.white,
+                                  //                                         ),
+                                  //                                       ),
+                                  //                                   errorWidget:
+                                  //                                       (
+                                  //                                         context,
+                                  //                                         url,
+                                  //                                         error,
+                                  //                                       ) => const Icon(
+                                  //                                         Icons
+                                  //                                             .error,
+                                  //                                       ),
+                                  //                                 ),
+                                  //                                 Positioned(
+                                  //                                   top: 4,
+                                  //                                   right: 4,
+                                  //                                   child: GestureDetector(
+                                  //                                     onTap: () {
+                                  //                                       viewModel.leftImageRemoved =
+                                  //                                           true;
+                                  //                                       viewModel
+                                  //                                           .notifyListeners();
+                                  //                                     },
+                                  //                                     child: Container(
+                                  //                                       decoration: const BoxDecoration(
+                                  //                                         color:
+                                  //                                             AppColors.secondary,
+                                  //                                         shape:
+                                  //                                             BoxShape.circle,
+                                  //                                       ),
+                                  //                                       padding:
+                                  //                                           const EdgeInsets.all(
+                                  //                                             4,
+                                  //                                           ),
+                                  //                                       child: const Icon(
+                                  //                                         Icons
+                                  //                                             .close,
+                                  //                                         size:
+                                  //                                             16,
+                                  //                                         color:
+                                  //                                             Colors.white,
+                                  //                                       ),
+                                  //                                     ),
+                                  //                                   ),
+                                  //                                 ),
+                                  //                               ],
+                                  //                             )
+                                  //                             : viewModel
+                                  //                                     .leftImage !=
+                                  //                                 null
+                                  //                             ? Stack(
+                                  //                               children: [
+                                  //                                 Image.file(
+                                  //                                   viewModel
+                                  //                                       .leftImage!,
+                                  //                                   fit:
+                                  //                                       BoxFit
+                                  //                                           .cover,
+                                  //                                   height: 150,
+                                  //                                   width:
+                                  //                                       double
+                                  //                                           .infinity,
+                                  //                                 ),
+                                  //                                 Positioned(
+                                  //                                   top: 4,
+                                  //                                   right: 4,
+                                  //                                   child: GestureDetector(
+                                  //                                     onTap: () {
+                                  //                                       viewModel.leftImage =
+                                  //                                           null;
+                                  //                                       viewModel
+                                  //                                           .notifyListeners();
+                                  //                                     },
+                                  //                                     child: Container(
+                                  //                                       decoration: const BoxDecoration(
+                                  //                                         color:
+                                  //                                             AppColors.secondary,
+                                  //                                         shape:
+                                  //                                             BoxShape.circle,
+                                  //                                       ),
+                                  //                                       padding:
+                                  //                                           const EdgeInsets.all(
+                                  //                                             4,
+                                  //                                           ),
+                                  //                                       child: const Icon(
+                                  //                                         Icons
+                                  //                                             .close,
+                                  //                                         size:
+                                  //                                             16,
+                                  //                                         color:
+                                  //                                             Colors.white,
+                                  //                                       ),
+                                  //                                     ),
+                                  //                                   ),
+                                  //                                 ),
+                                  //                               ],
+                                  //                             )
+                                  //                             : const Center(
+                                  //                               child: Icon(
+                                  //                                 Icons
+                                  //                                     .camera_alt,
+                                  //                                 color:
+                                  //                                     Colors
+                                  //                                         .grey,
+                                  //                               ),
+                                  //                             ),
+                                  //                   ),
+                                  //                   Text(
+                                  //                     LabelService().getLabel(
+                                  //                       49,
+                                  //                     ),
+                                  //                     style: TextStyle(
+                                  //                       color:
+                                  //                           AppColors
+                                  //                               .blackColor,
+                                  //                       fontSize: 14,
+                                  //                       fontWeight:
+                                  //                           FontWeight.bold,
+                                  //                     ),
+                                  //                   ),
+                                  //                 ],
+                                  //               ),
+                                  //             ),
+                                  //           ),
+
+                                  //           const SizedBox(width: 10),
+
+                                  //           // Gallery Icon with Image Picker
+                                  //           Expanded(
+                                  //             child: GestureDetector(
+                                  //               onTap: () {
+                                  //                 _showImagePickerDialog(
+                                  //                   'right',
+                                  //                 );
+                                  //               },
+                                  //               child: Column(
+                                  //                 children: [
+                                  //                   Container(
+                                  //                     height: 150,
+                                  //                     color:
+                                  //                         Colors.grey.shade300,
+                                  //                     child:
+                                  //                         (viewModel.rightImageRemoved ==
+                                  //                                 false)
+                                  //                             ? Stack(
+                                  //                               children: [
+                                  //                                 CachedNetworkImage(
+                                  //                                   imageUrl:
+                                  //                                       ApiConstants
+                                  //                                           .baseUrl +
+                                  //                                       viewModel
+                                  //                                           .checkMaster
+                                  //                                           .first
+                                  //                                           .image2,
+                                  //                                   fit:
+                                  //                                       BoxFit
+                                  //                                           .cover,
+                                  //                                   height: 150,
+                                  //                                   width:
+                                  //                                       double
+                                  //                                           .infinity,
+                                  //                                   placeholder:
+                                  //                                       (
+                                  //                                         context,
+                                  //                                         url,
+                                  //                                       ) => Shimmer.fromColors(
+                                  //                                         baseColor:
+                                  //                                             Colors.grey.shade300,
+                                  //                                         highlightColor:
+                                  //                                             Colors.grey.shade100,
+                                  //                                         child: Container(
+                                  //                                           width:
+                                  //                                               double.infinity,
+                                  //                                           height:
+                                  //                                               150,
+                                  //                                           color:
+                                  //                                               Colors.white,
+                                  //                                         ),
+                                  //                                       ),
+                                  //                                   errorWidget:
+                                  //                                       (
+                                  //                                         context,
+                                  //                                         url,
+                                  //                                         error,
+                                  //                                       ) => const Icon(
+                                  //                                         Icons
+                                  //                                             .error,
+                                  //                                       ),
+                                  //                                 ),
+                                  //                                 Positioned(
+                                  //                                   top: 4,
+                                  //                                   right: 4,
+                                  //                                   child: GestureDetector(
+                                  //                                     onTap: () {
+                                  //                                       viewModel.rightImageRemoved =
+                                  //                                           true;
+                                  //                                       viewModel
+                                  //                                           .notifyListeners();
+                                  //                                     },
+                                  //                                     child: Container(
+                                  //                                       decoration: const BoxDecoration(
+                                  //                                         color:
+                                  //                                             AppColors.secondary,
+                                  //                                         shape:
+                                  //                                             BoxShape.circle,
+                                  //                                       ),
+                                  //                                       padding:
+                                  //                                           const EdgeInsets.all(
+                                  //                                             4,
+                                  //                                           ),
+                                  //                                       child: const Icon(
+                                  //                                         Icons
+                                  //                                             .close,
+                                  //                                         size:
+                                  //                                             16,
+                                  //                                         color:
+                                  //                                             Colors.white,
+                                  //                                       ),
+                                  //                                     ),
+                                  //                                   ),
+                                  //                                 ),
+                                  //                               ],
+                                  //                             )
+                                  //                             : viewModel
+                                  //                                     .rightImage !=
+                                  //                                 null
+                                  //                             ? Stack(
+                                  //                               children: [
+                                  //                                 Image.file(
+                                  //                                   viewModel
+                                  //                                       .rightImage!,
+                                  //                                   fit:
+                                  //                                       BoxFit
+                                  //                                           .cover,
+                                  //                                   height: 150,
+                                  //                                   width:
+                                  //                                       double
+                                  //                                           .infinity,
+                                  //                                 ),
+                                  //                                 Positioned(
+                                  //                                   top: 4,
+                                  //                                   right: 4,
+                                  //                                   child: GestureDetector(
+                                  //                                     onTap: () {
+                                  //                                       viewModel.rightImage =
+                                  //                                           null;
+                                  //                                       viewModel
+                                  //                                           .notifyListeners();
+                                  //                                     },
+                                  //                                     child: Container(
+                                  //                                       decoration: const BoxDecoration(
+                                  //                                         color:
+                                  //                                             AppColors.secondary,
+                                  //                                         shape:
+                                  //                                             BoxShape.circle,
+                                  //                                       ),
+                                  //                                       padding:
+                                  //                                           const EdgeInsets.all(
+                                  //                                             4,
+                                  //                                           ),
+                                  //                                       child: const Icon(
+                                  //                                         Icons
+                                  //                                             .close,
+                                  //                                         size:
+                                  //                                             16,
+                                  //                                         color:
+                                  //                                             Colors.white,
+                                  //                                       ),
+                                  //                                     ),
+                                  //                                   ),
+                                  //                                 ),
+                                  //                               ],
+                                  //                             )
+                                  //                             : const Center(
+                                  //                               child: Icon(
+                                  //                                 Icons
+                                  //                                     .camera_alt,
+                                  //                                 color:
+                                  //                                     Colors
+                                  //                                         .grey,
+                                  //                               ),
+                                  //                             ),
+                                  //                   ),
+                                  //                   Text(
+                                  //                     LabelService().getLabel(
+                                  //                       50,
+                                  //                     ),
+                                  //                     style: TextStyle(
+                                  //                       color:
+                                  //                           AppColors
+                                  //                               .blackColor,
+                                  //                       fontSize: 14,
+                                  //                       fontWeight:
+                                  //                           FontWeight.bold,
+                                  //                     ),
+                                  //                   ),
+                                  //                 ],
+                                  //               ),
+                                  //             ),
+                                  //           ),
+                                  //         ],
+                                  //       ),
+                                  //     )
+                                  //     : Padding(
+                                  //       padding: const EdgeInsets.symmetric(
+                                  //         horizontal: 12,
+                                  //       ),
+                                  //       child: Row(
+                                  //         children: [
+                                  //           // Camera Icon with Image Picker
+                                  //           Expanded(
+                                  //             child: GestureDetector(
+                                  //               onTap: () {
+                                  //                 _showImagePickerDialog(
+                                  //                   'left',
+                                  //                 );
+                                  //               },
+                                  //               child: Column(
+                                  //                 children: [
+                                  //                   Container(
+                                  //                     height: 150,
+                                  //                     color:
+                                  //                         Colors.grey.shade300,
+                                  //                     child:
+                                  //                         viewModel.leftImage !=
+                                  //                                 null
+                                  //                             ? Stack(
+                                  //                               children: [
+                                  //                                 Image.file(
+                                  //                                   viewModel
+                                  //                                       .leftImage!,
+                                  //                                   fit:
+                                  //                                       BoxFit
+                                  //                                           .cover,
+                                  //                                   height: 150,
+                                  //                                   width:
+                                  //                                       double
+                                  //                                           .infinity,
+                                  //                                 ),
+                                  //                                 Positioned(
+                                  //                                   top: 4,
+                                  //                                   right: 4,
+                                  //                                   child: GestureDetector(
+                                  //                                     onTap: () {
+                                  //                                       viewModel.leftImage =
+                                  //                                           null;
+                                  //                                       viewModel
+                                  //                                           .notifyListeners(); // If using ChangeNotifier
+                                  //                                     },
+                                  //                                     child: Container(
+                                  //                                       decoration: const BoxDecoration(
+                                  //                                         color:
+                                  //                                             AppColors.secondary,
+                                  //                                         shape:
+                                  //                                             BoxShape.circle,
+                                  //                                       ),
+                                  //                                       padding:
+                                  //                                           const EdgeInsets.all(
+                                  //                                             4,
+                                  //                                           ),
+                                  //                                       child: const Icon(
+                                  //                                         Icons
+                                  //                                             .close,
+                                  //                                         size:
+                                  //                                             16,
+                                  //                                         color:
+                                  //                                             Colors.white,
+                                  //                                       ),
+                                  //                                     ),
+                                  //                                   ),
+                                  //                                 ),
+                                  //                               ],
+                                  //                             )
+                                  //                             : const Center(
+                                  //                               child: Icon(
+                                  //                                 Icons
+                                  //                                     .camera_alt,
+                                  //                                 color:
+                                  //                                     Colors
+                                  //                                         .grey,
+                                  //                               ),
+                                  //                             ),
+                                  //                   ),
+                                  //                   Text(
+                                  //                     LabelService().getLabel(
+                                  //                       49,
+                                  //                     ),
+                                  //                     style: TextStyle(
+                                  //                       color:
+                                  //                           AppColors
+                                  //                               .blackColor,
+                                  //                       fontSize: 14,
+                                  //                       fontWeight:
+                                  //                           FontWeight.bold,
+                                  //                     ),
+                                  //                   ),
+                                  //                 ],
+                                  //               ),
+                                  //             ),
+                                  //           ),
+                                  //           const SizedBox(width: 10),
+
+                                  //           // Gallery Icon with Image Picker
+                                  //           Expanded(
+                                  //             child: GestureDetector(
+                                  //               onTap: () {
+                                  //                 _showImagePickerDialog(
+                                  //                   'right',
+                                  //                 );
+                                  //               },
+                                  //               child: Column(
+                                  //                 children: [
+                                  //                   Container(
+                                  //                     height: 150,
+                                  //                     color:
+                                  //                         Colors.grey.shade300,
+                                  //                     child:
+                                  //                         viewModel.rightImage !=
+                                  //                                 null
+                                  //                             ? Stack(
+                                  //                               children: [
+                                  //                                 Image.file(
+                                  //                                   viewModel
+                                  //                                       .rightImage!,
+                                  //                                   fit:
+                                  //                                       BoxFit
+                                  //                                           .cover,
+                                  //                                   height: 150,
+                                  //                                   width:
+                                  //                                       double
+                                  //                                           .infinity,
+                                  //                                 ),
+                                  //                                 Positioned(
+                                  //                                   top: 4,
+                                  //                                   right: 4,
+                                  //                                   child: GestureDetector(
+                                  //                                     onTap: () {
+                                  //                                       viewModel.rightImage =
+                                  //                                           null;
+                                  //                                       viewModel
+                                  //                                           .notifyListeners(); // If using ChangeNotifier
+                                  //                                     },
+                                  //                                     child: Container(
+                                  //                                       decoration: const BoxDecoration(
+                                  //                                         color:
+                                  //                                             AppColors.secondary,
+                                  //                                         shape:
+                                  //                                             BoxShape.circle,
+                                  //                                       ),
+                                  //                                       padding:
+                                  //                                           const EdgeInsets.all(
+                                  //                                             4,
+                                  //                                           ),
+                                  //                                       child: const Icon(
+                                  //                                         Icons
+                                  //                                             .close,
+                                  //                                         size:
+                                  //                                             16,
+                                  //                                         color:
+                                  //                                             Colors.white,
+                                  //                                       ),
+                                  //                                     ),
+                                  //                                   ),
+                                  //                                 ),
+                                  //                               ],
+                                  //                             )
+                                  //                             : const Center(
+                                  //                               child: Icon(
+                                  //                                 Icons
+                                  //                                     .camera_alt,
+                                  //                                 color:
+                                  //                                     Colors
+                                  //                                         .grey,
+                                  //                               ),
+                                  //                             ),
+                                  //                   ),
+                                  //                   Text(
+                                  //                     LabelService().getLabel(
+                                  //                       50,
+                                  //                     ),
+                                  //                     style: TextStyle(
+                                  //                       color:
+                                  //                           AppColors
+                                  //                               .blackColor,
+                                  //                       fontSize: 14,
+                                  //                       fontWeight:
+                                  //                           FontWeight.bold,
+                                  //                     ),
+                                  //                   ),
+                                  //                 ],
+                                  //               ),
+                                  //             ),
+                                  //           ),
+                                  //         ],
+                                  //       ),
+                                  //     ),
                                   const SizedBox(height: 20),
                                 ],
                               ),

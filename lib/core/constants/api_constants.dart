@@ -1,67 +1,57 @@
 class ApiConstants {
-  static const String baseUrl = "https://ffm.aleedz.com";
-  static const String login = "${baseUrl}/WebService.asmx/ROSAppUserLogin";
-  static const String language = "${baseUrl}/WebService.asmx/AppSettings";
+  static String? _baseUrl;
 
-  static const String requestPermission =
-      "${baseUrl}/WebService.asmx/TeamMemberPermissions";
-  static const String coverageCount =
-      "${baseUrl}/WebService.asmx/MyCoverageStoresCount";
+  static void setBaseUrl(String url) {
+    _baseUrl = url;
+  }
 
-  static const String coverageList =
-      "${baseUrl}/Storelist.asmx/TeamMemberStoreList";
+  static String get baseUrl => _baseUrl ?? "https://ffm.aleedz.com"; // fallback
 
-  static const String coverageDropDown =
-      "${baseUrl}/WebService.asmx/ChannelList";
+  static String get login => "$baseUrl/WebService.asmx/ROSAppUserLogin";
+  static String get language => "$baseUrl/WebService.asmx/AppSettings";
+  static String get requestPermission =>
+      "$baseUrl/WebService.asmx/TeamMemberPermissions";
+  static String get coverageCount =>
+      "$baseUrl/WebService.asmx/MyCoverageStoresCount";
+  static String get coverageList =>
+      "$baseUrl/Storelist.asmx/TeamMemberStoreList";
+  static String get coverageDropDown => "$baseUrl/WebService.asmx/ChannelList";
+  static String get brandDropDown =>
+      "$baseUrl/WebService.asmx/BrandList_General";
+  static String get checkIn =>
+      "$baseUrl/StoreVisit.asmx/TeamMemberCheckInDirect";
+  static String get dashboardCheckIn => "$baseUrl/CheckIn.asmx/CheckInImg";
+  static String get checkOut => "$baseUrl/CheckOut.asmx/CheckOutImg";
+  static String get displayCheckSummary =>
+      "$baseUrl/DisplayCount.asmx/DisplayCheckSummary";
+  static String get checkAudit =>
+      "$baseUrl/DisplayCount.asmx/DisplayCheckProductListByStore";
+  static String get checkDisplayAdd =>
+      "$baseUrl/DisplayCount.asmx/DisplayCheckAdd";
+  static String get cancelVisite => "$baseUrl/JourneyPlan.asmx/CancelVisit";
+  static String get checkDisplayAddMedia =>
+      "$baseUrl/DisplayCount.asmx/DisplayCheckMasterAdd";
+  static String get pictureDropDown =>
+      "$baseUrl/WebService.asmx/StorePicture_GeneralElement";
+  static String get issueCategoryDropDown =>
+      "$baseUrl/WebService.asmx/IssueCategoryList_General";
+  static String get submitDisplayPicture =>
+      "$baseUrl/WebService.asmx/GeneralPictureAdd";
+  static String get pictureApiView =>
+      "$baseUrl/WebService.asmx/GeneralPictureView";
+  static String get deleteDisplayPicture =>
+      "$baseUrl/WebService.asmx/RemoveGeneralPicture";
+  static String get checkMasterDisplay =>
+      "$baseUrl/DisplayCount.asmx/DisplayCheckMasterView";
+  static String get dashboardApi => "$baseUrl/JourneyPlan.asmx/TeamJourneyPlan";
+  static String get activityTypeList =>
+      "$baseUrl/Activity.asmx/ActivityTypeList";
+  static String get activityCategoryId =>
+      "$baseUrl/Activity.asmx/ActivityCategoryList";
 
-  static const String brandDropDown =
-      "${baseUrl}/WebService.asmx/BrandList_General";
+  static String get activityList =>
+      "$baseUrl/OperMarketActivities.asmx/ViewMarketActivityList";
 
-  static const String checkIn =
-      "${baseUrl}/StoreVisit.asmx/TeamMemberCheckInDirect";
-
-  static const String dashboardCheckIn = "${baseUrl}/CheckIn.asmx/CheckInImg";
-
-  static const String checkOut = "${baseUrl}/CheckOut.asmx/CheckOutImg";
-
-  static const String displayCheckSummary =
-      "${baseUrl}/DisplayCount.asmx/DisplayCheckSummary";
-
-  static const String checkAudit =
-      "${baseUrl}/DisplayCount.asmx/DisplayCheckProductListByStore";
-
-  static const String checkDisplayAdd =
-      "${baseUrl}/DisplayCount.asmx/DisplayCheckAdd";
-
-  static const String cancelVisite = "${baseUrl}/JourneyPlan.asmx/CancelVisit";
-
-  static const String checkDisplayAddMedia =
-      "${baseUrl}/DisplayCount.asmx/DisplayCheckMasterAdd";
-
-  static const String pictureDropDown =
-      "${baseUrl}/WebService.asmx/StorePicture_GeneralElement";
-
-  static const String issueCategoryDropDown =
-      "${baseUrl}/WebService.asmx/IssueCategoryList_General";
-
-  static const String submitDisplayPicture =
-      "${baseUrl}/WebService.asmx/GeneralPictureAdd";
-
-  static const String pictureApiView =
-      "${baseUrl}/WebService.asmx/GeneralPictureView";
-
-  static const String deleteDisplayPicture =
-      "${baseUrl}/WebService.asmx/RemoveGeneralPicture";
-
-  static const String checkMasterDisplay =
-      "${baseUrl}/DisplayCount.asmx/DisplayCheckMasterView";
-
-  static const String dashboardApi =
-      "${baseUrl}/JourneyPlan.asmx/TeamJourneyPlan";
-
-  static const String activityTypeList =
-      "${baseUrl}/Activity.asmx/ActivityTypeList";
-
-  static const String activityCategoryId =
-      "${baseUrl}/Activity.asmx/ActivityCategoryList";
+  static String get merketActivitySubmit =>
+      "$baseUrl/OperMarketActivities.asmx/MarketActivityAdd";
 }

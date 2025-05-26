@@ -52,6 +52,8 @@ class StoreViewModel extends ChangeNotifier {
   UserModel? user;
   File? leftImage;
   File? rightImage;
+  List<File> leftImages = []; // instead of File? leftImage;
+  List<File> rightImages = []; // instead of File? rightImage;
   final ImagePicker picker = ImagePicker();
   BrandListModel? selectedBrand;
   PictureListModel? selectedPictureModel;
@@ -307,6 +309,31 @@ class StoreViewModel extends ChangeNotifier {
     }
   }
 
+  void pickFromGallerys(String direction) async {
+    final List<XFile>? images = await picker.pickMultiImage();
+    if (images != null && images.isNotEmpty) {
+      final files = images.map((img) => File(img.path)).toList();
+      if (direction == 'left') {
+        leftImages.addAll(files);
+      } else if (direction == 'right') {
+        rightImages.addAll(files);
+      }
+      notifyListeners();
+    }
+  }
+
+  void pickFromCameras(String direction) async {
+    final XFile? image = await picker.pickImage(source: ImageSource.camera);
+    if (image != null) {
+      if (direction == 'left') {
+        leftImages.add(File(image.path));
+      } else if (direction == 'right') {
+        rightImages.add(File(image.path));
+      }
+      notifyListeners();
+    }
+  }
+
   Future<void> addDisplayCheck(
     List<Map<String, dynamic>> dataList,
     BuildContext context,
@@ -334,8 +361,8 @@ class StoreViewModel extends ChangeNotifier {
     int storeId,
     String productCategoryId,
     String displayCheckMark, {
-    File? checkInImgFile1,
-    File? checkInImgFile2,
+    required List<File> checkInImages1, // For DisplayCheckImage1 variations
+    required List<File> checkInImages2, // For DisplayCheckImage2 variations
   }) async {
     loader = true;
     notifyListeners();
@@ -346,19 +373,12 @@ class StoreViewModel extends ChangeNotifier {
       storeID: storeId.toString(),
       displayCheckMark: displayCheckMark,
       teamMemberId: user?.teamMemberID.toString() ?? '',
-      checkInImgFile1: checkInImgFile1,
-      checkInImgFile2: checkInImgFile2,
+      checkInImages1: checkInImages1,
+      checkInImages2: checkInImages2,
     );
 
     if (response != null && response["status"] == 200) {
-      // await checkSummary(storeId, 0);
-
-      // selectBrand(
-      //                       storeId,
-      //                       selectedBrand?.brandId??0,
-
-      //                     );
-      // NavigationService.goBack();
+      // Success actions like goBack or fetching summary
       notifyListeners();
     } else {
       debugPrint("auditMediaSubmit Error: ${response?['data']}");
