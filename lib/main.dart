@@ -6,6 +6,9 @@ import 'package:aleedz/view/screens/coverage_details/google_map.dart';
 import 'package:aleedz/view/screens/store/display_audit_check.dart';
 import 'package:aleedz/view/screens/store/display_audit_check_summary.dart';
 import 'package:aleedz/view/screens/store/display_picture.dart';
+import 'package:aleedz/view/screens/transfer/transfer_brand_view.dart';
+import 'package:aleedz/view/screens/transfer/transfer_submit.dart';
+import 'package:aleedz/view/screens/transfer/transfer_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -77,11 +80,11 @@ class MyApp extends StatelessWidget {
           //   checkInTime: '10:59',
           //   storeId: 4,
           // ),
-          // home: DisplayAuditCheck(
+          // home: TransferSubmit(
           //   storeName: 'XCITE JABRIYA EXPRESS',
           //   checkInTime: '10:59',
           //   storeId: 4,
-          //   categoryId: 1,
+          //   categoryId: 5,
           //   categoryName: 'B2C Headsets',
           //   lastUpdate: "/Date(1746601200000)/",
           //   updateBy: 'sdfasdfa',
@@ -89,10 +92,15 @@ class MyApp extends StatelessWidget {
           // home: CoverageView(),
           // home: GoogleMapScreen(),
           home: snapshot.data!,
-          // home: ActivityView(
+          // home: TransferView(
           //   storeName: 'XCITE JABRIYA EXPRESS',
           //   checkInTime: '10:59',
           //   storeId: 4,
+          // ),
+          // home: ActivityView(
+          // storeName: 'XCITE JABRIYA EXPRESS',
+          // checkInTime: '10:59',
+          // storeId: 4,
           // ),
           // home: DisplayPicture(
           // storeName: 'XCITE JABRIYA EXPRESS',

@@ -7,6 +7,7 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/activity/activity_view.dart';
 import 'package:aleedz/view/screens/store/display_audit_check_summary.dart';
 import 'package:aleedz/view/screens/store/display_picture.dart';
+import 'package:aleedz/view/screens/transfer/transfer_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -281,6 +282,15 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                                   ),
                                 );
                               }
+                            } else if (viewModel.rosLabels[index].rosLabelID ==
+                                33) {
+                              NavigationService.navigateTo(
+                                TransferView(
+                                  storeName: widget.storeName,
+                                  checkInTime: widget.checkInTime,
+                                  storeId: widget.storeId,
+                                ),
+                              );
                             } else if (viewModel.rosLabels[index].rosLabelID ==
                                 35) {
                               NavigationService.navigateTo(

@@ -13,6 +13,7 @@ class ApiConstants {
       "$baseUrl/WebService.asmx/TeamMemberPermissions";
   static String get coverageCount =>
       "$baseUrl/WebService.asmx/MyCoverageStoresCount";
+
   static String get coverageList =>
       "$baseUrl/Storelist.asmx/TeamMemberStoreList";
   static String get coverageDropDown => "$baseUrl/WebService.asmx/ChannelList";
@@ -54,4 +55,10 @@ class ApiConstants {
 
   static String get merketActivitySubmit =>
       "$baseUrl/OperMarketActivities.asmx/MarketActivityAdd";
+
+  static String get transferView =>
+      "$baseUrl/ProductTransfer.asmx/TeamMember_Transfer_StoreList";
+
+  static String get transferBrandView =>
+      "$baseUrl/ProductTransfer.asmx/TransferProductCategoryListByStore";
 }

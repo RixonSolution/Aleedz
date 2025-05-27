@@ -3,14 +3,15 @@ import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/store/display_audit_check.dart';
+import 'package:aleedz/view/screens/transfer/transfer_submit.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DisplayAuditCheckSummary extends ConsumerStatefulWidget {
+class TransferBrandView extends ConsumerStatefulWidget {
   String storeName, checkInTime;
   int storeId;
-  DisplayAuditCheckSummary({
+  TransferBrandView({
     Key? key,
     required this.storeName,
     required this.checkInTime,
@@ -18,12 +19,11 @@ class DisplayAuditCheckSummary extends ConsumerStatefulWidget {
   }) : super(key: key);
 
   @override
-  ConsumerState<DisplayAuditCheckSummary> createState() =>
+  ConsumerState<TransferBrandView> createState() =>
       _DisplayAuditCheckSummaryState();
 }
 
-class _DisplayAuditCheckSummaryState
-    extends ConsumerState<DisplayAuditCheckSummary> {
+class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
   @override
   void initState() {
     super.initState();
@@ -60,7 +60,7 @@ class _DisplayAuditCheckSummaryState
                     ),
                   ),
                   Text(
-                    'Display Audit',
+                    LabelService().getLabel(33),
                     style: TextStyle(
                       color: AppColors.blackColor,
                       fontSize: 20,
@@ -103,8 +103,42 @@ class _DisplayAuditCheckSummaryState
                 ),
               ),
             ),
-            SizedBox(height: 20),
-
+            SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(color: AppColors.secondary),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 5),
+                        child: Text(
+                          'Transfer: 22/05/2025',
+                          style: TextStyle(
+                            color: AppColors.whiteColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 5),
+                        child: Text(
+                          'XCITE - Avanues Mall, Kuwait',
+                          style: TextStyle(
+                            color: AppColors.whiteColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: DropdownButtonFormField<int>(
@@ -172,34 +206,14 @@ class _DisplayAuditCheckSummaryState
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 70,
-                                          child: Text(
-                                            LabelService().getLabel(41),
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: AppColors.blackColor,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: 8),
-                                        SizedBox(
-                                          width: 70,
-                                          child: Text(
-                                            LabelService().getLabel(42),
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: AppColors.blackColor,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                    Text(
+                                      'Models\nTransfered',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: AppColors.blackColor,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -214,14 +228,14 @@ class _DisplayAuditCheckSummaryState
                             return GestureDetector(
                               onTap: () {
                                 NavigationService.navigateTo(
-                                  DisplayAuditCheck(
-                                    storeName: widget.storeName,
-                                    checkInTime: widget.checkInTime,
-                                    storeId: widget.storeId,
-                                    categoryId: item.productCategoryId,
-                                    categoryName: item.productCategoryName,
-                                    lastUpdate: item.lastUpdate,
-                                    updateBy: item.updateBy,
+                                  TransferSubmit(
+                                    storeName: 'XCITE JABRIYA EXPRESS',
+                                    checkInTime: '10:59',
+                                    storeId: 4,
+                                    categoryId: 5,
+                                    categoryName: 'B2C Headsets',
+                                    lastUpdate: "/Date(1746601200000)/",
+                                    updateBy: 'sdfasdfa',
                                   ),
                                 );
                               },
@@ -240,7 +254,7 @@ class _DisplayAuditCheckSummaryState
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                              CrossAxisAlignment.center,
                                           children: [
                                             Row(
                                               children: [
@@ -248,39 +262,11 @@ class _DisplayAuditCheckSummaryState
                                                 Text(item.productCategoryName),
                                               ],
                                             ),
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  '$productIndex. ',
-                                                  style: TextStyle(
-                                                    color:
-                                                        AppColors
-                                                            .lightGreyBackground,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  item.lastUpdate,
-                                                  style: TextStyle(
-                                                    color:
-                                                        item.updateBy == '1'
-                                                            ? AppColors.primary
-                                                            : AppColors
-                                                                .blackColor,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
                                             // SizedBox(width: 24),
                                           ],
                                         ),
                                       ),
-                                      SizedBox(
-                                        width: 70,
-                                        child: Text(
-                                          item.modelCount.toString(),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
+
                                       SizedBox(
                                         width: 70,
                                         child: Text(
