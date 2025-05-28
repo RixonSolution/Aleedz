@@ -1,10 +1,12 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/models/transfer_check_brand.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/store/display_audit_check.dart';
 import 'package:aleedz/view/screens/transfer/transfer_submit.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
+import 'package:aleedz/viewmodel/transfer_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,14 +30,26 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(storeModelProvider.notifier).getBrandDropDown();
-      ref.read(storeModelProvider.notifier).checkSummary(widget.storeId, 0);
+      ref.read(transferModelProvider.notifier).getBrandDropDown();
+      ref
+          .read(transferModelProvider.notifier)
+          .transferCheckBrand(widget.storeId, 0);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(storeModelProvider);
+    final viewModel = ref.watch(transferModelProvider);
+
+    final groupedByBrand = <String, List<TransferCheckBrand>>{};
+
+    for (var item in viewModel.transferCheck) {
+      final brand = item.brandName ?? 'Unknown Brand';
+      if (!groupedByBrand.containsKey(brand)) {
+        groupedByBrand[brand] = [];
+      }
+      groupedByBrand[brand]!.add(item);
+    }
 
     return SafeArea(
       child: Scaffold(
@@ -182,60 +196,56 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                 )
                 : Expanded(
                   child: ListView.builder(
-                    itemCount: viewModel.brands.length,
-                    itemBuilder: (context, brandIndex) {
-                      final brand = viewModel.brands[brandIndex];
-                      int index = brandIndex++;
+                    itemCount: groupedByBrand.length,
+                    itemBuilder: (context, index) {
+                      final brandName = groupedByBrand.keys.elementAt(index);
+                      final products = groupedByBrand[brandName]!;
+
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
                             color: AppColors.darkGreyBackground,
                             padding: const EdgeInsets.all(12),
-                            child: Column(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      brand.brandName,
-                                      style: TextStyle(
-                                        color: AppColors.blackColor,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Models\nTransfered',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: AppColors.blackColor,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
+                                Text(
+                                  brandName,
+                                  style: TextStyle(
+                                    color: AppColors.blackColor,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'Models\nTransfered',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: AppColors.blackColor,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          ...brand.products.asMap().entries.map((entry) {
-                            int productIndex =
-                                entry.key + 1; // Start from 1 (optional)
-                            var item = entry.value;
+                          ...products.asMap().entries.map((entry) {
+                            int productIndex = entry.key + 1;
+                            final item = entry.value;
 
                             return GestureDetector(
                               onTap: () {
                                 NavigationService.navigateTo(
                                   TransferSubmit(
-                                    storeName: 'XCITE JABRIYA EXPRESS',
-                                    checkInTime: '10:59',
-                                    storeId: 4,
-                                    categoryId: 5,
-                                    categoryName: 'B2C Headsets',
-                                    lastUpdate: "/Date(1746601200000)/",
-                                    updateBy: 'sdfasdfa',
+                                    storeName: widget.storeName,
+                                    checkInTime: widget.checkInTime,
+                                    storeId: item.storeID!,
+                                    categoryId: item.productCategoryID!,
+                                    categoryName:
+                                        item.productCategoryName ?? '',
+                                    lastUpdate: item.lastUpdateDate ?? '',
+                                    updateBy: item.updatedBy ?? '',
                                   ),
                                 );
                               },
@@ -252,25 +262,20 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
+                                        child: Row(
                                           children: [
-                                            Row(
-                                              children: [
-                                                Text('$productIndex. '),
-                                                Text(item.productCategoryName),
-                                              ],
+                                            Text('$productIndex. '),
+                                            Text(
+                                              item.productCategoryName ?? '',
                                             ),
-                                            // SizedBox(width: 24),
                                           ],
                                         ),
                                       ),
-
                                       SizedBox(
                                         width: 70,
                                         child: Text(
-                                          item.displayCheckCount.toString(),
+                                          item.transferModelCount?.toString() ??
+                                              '0',
                                           textAlign: TextAlign.center,
                                         ),
                                       ),
@@ -280,7 +285,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                               ),
                             );
                           }),
-
                           const Divider(thickness: 1),
                         ],
                       );

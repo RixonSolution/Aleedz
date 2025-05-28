@@ -424,7 +424,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                       'Please add pictures',
                                     );
                                   } else {
-                                    viewModel.marketActivityAdd(
+                                    await viewModel.marketActivityAdd(
                                       storeID: widget.storeId.toString(),
                                       activityTypeId:
                                           widget.activityTypeId.toString(),
@@ -439,6 +439,12 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                       beforeActivityPictures:
                                           viewModel.beforeActivityImages,
                                     );
+                                    descriptionController.clear();
+                                    quantityController.clear();
+                                    viewModel.beforeActivityImages.clear();
+                                    setState(() {});
+
+                                    viewModel.notifyListeners();
                                   }
                                   // if (viewModel.selectedBrand == null) {
                                   //   AppSnackBar.showError(

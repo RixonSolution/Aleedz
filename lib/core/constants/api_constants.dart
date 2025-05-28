@@ -17,6 +17,7 @@ class ApiConstants {
   static String get coverageList =>
       "$baseUrl/Storelist.asmx/TeamMemberStoreList";
   static String get coverageDropDown => "$baseUrl/WebService.asmx/ChannelList";
+
   static String get brandDropDown =>
       "$baseUrl/WebService.asmx/BrandList_General";
   static String get checkIn =>
@@ -61,4 +62,7 @@ class ApiConstants {
 
   static String get transferBrandView =>
       "$baseUrl/ProductTransfer.asmx/TransferProductCategoryListByStore";
+
+  static String get trasferSubmitList =>
+      "$baseUrl/ProductTransfer.asmx/TransferProductListByStore";
 }

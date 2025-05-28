@@ -44,4 +44,32 @@ class TransferController {
       visiteId: visiteId,
     );
   }
+
+  Future<Map<String, dynamic>?> transferCheckBrand({
+    required String storeId,
+    required String brandId,
+    required String visiteId,
+    required String token,
+  }) async {
+    return await _apiService.transferCheckBrand(
+      storeId: storeId,
+      brandId: brandId,
+      token: token,
+      visiteId: visiteId,
+    );
+  }
+
+  Future<Map<String, dynamic>?> transferSubmitList({
+    required String storeId,
+    required String categoryId,
+    required String visiteStatus,
+    required String token,
+  }) async {
+    return await _apiService.transferSubmitList(
+      storeId: storeId,
+      token: token,
+      categoryId: categoryId,
+      visiteStatus: visiteStatus,
+    );
+  }
 }

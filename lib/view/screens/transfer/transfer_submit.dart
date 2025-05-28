@@ -6,6 +6,7 @@ import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/product_selection_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
+import 'package:aleedz/viewmodel/transfer_viewmodel.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,23 +37,14 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
     super.initState();
     Future.microtask(() {
       ref
-          .read(storeModelProvider.notifier)
-          .getDisplayCheckMaster(
-            storeId: widget.storeId.toString(),
-            categoryId: widget.categoryId.toString(),
-          );
-      ref
-          .read(storeModelProvider.notifier)
-          .checkAudit(widget.storeId, widget.categoryId);
-      ref.read(storeModelProvider.notifier).loadUser();
-
-      ref.read(storeModelProvider.notifier).clearData();
+          .read(transferModelProvider.notifier)
+          .transferSubmitList(widget.storeId, widget.categoryId);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(storeModelProvider);
+    final viewModel = ref.watch(transferModelProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -527,30 +519,144 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                 },
                                                 child: SizedBox(
                                                   width: 60,
-                                                  child: Icon(
-                                                    viewModel.selectedProducts.any(
-                                                          (e) =>
-                                                              e.productId ==
-                                                                  item.productId &&
-                                                              e.displayCheckCount ==
-                                                                  1,
-                                                        )
-                                                        ? Icons.check_circle
-                                                        : Icons
-                                                            .check_circle_outline,
-                                                    size: 30,
-                                                    color:
-                                                        viewModel.selectedProducts.any(
-                                                              (e) =>
-                                                                  e.productId ==
-                                                                      item.productId &&
-                                                                  e.displayCheckCount ==
-                                                                      1,
-                                                            )
-                                                            ? Colors.black
-                                                            : Colors
-                                                                .grey
-                                                                .shade400,
+                                                  child: Builder(
+                                                    builder: (context) {
+                                                      final existing = viewModel
+                                                          .selectedProducts
+                                                          .firstWhereOrNull(
+                                                            (e) =>
+                                                                e.productId ==
+                                                                item.productId,
+                                                          );
+
+                                                      final isAvailable =
+                                                          existing
+                                                              ?.displayCheck ==
+                                                          1;
+
+                                                      final controller =
+                                                          TextEditingController(
+                                                            text:
+                                                                (existing?.displayCheckCount ??
+                                                                            0) ==
+                                                                        0
+                                                                    ? ''
+                                                                    : existing!
+                                                                        .displayCheckCount
+                                                                        .toString(),
+                                                          );
+
+                                                      return TextField(
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .number,
+                                                        readOnly: !isAvailable,
+                                                        controller: controller,
+                                                        onChanged: (value) {
+                                                          final count =
+                                                              int.tryParse(
+                                                                value,
+                                                              ) ??
+                                                              0;
+
+                                                          if (existing !=
+                                                              null) {
+                                                            existing.displayCheckCount =
+                                                                count;
+                                                          } else {
+                                                            viewModel.selectedProducts.add(
+                                                              ProductSelection(
+                                                                productId:
+                                                                    item.productId,
+                                                                displayCheck: 0,
+                                                                displayCheckCount:
+                                                                    count,
+                                                                token:
+                                                                    viewModel
+                                                                        .user!
+                                                                        .apiToken
+                                                                        .toString(),
+                                                                storeId:
+                                                                    widget
+                                                                        .storeId
+                                                                        .toString(),
+                                                                teamMemberId:
+                                                                    viewModel
+                                                                        .user!
+                                                                        .teamMemberID
+                                                                        .toString(),
+                                                              ),
+                                                            );
+                                                          }
+
+                                                          viewModel
+                                                              .notifyListeners();
+                                                        },
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          color:
+                                                              isAvailable
+                                                                  ? Colors.black
+                                                                  : Colors
+                                                                      .grey
+                                                                      .shade500,
+                                                        ),
+                                                        decoration: InputDecoration(
+                                                          filled: true,
+                                                          fillColor:
+                                                              Colors
+                                                                  .grey
+                                                                  .shade200,
+                                                          hintText: 'Qty',
+                                                          hintStyle: TextStyle(
+                                                            color: Colors.grey,
+                                                          ),
+                                                          isDense: true,
+                                                          contentPadding:
+                                                              EdgeInsets.symmetric(
+                                                                horizontal: 4,
+                                                                vertical: 8,
+                                                              ),
+                                                          border: OutlineInputBorder(
+                                                            borderSide: BorderSide(
+                                                              color:
+                                                                  Colors
+                                                                      .grey
+                                                                      .shade300,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  4,
+                                                                ),
+                                                          ),
+                                                          enabledBorder: OutlineInputBorder(
+                                                            borderSide: BorderSide(
+                                                              color:
+                                                                  Colors
+                                                                      .grey
+                                                                      .shade300,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  4,
+                                                                ),
+                                                          ),
+                                                          focusedBorder:
+                                                              OutlineInputBorder(
+                                                                borderSide:
+                                                                    BorderSide(
+                                                                      color:
+                                                                          Colors
+                                                                              .black,
+                                                                    ),
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      4,
+                                                                    ),
+                                                              ),
+                                                        ),
+                                                      );
+                                                    },
                                                   ),
                                                 ),
                                               ),

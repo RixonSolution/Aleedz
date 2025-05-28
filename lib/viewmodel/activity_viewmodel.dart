@@ -95,6 +95,7 @@ class ActivityViewModel extends ChangeNotifier {
   }) async {
     loader = true;
     marketActivityList = [];
+    beforeActivityImages = [];
     notifyListeners();
 
     final response = await _activityController.activityList(

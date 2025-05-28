@@ -110,4 +110,64 @@ class TransferServices {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>?> transferCheckBrand({
+    required String storeId,
+    required String brandId,
+    required String visiteId,
+    required String token,
+  }) async {
+    final encodedStoreId = Uri.encodeComponent(storeId);
+    final encodedBrandId = Uri.encodeComponent(brandId);
+    final encodedVisiteId = Uri.encodeComponent(visiteId);
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse(
+      '${ApiConstants.transferBrandView}?StoreID=$encodedStoreId&BrandID=$encodedBrandId&VisitID=$encodedVisiteId&_token=$encodedToken',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> transferSubmitList({
+    required String storeId,
+    required String categoryId,
+    required String visiteStatus,
+
+    required String token,
+  }) async {
+    final encodedStoreId = Uri.encodeComponent(storeId);
+    final encodedCategoryId = Uri.encodeComponent(categoryId);
+    final encodedVisiteStatus = Uri.encodeComponent(visiteStatus);
+
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse(
+      '${ApiConstants.trasferSubmitList}?StoreID=$encodedStoreId&VisitID=$encodedVisiteStatus&ProductCategoryID=$encodedCategoryId&_token=$encodedToken',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
 }

@@ -5,6 +5,8 @@ import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/brand_list_model.dart';
 import 'package:aleedz/models/brand_model.dart';
 import 'package:aleedz/models/chanel_mode.dart';
+import 'package:aleedz/models/product_selection_model.dart';
+import 'package:aleedz/models/transfer_check_brand.dart';
 import 'package:aleedz/models/transfer_model.dart';
 import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/models/user_model.dart';
@@ -25,18 +27,62 @@ class TransferViewModel extends ChangeNotifier {
   String? storeCount = '0';
   String? storeTimeSpend = '0';
   String? storeTotalTravel = '0';
+  BrandListModel? selectedBrand;
 
   List<TransferModel> transfer = [];
 
   List<ChannelModel> channelList = [];
   List<BrandListModel> brandList = [];
+  List<ProductSelection> selectedProducts = [];
 
   UserPermission? permission;
 
   List<Brand> brands = [];
+  List<TransferCheckBrand> transferCheck = [];
+
   List<AuditItem> auditList = [];
 
   ChannelModel? selectedChannel;
+
+  Future<void> transferSubmitList(int storeId, int categoryId) async {
+    loader = true;
+    auditList = [];
+    selectedProducts = [];
+    notifyListeners();
+    final response = await _transferController.transferSubmitList(
+      storeId: storeId.toString(),
+      categoryId: categoryId.toString(),
+      token: user?.apiToken ?? '',
+      visiteStatus: '0',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final List<AuditItem> items = List<AuditItem>.from(
+        response['data']['data'].map((x) => AuditItem.fromJson(x)),
+      );
+      auditList = items;
+      auditList.forEach((auditItem) {
+        final product = ProductSelection(
+          displayCheck: auditItem.displayCheck,
+          displayCheckCount: auditItem.displayCheckCount,
+          productId: auditItem.productId,
+          token: user?.apiToken ?? '',
+          storeId: storeId.toString(),
+          teamMemberId: user!.teamMemberID.toString(),
+          // Add other relevant fields
+        );
+
+        selectedProducts.add(product);
+      });
+
+      loader = false;
+      notifyListeners();
+    } else {
+      debugPrint("coverage list Error: ${response?['data']}");
+      loader = false;
+      notifyListeners();
+    }
+  }
 
   Future<UserPermission?> loadStoredPermissions() async {
     final prefs = await SharedPreferences.getInstance();
@@ -170,6 +216,35 @@ class TransferViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> getBrandDropDown() async {
+    final response = await _transferController.brandDropDown(
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'] as List;
+      brandList = data.map((e) => BrandListModel.fromJson(e)).toList();
+
+      notifyListeners();
+    } else {
+      debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  void selectBrand(int storeId, BrandListModel? brand) async {
+    loader = true;
+    notifyListeners();
+    selectedBrand = brand;
+    notifyListeners();
+    print("Selected Channel ID: ${brand?.brandId}");
+
+    if (brand != null) {
+      await transferCheckBrand(storeId, brand.brandId);
+    }
+    loader = false;
+    notifyListeners();
+  }
+
   Future<void> getTransferDropDown() async {
     final response = await _transferController.transferDropDown(
       token: user?.apiToken ?? '',
@@ -183,6 +258,30 @@ class TransferViewModel extends ChangeNotifier {
       notifyListeners();
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> transferCheckBrand(int storeId, int brandId) async {
+    loader = true;
+    brands = [];
+    notifyListeners();
+    final response = await _transferController.transferCheckBrand(
+      storeId: storeId.toString(),
+      brandId: brandId.toString(),
+      token: user?.apiToken ?? '',
+      visiteId: '0',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'] as List;
+      transferCheck = data.map((e) => TransferCheckBrand.fromJson(e)).toList();
+
+      loader = false;
+      notifyListeners();
+    } else {
+      debugPrint("coverage list Error: ${response?['data']}");
+      loader = false;
+      notifyListeners();
     }
   }
 

@@ -122,8 +122,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                       onPressed: () async {
                         if (cameraPermission == 'Y' ||
                             (cameraPermission == 'N' &&
-                                viewModel.leftImages != null &&
-                                viewModel.rightImages != null)) {
+                                viewModel.leftImages.isNotEmpty)) {
                           await viewModel.auditMediaSubmit(
                             context,
                             widget.storeId,
