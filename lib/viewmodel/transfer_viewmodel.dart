@@ -28,6 +28,7 @@ class TransferViewModel extends ChangeNotifier {
   String? storeTimeSpend = '0';
   String? storeTotalTravel = '0';
   BrandListModel? selectedBrand;
+  Map<String, TextEditingController> quantityControllers = {};
 
   List<TransferModel> transfer = [];
 

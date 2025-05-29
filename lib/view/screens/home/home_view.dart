@@ -608,6 +608,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
         viewModel.permission?.getPermissionValue("CheckOut_Camera") ?? "N";
     String allowMultiCheckIn =
         viewModel.permission?.getPermissionValue("AllowMultipleCheckIn") ?? "N";
+
+    String allowWithoutCheckIn =
+        viewModel.permission?.getPermissionValue(
+          "Allow_StoreIn_WithoutCheckIn",
+        ) ??
+        "N";
+
     DateTime today = DateTime.now();
     String formattedDate = DateFormat('dd-MMM-yyyy').format(today);
     // print('distancePermission$distancePermission');

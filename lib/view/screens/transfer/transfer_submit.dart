@@ -454,6 +454,8 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                               ),
 
                                               // Less than 2 Check
+                                              // Quantity (Less than 2 Check)
+                                              // Inside your widget tree
                                               GestureDetector(
                                                 onTap: () {
                                                   final existing = viewModel
@@ -463,13 +465,13 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                             e.productId ==
                                                             item.productId,
                                                       );
+
                                                   // ✅ Check if product is marked as available
                                                   final isAvailable =
                                                       existing?.displayCheck ==
                                                       1;
 
                                                   if (!isAvailable) {
-                                                    // ❌ Show snackbar if not marked as available
                                                     ScaffoldMessenger.of(
                                                       context,
                                                     ).showSnackBar(
@@ -483,110 +485,99 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                     );
                                                     return;
                                                   }
-
-                                                  if (existing != null) {
-                                                    existing.displayCheckCount =
-                                                        existing.displayCheckCount ==
-                                                                1
-                                                            ? 0
-                                                            : 1;
-                                                  } else {
-                                                    viewModel.selectedProducts
-                                                        .add(
-                                                          ProductSelection(
-                                                            productId:
-                                                                item.productId,
-                                                            displayCheckCount:
-                                                                1,
-                                                            displayCheck: 0,
-                                                            token:
-                                                                viewModel
-                                                                    .user!
-                                                                    .apiToken
-                                                                    .toString(),
-                                                            storeId:
-                                                                widget.storeId
-                                                                    .toString(),
-                                                            teamMemberId:
-                                                                viewModel
-                                                                    .user!
-                                                                    .teamMemberID
-                                                                    .toString(),
-                                                          ),
-                                                        );
-                                                  }
-                                                  viewModel.notifyListeners();
                                                 },
                                                 child: SizedBox(
                                                   width: 60,
                                                   child: Builder(
                                                     builder: (context) {
-                                                      final existing = viewModel
-                                                          .selectedProducts
-                                                          .firstWhereOrNull(
-                                                            (e) =>
-                                                                e.productId ==
-                                                                item.productId,
-                                                          );
+                                                      final key =
+                                                          item.productId
+                                                              .toString();
+
+                                                      if (!viewModel
+                                                              .quantityControllers
+                                                              .containsKey(
+                                                                key,
+                                                              ) ||
+                                                          viewModel
+                                                                  .quantityControllers[key] ==
+                                                              null) {
+                                                        final existing = viewModel
+                                                            .selectedProducts
+                                                            .firstWhereOrNull(
+                                                              (e) =>
+                                                                  e.productId ==
+                                                                  item.productId,
+                                                            );
+
+                                                        viewModel
+                                                                .quantityControllers[key] =
+                                                            TextEditingController(
+                                                              text:
+                                                                  (existing?.displayCheckCount ??
+                                                                              0) ==
+                                                                          0
+                                                                      ? ''
+                                                                      : existing!
+                                                                          .displayCheckCount
+                                                                          .toString(),
+                                                            );
+                                                      }
+
+                                                      final controller =
+                                                          viewModel
+                                                              .quantityControllers[key]!;
 
                                                       final isAvailable =
-                                                          existing
+                                                          viewModel
+                                                              .selectedProducts
+                                                              .firstWhereOrNull(
+                                                                (e) =>
+                                                                    e.productId ==
+                                                                    item.productId,
+                                                              )
                                                               ?.displayCheck ==
                                                           1;
 
-                                                      final controller =
-                                                          TextEditingController(
-                                                            text:
-                                                                (existing?.displayCheckCount ??
-                                                                            0) ==
-                                                                        0
-                                                                    ? ''
-                                                                    : existing!
-                                                                        .displayCheckCount
-                                                                        .toString(),
-                                                          );
-
                                                       return TextField(
+                                                        controller: controller,
                                                         keyboardType:
                                                             TextInputType
                                                                 .number,
                                                         readOnly: !isAvailable,
-                                                        controller: controller,
+                                                        onTap: () {
+                                                          if (!isAvailable) {
+                                                            ScaffoldMessenger.of(
+                                                              context,
+                                                            ).showSnackBar(
+                                                              const SnackBar(
+                                                                content: Text(
+                                                                  "Please mark this product as available first.",
+                                                                ),
+                                                                backgroundColor:
+                                                                    Colors.red,
+                                                              ),
+                                                            );
+                                                          }
+                                                        },
                                                         onChanged: (value) {
                                                           final count =
                                                               int.tryParse(
                                                                 value,
                                                               ) ??
                                                               0;
+                                                          final existing = viewModel
+                                                              .selectedProducts
+                                                              .firstWhereOrNull(
+                                                                (e) =>
+                                                                    e.productId ==
+                                                                    item.productId,
+                                                              );
 
                                                           if (existing !=
                                                               null) {
                                                             existing.displayCheckCount =
                                                                 count;
-                                                          } else {
-                                                            viewModel.selectedProducts.add(
-                                                              ProductSelection(
-                                                                productId:
-                                                                    item.productId,
-                                                                displayCheck: 0,
-                                                                displayCheckCount:
-                                                                    count,
-                                                                token:
-                                                                    viewModel
-                                                                        .user!
-                                                                        .apiToken
-                                                                        .toString(),
-                                                                storeId:
-                                                                    widget
-                                                                        .storeId
-                                                                        .toString(),
-                                                                teamMemberId:
-                                                                    viewModel
-                                                                        .user!
-                                                                        .teamMemberID
-                                                                        .toString(),
-                                                              ),
-                                                            );
                                                           }
 
                                                           viewModel
@@ -607,7 +598,7 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                               Colors
                                                                   .grey
                                                                   .shade200,
-                                                          hintText: 'Qty',
+                                                          hintText: '0',
                                                           hintStyle: TextStyle(
                                                             color: Colors.grey,
                                                           ),

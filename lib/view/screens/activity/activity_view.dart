@@ -132,11 +132,12 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                     const SizedBox(height: 20),
                     Expanded(
                       child: ListView.builder(
+                        padding: EdgeInsets.all(5),
                         itemCount: viewModel.activityType.length,
                         shrinkWrap: true,
                         primary: true,
                         itemBuilder: (context, index) {
-                          return GestureDetector(
+                          return InkWell(
                             onTap: () {
                               NavigationService.navigateTo(
                                 ActivityCategoryView(

@@ -284,13 +284,20 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                               }
                             } else if (viewModel.rosLabels[index].rosLabelID ==
                                 33) {
-                              NavigationService.navigateTo(
-                                TransferView(
-                                  storeName: widget.storeName,
-                                  checkInTime: widget.checkInTime,
-                                  storeId: widget.storeId,
-                                ),
-                              );
+                              if (widget.checkInTime != '0') {
+                                NavigationService.navigateTo(
+                                  TransferView(
+                                    storeName: widget.storeName,
+                                    checkInTime: widget.checkInTime,
+                                    storeId: widget.storeId,
+                                  ),
+                                );
+                              } else {
+                                AppSnackBar.showError(
+                                  context,
+                                  'Please check in before transferring the products.',
+                                );
+                              }
                             } else if (viewModel.rosLabels[index].rosLabelID ==
                                 35) {
                               NavigationService.navigateTo(
