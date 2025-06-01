@@ -284,7 +284,8 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                               }
                             } else if (viewModel.rosLabels[index].rosLabelID ==
                                 33) {
-                              if (widget.checkInTime != '0') {
+                              if (widget.checkInTime != '0' &&
+                                  widget.checkInTime != '') {
                                 NavigationService.navigateTo(
                                   TransferView(
                                     storeName: widget.storeName,

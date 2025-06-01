@@ -63,11 +63,11 @@ class StoreViewModel extends ChangeNotifier {
     loader = true;
     notifyListeners();
     selectedIssueCategory = category;
-    await getPictureView(
-      storeId: storeId.toString(),
-      brandId: selectedBrand?.brandId.toString() ?? '0',
-      elementId: selectedPictureModel?.pictureElementId.toString() ?? '1',
-    );
+    // await getPictureView(
+    //   storeId: storeId.toString(),
+    //   brandId: selectedBrand?.brandId.toString() ?? '0',
+    //   elementId: selectedPictureModel?.pictureElementId.toString() ?? '1',
+    // );
 
     loader = false;
     notifyListeners();
@@ -79,11 +79,11 @@ class StoreViewModel extends ChangeNotifier {
     selectedBrand = brand;
     notifyListeners();
     print("Selected Channel ID: ${brand?.brandId}");
-    await getPictureView(
-      storeId: storeId.toString(),
-      brandId: selectedBrand?.brandId.toString() ?? '0',
-      elementId: selectedPictureModel?.pictureElementId.toString() ?? '1',
-    );
+    // await getPictureView(
+    //   storeId: storeId.toString(),
+    //   brandId: selectedBrand?.brandId.toString() ?? '0',
+    //   elementId: selectedPictureModel?.pictureElementId.toString() ?? '1',
+    // );
     if (brand != null) {
       await checkSummary(storeId, brand.brandId);
     }
@@ -97,11 +97,11 @@ class StoreViewModel extends ChangeNotifier {
   ) async {
     loader = true;
     notifyListeners();
-    await getPictureView(
-      storeId: storeId,
-      brandId: selectedBrand?.brandId.toString() ?? '0',
-      elementId: selectedPictureModel?.pictureElementId.toString() ?? '1',
-    );
+    // await getPictureView(
+    //   storeId: storeId,
+    //   brandId: selectedBrand?.brandId.toString() ?? '0',
+    //   elementId: selectedPictureModel?.pictureElementId.toString() ?? '1',
+    // );
     selectedPictureModel = pictureList;
     print("Selected Picture ID: ${pictureList?.pictureElementId}");
 
@@ -437,6 +437,8 @@ class StoreViewModel extends ChangeNotifier {
     required String categoryId,
   }) async {
     checkMaster = [];
+    rightImages = [];
+    leftImages = [];
     // loader = true;
     notifyListeners();
     final response = await _storeController.checkDisplayMaster(
@@ -491,6 +493,7 @@ class StoreViewModel extends ChangeNotifier {
         brandId: brandId,
         elementId: selectedPictureModel!.pictureElementId.toString(),
       );
+      clearDisplayPicture('0');
       // selectedPictureModel = null;
       // selectedBrand = null;
       leftImage = null;
@@ -561,7 +564,7 @@ class StoreViewModel extends ChangeNotifier {
         brandId: selectedBrand?.brandId.toString() ?? '0',
         elementId: selectedPictureModel?.pictureElementId.toString() ?? '1',
       );
-      NavigationService.goBack();
+      clearDisplayPicture('0');
 
       notifyListeners();
     } else {

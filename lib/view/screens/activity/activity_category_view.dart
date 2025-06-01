@@ -26,13 +26,22 @@ class ActivityCategoryView extends ConsumerStatefulWidget {
 
 class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
   TextEditingController searchController = TextEditingController();
+  List filteredList = [];
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      loadUserAndFetchCoverage();
+    Future.microtask(() async {
+      await loadUserAndFetchCoverage();
+      applyFilter();
     });
+    searchController.addListener(applyFilter);
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   Future<void> loadUserAndFetchCoverage() async {
@@ -44,9 +53,25 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
         );
   }
 
+  void applyFilter() {
+    final viewModel = ref.read(activityModelProvider);
+    final query = searchController.text.toLowerCase();
+    setState(() {
+      filteredList =
+          viewModel.activityCategoryId
+              .where(
+                (item) =>
+                    item.activityCategoryName?.toLowerCase().contains(query) ??
+                    false,
+              )
+              .toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(activityModelProvider);
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
@@ -137,10 +162,9 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-
                       child: TextField(
                         controller: searchController,
-                        style: TextStyle(color: AppColors.greyText),
+                        style: TextStyle(color: AppColors.blackColor),
                         decoration: InputDecoration(
                           hintText: 'Search',
                           hintStyle: TextStyle(color: AppColors.greyText),
@@ -155,99 +179,66 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
                     Expanded(
                       child: ListView.builder(
                         padding: EdgeInsets.all(5),
-
-                        itemCount: viewModel.activityCategoryId.length,
+                        itemCount: filteredList.length,
                         shrinkWrap: true,
-                        primary: true,
                         itemBuilder: (context, index) {
-                          return InkWell(
-                            onTap: () {
-                              NavigationService.navigateTo(
-                                ActivitySubmitView(
-                                  storeName: widget.storeName,
-                                  checkInTime: widget.checkInTime,
-                                  storeId: widget.storeId,
-                                  activityTypeName: widget.activityTypeName,
-                                  activityCategoryName:
-                                      viewModel
-                                          .activityCategoryId[index]
-                                          .activityCategoryName ??
-                                      '',
-                                  divisionId: widget.divisionId,
-                                  activityTypeId: widget.activityTypeId,
-                                  activitiCategoryId:
-                                      viewModel
-                                          .activityCategoryId[index]
-                                          .activityCategoryID ??
-                                      0,
-                                ),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                          final item = filteredList[index];
+                          return Column(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  NavigationService.navigateTo(
+                                    ActivitySubmitView(
+                                      storeName: widget.storeName,
+                                      checkInTime: widget.checkInTime,
+                                      storeId: widget.storeId,
+                                      activityTypeName: widget.activityTypeName,
+                                      activityCategoryName:
+                                          item.activityCategoryName ?? '',
+                                      divisionId: widget.divisionId,
+                                      activityTypeId: widget.activityTypeId,
+                                      activitiCategoryId:
+                                          item.activityCategoryID ?? 0,
+                                    ),
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                  child: Row(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment
-                                            .start, // Important for alignment
+                                        CrossAxisAlignment.start,
                                     children: [
+                                      SizedBox(
+                                        width: 24,
+                                        child: Text(
+                                          '${index + 1}.  ',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.blackColor,
+                                          ),
+                                        ),
+                                      ),
                                       Expanded(
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            SizedBox(
-                                              width:
-                                                  24, // Adjust width to fit index cleanly
-                                              child: Text(
-                                                '${index + 1}.  ',
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: AppColors.blackColor,
-                                                ),
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    viewModel
-                                                            .activityCategoryId[index]
-                                                            .activityCategoryName ??
-                                                        '',
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 14,
-                                                      color:
-                                                          AppColors.blackColor,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
+                                        child: Text(
+                                          item.activityCategoryName ?? '',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                            color: AppColors.blackColor,
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ),
-                                  Divider(height: 25),
-                                ],
+                                ),
                               ),
-                            ),
+                              const Divider(height: 25),
+                            ],
                           );
                         },
                       ),

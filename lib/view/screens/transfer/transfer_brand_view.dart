@@ -9,15 +9,18 @@ import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:aleedz/viewmodel/transfer_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class TransferBrandView extends ConsumerStatefulWidget {
-  String storeName, checkInTime;
+  String storeName, checkInTime, transferStore, transferStoreAddress;
   int storeId;
   TransferBrandView({
     Key? key,
     required this.storeName,
     required this.checkInTime,
     required this.storeId,
+    required this.transferStore,
+    required this.transferStoreAddress,
   }) : super(key: key);
 
   @override
@@ -50,6 +53,11 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
       }
       groupedByBrand[brand]!.add(item);
     }
+
+    DateTime ddate4 = DateTime.now();
+
+    String formattedDate = DateFormat('dd/MM/yyyy').format(ddate4);
+    print(formattedDate); // e.g., "01/06/2025"
 
     return SafeArea(
       child: Scaffold(
@@ -128,7 +136,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                       Padding(
                         padding: const EdgeInsets.only(top: 5),
                         child: Text(
-                          'Transfer: 22/05/2025',
+                          'Transfer: ${formattedDate}',
                           style: TextStyle(
                             color: AppColors.whiteColor,
                             fontSize: 14,
@@ -139,11 +147,27 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 5),
                         child: Text(
-                          'XCITE - Avanues Mall, Kuwait',
+                          '${widget.transferStore} ',
                           style: TextStyle(
                             color: AppColors.whiteColor,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width - 100,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 5),
+                          child: Text(
+                            '${widget.transferStoreAddress}',
+                            textAlign: TextAlign.center,
+
+                            style: TextStyle(
+                              color: AppColors.whiteColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -218,13 +242,16 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                Text(
-                                  'Models\nTransfered',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: AppColors.blackColor,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
+                                SizedBox(
+                                  width: 80,
+                                  child: Text(
+                                    LabelService().getLabel(58),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: AppColors.blackColor,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -246,6 +273,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                                         item.productCategoryName ?? '',
                                     lastUpdate: item.lastUpdateDate ?? '',
                                     updateBy: item.updatedBy ?? '',
+                                    transferStore: widget.transferStore,
+                                    transferStoreAddress:
+                                        widget.transferStoreAddress,
                                   ),
                                 );
                               },

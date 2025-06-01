@@ -623,7 +623,22 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                           horizontal: 12,
                                         ),
                                         child: Text(
-                                          'Date: ${viewModel.marketActivityList[index].activityDateTime} | Quantity: ${viewModel.marketActivityList[index].quantity}',
+                                          'Date: ${viewModel.marketActivityList[index].activityDateTime}}',
+                                          style: TextStyle(
+                                            color: AppColors.blackColor,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 5),
+
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: Text(
+                                          'Quantity: ${viewModel.marketActivityList[index].quantity}',
                                           style: TextStyle(
                                             color: AppColors.blackColor,
                                             fontWeight: FontWeight.bold,

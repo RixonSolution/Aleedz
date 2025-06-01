@@ -1,9 +1,9 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/models/activity_type_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/activity/activity_category_view.dart'
-    show ActivityCategoryView;
+import 'package:aleedz/view/screens/activity/activity_category_view.dart';
 import 'package:aleedz/viewmodel/activity_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,16 +25,39 @@ class ActivityView extends ConsumerStatefulWidget {
 
 class _MyConsumerState extends ConsumerState<ActivityView> {
   TextEditingController searchController = TextEditingController();
+  List<ActivityModelType> filteredActivityType = [];
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
       loadUserAndFetchCoverage();
     });
+
+    searchController.addListener(() {
+      filterActivityList(searchController.text);
+    });
   }
 
   Future<void> loadUserAndFetchCoverage() async {
-    await ref.read(activityModelProvider.notifier).loadActivity();
+    final notifier = ref.read(activityModelProvider.notifier);
+    await notifier.loadActivity();
+    setState(() {
+      filteredActivityType = List.from(notifier.activityType);
+    });
+  }
+
+  void filterActivityList(String query) {
+    final lowerQuery = query.toLowerCase();
+    final fullList = ref.read(activityModelProvider.notifier).activityType;
+
+    setState(() {
+      filteredActivityType =
+          fullList.where((item) {
+            final name = item.activityTypeName?.toLowerCase() ?? '';
+            return name.contains(lowerQuery);
+          }).toList();
+    });
   }
 
   @override
@@ -46,12 +69,11 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-
                   children: [
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Row(
@@ -67,7 +89,7 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                               width: 30,
                             ),
                           ),
-                          Text(
+                          const Text(
                             'Activity',
                             style: TextStyle(
                               color: AppColors.blackColor,
@@ -84,16 +106,16 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 5),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                    const SizedBox(height: 5),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
                       child: Divider(color: AppColors.primary, height: 0),
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Center(
                       child: Text(
                         widget.storeName,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: AppColors.blackColor,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -103,7 +125,7 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                     Center(
                       child: Text(
                         'Checked In ${widget.checkInTime}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: AppColors.blackColor,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -112,11 +134,10 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-
                       child: TextField(
                         controller: searchController,
-                        style: TextStyle(color: AppColors.greyText),
-                        decoration: InputDecoration(
+                        style: const TextStyle(color: AppColors.blackColor),
+                        decoration: const InputDecoration(
                           hintText: 'Search',
                           hintStyle: TextStyle(color: AppColors.greyText),
                           border: UnderlineInputBorder(),
@@ -130,102 +151,75 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Expanded(
-                      child: ListView.builder(
-                        padding: EdgeInsets.all(5),
-                        itemCount: viewModel.activityType.length,
-                        shrinkWrap: true,
-                        primary: true,
-                        itemBuilder: (context, index) {
-                          return InkWell(
-                            onTap: () {
-                              NavigationService.navigateTo(
-                                ActivityCategoryView(
-                                  storeName: widget.storeName,
-                                  checkInTime: widget.checkInTime,
-                                  activityTypeName:
-                                      viewModel
-                                          .activityType[index]
-                                          .activityTypeName ??
-                                      '',
-                                  storeId: widget.storeId,
-                                  divisionId:
-                                      viewModel.activityType[index].divisionID
-                                          ?.toInt() ??
-                                      1,
-                                  activityTypeId:
-                                      viewModel
-                                          .activityType[index]
-                                          .activityTypeID
-                                          ?.toInt() ??
-                                      1,
-                                ),
-                              );
-                            },
-                            //
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment
-                                            .start, // Important for alignment
-                                    children: [
-                                      Expanded(
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            SizedBox(
-                                              width:
-                                                  24, // Adjust width to fit index cleanly
-                                              child: Text(
-                                                '${index + 1}.  ',
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: AppColors.blackColor,
-                                                ),
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    viewModel
-                                                            .activityType[index]
-                                                            .activityTypeName ??
-                                                        '',
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 14,
-                                                      color:
-                                                          AppColors.blackColor,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                    if (filteredActivityType.isEmpty)
+                      const Expanded(
+                        child: Center(child: Text('No results found')),
+                      )
+                    else
+                      Expanded(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(5),
+                          itemCount: filteredActivityType.length,
+                          itemBuilder: (context, index) {
+                            final activity = filteredActivityType[index];
+
+                            return Column(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    NavigationService.navigateTo(
+                                      ActivityCategoryView(
+                                        storeName: widget.storeName,
+                                        checkInTime: widget.checkInTime,
+                                        activityTypeName:
+                                            activity.activityTypeName ?? '',
+                                        storeId: widget.storeId,
+                                        divisionId:
+                                            activity.divisionID?.toInt() ?? 1,
+                                        activityTypeId:
+                                            activity.activityTypeID?.toInt() ??
+                                            1,
                                       ),
-                                    ],
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          width: 24,
+                                          child: Text(
+                                            '${index + 1}.',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: AppColors.blackColor,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            activity.activityTypeName ?? '',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                              color: AppColors.blackColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  Divider(height: 25),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+                                ),
+                                const Divider(height: 25),
+                              ],
+                            );
+                          },
+                        ),
                       ),
-                    ),
                   ],
                 ),
       ),

@@ -9,10 +9,18 @@ import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:aleedz/viewmodel/transfer_viewmodel.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class TransferSubmit extends ConsumerStatefulWidget {
-  String storeName, checkInTime, categoryName, lastUpdate, updateBy;
+  String storeName,
+      checkInTime,
+      categoryName,
+      lastUpdate,
+      updateBy,
+      transferStore,
+      transferStoreAddress;
   int storeId, categoryId;
   TransferSubmit({
     Key? key,
@@ -23,6 +31,8 @@ class TransferSubmit extends ConsumerStatefulWidget {
     required this.categoryName,
     required this.lastUpdate,
     required this.updateBy,
+    required this.transferStore,
+    required this.transferStoreAddress,
   }) : super(key: key);
 
   @override
@@ -45,6 +55,10 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(transferModelProvider);
+    DateTime ddate4 = DateTime.now();
+
+    String formattedDate = DateFormat('dd/MM/yyyy').format(ddate4);
+    print(formattedDate); // e.g., "01/06/2025"
 
     return SafeArea(
       child: Scaffold(
@@ -155,7 +169,7 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                         Padding(
                           padding: const EdgeInsets.only(top: 5),
                           child: Text(
-                            'Transfer: 22/05/2025',
+                            'Transfer: ${formattedDate}',
                             style: TextStyle(
                               color: AppColors.whiteColor,
                               fontSize: 14,
@@ -166,11 +180,27 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 5),
                           child: Text(
-                            'XCITE - Avanues Mall, Kuwait',
+                            '${widget.transferStore}',
                             style: TextStyle(
                               color: AppColors.whiteColor,
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width - 100,
+
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 5),
+                            child: Text(
+                              '${widget.transferStoreAddress}',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppColors.whiteColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -259,7 +289,7 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                             ),
                                           ),
                                           Row(
-                                            children: const [
+                                            children: [
                                               SizedBox(
                                                 width: 60,
                                                 child: Text(
@@ -273,9 +303,9 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                               ),
                                               SizedBox(width: 15),
                                               SizedBox(
-                                                width: 60,
+                                                width: 80,
                                                 child: Text(
-                                                  "Quantity",
+                                                  LabelService().getLabel(60),
                                                   textAlign: TextAlign.center,
                                                   style: TextStyle(
                                                     fontSize: 14,
@@ -453,8 +483,7 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                 ),
                                               ),
 
-                                              // Less than 2 Check
-                                              // Quantity (Less than 2 Check)
+                                              // Quantity (Less than 3 Check)
                                               // Inside your widget tree
                                               GestureDetector(
                                                 onTap: () {
@@ -545,6 +574,16 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                             TextInputType
                                                                 .number,
                                                         readOnly: !isAvailable,
+                                                        textAlign:
+                                                            TextAlign
+                                                                .center, // ✅ Center align text
+                                                        inputFormatters: [
+                                                          LengthLimitingTextInputFormatter(
+                                                            3,
+                                                          ), // ✅ Max 3 characters
+                                                          FilteringTextInputFormatter
+                                                              .digitsOnly, // ✅ Allow only digits
+                                                        ],
                                                         onTap: () {
                                                           if (!isAvailable) {
                                                             ScaffoldMessenger.of(
@@ -573,13 +612,11 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                                     e.productId ==
                                                                     item.productId,
                                                               );
-
                                                           if (existing !=
                                                               null) {
                                                             existing.displayCheckCount =
                                                                 count;
                                                           }
-
                                                           viewModel
                                                               .notifyListeners();
                                                         },

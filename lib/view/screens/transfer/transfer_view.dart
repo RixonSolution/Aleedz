@@ -180,17 +180,23 @@ class _CoverageViewState extends ConsumerState<TransferView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Transfer To',
+                    LabelService().getLabel(59),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    "Model\nTransferred",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  SizedBox(
+                    width: 80,
+                    child: Text(
+                      LabelService().getLabel(57),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -213,6 +219,10 @@ class _CoverageViewState extends ConsumerState<TransferView> {
                               storeName: widget.storeName,
                               checkInTime: widget.checkInTime,
                               storeId: widget.storeId,
+                              transferStore:
+                                  viewModel.transfer[index].storeName ?? '',
+                              transferStoreAddress:
+                                  viewModel.transfer[index].address ?? '',
                             ),
                           );
                         },

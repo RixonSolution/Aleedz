@@ -783,6 +783,10 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                             'otherLat$otherLat otherLng$otherLng',
                                           );
 
+                                          bool isOtherLocationEmpty =
+                                              otherLat == 0.0 &&
+                                              otherLng == 0.0;
+
                                           double distance = viewModel
                                               .calculateDistanceInMeters(
                                                 myLat,
@@ -795,18 +799,110 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                             'Distance is ${distance.toStringAsFixed(2)} meters',
                                           );
 
-                                          final picker = ImagePicker();
-                                          final pickedFile = await picker
-                                              .pickImage(
-                                                source: ImageSource.camera,
+                                          if (isOtherLocationEmpty) {
+                                            final picker = ImagePicker();
+                                            final pickedFile = await picker
+                                                .pickImage(
+                                                  source: ImageSource.camera,
+                                                );
+
+                                            if (pickedFile != null) {
+                                              final imageFile = File(
+                                                pickedFile.path,
                                               );
 
-                                          if (pickedFile != null) {
-                                            final imageFile = File(
-                                              pickedFile.path,
-                                            );
-
-                                            showImagePopup(
+                                              showImagePopup(
+                                                context: context,
+                                                title:
+                                                    viewModel
+                                                        .stores[index]
+                                                        .storeName,
+                                                checkStatus:
+                                                    viewModel
+                                                                .stores[index]
+                                                                .visitStatusId ==
+                                                            0
+                                                        ? LabelService()
+                                                            .getLabel(14)
+                                                        : LabelService()
+                                                            .getLabel(15),
+                                                checkStatus1: 'Cancel',
+                                                checkRemarks:
+                                                    viewModel
+                                                                .stores[index]
+                                                                .visitStatusId ==
+                                                            0
+                                                        ? LabelService()
+                                                            .getLabel(21)
+                                                        : LabelService()
+                                                            .getLabel(22),
+                                                onSubmit: (value) async {
+                                                  if (viewModel
+                                                          .stores[index]
+                                                          .visitStatusId ==
+                                                      0) {
+                                                    await viewModel
+                                                        .coverageCheckIn(
+                                                          context,
+                                                          viewModel
+                                                              .stores[index]
+                                                              .storeId,
+                                                          remarks: value,
+                                                          checkInImgFile:
+                                                              imageFile,
+                                                        );
+                                                    NavigationService.navigateTo(
+                                                      StoreHome(
+                                                        storeName:
+                                                            viewModel
+                                                                .stores[index]
+                                                                .storeName,
+                                                        checkInTime:
+                                                            viewModel
+                                                                .stores[index]
+                                                                .checkInTime,
+                                                        grade: 'A',
+                                                        address:
+                                                            viewModel
+                                                                .stores[index]
+                                                                .address,
+                                                        storeId:
+                                                            viewModel
+                                                                .stores[index]
+                                                                .storeId,
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    viewModel.coverageCheckout(
+                                                      context,
+                                                      viewModel
+                                                          .stores[index]
+                                                          .visitStatusId,
+                                                      remarks: value,
+                                                      checkOutImgFile:
+                                                          imageFile,
+                                                    );
+                                                  }
+                                                },
+                                                cancel: (value) async {
+                                                  viewModel.cancelVisite(
+                                                    context,
+                                                    viewModel
+                                                        .stores[index]
+                                                        .storeId,
+                                                    0,
+                                                    remarks: value,
+                                                  );
+                                                },
+                                                imageFile:
+                                                    imageFile, // 🔹 pass the image to dialog
+                                              );
+                                            }
+                                          } else if (distance >
+                                              double.parse(
+                                                distancePermission,
+                                              )) {
+                                            showLocationPopup(
                                               context: context,
                                               title:
                                                   viewModel
@@ -823,77 +919,13 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                       : LabelService().getLabel(
                                                         15,
                                                       ),
-                                              checkStatus1: 'Cancel',
-                                              checkRemarks:
-                                                  viewModel
-                                                              .stores[index]
-                                                              .visitStatusId ==
-                                                          0
-                                                      ? LabelService().getLabel(
-                                                        21,
-                                                      )
-                                                      : LabelService().getLabel(
-                                                        22,
-                                                      ),
-                                              onSubmit: (value) async {
-                                                if (viewModel
-                                                        .stores[index]
-                                                        .visitStatusId ==
-                                                    0) {
-                                                  await viewModel
-                                                      .coverageCheckIn(
-                                                        context,
-                                                        viewModel
-                                                            .stores[index]
-                                                            .storeId,
-                                                        remarks: value,
-                                                        checkInImgFile:
-                                                            imageFile,
-                                                      );
-                                                  NavigationService.navigateTo(
-                                                    StoreHome(
-                                                      storeName:
-                                                          viewModel
-                                                              .stores[index]
-                                                              .storeName,
-                                                      checkInTime:
-                                                          viewModel
-                                                              .stores[index]
-                                                              .checkInTime,
-                                                      grade: 'A',
-                                                      address:
-                                                          viewModel
-                                                              .stores[index]
-                                                              .address,
-                                                      storeId:
-                                                          viewModel
-                                                              .stores[index]
-                                                              .storeId,
-                                                    ),
-                                                  );
-                                                } else {
-                                                  viewModel.coverageCheckout(
-                                                    context,
-                                                    viewModel
-                                                        .stores[index]
-                                                        .visitStatusId,
-                                                    remarks: value,
-                                                    checkOutImgFile: imageFile,
-                                                  );
-                                                }
-                                              },
-                                              cancel: (value) async {
-                                                viewModel.cancelVisite(
-                                                  context,
-                                                  viewModel
-                                                      .stores[index]
-                                                      .storeId,
-                                                  0,
-                                                  remarks: value,
-                                                );
-                                              },
-                                              imageFile:
-                                                  imageFile, // 🔹 pass the image to dialog
+                                              meter: distance.toStringAsFixed(
+                                                2,
+                                              ),
+                                              myLat: myLat,
+                                              myLng: myLng,
+                                              otherLat: otherLat,
+                                              otherLng: otherLng,
                                             );
                                           }
                                         } else {
