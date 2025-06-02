@@ -87,6 +87,36 @@ class ActivityViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> removeActivity({
+    required String activityId,
+    required String activityTypeId,
+  }) async {
+    loader = true;
+
+    notifyListeners();
+
+    final response = await _activityController.removeActivity(
+      token: user?.apiToken ?? '',
+      activityId: activityId,
+      activityTypeId: activityTypeId,
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'];
+      // activityCategoryId =
+      //     data.map((e) => ActivityCategoryModel.fromJson(e)).toList();
+      // loader = false;
+
+      notifyListeners();
+      loader = false;
+    } else {
+      loader = false;
+
+      notifyListeners();
+      debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
   Future<void> getMarketActivityList({
     required String storeId,
     required String activityCategoryId,

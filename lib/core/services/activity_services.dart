@@ -63,6 +63,33 @@ class ActivityServices {
     }
   }
 
+  Future<Map<String, dynamic>?> removeActivityType({
+    required String token,
+    required String activityId,
+    required String activityTypeId,
+  }) async {
+    final encodedActivityId = Uri.encodeComponent(activityId);
+    final encodedActivityTypeId = Uri.encodeComponent(activityTypeId);
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse(
+      '${ApiConstants.removeActivity}?_token=$encodedToken&ActivityID=$encodedActivityId&ActivityTypeID=$encodedActivityTypeId',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
   Future<Map<String, dynamic>?> getMarketActivity({
     required String storeId,
     required String activityCategoryId,
@@ -176,4 +203,6 @@ class ActivityServices {
       return null;
     }
   }
+
+  removeActivity({required String token}) {}
 }

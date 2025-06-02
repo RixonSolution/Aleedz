@@ -1098,6 +1098,99 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                   imageFile, // 🔹 pass the image to dialog
                                             );
                                           }
+                                        } else if (distance <
+                                            double.parse(distancePermission)) {
+                                          final picker = ImagePicker();
+                                          final pickedFile = await picker
+                                              .pickImage(
+                                                source: ImageSource.camera,
+                                              );
+
+                                          if (pickedFile != null) {
+                                            final imageFile = File(
+                                              pickedFile.path,
+                                            );
+
+                                            showImagePopup(
+                                              context: context,
+                                              title:
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .storeName,
+                                              checkStatus:
+                                                  viewModel
+                                                              .dashBoardList[index]
+                                                              .visitStatusId ==
+                                                          1
+                                                      ? LabelService().getLabel(
+                                                        14,
+                                                      )
+                                                      : LabelService().getLabel(
+                                                        15,
+                                                      ),
+                                              checkStatus1: 'Cancel',
+                                              checkRemarks:
+                                                  viewModel
+                                                              .dashBoardList[index]
+                                                              .visitStatusId ==
+                                                          1
+                                                      ? LabelService().getLabel(
+                                                        21,
+                                                      )
+                                                      : LabelService().getLabel(
+                                                        22,
+                                                      ),
+                                              onSubmit: (value) async {
+                                                {
+                                                  await viewModel
+                                                      .dashboardCheckIn(
+                                                        context,
+                                                        viewModel
+                                                            .dashBoardList[index]
+                                                            .visitId,
+                                                        remarks: value,
+                                                        checkInImgFile:
+                                                            imageFile,
+                                                      );
+                                                  NavigationService.navigateTo(
+                                                    StoreHome(
+                                                      storeName:
+                                                          viewModel
+                                                              .dashBoardList[index]
+                                                              .storeName,
+                                                      checkInTime:
+                                                          viewModel
+                                                              .dashBoardList[index]
+                                                              .checkInTime,
+                                                      grade: 'A',
+                                                      address:
+                                                          viewModel
+                                                              .dashBoardList[index]
+                                                              .address,
+                                                      storeId:
+                                                          viewModel
+                                                              .dashBoardList[index]
+                                                              .storeId,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              cancel: (value) async {
+                                                viewModel.cancelVisite(
+                                                  context,
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .storeId,
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .visitId,
+                                                  remarks: value,
+                                                );
+                                              },
+                                              imageFile:
+                                                  imageFile, // 🔹 pass the image to dialog
+                                            );
+                                          }
                                         } else if (distance >
                                             double.parse(distancePermission)) {
                                           showLocationPopup(
@@ -1106,17 +1199,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                 viewModel
                                                     .dashBoardList[index]
                                                     .storeName,
-                                            checkStatus:
-                                                viewModel
-                                                            .dashBoardList[index]
-                                                            .visitStatusId ==
-                                                        0
-                                                    ? LabelService().getLabel(
-                                                      14,
-                                                    )
-                                                    : LabelService().getLabel(
-                                                      15,
-                                                    ),
+                                            checkStatus: LabelService()
+                                                .getLabel(14),
+
                                             meter: distance.toStringAsFixed(2),
                                             myLat: myLat,
                                             myLng: myLng,
@@ -1185,6 +1270,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                           'otherLat$otherLat otherLng$otherLng',
                                         );
 
+                                        bool isOtherLocationEmpty =
+                                            otherLat == 0.0 && otherLng == 0.0;
+
                                         double distance = viewModel
                                             .calculateDistanceInMeters(
                                               myLat,
@@ -1197,7 +1285,83 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                           'Distance is ${distance.toStringAsFixed(2)} meters',
                                         );
 
-                                        if (distance >
+                                        if (isOtherLocationEmpty) {
+                                          final picker = ImagePicker();
+                                          final pickedFile = await picker
+                                              .pickImage(
+                                                source: ImageSource.camera,
+                                              );
+
+                                          if (pickedFile != null) {
+                                            final imageFile = File(
+                                              pickedFile.path,
+                                            );
+                                            List<int> imageBytes =
+                                                File(
+                                                  pickedFile.path,
+                                                ).readAsBytesSync();
+
+                                            String base64Image = base64Encode(
+                                              imageBytes,
+                                            );
+
+                                            showImagePopup(
+                                              context: context,
+                                              title:
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .storeName,
+                                              checkStatus:
+                                                  viewModel
+                                                              .dashBoardList[index]
+                                                              .visitStatusId ==
+                                                          1
+                                                      ? LabelService().getLabel(
+                                                        14,
+                                                      )
+                                                      : LabelService().getLabel(
+                                                        15,
+                                                      ),
+                                              checkStatus1: '',
+                                              checkRemarks:
+                                                  viewModel
+                                                              .dashBoardList[index]
+                                                              .visitStatusId ==
+                                                          1
+                                                      ? LabelService().getLabel(
+                                                        21,
+                                                      )
+                                                      : LabelService().getLabel(
+                                                        22,
+                                                      ),
+                                              onSubmit: (value) {
+                                                viewModel.coverageCheckout(
+                                                  context,
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .visitId,
+                                                  remarks: value,
+                                                  checkOutImgFile: imageFile,
+                                                );
+                                              },
+                                              cancel: (value) async {
+                                                viewModel.cancelVisite(
+                                                  context,
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .storeId,
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .visitId,
+                                                  remarks: value,
+                                                );
+                                              },
+
+                                              imageFile:
+                                                  imageFile, // 🔹 pass the image to dialog
+                                            );
+                                          }
+                                        } else if (distance >
                                             double.parse(distancePermission)) {
                                           showLocationPopup(
                                             context: context,
@@ -1205,17 +1369,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                 viewModel
                                                     .dashBoardList[index]
                                                     .storeName,
-                                            checkStatus:
-                                                viewModel
-                                                            .dashBoardList[index]
-                                                            .visitStatusId ==
-                                                        0
-                                                    ? LabelService().getLabel(
-                                                      14,
-                                                    )
-                                                    : LabelService().getLabel(
-                                                      15,
-                                                    ),
+                                            checkStatus: LabelService()
+                                                .getLabel(15),
                                             meter: distance.toStringAsFixed(2),
                                             myLat: myLat,
                                             myLng: myLng,
@@ -1235,7 +1390,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                               );
                                             },
                                           );
-                                        } else {
+                                        } else if (distance <
+                                            double.parse(distancePermission)) {
                                           final picker = ImagePicker();
                                           final pickedFile = await picker
                                               .pickImage(
@@ -1474,7 +1630,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                             'N' &&
                                                         selectedStore
                                                                 .visitStatusId ==
-                                                            0) {
+                                                            1) {
                                                       AppSnackBar.showError(
                                                         context,
                                                         "You must check in before entering the store.",

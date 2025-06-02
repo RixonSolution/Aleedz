@@ -51,6 +51,8 @@ class ApiConstants {
   static String get activityCategoryId =>
       "$baseUrl/Activity.asmx/ActivityCategoryList";
 
+  static String get removeActivity => "$baseUrl/Activity.asmx/RemoveActivity";
+
   static String get activityList =>
       "$baseUrl/OperMarketActivities.asmx/ViewMarketActivityList";
 

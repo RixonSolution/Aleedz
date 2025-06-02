@@ -124,6 +124,45 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
         );
   }
 
+  Future<void> _showLogoutDialog(
+    BuildContext context,
+
+    void Function()? onPressed,
+  ) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent closing by tapping outside
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: AppColors.secondary,
+            title: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.whiteColor),
+            ),
+            content: const Text(
+              'Are you sure you want to delete?',
+              style: TextStyle(color: AppColors.whiteColor),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(), // Close dialog
+                child: const Text(
+                  'No',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+              ),
+              TextButton(
+                onPressed: onPressed,
+                child: const Text(
+                  'Yes',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
   TextEditingController descriptionController = TextEditingController();
   TextEditingController quantityController = TextEditingController();
 
@@ -551,11 +590,19 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                 itemBuilder: (context, index) {
                   return InkWell(
                     onLongPress: () {
-                      // _showLogoutDialog(
-                      //   context,
-                      //   viewModel.viewPicture[index].pictureID.toString(),
-                      //   viewModel.viewPicture[index].pictureName.toString(),
-                      // );
+                      _showLogoutDialog(context, () async {
+                        NavigationService.goBack();
+
+                        await viewModel.removeActivity(
+                          activityId:
+                              viewModel.marketActivityList[index].activityID
+                                  .toString(),
+                          activityTypeId:
+                              viewModel.marketActivityList[index].activityTypeID
+                                  .toString(),
+                        );
+                        await loadUserAndFetchActivity();
+                      });
                     },
                     child: Column(
                       children: [

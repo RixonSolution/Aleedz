@@ -213,7 +213,10 @@ class CoverageServices {
 
       if (compressedImage != null) {
         request.files.add(
-          await http.MultipartFile.fromPath('CheckInImg', compressedImage.path),
+          await http.MultipartFile.fromPath(
+            'CheckInImage',
+            compressedImage.path,
+          ),
         );
       }
 

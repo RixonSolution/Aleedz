@@ -27,6 +27,18 @@ class ActivityController {
     );
   }
 
+  Future<Map<String, dynamic>?> removeActivity({
+    required String token,
+    required String activityId,
+    required String activityTypeId,
+  }) async {
+    return await _apiService.removeActivityType(
+      token: token,
+      activityId: activityId,
+      activityTypeId: activityTypeId,
+    );
+  }
+
   Future<Map<String, dynamic>?> activityList({
     required String storeId,
     required String activityCategoryId,
