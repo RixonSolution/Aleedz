@@ -419,6 +419,151 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
     );
   }
 
+  Future<void> handleCheckInOrOut({
+    required BuildContext context,
+    required bool hasCameraPermission,
+    required dynamic store,
+    required double myLat,
+    required double myLng,
+    required double distance,
+    required String distancePermission,
+    required int index,
+  }) async {
+    final viewModel = ref.watch(coverageModelProvider);
+
+    bool isOtherLocationEmpty =
+        store.latitude == "0.0" && store.longitude == "0.0";
+
+    bool isLocationValid =
+        isOtherLocationEmpty || distance < double.parse(distancePermission);
+
+    if (!hasCameraPermission) {
+      if (isLocationValid) {
+        // ✅ Proceed without image if location is valid
+        if (store.visitStatusId == 0) {
+          await viewModel.coverageCheckIn(
+            context,
+            store.storeId,
+            remarks: '', // You can prompt for remarks if needed
+          );
+          NavigationService.navigateTo(
+            StoreHome(
+              storeName: store.storeName,
+              checkInTime: store.checkInTime,
+              grade: 'A',
+              address: store.address,
+              storeId: store.storeId,
+            ),
+          );
+        } else {
+          await viewModel.coverageCheckout(
+            context,
+            store.visitStatusId,
+            remarks: '',
+          );
+        }
+      } else {
+        // ❌ Invalid location
+        showLocationPopup(
+          context: context,
+          title: store.storeName,
+          checkStatus:
+              store.visitStatusId == 0
+                  ? LabelService().getLabel(14)
+                  : LabelService().getLabel(15),
+          meter: distance.toStringAsFixed(2),
+          myLat: myLat,
+          myLng: myLng,
+          otherLat: double.tryParse(store.latitude) ?? 0.0,
+          otherLng: double.tryParse(store.longitude) ?? 0.0,
+        );
+      }
+      return;
+    }
+
+    // ✅ Camera is allowed and location is valid → pick image and show popup
+    if (isLocationValid) {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+      if (pickedFile == null) {
+        AppSnackBar.showError(context, "No image captured.");
+        return;
+      }
+
+      final imageFile = File(pickedFile.path);
+      setState(() {});
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+
+        showImagePopup(
+          context: context,
+          title: store.storeName,
+          checkStatus:
+              store.visitStatusId == 0
+                  ? LabelService().getLabel(14)
+                  : LabelService().getLabel(15),
+          checkStatus1: 'Cancel',
+          checkRemarks:
+              store.visitStatusId == 0
+                  ? LabelService().getLabel(21)
+                  : LabelService().getLabel(22),
+          imageFile: imageFile,
+          onSubmit: (value) async {
+            if (store.visitStatusId == 0) {
+              await viewModel.coverageCheckIn(
+                context,
+                store.storeId,
+                remarks: value,
+                checkInImgFile: imageFile,
+              );
+              NavigationService.navigateTo(
+                StoreHome(
+                  storeName: store.storeName,
+                  checkInTime: store.checkInTime,
+                  grade: 'A',
+                  address: store.address,
+                  storeId: store.storeId,
+                ),
+              );
+            } else {
+              await viewModel.coverageCheckout(
+                context,
+                store.visitStatusId,
+                remarks: value,
+                checkOutImgFile: imageFile,
+              );
+            }
+          },
+          cancel: (value) async {
+            await viewModel.cancelVisite(
+              context,
+              store.storeId,
+              0,
+              remarks: value,
+            );
+          },
+        );
+      });
+    } else {
+      // ❌ Location invalid even with camera
+      showLocationPopup(
+        context: context,
+        title: store.storeName,
+        checkStatus:
+            store.visitStatusId == 0
+                ? LabelService().getLabel(14)
+                : LabelService().getLabel(15),
+        meter: distance.toStringAsFixed(2),
+        myLat: myLat,
+        myLng: myLng,
+        otherLat: double.tryParse(store.latitude) ?? 0.0,
+        otherLng: double.tryParse(store.longitude) ?? 0.0,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(coverageModelProvider);
@@ -764,558 +909,345 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                   ),
                                 ),
 
-                                viewModel.stores[index].visitStatusId == 0
-                                    ? InkWell(
-                                      onTap: () async {
-                                        if (checkInCamera == 'Y') {
-                                          // await viewModel.getLatLong();
-                                          double myLat = viewModel.latitude;
-                                          double myLng = viewModel.longitude;
+                                InkWell(
+                                  onTap: () async {
+                                    double myLat = viewModel.latitude;
+                                    double myLng = viewModel.longitude;
 
-                                          double otherLat = double.parse(
-                                            viewModel.stores[index].latitude,
-                                          );
-                                          double otherLng = double.parse(
-                                            viewModel.stores[index].longitude,
-                                          );
-                                          print('myLat$myLat myLong$myLng');
-                                          print(
-                                            'otherLat$otherLat otherLng$otherLng',
-                                          );
+                                    double otherLat =
+                                        double.tryParse(
+                                          viewModel.stores[index].latitude,
+                                        ) ??
+                                        0.0;
+                                    double otherLng =
+                                        double.tryParse(
+                                          viewModel.stores[index].longitude,
+                                        ) ??
+                                        0.0;
 
-                                          bool isOtherLocationEmpty =
-                                              otherLat == 0.0 &&
-                                              otherLng == 0.0;
+                                    double distance = viewModel
+                                        .calculateDistanceInMeters(
+                                          myLat,
+                                          myLng,
+                                          otherLat,
+                                          otherLng,
+                                        );
 
-                                          double distance = viewModel
-                                              .calculateDistanceInMeters(
-                                                myLat,
-                                                myLng,
-                                                otherLat,
-                                                otherLng,
-                                              );
+                                    await handleCheckInOrOut(
+                                      context: context,
+                                      hasCameraPermission: checkInCamera == 'Y',
+                                      store: viewModel.stores[index],
+                                      myLat: myLat,
+                                      myLng: myLng,
+                                      distance: distance,
+                                      distancePermission: distancePermission,
+                                      index: index,
+                                    );
 
-                                          print(
-                                            'Distance is ${distance.toStringAsFixed(2)} meters',
-                                          );
+                                    // if (checkInCamera == 'Y') {
+                                    //   // await viewModel.getLatLong();
+                                    //   double myLat = viewModel.latitude;
+                                    //   double myLng = viewModel.longitude;
 
-                                          if (isOtherLocationEmpty) {
-                                            final picker = ImagePicker();
-                                            final pickedFile = await picker
-                                                .pickImage(
-                                                  source: ImageSource.camera,
-                                                );
+                                    //   double otherLat = double.parse(
+                                    //     viewModel.stores[index].latitude,
+                                    //   );
+                                    //   double otherLng = double.parse(
+                                    //     viewModel.stores[index].longitude,
+                                    //   );
+                                    //   print('myLat$myLat myLong$myLng');
+                                    //   print(
+                                    //     'otherLat$otherLat otherLng$otherLng',
+                                    //   );
 
-                                            if (pickedFile != null) {
-                                              final imageFile = File(
-                                                pickedFile.path,
-                                              );
+                                    //   bool isOtherLocationEmpty =
+                                    //       otherLat == 0.0 && otherLng == 0.0;
 
-                                              showImagePopup(
-                                                context: context,
-                                                title:
-                                                    viewModel
-                                                        .stores[index]
-                                                        .storeName,
-                                                checkStatus:
-                                                    viewModel
-                                                                .stores[index]
-                                                                .visitStatusId ==
-                                                            0
-                                                        ? LabelService()
-                                                            .getLabel(14)
-                                                        : LabelService()
-                                                            .getLabel(15),
-                                                checkStatus1: 'Cancel',
-                                                checkRemarks:
-                                                    viewModel
-                                                                .stores[index]
-                                                                .visitStatusId ==
-                                                            0
-                                                        ? LabelService()
-                                                            .getLabel(21)
-                                                        : LabelService()
-                                                            .getLabel(22),
-                                                onSubmit: (value) async {
-                                                  if (viewModel
-                                                          .stores[index]
-                                                          .visitStatusId ==
-                                                      0) {
-                                                    await viewModel
-                                                        .coverageCheckIn(
-                                                          context,
-                                                          viewModel
-                                                              .stores[index]
-                                                              .storeId,
-                                                          remarks: value,
-                                                          checkInImgFile:
-                                                              imageFile,
-                                                        );
-                                                    NavigationService.navigateTo(
-                                                      StoreHome(
-                                                        storeName:
-                                                            viewModel
-                                                                .stores[index]
-                                                                .storeName,
-                                                        checkInTime:
-                                                            viewModel
-                                                                .stores[index]
-                                                                .checkInTime,
-                                                        grade: 'A',
-                                                        address:
-                                                            viewModel
-                                                                .stores[index]
-                                                                .address,
-                                                        storeId:
-                                                            viewModel
-                                                                .stores[index]
-                                                                .storeId,
-                                                      ),
-                                                    );
-                                                  } else {
-                                                    viewModel.coverageCheckout(
-                                                      context,
-                                                      viewModel
-                                                          .stores[index]
-                                                          .visitStatusId,
-                                                      remarks: value,
-                                                      checkOutImgFile:
-                                                          imageFile,
-                                                    );
-                                                  }
-                                                },
-                                                cancel: (value) async {
-                                                  viewModel.cancelVisite(
-                                                    context,
-                                                    viewModel
-                                                        .stores[index]
-                                                        .storeId,
-                                                    0,
-                                                    remarks: value,
-                                                  );
-                                                },
-                                                imageFile:
-                                                    imageFile, // 🔹 pass the image to dialog
-                                              );
-                                            }
-                                          } else if (distance <
-                                              double.parse(
-                                                distancePermission,
-                                              )) {
-                                            final picker = ImagePicker();
-                                            final pickedFile = await picker
-                                                .pickImage(
-                                                  source: ImageSource.camera,
-                                                );
+                                    //   double distance = viewModel
+                                    //       .calculateDistanceInMeters(
+                                    //         myLat,
+                                    //         myLng,
+                                    //         otherLat,
+                                    //         otherLng,
+                                    //       );
 
-                                            if (pickedFile != null) {
-                                              final imageFile = File(
-                                                pickedFile.path,
-                                              );
+                                    //   print(
+                                    //     'Distance is ${distance.toStringAsFixed(2)} meters',
+                                    //   );
 
-                                              showImagePopup(
-                                                context: context,
-                                                title:
-                                                    viewModel
-                                                        .stores[index]
-                                                        .storeName,
-                                                checkStatus:
-                                                    viewModel
-                                                                .stores[index]
-                                                                .visitStatusId ==
-                                                            0
-                                                        ? LabelService()
-                                                            .getLabel(14)
-                                                        : LabelService()
-                                                            .getLabel(15),
-                                                checkStatus1: 'Cancel',
-                                                checkRemarks:
-                                                    viewModel
-                                                                .stores[index]
-                                                                .visitStatusId ==
-                                                            0
-                                                        ? LabelService()
-                                                            .getLabel(21)
-                                                        : LabelService()
-                                                            .getLabel(22),
-                                                onSubmit: (value) async {
-                                                  if (viewModel
-                                                          .stores[index]
-                                                          .visitStatusId ==
-                                                      0) {
-                                                    await viewModel
-                                                        .coverageCheckIn(
-                                                          context,
-                                                          viewModel
-                                                              .stores[index]
-                                                              .storeId,
-                                                          remarks: value,
-                                                          checkInImgFile:
-                                                              imageFile,
-                                                        );
-                                                    NavigationService.navigateTo(
-                                                      StoreHome(
-                                                        storeName:
-                                                            viewModel
-                                                                .stores[index]
-                                                                .storeName,
-                                                        checkInTime:
-                                                            viewModel
-                                                                .stores[index]
-                                                                .checkInTime,
-                                                        grade: 'A',
-                                                        address:
-                                                            viewModel
-                                                                .stores[index]
-                                                                .address,
-                                                        storeId:
-                                                            viewModel
-                                                                .stores[index]
-                                                                .storeId,
-                                                      ),
-                                                    );
-                                                  } else {
-                                                    viewModel.coverageCheckout(
-                                                      context,
-                                                      viewModel
-                                                          .stores[index]
-                                                          .visitStatusId,
-                                                      remarks: value,
-                                                      checkOutImgFile:
-                                                          imageFile,
-                                                    );
-                                                  }
-                                                },
-                                                cancel: (value) async {
-                                                  viewModel.cancelVisite(
-                                                    context,
-                                                    viewModel
-                                                        .stores[index]
-                                                        .storeId,
-                                                    0,
-                                                    remarks: value,
-                                                  );
-                                                },
-                                                imageFile:
-                                                    imageFile, // 🔹 pass the image to dialog
-                                              );
-                                            }
-                                          } else if (distance >
-                                              double.parse(
-                                                distancePermission,
-                                              )) {
-                                            showLocationPopup(
-                                              context: context,
-                                              title:
-                                                  viewModel
-                                                      .stores[index]
-                                                      .storeName,
-                                              checkStatus:
-                                                  viewModel
-                                                              .stores[index]
-                                                              .visitStatusId ==
-                                                          0
-                                                      ? LabelService().getLabel(
-                                                        14,
-                                                      )
-                                                      : LabelService().getLabel(
-                                                        15,
-                                                      ),
-                                              meter: distance.toStringAsFixed(
-                                                2,
-                                              ),
-                                              myLat: myLat,
-                                              myLng: myLng,
-                                              otherLat: otherLat,
-                                              otherLng: otherLng,
-                                            );
-                                          }
-                                        } else {
-                                          AppSnackBar.showError(
-                                            context,
-                                            "You don't have camera permission.",
-                                          );
-                                        }
-                                      },
-                                      child: Column(
-                                        children: [
-                                          Text(
+                                    //   if (isOtherLocationEmpty) {
+                                    //     final picker = ImagePicker();
+                                    //     final pickedFile = await picker
+                                    //         .pickImage(
+                                    //           source: ImageSource.camera,
+                                    //         );
+
+                                    //     if (pickedFile != null) {
+                                    //       WidgetsBinding.instance.addPostFrameCallback((
+                                    //         _,
+                                    //       ) {
+                                    //         final imageFile = File(
+                                    //           pickedFile.path,
+                                    //         );
+                                    //         showImagePopup(
+                                    //           context: context,
+                                    //           title:
+                                    //               viewModel
+                                    //                   .stores[index]
+                                    //                   .storeName,
+                                    //           checkStatus:
+                                    //               viewModel
+                                    //                           .stores[index]
+                                    //                           .visitStatusId ==
+                                    //                       0
+                                    //                   ? LabelService().getLabel(
+                                    //                     14,
+                                    //                   )
+                                    //                   : LabelService().getLabel(
+                                    //                     15,
+                                    //                   ),
+                                    //           checkStatus1: 'Cancel',
+                                    //           checkRemarks:
+                                    //               viewModel
+                                    //                           .stores[index]
+                                    //                           .visitStatusId ==
+                                    //                       0
+                                    //                   ? LabelService().getLabel(
+                                    //                     21,
+                                    //                   )
+                                    //                   : LabelService().getLabel(
+                                    //                     22,
+                                    //                   ),
+                                    //           onSubmit: (value) async {
+                                    //             if (viewModel
+                                    //                     .stores[index]
+                                    //                     .visitStatusId ==
+                                    //                 0) {
+                                    //               await viewModel
+                                    //                   .coverageCheckIn(
+                                    //                     context,
+                                    //                     viewModel
+                                    //                         .stores[index]
+                                    //                         .storeId,
+                                    //                     remarks: value,
+                                    //                     checkInImgFile:
+                                    //                         imageFile,
+                                    //                   );
+                                    //               NavigationService.navigateTo(
+                                    //                 StoreHome(
+                                    //                   storeName:
+                                    //                       viewModel
+                                    //                           .stores[index]
+                                    //                           .storeName,
+                                    //                   checkInTime:
+                                    //                       viewModel
+                                    //                           .stores[index]
+                                    //                           .checkInTime,
+                                    //                   grade: 'A',
+                                    //                   address:
+                                    //                       viewModel
+                                    //                           .stores[index]
+                                    //                           .address,
+                                    //                   storeId:
+                                    //                       viewModel
+                                    //                           .stores[index]
+                                    //                           .storeId,
+                                    //                 ),
+                                    //               );
+                                    //             } else {
+                                    //               viewModel.coverageCheckout(
+                                    //                 context,
+                                    //                 viewModel
+                                    //                     .stores[index]
+                                    //                     .visitStatusId,
+                                    //                 remarks: value,
+                                    //                 checkOutImgFile: imageFile,
+                                    //               );
+                                    //             }
+                                    //           },
+                                    //           cancel: (value) async {
+                                    //             viewModel.cancelVisite(
+                                    //               context,
+                                    //               viewModel
+                                    //                   .stores[index]
+                                    //                   .storeId,
+                                    //               0,
+                                    //               remarks: value,
+                                    //             );
+                                    //           },
+                                    //           imageFile:
+                                    //               imageFile, // 🔹 pass the image to dialog
+                                    //         );
+                                    //       });
+                                    //     }
+                                    //   } else if (distance <
+                                    //       double.parse(distancePermission)) {
+                                    //     final picker = ImagePicker();
+                                    //     final pickedFile = await picker
+                                    //         .pickImage(
+                                    //           source: ImageSource.camera,
+                                    //         );
+
+                                    //     if (pickedFile != null) {
+                                    //       WidgetsBinding.instance.addPostFrameCallback((
+                                    //         _,
+                                    //       ) {
+                                    //         final imageFile = File(
+                                    //           pickedFile.path,
+                                    //         );
+                                    //         showImagePopup(
+                                    //           context: context,
+                                    //           title:
+                                    //               viewModel
+                                    //                   .stores[index]
+                                    //                   .storeName,
+                                    //           checkStatus:
+                                    //               viewModel
+                                    //                           .stores[index]
+                                    //                           .visitStatusId ==
+                                    //                       0
+                                    //                   ? LabelService().getLabel(
+                                    //                     14,
+                                    //                   )
+                                    //                   : LabelService().getLabel(
+                                    //                     15,
+                                    //                   ),
+                                    //           checkStatus1: 'Cancel',
+                                    //           checkRemarks:
+                                    //               viewModel
+                                    //                           .stores[index]
+                                    //                           .visitStatusId ==
+                                    //                       0
+                                    //                   ? LabelService().getLabel(
+                                    //                     21,
+                                    //                   )
+                                    //                   : LabelService().getLabel(
+                                    //                     22,
+                                    //                   ),
+                                    //           onSubmit: (value) async {
+                                    //             if (viewModel
+                                    //                     .stores[index]
+                                    //                     .visitStatusId ==
+                                    //                 0) {
+                                    //               await viewModel
+                                    //                   .coverageCheckIn(
+                                    //                     context,
+                                    //                     viewModel
+                                    //                         .stores[index]
+                                    //                         .storeId,
+                                    //                     remarks: value,
+                                    //                     checkInImgFile:
+                                    //                         imageFile,
+                                    //                   );
+                                    //               NavigationService.navigateTo(
+                                    //                 StoreHome(
+                                    //                   storeName:
+                                    //                       viewModel
+                                    //                           .stores[index]
+                                    //                           .storeName,
+                                    //                   checkInTime:
+                                    //                       viewModel
+                                    //                           .stores[index]
+                                    //                           .checkInTime,
+                                    //                   grade: 'A',
+                                    //                   address:
+                                    //                       viewModel
+                                    //                           .stores[index]
+                                    //                           .address,
+                                    //                   storeId:
+                                    //                       viewModel
+                                    //                           .stores[index]
+                                    //                           .storeId,
+                                    //                 ),
+                                    //               );
+                                    //             } else {
+                                    //               viewModel.coverageCheckout(
+                                    //                 context,
+                                    //                 viewModel
+                                    //                     .stores[index]
+                                    //                     .visitStatusId,
+                                    //                 remarks: value,
+                                    //                 checkOutImgFile: imageFile,
+                                    //               );
+                                    //             }
+                                    //           },
+                                    //           cancel: (value) async {
+                                    //             viewModel.cancelVisite(
+                                    //               context,
+                                    //               viewModel
+                                    //                   .stores[index]
+                                    //                   .storeId,
+                                    //               0,
+                                    //               remarks: value,
+                                    //             );
+                                    //           },
+                                    //           imageFile:
+                                    //               imageFile, // 🔹 pass the image to dialog
+                                    //         );
+                                    //       });
+                                    //     }
+                                    //   } else if (distance >
+                                    //       double.parse(distancePermission)) {
+                                    //     showLocationPopup(
+                                    //       context: context,
+                                    //       title:
+                                    //           viewModel.stores[index].storeName,
+                                    //       checkStatus:
+                                    //           viewModel
+                                    //                       .stores[index]
+                                    //                       .visitStatusId ==
+                                    //                   0
+                                    //               ? LabelService().getLabel(14)
+                                    //               : LabelService().getLabel(15),
+                                    //       meter: distance.toStringAsFixed(2),
+                                    //       myLat: myLat,
+                                    //       myLng: myLng,
+                                    //       otherLat: otherLat,
+                                    //       otherLng: otherLng,
+                                    //     );
+                                    //   }
+                                    // } else {
+                                    //   AppSnackBar.showError(
+                                    //     context,
+                                    //     "You don't have camera permission.",
+                                    //   );
+                                    // }
+                                  },
+                                  child: Column(
+                                    children: [
+                                      viewModel.stores[index].visitStatusId == 0
+                                          ? Text(
                                             LabelService().getLabel(14),
+
                                             style: TextStyle(
                                               color: AppColors.blackColor,
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                    : InkWell(
-                                      onTap: () async {
-                                        if (checkoutCamera == 'Y') {
-                                          // await viewModel.getLatLong();
-                                          double myLat = viewModel.latitude;
-                                          double myLng = viewModel.longitude;
-
-                                          double otherLat = double.parse(
-                                            viewModel.stores[index].latitude,
-                                          );
-                                          double otherLng = double.parse(
-                                            viewModel.stores[index].longitude,
-                                          );
-
-                                          print('myLat$myLat myLong$myLng');
-                                          print(
-                                            'otherLat$otherLat otherLng$otherLng',
-                                          );
-                                          bool isOtherLocationEmpty =
-                                              otherLat == 0.0 &&
-                                              otherLng == 0.0;
-
-                                          double distance = viewModel
-                                              .calculateDistanceInMeters(
-                                                myLat,
-                                                myLng,
-                                                otherLat,
-                                                otherLng,
-                                              );
-
-                                          print(
-                                            'Distance is ${distance.toStringAsFixed(2)} meters',
-                                          );
-                                          if (isOtherLocationEmpty) {
-                                            final picker = ImagePicker();
-                                            final pickedFile = await picker
-                                                .pickImage(
-                                                  source: ImageSource.camera,
-                                                );
-
-                                            if (pickedFile != null) {
-                                              final imageFile = File(
-                                                pickedFile.path,
-                                              );
-                                              List<int> imageBytes =
-                                                  File(
-                                                    pickedFile.path,
-                                                  ).readAsBytesSync();
-
-                                              String base64Image = base64Encode(
-                                                imageBytes,
-                                              );
-
-                                              showImagePopup(
-                                                context: context,
-                                                title:
-                                                    viewModel
-                                                        .stores[index]
-                                                        .storeName,
-                                                checkStatus:
-                                                    viewModel
-                                                                .stores[index]
-                                                                .visitStatusId ==
-                                                            0
-                                                        ? LabelService()
-                                                            .getLabel(14)
-                                                        : LabelService()
-                                                            .getLabel(15),
-                                                checkStatus1: '',
-                                                checkRemarks:
-                                                    viewModel
-                                                                .stores[index]
-                                                                .visitStatusId ==
-                                                            0
-                                                        ? LabelService()
-                                                            .getLabel(21)
-                                                        : LabelService()
-                                                            .getLabel(22),
-                                                onSubmit: (value) {
-                                                  if (viewModel
-                                                          .stores[index]
-                                                          .visitStatusId ==
-                                                      0) {
-                                                    viewModel.coverageCheckIn(
-                                                      context,
-                                                      viewModel
-                                                          .stores[index]
-                                                          .storeId,
-                                                      remarks: value,
-                                                      checkInImgFile:
-                                                          imageFile, // ✅ Required parameter now
-                                                    );
-                                                  } else {
-                                                    viewModel.coverageCheckout(
-                                                      context,
-                                                      viewModel
-                                                          .stores[index]
-                                                          .visitStatusId,
-                                                      remarks: value,
-                                                      checkOutImgFile:
-                                                          imageFile,
-                                                    );
-                                                  }
-                                                },
-                                                cancel: (value) async {
-                                                  viewModel.cancelVisite(
-                                                    context,
-                                                    viewModel
-                                                        .stores[index]
-                                                        .storeId,
-                                                    0,
-                                                    remarks: value,
-                                                  );
-                                                },
-
-                                                imageFile:
-                                                    imageFile, // 🔹 pass the image to dialog
-                                              );
-                                            }
-                                          } else if (distance >
-                                              double.parse(
-                                                distancePermission,
-                                              )) {
-                                            showLocationPopup(
-                                              context: context,
-                                              title:
-                                                  viewModel
-                                                      .stores[index]
-                                                      .storeName,
-                                              checkStatus:
-                                                  viewModel
-                                                              .stores[index]
-                                                              .visitStatusId ==
-                                                          0
-                                                      ? LabelService().getLabel(
-                                                        14,
-                                                      )
-                                                      : LabelService().getLabel(
-                                                        15,
-                                                      ),
-                                              meter: distance.toStringAsFixed(
-                                                2,
+                                          )
+                                          : Column(
+                                            children: [
+                                              Text(
+                                                '${LabelService().getLabel(14)} : ${viewModel.stores[index].checkInTime}',
+                                                style: TextStyle(
+                                                  color: AppColors.primary,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
-                                              myLat: myLat,
-                                              myLng: myLng,
-                                              otherLat: otherLat,
-                                              otherLng: otherLng,
-                                            );
-                                          } else if (distance <
-                                              double.parse(
-                                                distancePermission,
-                                              )) {
-                                            final picker = ImagePicker();
-                                            final pickedFile = await picker
-                                                .pickImage(
-                                                  source: ImageSource.camera,
-                                                );
-
-                                            if (pickedFile != null) {
-                                              final imageFile = File(
-                                                pickedFile.path,
-                                              );
-                                              List<int> imageBytes =
-                                                  File(
-                                                    pickedFile.path,
-                                                  ).readAsBytesSync();
-
-                                              String base64Image = base64Encode(
-                                                imageBytes,
-                                              );
-
-                                              showImagePopup(
-                                                context: context,
-                                                title:
-                                                    viewModel
-                                                        .stores[index]
-                                                        .storeName,
-                                                checkStatus:
-                                                    viewModel
-                                                                .stores[index]
-                                                                .visitStatusId ==
-                                                            0
-                                                        ? LabelService()
-                                                            .getLabel(14)
-                                                        : LabelService()
-                                                            .getLabel(15),
-                                                checkStatus1: '',
-                                                checkRemarks:
-                                                    viewModel
-                                                                .stores[index]
-                                                                .visitStatusId ==
-                                                            0
-                                                        ? LabelService()
-                                                            .getLabel(21)
-                                                        : LabelService()
-                                                            .getLabel(22),
-                                                onSubmit: (value) {
-                                                  if (viewModel
-                                                          .stores[index]
-                                                          .visitStatusId ==
-                                                      0) {
-                                                    viewModel.coverageCheckIn(
-                                                      context,
-                                                      viewModel
-                                                          .stores[index]
-                                                          .storeId,
-                                                      remarks: value,
-                                                      checkInImgFile:
-                                                          imageFile, // ✅ Required parameter now
-                                                    );
-                                                  } else {
-                                                    viewModel.coverageCheckout(
-                                                      context,
-                                                      viewModel
-                                                          .stores[index]
-                                                          .visitStatusId,
-                                                      remarks: value,
-                                                      checkOutImgFile:
-                                                          imageFile,
-                                                    );
-                                                  }
-                                                },
-                                                cancel: (value) async {
-                                                  viewModel.cancelVisite(
-                                                    context,
-                                                    viewModel
-                                                        .stores[index]
-                                                        .storeId,
-                                                    0,
-                                                    remarks: value,
-                                                  );
-                                                },
-
-                                                imageFile:
-                                                    imageFile, // 🔹 pass the image to dialog
-                                              );
-                                            }
-                                          }
-                                        } else {
-                                          AppSnackBar.showError(
-                                            context,
-                                            "You don't have camera permission.",
-                                          );
-                                        }
-                                      },
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            '${LabelService().getLabel(14)} : ${viewModel.stores[index].checkInTime}',
-                                            style: TextStyle(
-                                              color: AppColors.primary,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                              Text(
+                                                LabelService().getLabel(15),
+                                                style: TextStyle(
+                                                  color: AppColors.secondary,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          Text(
-                                            LabelService().getLabel(15),
-                                            style: TextStyle(
-                                              color: AppColors.secondary,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ],

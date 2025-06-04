@@ -25,11 +25,13 @@ class StoreController {
     required String storeId,
     required String categoryId,
     required String token,
+    required String brandId, // ➕ New parameter
   }) async {
     return await _apiService.checkAudit(
       storeId: storeId,
       categoryId: categoryId,
       token: token,
+      brandId: brandId,
     );
   }
 
@@ -38,12 +40,14 @@ class StoreController {
     required String storeId,
     required String categoryId,
     required String token,
+    required String brandId, // ➕ New parameter
   }) async {
     return await _apiService.checkDisplayMaster(
       storeId: storeId,
       token: token,
       teamMemberId: teamMemberId,
       productCategoryId: categoryId,
+      brandId: brandId,
     );
   }
 
@@ -53,6 +57,8 @@ class StoreController {
     required String storeID,
     required String displayCheckMark,
     required String teamMemberId,
+    required String brandId, // ➕ New parameter
+
     required List<File>
     checkInImages1, // List for DisplayCheckImage1 variations
     required List<File>
@@ -66,6 +72,7 @@ class StoreController {
       teamMemberId: teamMemberId,
       checkInImages1: checkInImages1,
       checkInImages2: checkInImages2,
+      brandId: brandId,
     );
   }
 

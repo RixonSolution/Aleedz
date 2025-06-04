@@ -227,7 +227,7 @@ class CoverageViewModel extends ChangeNotifier {
     String planRemarks = '',
     String remarks = '',
     bool isLocationAvailable = false,
-    required File checkInImgFile, // ✅ NEW parameter
+    File? checkInImgFile, // ✅ NEW parameter
   }) async {
     loader = true;
     notifyListeners();
@@ -297,12 +297,12 @@ class CoverageViewModel extends ChangeNotifier {
     notifyListeners();
 
     // Ensure that an image file is passed, otherwise show an error
-    if (checkOutImgFile == null) {
-      debugPrint("No image selected for checkout.");
-      loader = false;
-      notifyListeners();
-      return;
-    }
+    // if (checkOutImgFile == null) {
+    //   debugPrint("No image selected for checkout.");
+    //   loader = false;
+    //   notifyListeners();
+    //   return;
+    // }
 
     final response = await _coverageController.coverageCheckOut(
       visitedId: visitedId.toString(),
@@ -401,7 +401,11 @@ class CoverageViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> checkAudit(int storeId, int categoryId) async {
+  Future<void> checkAudit(
+    int storeId,
+    int categoryId,
+    String brandId, // <-- new parameter
+  ) async {
     loader = true;
     auditList = [];
     notifyListeners();
@@ -409,6 +413,7 @@ class CoverageViewModel extends ChangeNotifier {
       storeId: storeId.toString(),
       categoryId: categoryId.toString(),
       token: user?.apiToken ?? '',
+      brandId: brandId,
     );
 
     if (response != null && response["status"] == 200) {

@@ -244,7 +244,11 @@ class StoreViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> checkAudit(int storeId, int categoryId) async {
+  Future<void> checkAudit(
+    int storeId,
+    int categoryId,
+    String brandId, // <-- new parameter
+  ) async {
     loader = true;
     auditList = [];
     selectedProducts = [];
@@ -253,6 +257,7 @@ class StoreViewModel extends ChangeNotifier {
       storeId: storeId.toString(),
       categoryId: categoryId.toString(),
       token: user?.apiToken ?? '',
+      brandId: brandId,
     );
 
     if (response != null && response["status"] == 200) {
@@ -360,7 +365,8 @@ class StoreViewModel extends ChangeNotifier {
     BuildContext context,
     int storeId,
     String productCategoryId,
-    String displayCheckMark, {
+    String displayCheckMark,
+    String brandId, { // ➕ New parameter
     required List<File> checkInImages1, // For DisplayCheckImage1 variations
     required List<File> checkInImages2, // For DisplayCheckImage2 variations
   }) async {
@@ -375,6 +381,7 @@ class StoreViewModel extends ChangeNotifier {
       teamMemberId: user?.teamMemberID.toString() ?? '',
       checkInImages1: checkInImages1,
       checkInImages2: checkInImages2,
+      brandId: brandId,
     );
 
     if (response != null && response["status"] == 200) {
@@ -435,6 +442,7 @@ class StoreViewModel extends ChangeNotifier {
   Future<void> getDisplayCheckMaster({
     required String storeId,
     required String categoryId,
+    required String brandId, // ➕ New parameter
   }) async {
     checkMaster = [];
     rightImages = [];
@@ -446,6 +454,7 @@ class StoreViewModel extends ChangeNotifier {
       storeId: storeId,
       categoryId: categoryId,
       token: user?.apiToken ?? '',
+      brandId: brandId,
     );
 
     if (response != null && response["status"] == 200) {

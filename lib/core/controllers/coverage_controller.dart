@@ -50,7 +50,7 @@ class CoverageController {
     required String latitude,
     required String remarks,
     required String isLocationAvailable,
-    required File checkInImgFile, // ✅ Changed from String to File
+    File? checkInImgFile, // ✅ Changed from String to File
     required String token,
   }) async {
     return await _apiService.coverageCheckIn(
@@ -90,7 +90,7 @@ class CoverageController {
     required String longitude,
     required String latitude,
     required String remarks,
-    required File checkOutImgFile, // Now using File instead of base64 string
+    File? checkOutImgFile, // Now using File instead of base64 string
     required String token,
   }) async {
     return await _apiService.coverageCheckOut(
@@ -120,11 +120,13 @@ class CoverageController {
     required String storeId,
     required String categoryId,
     required String token,
+    required String brandId, // <-- new parameter
   }) async {
     return await _apiService.checkAudit(
       storeId: storeId,
       categoryId: categoryId,
       token: token,
+      brandId: brandId,
     );
   }
 

@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DisplayAuditCheck extends ConsumerStatefulWidget {
-  String storeName, checkInTime, categoryName, lastUpdate, updateBy;
+  String storeName, checkInTime, categoryName, lastUpdate, updateBy, brandId;
   int storeId, categoryId;
   DisplayAuditCheck({
     Key? key,
@@ -22,6 +22,7 @@ class DisplayAuditCheck extends ConsumerStatefulWidget {
     required this.categoryName,
     required this.lastUpdate,
     required this.updateBy,
+    required this.brandId,
   }) : super(key: key);
 
   @override
@@ -40,10 +41,11 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
           .getDisplayCheckMaster(
             storeId: widget.storeId.toString(),
             categoryId: widget.categoryId.toString(),
+            brandId: widget.brandId,
           );
       ref
           .read(storeModelProvider.notifier)
-          .checkAudit(widget.storeId, widget.categoryId);
+          .checkAudit(widget.storeId, widget.categoryId, widget.brandId);
       ref.read(storeModelProvider.notifier).loadUser();
 
       ref.read(storeModelProvider.notifier).clearData();
@@ -128,6 +130,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                             widget.storeId,
                             widget.categoryId.toString(),
                             remarksController.text,
+                            widget.brandId,
                             checkInImages1: viewModel.leftImages,
                             checkInImages2: viewModel.rightImages,
                           );

@@ -67,4 +67,12 @@ class ApiConstants {
 
   static String get trasferSubmitList =>
       "$baseUrl/ProductTransfer.asmx/TransferProductListByStore";
+
+  static String get getSaleProductCategory =>
+      "$baseUrl/DailySales.asmx/ProductCategoryList";
+
+  static String get getModelSearch => "$baseUrl/DailySales.asmx/ProductList";
+
+  static String get addSale => "$baseUrl/DailySales.asmx/AddSale";
+  static String get viewSale => "$baseUrl/DailySales.asmx/SaleView";
 }

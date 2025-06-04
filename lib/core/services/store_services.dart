@@ -59,14 +59,16 @@ class StoreServices {
   Future<Map<String, dynamic>?> checkAudit({
     required String storeId,
     required String categoryId,
+    required String brandId, // ➕ New parameter
     required String token,
   }) async {
     final encodedStoreId = Uri.encodeComponent(storeId);
     final encodedCategoryId = Uri.encodeComponent(categoryId);
+    final encodedBrandId = Uri.encodeComponent(brandId); // ➕ Encode brandId
     final encodedToken = Uri.encodeComponent(token);
 
     final url = Uri.parse(
-      '${ApiConstants.checkAudit}?StoreID=$encodedStoreId&ProductCategoryID=$encodedCategoryId&_token=$encodedToken',
+      '${ApiConstants.checkAudit}?StoreID=$encodedStoreId&ProductCategoryID=$encodedCategoryId&BrandID=$encodedBrandId&_token=$encodedToken',
     );
 
     try {
@@ -87,15 +89,17 @@ class StoreServices {
     required String teamMemberId,
     required String storeId,
     required String productCategoryId,
+    required String brandId, // ➕ New parameter
     required String token,
   }) async {
     final encodedTeamMemberId = Uri.encodeComponent(teamMemberId);
     final encodedStoreId = Uri.encodeComponent(storeId);
     final encodedCategoryId = Uri.encodeComponent(productCategoryId);
+    final encodedBrandId = Uri.encodeComponent(brandId); // ➕ Encode BrandID
     final encodedToken = Uri.encodeComponent(token);
 
     final url = Uri.parse(
-      '${ApiConstants.checkMasterDisplay}?TeamMemberID=$encodedTeamMemberId&StoreID=$encodedStoreId&ProductCategoryID=$encodedCategoryId&_token=$encodedToken',
+      '${ApiConstants.checkMasterDisplay}?TeamMemberID=$encodedTeamMemberId&StoreID=$encodedStoreId&ProductCategoryID=$encodedCategoryId&BrandID=$encodedBrandId&_token=$encodedToken',
     );
 
     try {
@@ -118,6 +122,8 @@ class StoreServices {
     required String storeID,
     required String displayCheckMark,
     required String teamMemberId,
+    required String brandId, // ➕ New parameter
+
     required List<File> checkInImages1, // For DisplayCheckImage1, 1_2, 1_3
     required List<File> checkInImages2, // For DisplayCheckImage2, 2_2, 2_3
   }) async {
@@ -166,6 +172,7 @@ class StoreServices {
       request.fields['ProductCategoryID'] = productCategoryId;
       request.fields['StoreID'] = storeID;
       request.fields['DisplayCheckRemarks'] = displayCheckMark;
+      request.fields['BrandID'] = brandId; // ➕ Added BrandID here
       request.fields['TeamMemberID'] = teamMemberId;
 
       // Add multiple image files

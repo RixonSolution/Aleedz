@@ -117,7 +117,7 @@ class CoverageServices {
     required String latitude,
     required String remarks,
     required String isLocationAvailable,
-    required File checkInImgFile,
+    File? checkInImgFile,
     required String token,
   }) async {
     try {
@@ -138,8 +138,10 @@ class CoverageServices {
         return result != null ? File(result.path) : null;
       }
 
-      File? compressedImage = await compressImage(checkInImgFile);
-
+      File? compressedImage;
+      if (checkInImgFile != null) {
+        compressedImage = await compressImage(checkInImgFile);
+      }
       final url = Uri.parse(
         '${ApiConstants.checkIn}?'
         'TeamMemberID=${Uri.encodeComponent(teamMemberId)}&'
@@ -236,7 +238,7 @@ class CoverageServices {
     required String longitude,
     required String latitude,
     required String remarks,
-    required File checkOutImgFile,
+    File? checkOutImgFile,
     required String token,
   }) async {
     try {
@@ -257,7 +259,10 @@ class CoverageServices {
         return result != null ? File(result.path) : null;
       }
 
-      File? compressedImage = await compressImage(checkOutImgFile);
+      File? compressedImage;
+      if (checkOutImgFile != null) {
+        compressedImage = await compressImage(checkOutImgFile);
+      }
 
       // Build URL with query parameters
       final url = Uri.parse(
@@ -323,14 +328,16 @@ class CoverageServices {
   Future<Map<String, dynamic>?> checkAudit({
     required String storeId,
     required String categoryId,
+    required String brandId, // <-- new parameter
     required String token,
   }) async {
     final encodedStoreId = Uri.encodeComponent(storeId);
     final encodedCategoryId = Uri.encodeComponent(categoryId);
+    final encodedBrandId = Uri.encodeComponent(brandId); // <-- encode new param
     final encodedToken = Uri.encodeComponent(token);
 
     final url = Uri.parse(
-      '${ApiConstants.checkAudit}?StoreID=$encodedStoreId&ProductCategoryID=$encodedCategoryId&_token=$encodedToken',
+      '${ApiConstants.checkAudit}?StoreID=$encodedStoreId&ProductCategoryID=$encodedCategoryId&BrandID=$encodedBrandId&_token=$encodedToken',
     );
 
     try {

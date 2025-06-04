@@ -222,6 +222,7 @@ class _DisplayAuditCheckSummaryState
                                     categoryName: item.productCategoryName,
                                     lastUpdate: item.lastUpdate,
                                     updateBy: item.updateBy,
+                                    brandId: brand.brandId.toString(),
                                   ),
                                 );
                               },
