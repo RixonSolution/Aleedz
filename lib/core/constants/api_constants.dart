@@ -75,4 +75,6 @@ class ApiConstants {
 
   static String get addSale => "$baseUrl/DailySales.asmx/AddSale";
   static String get viewSale => "$baseUrl/DailySales.asmx/SaleView";
+
+  static String get removeSale => "$baseUrl/DailySales.asmx/RemoveSale";
 }

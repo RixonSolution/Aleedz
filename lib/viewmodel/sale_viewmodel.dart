@@ -164,8 +164,6 @@ class SaleViewModel extends ChangeNotifier {
     );
 
     if (response != null && response["status"] == 200) {
-      brandList = [];
-      selectedBrand = null;
       productCategory = [];
       selectedProductCategory = null;
       saleSearch = [];
@@ -199,6 +197,34 @@ class SaleViewModel extends ChangeNotifier {
     if (response != null && response["status"] == 200) {
       final data = response["data"]['data'] as List;
       saleList = data.map((e) => SaleListModel.fromJson(e)).toList();
+
+      print(saleList);
+
+      notifyListeners();
+    } else {
+      debugPrint("Sale List  Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> deleteSale(
+    context, {
+    required String storeId,
+    required String saleId,
+  }) async {
+    saleList = [];
+    notifyListeners();
+
+    final response = await _saleController.removeSale(
+      token: user?.apiToken ?? '',
+      storeId: storeId,
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      saleId: saleId,
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'];
+      // saleList = data.map((e) => SaleListModel.fromJson(e)).toList();
+      // AppSnackBar.showSuccess(context, 'Sale removed.');
 
       notifyListeners();
     } else {

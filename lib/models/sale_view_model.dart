@@ -5,6 +5,7 @@ class SaleListModel {
   String? productCategoryName;
   int? saleQuantity;
   int? saleValue;
+  int? saleId;
 
   SaleListModel({
     this.brandID,
@@ -13,6 +14,7 @@ class SaleListModel {
     this.productCategoryName,
     this.saleQuantity,
     this.saleValue,
+    this.saleId,
   });
 
   SaleListModel.fromJson(Map<String, dynamic> json) {
@@ -20,8 +22,9 @@ class SaleListModel {
     productCategoryID = json['ProductCategoryID'];
     brandName = json['BrandName'];
     productCategoryName = json['ProductCategoryName'];
-    saleQuantity = json['SaleQuantity'];
-    saleValue = json['SaleValue'];
+    saleQuantity = json['SaleCount'];
+    saleValue = json['SalePrice'];
+    saleId = json['SaleID'];
   }
 
   Map<String, dynamic> toJson() {
@@ -30,8 +33,10 @@ class SaleListModel {
     data['ProductCategoryID'] = this.productCategoryID;
     data['BrandName'] = this.brandName;
     data['ProductCategoryName'] = this.productCategoryName;
-    data['SaleQuantity'] = this.saleQuantity;
-    data['SaleValue'] = this.saleValue;
+    data['SaleCount'] = this.saleQuantity;
+    data['SalePrice'] = this.saleValue;
+    data['SaleID'] = this.saleId;
+
     return data;
   }
 }

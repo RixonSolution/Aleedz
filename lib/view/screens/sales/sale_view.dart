@@ -4,6 +4,7 @@ import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/sale_viewmodel.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -35,6 +36,21 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
           .read(saleModelProvider.notifier)
           .loadsale(context, widget.storeId.toString(), formattedDate2);
     });
+    clcTotal();
+  }
+
+  void clcTotal() {
+    totalQuantity = 0;
+    totalPrice = 0;
+    setState(() {});
+    for (var item in ref.read(saleModelProvider.notifier).saleList) {
+      final qty = int.tryParse(item.saleQuantity?.toString() ?? '0') ?? 0;
+      final price = int.tryParse(item.saleValue?.toString() ?? '0') ?? 0;
+
+      totalQuantity += qty;
+      totalPrice += qty * price;
+    }
+    setState(() {});
   }
 
   FocusNode remarksFocus = FocusNode();
@@ -71,8 +87,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
 
   Future<void> _showLogoutDialog(
     BuildContext context,
-    String pictureId,
-    String pictureName,
+
     void Function()? onPressed,
   ) async {
     showDialog(
@@ -145,6 +160,17 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
     super.dispose();
   }
 
+  int totalQuantity = 0;
+  int totalPrice = 0;
+
+  final List<String> modelNames = [
+    "Model A",
+    "Model B",
+    "Model C",
+    "Model D",
+    "Model E",
+  ];
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(saleModelProvider);
@@ -160,6 +186,39 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
       child: SafeArea(
         child: Scaffold(
           backgroundColor: AppColors.whiteColor,
+          bottomNavigationBar: Padding(
+            padding: const EdgeInsets.all(12.0), // Optional padding
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(color: AppColors.secondary),
+              width: double.infinity,
+              height: 50,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Total',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 40,
+                    child: Text(
+                      totalQuantity.toString(),
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 50,
+                    child: Text(
+                      totalPrice.toString(),
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -348,41 +407,53 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                         ),
                         child: Container(
                           decoration: BoxDecoration(
-                            color:
-                                Colors.grey.shade100, // Light grey background
+                            color: Colors.grey.shade100,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: DropdownButtonFormField<int>(
-                            value: viewModel.selectedSaleSearch?.productID,
-                            isExpanded: true, // Optional: makes it full-width
-                            decoration: const InputDecoration(
-                              hintText: 'Search Model',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 12,
+                          child: DropdownSearch<int>(
+                            items:
+                                viewModel.saleSearch
+                                    .map((model) => model.productID!)
+                                    .toList(),
+                            selectedItem:
+                                viewModel.selectedSaleSearch?.productID,
+                            itemAsString: (int id) {
+                              final model = viewModel.saleSearch.firstWhere(
+                                (m) => m.productID == id,
+                              );
+                              return model.productModelName ?? '';
+                            },
+                            dropdownDecoratorProps:
+                                const DropDownDecoratorProps(
+                                  dropdownSearchDecoration: InputDecoration(
+                                    hintText: 'Search Model',
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 0,
+                                      vertical: 12,
+                                    ),
+                                  ),
+                                ),
+                            popupProps: const PopupProps.menu(
+                              showSearchBox: true,
+                              searchFieldProps: TextFieldProps(
+                                decoration: InputDecoration(
+                                  hintText: "Search model name...",
+                                ),
                               ),
                             ),
-                            items:
-                                viewModel.saleSearch.map((search) {
-                                  return DropdownMenuItem<int>(
-                                    value: search.productID,
-                                    child: Text(search.productModelName ?? ''),
-                                  );
-                                }).toList(),
-                            onChanged: (int? search) {
-                              if (search != null) {
+                            onChanged: (int? id) {
+                              if (id != null) {
                                 final selected = viewModel.saleSearch
-                                    .firstWhere((c) => c.productID == search);
+                                    .firstWhere((m) => m.productID == id);
                                 viewModel.selectSearchModel(selected);
                               }
                             },
-                            // This makes sure a hint is shown when no value is selected
-                            hint: const Text('Search Model'),
                           ),
                         ),
                       ),
+
                     if (viewModel.saleSearch.isNotEmpty &&
                         viewModel.productCategory.isNotEmpty)
                       Padding(
@@ -453,6 +524,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                         quantityController.clear();
                                         priceController.clear();
                                         totalController.clear();
+                                        clcTotal();
+
                                         setState(() {});
                                       }
                                     },
@@ -497,139 +570,224 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                   ),
                 ],
               ),
-
-              Expanded(
-                child: ListView.builder(
-                  itemCount: viewModel.saleList.length,
-                  shrinkWrap: true,
-                  physics: ScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onLongPress: () {
-                        // _showLogoutDialog(
-                        //   context,
-                        //   viewModel.viewPicture[index].pictureID.toString(),
-                        //   viewModel.viewPicture[index].pictureName.toString(),
-                        //   () async {
-                        //     NavigationService.goBack();
-                        //     viewModel.loader = true;
-                        //     viewModel.notifyListeners();
-
-                        //     await ref
-                        //         .read(storeModelProvider.notifier)
-                        //         .deleteDisplayPicture(
-                        //           storeId: widget.storeId.toString(),
-                        //           pictureId:
-                        //               viewModel.viewPicture[index].pictureID
-                        //                   .toString(),
-                        //           pictureName:
-                        //               viewModel.viewPicture[index].pictureName
-                        //                   .toString(),
-                        //         );
-                        //     viewModel.loader = false;
-                        //     viewModel.notifyListeners();
-                        //   },
-                        // );
-                      },
-                      child: Column(
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                decoration: BoxDecoration(color: AppColors.secondary),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Row(
                         children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 8),
-                                child: Text(
-                                  '${index + 1}.',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                          ),
-                                          child: SizedBox(
-                                            width: 190,
-                                            // color: Colors.red,
-                                            child: Text(
-                                              viewModel
-                                                  .saleList[index]
-                                                  .productCategoryID
-                                                  .toString(),
-                                              style: TextStyle(
-                                                color: AppColors.blackColor,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                          ),
-                                          child: SizedBox(
-                                            width: 190,
-                                            // color: Colors.red,
-                                            child: Text(
-                                              viewModel
-                                                      .saleList[index]
-                                                      .productCategoryName ??
-                                                  '',
-                                              style: TextStyle(
-                                                color: AppColors.greyText,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                          ),
-                                          child: SizedBox(
-                                            width: 190,
-                                            // color: Colors.red,
-                                            child: Text(
-                                              'Price: ${viewModel.saleList[index].saleValue}',
-                                              style: TextStyle(
-                                                color: AppColors.blackColor,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                          Text(
+                            '#',
+                            style: TextStyle(
+                              color: AppColors.whiteColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-
-                          Divider(
-                            color: Colors.grey[300],
-                            thickness: 1,
-                            indent: 12,
-                            endIndent: 12,
+                          SizedBox(width: 20),
+                          Text(
+                            'Sales Description',
+                            style: TextStyle(
+                              color: AppColors.whiteColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ],
                       ),
-                    );
-                  },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Row(
+                        children: [
+                          Text(
+                            'Quantity',
+                            style: TextStyle(
+                              color: AppColors.whiteColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          Text(
+                            'Total',
+                            style: TextStyle(
+                              color: AppColors.whiteColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              SizedBox(height: 10),
+              viewModel.loader
+                  ? Center(child: CircularProgressIndicator())
+                  : Expanded(
+                    child: ListView.builder(
+                      itemCount: viewModel.saleList.length,
+                      shrinkWrap: true,
+                      physics: ScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return InkWell(
+                          onLongPress: () {
+                            _showLogoutDialog(context, () async {
+                              NavigationService.goBack();
+                              viewModel.loader = true;
+                              viewModel.notifyListeners();
+
+                              await viewModel.deleteSale(
+                                context,
+                                storeId: widget.storeId.toString(),
+                                saleId:
+                                    viewModel.saleList[index].saleId.toString(),
+                              );
+                              await viewModel.saleView(
+                                context,
+                                storeId: widget.storeId.toString(),
+                                saleDate: formattedDate2,
+                              );
+                              clcTotal();
+
+                              viewModel.loader = false;
+                              viewModel.notifyListeners();
+                            });
+                          },
+                          child: Column(
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: Text(
+                                      '${index + 1}.',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                  ),
+                                              child: SizedBox(
+                                                width: 190,
+                                                // color: Colors.red,
+                                                child: Text(
+                                                  viewModel
+                                                      .saleList[index]
+                                                      .saleId
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                    color: AppColors.blackColor,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                  ),
+                                              child: SizedBox(
+                                                width: 190,
+                                                // color: Colors.red,
+                                                child: Text(
+                                                  viewModel
+                                                          .saleList[index]
+                                                          .productCategoryName ??
+                                                      '',
+                                                  style: TextStyle(
+                                                    color: AppColors.greyText,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                  ),
+                                              child: SizedBox(
+                                                width: 190,
+                                                // color: Colors.red,
+                                                child: Text(
+                                                  'Price: ${viewModel.saleList[index].saleValue}',
+                                                  style: TextStyle(
+                                                    color: AppColors.blackColor,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    // color: Colors.red,
+                                    width: 40,
+                                    padding: const EdgeInsets.only(right: 0),
+                                    child: Text(
+                                      viewModel.saleList[index].saleQuantity
+                                          .toString(),
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Container(
+                                    // color: Colors.red,
+                                    width: 70,
+                                    padding: const EdgeInsets.only(right: 00),
+                                    child: Text(
+                                      '${(int.tryParse(viewModel.saleList[index].saleQuantity?.toString() ?? '0') ?? 0) * (int.tryParse(viewModel.saleList[index].saleValue?.toString() ?? '0') ?? 0)}',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              Divider(
+                                color: Colors.grey[300],
+                                thickness: 1,
+                                indent: 12,
+                                endIndent: 12,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
             ],
           ),
         ),

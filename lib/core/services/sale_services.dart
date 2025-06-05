@@ -143,4 +143,33 @@ class SaleServices {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>?> deleteSale({
+    required String token,
+    required String storeId,
+    required String saleId,
+    required String teamMemberId,
+  }) async {
+    final encodedToken = Uri.encodeComponent(token);
+    final encodedStoreId = Uri.encodeComponent(storeId);
+    final encodedSaleId = Uri.encodeComponent(saleId);
+    final encodedTeamMemberId = Uri.encodeComponent(teamMemberId);
+
+    final url = Uri.parse(
+      '${ApiConstants.removeSale}?SaleID=$encodedSaleId&StoreID=$encodedStoreId&TeamMemberID=$encodedTeamMemberId&_token=$encodedToken',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
 }

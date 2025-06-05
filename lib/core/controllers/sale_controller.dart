@@ -63,4 +63,18 @@ class SaleController {
       saleDate: saleDate,
     );
   }
+
+  Future<Map<String, dynamic>?> removeSale({
+    required String token,
+    required String storeId,
+    required String saleId,
+    required String teamMemberId,
+  }) async {
+    return await _apiService.deleteSale(
+      token: token,
+      storeId: storeId,
+      teamMemberId: teamMemberId,
+      saleId: saleId,
+    );
+  }
 }
