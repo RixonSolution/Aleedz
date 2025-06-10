@@ -744,7 +744,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                // NavigationService.navigateTo(TodayPlanView());
+                                if (viewModel.dashBoardList.isEmpty) {
+                                  AppSnackBar.showError(
+                                    context,
+                                    "No journeys are planned for today.",
+                                  );
+                                } else {
+                                  NavigationService.navigateTo(TodayPlanView());
+                                }
                               },
                               child: Container(
                                 height: 110,
