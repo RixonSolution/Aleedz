@@ -5,10 +5,13 @@ import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/activity/activity_view.dart';
+import 'package:aleedz/view/screens/checklist/checklist_view.dart';
 import 'package:aleedz/view/screens/price/price_view.dart';
 import 'package:aleedz/view/screens/sales/sale_view.dart';
 import 'package:aleedz/view/screens/store/display_audit_check_summary.dart';
 import 'package:aleedz/view/screens/store/display_picture.dart';
+import 'package:aleedz/view/screens/training/training_list_view.dart';
+import 'package:aleedz/view/screens/training/training_view.dart';
 import 'package:aleedz/view/screens/transfer/transfer_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -260,7 +263,25 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                         final ros = viewModel.rosLabels[index];
                         return InkWell(
                           onTap: () {
-                            if (viewModel.rosLabels[index].rosLabelID == 31) {
+                            if (viewModel.rosLabels[index].rosLabelID == 29) {
+                              NavigationService.navigateTo(
+                                ChecklistView(
+                                  storeName: widget.storeName,
+                                  checkInTime: widget.checkInTime,
+                                  storeId: widget.storeId,
+                                ),
+                              );
+                            } else if (viewModel.rosLabels[index].rosLabelID ==
+                                30) {
+                              NavigationService.navigateTo(
+                                TrainingListView(
+                                  storeName: widget.storeName,
+                                  checkInTime: widget.checkInTime,
+                                  storeId: widget.storeId,
+                                ),
+                              );
+                            } else if (viewModel.rosLabels[index].rosLabelID ==
+                                31) {
                               NavigationService.navigateTo(
                                 DisplayPicture(
                                   storeName: widget.storeName,
