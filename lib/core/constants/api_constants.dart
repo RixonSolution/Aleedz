@@ -26,6 +26,7 @@ class ApiConstants {
   static String get checkOut => "$baseUrl/CheckOut.asmx/CheckOutImg";
   static String get displayCheckSummary =>
       "$baseUrl/DisplayCount.asmx/DisplayCheckSummary";
+
   static String get checkAudit =>
       "$baseUrl/DisplayCount.asmx/DisplayCheckProductListByStore";
   static String get checkDisplayAdd =>
@@ -77,4 +78,10 @@ class ApiConstants {
   static String get viewSale => "$baseUrl/DailySales.asmx/SaleView";
 
   static String get removeSale => "$baseUrl/DailySales.asmx/RemoveSale";
+
+  static String get pricePromotion => "$baseUrl/Prices.asmx/ProductSummaryList";
+  static String get priceList => "$baseUrl/Prices.asmx/ProductList";
+  static String get checklist => "$baseUrl/Checklist.asmx/GetChecklistCategory";
+  static String get checkListSubmitView =>
+      "$baseUrl/Checklist.asmx/ViewChecklist";
 }

@@ -41,23 +41,23 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
 
   Future<void> loadUserAndFetchCoverage() async {
     final notifier = ref.read(checklistModelProvider.notifier);
-    await notifier.loadActivity();
+    await notifier.loadActivity(widget.storeId.toString());
     setState(() {
-      filteredActivityType = List.from(notifier.activityType);
+      filteredActivityType = List.from(notifier.checkList);
     });
   }
 
   void filterActivityList(String query) {
     final lowerQuery = query.toLowerCase();
-    final fullList = ref.read(checklistModelProvider.notifier).activityType;
+    final fullList = ref.read(checklistModelProvider.notifier).checkList;
 
-    setState(() {
-      filteredActivityType =
-          fullList.where((item) {
-            final name = item.activityTypeName?.toLowerCase() ?? '';
-            return name.contains(lowerQuery);
-          }).toList();
-    });
+    // setState(() {
+    //   filteredActivityType =
+    //       fullList.where((item) {
+    //         final name = item.activityTypeName?.toLowerCase() ?? '';
+    //         return name.contains(lowerQuery);
+    //       }).toList();
+    // });
   }
 
   final List<Map<String, dynamic>> trainings = [

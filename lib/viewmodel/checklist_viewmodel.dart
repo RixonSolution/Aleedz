@@ -1,10 +1,8 @@
 import 'dart:io';
-
 import 'package:aleedz/core/controllers/checklist_controller.dart';
-import 'package:aleedz/core/controllers/price_controller.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
-import 'package:aleedz/models/activity_type_model.dart';
-import 'package:aleedz/models/brand_list_model.dart';
+import 'package:aleedz/models/checklist_model.dart';
+import 'package:aleedz/models/checklist_submit_model.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,7 +18,9 @@ class checklistViewModel extends ChangeNotifier {
   final ChecklistController _checkController = ChecklistController();
 
   UserModel? user;
-  List<ActivityModelType> activityType = [];
+  List<ChecklistModel> checkList = [];
+  List<ChecklistSubmitModel> checkListSubmitView = [];
+
   File? leftImage;
   File? rightImage;
   final ImagePicker picker = ImagePicker();
@@ -65,18 +65,19 @@ class checklistViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> getActivityType() async {
-    activityType = [];
+  Future<void> getCheckListType({required String storeId}) async {
+    checkList = [];
     notifyListeners();
 
-    final response = await _checkController.activityType(
+    final response = await _checkController.checklistType(
       token: user?.apiToken ?? '',
-      divisionId: '1',
+      storeId: storeId,
+      teamMemberId: user?.teamMemberID.toString() ?? '',
     );
 
     if (response != null && response["status"] == 200) {
       final data = response["data"]['data'] as List;
-      activityType = data.map((e) => ActivityModelType.fromJson(e)).toList();
+      checkList = data.map((e) => ChecklistModel.fromJson(e)).toList();
 
       notifyListeners();
     } else {
@@ -84,12 +85,42 @@ class checklistViewModel extends ChangeNotifier {
     }
   }
 
-  Future loadActivity() async {
-    activityType = [];
+  Future<void> getCheckSubmitList({
+    required String storeId,
+    required String checkListCateId,
+    required String visitedId,
+  }) async {
+    loader = true;
+    checkListSubmitView = [];
+    notifyListeners();
+
+    final response = await _checkController.checklistSubmitList(
+      token: user?.apiToken ?? '',
+      storeId: storeId,
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      checklistCateId: checkListCateId,
+      visiteId: visitedId,
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'] as List;
+      checkListSubmitView =
+          data.map((e) => ChecklistSubmitModel.fromJson(e)).toList();
+      loader = false;
+      notifyListeners();
+    } else {
+      loader = false;
+      notifyListeners();
+      debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  Future loadActivity(String storeId) async {
+    checkList = [];
     loader = true;
     notifyListeners();
     await loadUser();
-    await getActivityType();
+    await getCheckListType(storeId: storeId);
     loader = false;
     notifyListeners();
   }

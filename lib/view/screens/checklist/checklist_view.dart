@@ -1,23 +1,22 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
-import 'package:aleedz/models/activity_type_model.dart';
+import 'package:aleedz/models/checklist_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/activity/activity_category_view.dart';
 import 'package:aleedz/view/screens/checklist/checklist_submit.dart';
-import 'package:aleedz/viewmodel/activity_viewmodel.dart';
 import 'package:aleedz/viewmodel/checklist_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChecklistView extends ConsumerStatefulWidget {
   String checkInTime, storeName;
-  int storeId;
+  int storeId, visiteId;
 
   ChecklistView({
     Key? key,
     required this.checkInTime,
     required this.storeName,
     required this.storeId,
+    required this.visiteId,
   }) : super(key: key);
 
   @override
@@ -26,7 +25,7 @@ class ChecklistView extends ConsumerStatefulWidget {
 
 class _MyConsumerState extends ConsumerState<ChecklistView> {
   TextEditingController searchController = TextEditingController();
-  List<ActivityModelType> filteredActivityType = [];
+  List<ChecklistModel> filteredActivityType = [];
 
   @override
   void initState() {
@@ -42,20 +41,20 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
 
   Future<void> loadUserAndFetchCoverage() async {
     final notifier = ref.read(checklistModelProvider.notifier);
-    await notifier.loadActivity();
+    await notifier.loadActivity(widget.storeId.toString());
     setState(() {
-      filteredActivityType = List.from(notifier.activityType);
+      filteredActivityType = List.from(notifier.checkList);
     });
   }
 
   void filterActivityList(String query) {
     final lowerQuery = query.toLowerCase();
-    final fullList = ref.read(checklistModelProvider.notifier).activityType;
+    final fullList = ref.read(checklistModelProvider.notifier).checkList;
 
     setState(() {
       filteredActivityType =
           fullList.where((item) {
-            final name = item.activityTypeName?.toLowerCase() ?? '';
+            final name = item.checklist?.toLowerCase() ?? '';
             return name.contains(lowerQuery);
           }).toList();
     });
@@ -173,8 +172,10 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
                                         storeName: widget.storeName,
                                         checkInTime: widget.checkInTime,
                                         storeId: widget.storeId,
-                                        checklistName:
-                                            activity.activityTypeName ?? '',
+                                        checklistName: activity.checklist ?? '',
+                                        visiteId: widget.visiteId,
+                                        checklistTypeId:
+                                            activity.checklistCategoryID!,
                                       ),
                                     );
                                   },
@@ -198,7 +199,7 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
                                         ),
                                         Expanded(
                                           child: Text(
-                                            activity.activityTypeName ?? '',
+                                            activity.checklist ?? '',
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 14,

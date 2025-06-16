@@ -30,13 +30,14 @@ class TrainingViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> getActivityType() async {
+  Future<void> getActivityType({required String storeId}) async {
     activityType = [];
     notifyListeners();
 
-    final response = await _checkController.activityType(
+    final response = await _checkController.checklistType(
       token: user?.apiToken ?? '',
-      divisionId: '1',
+      storeId: storeId,
+      teamMemberId: user?.teamMemberID.toString() ?? '',
     );
 
     if (response != null && response["status"] == 200) {
@@ -49,12 +50,12 @@ class TrainingViewModel extends ChangeNotifier {
     }
   }
 
-  Future loadActivity() async {
+  Future loadActivity(String storeId) async {
     activityType = [];
     loader = true;
     notifyListeners();
     await loadUser();
-    await getActivityType();
+    await getActivityType(storeId: storeId);
     loader = false;
     notifyListeners();
   }

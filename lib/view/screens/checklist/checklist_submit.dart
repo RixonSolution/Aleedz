@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 
 class ChecklistSubmit extends ConsumerStatefulWidget {
   String checkInTime, storeName, checklistName;
-  int storeId;
+  int storeId, visiteId, checklistTypeId;
 
   ChecklistSubmit({
     Key? key,
@@ -16,6 +16,8 @@ class ChecklistSubmit extends ConsumerStatefulWidget {
     required this.storeName,
     required this.checklistName,
     required this.storeId,
+    required this.visiteId,
+    required this.checklistTypeId,
   }) : super(key: key);
 
   @override
@@ -64,6 +66,23 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
           ),
         );
       },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      loadUserAndFetchCheckList();
+    });
+  }
+
+  Future<void> loadUserAndFetchCheckList() async {
+    final notifier = ref.read(checklistModelProvider.notifier);
+    await notifier.getCheckSubmitList(
+      storeId: widget.storeId.toString(),
+      checkListCateId: widget.checklistTypeId.toString(),
+      visitedId: widget.visiteId.toString(),
     );
   }
 
@@ -183,39 +202,75 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                       ),
                     ),
                     SizedBox(height: 10),
+
                     Expanded(
-                      child: ListView(
-                        children: [
-                          ProductCard(
-                            title:
-                                'Zone Vibe 100 wireless headphones - GRAPHITE',
-                            optionWidget: ToggleYesNo(),
-                            onTap: () {
-                              _showImagePickerDialog('left');
-                            },
-                          ),
-                          Divider(indent: 12, endIndent: 12),
-                          ProductCard(
-                            title:
-                                'Zone Vibe 100 wireless headphones - GRAPHITE',
-                            optionWidget: QuantityBox(),
-                            onTap: () {
-                              _showImagePickerDialog('left');
-                            },
-                          ),
-                          Divider(indent: 12, endIndent: 12),
-                          ProductCard(
-                            title:
-                                'Zone Vibe 100 wireless headphones - GRAPHITE',
-                            optionWidget: DateBox(),
-                            onTap: () {
-                              _showImagePickerDialog('left');
-                            },
-                          ),
-                          Divider(indent: 12, endIndent: 12),
-                        ],
+                      child: ListView.builder(
+                        itemCount: viewModel.checkListSubmitView.length,
+                        shrinkWrap: true,
+                        physics: ScrollPhysics(),
+                        primary: true,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Column(
+                            children: [
+                              ProductCard(
+                                title:
+                                    viewModel
+                                        .checkListSubmitView[index]
+                                        .question ??
+                                    '',
+                                optionWidget:
+                                    viewModel
+                                                .checkListSubmitView[index]
+                                                .inputTypeID ==
+                                            1
+                                        ? ToggleYesNo()
+                                        : viewModel
+                                                .checkListSubmitView[index]
+                                                .inputTypeID ==
+                                            2
+                                        ? QuantityBox()
+                                        : viewModel
+                                                .checkListSubmitView[index]
+                                                .inputTypeID ==
+                                            3
+                                        ? DateBox()
+                                        : TextBox(),
+                                index: index + 1,
+                                onTap: () {
+                                  _showImagePickerDialog('left');
+                                },
+                              ),
+                              Divider(indent: 12, endIndent: 12),
+                            ],
+                          );
+                        },
                       ),
                     ),
+
+                    // Expanded(
+                    //   child: ListView(
+                    //     children: [
+                    //       ProductCard(
+                    //         title:
+                    //             'Zone Vibe 100 wireless headphones - GRAPHITE',
+                    //         optionWidget: QuantityBox(),
+                    //         onTap: () {
+                    //           _showImagePickerDialog('left');
+                    //         },
+                    //       ),
+                    //       Divider(indent: 12, endIndent: 12),
+                    //       ProductCard(
+                    //         title:
+                    //             'Zone Vibe 100 wireless headphones - GRAPHITE',
+                    //         optionWidget: DateBox(),
+                    //         onTap: () {
+                    //           _showImagePickerDialog('left');
+                    //         },
+                    //       ),
+                    //       Divider(indent: 12, endIndent: 12),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
       ),
@@ -226,11 +281,13 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
 class ProductCard extends StatelessWidget {
   final String title;
   final Widget optionWidget;
+  dynamic index;
   void Function() onTap;
 
   ProductCard({
     required this.title,
     required this.optionWidget,
+    required this.index,
     required this.onTap,
   });
 
@@ -244,6 +301,7 @@ class ProductCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Text('$index. ', style: TextStyle(fontWeight: FontWeight.bold)),
               Expanded(
                 child: Text(
                   title,
@@ -342,6 +400,36 @@ class QuantityBox extends StatelessWidget {
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           hintText: 'Quantity',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(4),
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+        ),
+        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+}
+
+class TextBox extends StatelessWidget {
+  final TextEditingController? controller;
+
+  const TextBox({this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 80, // Set a fixed width similar to your design
+      height: 36,
+      child: TextField(
+        controller: controller,
+        keyboardType: TextInputType.text,
+        textAlign: TextAlign.center,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          hintText: 'Text',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(4),
             borderSide: BorderSide(color: Colors.grey),

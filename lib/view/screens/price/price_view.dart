@@ -3,19 +3,19 @@ import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/price/price_submit.dart';
-import 'package:aleedz/view/screens/store/display_audit_check.dart';
-import 'package:aleedz/viewmodel/store_viewmodel.dart';
+import 'package:aleedz/viewmodel/price_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PriceView extends ConsumerStatefulWidget {
   String storeName, checkInTime;
-  int storeId;
+  int storeId, visiteId;
   PriceView({
     Key? key,
     required this.storeName,
     required this.checkInTime,
     required this.storeId,
+    required this.visiteId,
   }) : super(key: key);
 
   @override
@@ -27,14 +27,13 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(storeModelProvider.notifier).getBrandDropDown();
-      ref.read(storeModelProvider.notifier).checkSummary(widget.storeId, 0);
+      ref.read(priceModelProvider.notifier).loadPriceData(widget.storeId, 0);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(storeModelProvider);
+    final viewModel = ref.watch(priceModelProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -128,7 +127,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                     viewModel.brandList.map((brand) {
                       return DropdownMenuItem<int>(
                         value: brand.brandId,
-                        child: Text(brand.brandName),
+                        child: Text(brand.brandName.toString()),
                       );
                     }).toList(),
                 onChanged: (int? branddlId) {
@@ -164,7 +163,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      brand.brandName,
+                                      brand.productCategoryName.toString(),
                                       style: TextStyle(
                                         color: AppColors.blackColor,
                                         fontSize: 16,
@@ -176,7 +175,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                         SizedBox(
                                           width: 70,
                                           child: Text(
-                                            LabelService().getLabel(41),
+                                            'Models Count',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               color: AppColors.blackColor,
@@ -189,7 +188,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                         SizedBox(
                                           width: 70,
                                           child: Text(
-                                            LabelService().getLabel(42),
+                                            'Models Updated',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               color: AppColors.blackColor,
@@ -205,7 +204,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                               ],
                             ),
                           ),
-                          ...brand.products.asMap().entries.map((entry) {
+                          ...viewModel.brands.asMap().entries.map((entry) {
                             int productIndex =
                                 entry.key + 1; // Start from 1 (optional)
                             var item = entry.value;
@@ -217,6 +216,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                     storeName: widget.storeName,
                                     checkInTime: widget.checkInTime,
                                     storeId: widget.storeId,
+                                    brandId: item.brandID!,
+                                    visiteId: widget.visiteId,
+                                    productCategoryId: item.productCategoryID!,
                                   ),
                                 );
                               },
@@ -240,7 +242,10 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                             Row(
                                               children: [
                                                 Text('$productIndex. '),
-                                                Text(item.productCategoryName),
+                                                Text(
+                                                  item.productCategoryName
+                                                      .toString(),
+                                                ),
                                               ],
                                             ),
                                             Row(
@@ -254,10 +259,10 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                                   ),
                                                 ),
                                                 Text(
-                                                  item.lastUpdate,
+                                                  item.updatedBy.toString(),
                                                   style: TextStyle(
                                                     color:
-                                                        item.updateBy == '1'
+                                                        item.updatedBy == '1'
                                                             ? AppColors.primary
                                                             : AppColors
                                                                 .blackColor,
@@ -272,14 +277,14 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                       SizedBox(
                                         width: 70,
                                         child: Text(
-                                          item.modelCount.toString(),
+                                          item.noOfModels.toString(),
                                           textAlign: TextAlign.center,
                                         ),
                                       ),
                                       SizedBox(
                                         width: 70,
                                         child: Text(
-                                          item.displayCheckCount.toString(),
+                                          item.nofModelUpdated.toString(),
                                           textAlign: TextAlign.center,
                                         ),
                                       ),

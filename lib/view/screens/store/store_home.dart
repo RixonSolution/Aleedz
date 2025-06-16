@@ -269,6 +269,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                                   storeName: widget.storeName,
                                   checkInTime: widget.checkInTime,
                                   storeId: widget.storeId,
+                                  visiteId: 1,
                                 ),
                               );
                             } else if (viewModel.rosLabels[index].rosLabelID ==
@@ -338,6 +339,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                                   storeName: widget.storeName,
                                   checkInTime: widget.checkInTime,
                                   storeId: widget.storeId,
+                                  visiteId: 0,
                                 ),
                               );
                             } else if (viewModel.rosLabels[index].rosLabelID ==
