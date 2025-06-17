@@ -1,6 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:aleedz/core/constants/api_constants.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 class SaleServices {
   Future<Map<String, dynamic>?> getBrandDropDown({

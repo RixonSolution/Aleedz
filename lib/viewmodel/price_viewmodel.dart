@@ -1,11 +1,15 @@
+import 'dart:io';
+
 import 'package:aleedz/core/controllers/price_controller.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/brand_list_model.dart';
 import 'package:aleedz/models/price_list_model.dart';
 import 'package:aleedz/models/price_model.dart';
+import 'package:aleedz/models/product_price_model.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 final priceModelProvider = ChangeNotifierProvider<PriceViewModel>((ref) {
   return PriceViewModel();
@@ -16,6 +20,7 @@ class PriceViewModel extends ChangeNotifier {
 
   UserModel? user;
   List<PriceModel> brands = [];
+  List<ProductPriceEntry> productEntries = [];
 
   BrandListModel? selectedBrand;
 
@@ -45,6 +50,24 @@ class PriceViewModel extends ChangeNotifier {
     } else {
       print('No user found in prefs');
     }
+  }
+
+  Future<String?> pickFromCamera(String direction) async {
+    final image = await ImagePicker().pickImage(source: ImageSource.camera);
+    if (image != null) {
+      // Save or process the image if needed
+      return image.path;
+    }
+    return null;
+  }
+
+  Future<String?> pickFromGallery(String direction) async {
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      // Save or process the image if needed
+      return image.path;
+    }
+    return null;
   }
 
   Future<void> getBrandDropDown() async {
@@ -98,6 +121,7 @@ class PriceViewModel extends ChangeNotifier {
   }) async {
     loader = true;
     priceList = [];
+    productEntries = [];
     notifyListeners();
     final response = await _priceController.priceList(
       storeId: storeId.toString(),
@@ -119,6 +143,147 @@ class PriceViewModel extends ChangeNotifier {
       loader = false;
       notifyListeners();
     }
+  }
+
+  void updateProductEntry({
+    required String productId,
+    required String storeId,
+    required String visitId,
+    required String token,
+    required String? teamMemberId,
+    String? price,
+    String? netPrice,
+    String? promotion,
+    String? imagePath,
+    bool? isOutOfStock,
+    String? installment3Month,
+    String? installment6Month,
+    String? installment12Month,
+    String? priceTagPictureId,
+  }) {
+    final index = productEntries.indexWhere((e) => e.productId == productId);
+
+    if (index != -1) {
+      final existing = productEntries[index];
+      productEntries[index] = ProductPriceEntry(
+        token: token,
+        productId: productId,
+        storeId: storeId,
+        visitId: visitId,
+        teamMemberId: teamMemberId,
+        price: price ?? existing.price,
+        netPrice: netPrice ?? existing.netPrice,
+        promotion: promotion ?? existing.promotion,
+        priceTagPictureId: priceTagPictureId ?? '1',
+        installment3Month: installment3Month ?? '1',
+        installment6Month: installment6Month ?? '1',
+        installment12Month: installment12Month ?? '1',
+        isOutOfStock: isOutOfStock ?? existing.isOutOfStock,
+        priceImage: imagePath ?? existing.priceImage,
+      );
+    } else {
+      productEntries.add(
+        ProductPriceEntry(
+          token: token,
+          productId: productId,
+          storeId: storeId,
+          visitId: visitId,
+          teamMemberId: teamMemberId,
+          price: price ?? '',
+          netPrice: netPrice ?? '',
+          promotion: promotion ?? '',
+          priceTagPictureId: priceTagPictureId.toString(),
+          installment3Month: installment3Month ?? '0',
+          installment6Month: installment6Month ?? '0',
+          installment12Month: installment12Month ?? '0',
+          isOutOfStock: isOutOfStock ?? false,
+          priceImage: imagePath,
+        ),
+      );
+    }
+  }
+
+  Future<void> priceSubmit({
+    required String productId,
+    required String storeID,
+    required String price,
+    required String promotion,
+    required String priceTagPictureId,
+    required String netPrice,
+    required String installment3Month,
+    required String installment6Month,
+    required String installment12Month,
+    required String isOutOfStock,
+    required String visitId,
+    File? checkInImgFile,
+  }) async {
+    notifyListeners();
+    final response = await _priceController.priceSubmit(
+      token: user?.apiToken ?? '',
+      productId: productId,
+      storeID: storeID,
+      price: price,
+      promotion: promotion,
+      priceTagPictureId: priceTagPictureId,
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      netPrice: netPrice,
+      installment3Month: installment3Month,
+      installment6Month: installment6Month,
+      installment12Month: installment12Month,
+      isOutOfStock: isOutOfStock,
+      visitId: visitId,
+      checkInImgFile: checkInImgFile,
+    );
+
+    if (response != null && response["status"] == 200) {
+      notifyListeners();
+    } else {
+      debugPrint("Price list Error: ${response?['data']}");
+      notifyListeners();
+    }
+  }
+
+  Future<void> submitAllPrices() async {
+    loader = true;
+    notifyListeners();
+    for (var entry in productEntries) {
+      debugPrint('--- Submitting Product Entry: ${entry.productId} ---');
+
+      final File? imageFile =
+          entry.priceImage?.isNotEmpty == true ? File(entry.priceImage!) : null;
+
+      final response = await _priceController.priceSubmit(
+        token: entry.token,
+        productId: entry.productId.toString(),
+        storeID: entry.storeId.toString(),
+        price: entry.price,
+        promotion: entry.promotion,
+        priceTagPictureId: entry.priceTagPictureId.toString(),
+        teamMemberId: entry.teamMemberId.toString(),
+        netPrice: entry.netPrice,
+        installment3Month: entry.installment3Month,
+        installment6Month: entry.installment6Month,
+        installment12Month: entry.installment12Month,
+        isOutOfStock: entry.isOutOfStock ? '1' : '0',
+        visitId: entry.visitId.toString(),
+        checkInImgFile: imageFile,
+      );
+
+      if (response != null && response["status"] == 200) {
+        debugPrint("✅ Submitted productId: ${entry.productId}");
+        // continue to next entry
+      } else {
+        debugPrint("❌ Error submitting productId: ${entry.productId}");
+        debugPrint("Response: ${response?['data']}");
+        break; // stop on error, or handle retry if needed
+      }
+    }
+    productEntries = [];
+
+    loader = false;
+    notifyListeners();
+
+    debugPrint("📤 All submissions attempted.");
   }
 
   Future loadPriceData(int storeId, int brandId) async {

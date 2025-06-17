@@ -84,4 +84,8 @@ class ApiConstants {
   static String get checklist => "$baseUrl/Checklist.asmx/GetChecklistCategory";
   static String get checkListSubmitView =>
       "$baseUrl/Checklist.asmx/ViewChecklist";
+
+  static String get priceSubmit => "$baseUrl/Prices.asmx/PricePromotionAdd";
+
+  static String get checklistSubmit => "$baseUrl/Checklist.asmx/ChecklistAdd";
 }

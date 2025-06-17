@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/utils/app_snackbar.dart';
+import 'package:aleedz/models/product_price_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/price_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +27,55 @@ class PriceSubmit extends ConsumerStatefulWidget {
 }
 
 class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
+  void _showImagePickerDialog(
+    String direction, {
+    required Function(String) onImageSelected,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.secondary,
+          title: Text(
+            'Pick an image',
+            style: TextStyle(color: AppColors.whiteColor),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text(
+                  'From Camera',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+                onTap: () async {
+                  final path = await ref
+                      .read(priceModelProvider.notifier)
+                      .pickFromCamera(direction);
+                  Navigator.pop(context);
+                  if (path != null) onImageSelected(path);
+                },
+              ),
+              ListTile(
+                title: const Text(
+                  'From Gallery',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+                onTap: () async {
+                  final path = await ref
+                      .read(priceModelProvider.notifier)
+                      .pickFromGallery(direction);
+                  Navigator.pop(context);
+                  if (path != null) onImageSelected(path);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +91,34 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
     });
   }
 
+  String? getChecklistImagePath(String productId) {
+    final viewModel = ref.watch(priceModelProvider);
+
+    final matchingEntries = viewModel.productEntries.where(
+      (e) => e.productId == productId,
+    );
+
+    if (matchingEntries.isNotEmpty) {
+      return matchingEntries.first.priceImage;
+    }
+
+    return null;
+  }
+
+  bool? getOutOfStock(String productId) {
+    final viewModel = ref.watch(priceModelProvider);
+
+    final matchingEntries = viewModel.productEntries.where(
+      (e) => e.productId == productId,
+    );
+
+    if (matchingEntries.isNotEmpty) {
+      return matchingEntries.first.isOutOfStock;
+    }
+
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(priceModelProvider);
@@ -49,21 +130,29 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
       child: SafeArea(
         child: Scaffold(
           backgroundColor: AppColors.whiteColor,
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.all(12.0), // Optional padding
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(color: AppColors.secondary),
-              width: double.infinity,
-              height: 50,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Submit',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                ],
+          bottomNavigationBar: GestureDetector(
+            onTap: () async {
+              await viewModel.submitAllPrices();
+              AppSnackBar.showSuccess(context, 'Price Promotions submitted}');
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(12.0), // Optional padding
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(color: AppColors.secondary),
+                width: double.infinity,
+                height: 50,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    viewModel.loader
+                        ? Center(child: CircularProgressIndicator())
+                        : Text(
+                          'Submit',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -173,10 +262,48 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                           shrinkWrap: true,
                           itemCount: viewModel.priceList.length,
                           itemBuilder: (BuildContext context, int index) {
+                            final isOutOfStock = getOutOfStock(
+                              viewModel.priceList[index].productID.toString(),
+                            );
+
                             return Column(
                               children: [
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      value: getOutOfStock(
+                                        viewModel.priceList[index].productID
+                                            .toString(),
+                                      ),
+                                      onChanged: (value) {
+                                        setState(() {});
+                                        viewModel.updateProductEntry(
+                                          productId:
+                                              viewModel
+                                                  .priceList[index]
+                                                  .productID
+                                                  .toString(),
+                                          storeId: widget.storeId.toString(),
+                                          visitId: widget.visiteId.toString(),
+                                          token: viewModel.user?.apiToken ?? '',
+                                          teamMemberId:
+                                              viewModel.user?.teamMemberID
+                                                  .toString(),
+                                          isOutOfStock: value,
+                                          price: '0',
+                                          netPrice: '0',
+                                          promotion: '',
+                                          imagePath: '',
+                                        );
+                                      },
+                                    ),
+                                    Text("Out of stock"),
+                                  ],
+                                ),
                                 Padding(
-                                  padding: const EdgeInsets.all(16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -228,6 +355,39 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                                           AppColors
                                                               .lightGreyBackground,
                                                       child: TextField(
+                                                        enabled:
+                                                            !(isOutOfStock ??
+                                                                false),
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .number,
+                                                        onChanged: (value) {
+                                                          viewModel.updateProductEntry(
+                                                            productId:
+                                                                viewModel
+                                                                    .priceList[index]
+                                                                    .productID
+                                                                    .toString(),
+                                                            storeId:
+                                                                widget.storeId
+                                                                    .toString(),
+                                                            visitId:
+                                                                widget.visiteId
+                                                                    .toString(),
+                                                            token:
+                                                                viewModel
+                                                                    .user
+                                                                    ?.apiToken ??
+                                                                '',
+                                                            teamMemberId:
+                                                                viewModel
+                                                                    .user
+                                                                    ?.teamMemberID
+                                                                    .toString(),
+
+                                                            price: value,
+                                                          );
+                                                        },
                                                         textAlign:
                                                             TextAlign.center,
                                                         textAlignVertical:
@@ -253,6 +413,39 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                                           AppColors
                                                               .lightGreyBackground,
                                                       child: TextField(
+                                                        enabled:
+                                                            !(isOutOfStock ??
+                                                                false),
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .number,
+                                                        onChanged: (value) {
+                                                          viewModel.updateProductEntry(
+                                                            productId:
+                                                                viewModel
+                                                                    .priceList[index]
+                                                                    .productID
+                                                                    .toString(),
+                                                            storeId:
+                                                                widget.storeId
+                                                                    .toString(),
+                                                            visitId:
+                                                                widget.visiteId
+                                                                    .toString(),
+                                                            token:
+                                                                viewModel
+                                                                    .user
+                                                                    ?.apiToken ??
+                                                                '',
+                                                            teamMemberId:
+                                                                viewModel
+                                                                    .user
+                                                                    ?.teamMemberID
+                                                                    .toString(),
+
+                                                            netPrice: value,
+                                                          );
+                                                        },
                                                         textAlign:
                                                             TextAlign.center,
                                                         textAlignVertical:
@@ -276,18 +469,93 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                               ],
                                             ),
                                           ),
-                                          Container(
-                                            width: 100,
-                                            height: 100,
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  AppColors.lightGreyBackground,
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: Icon(
-                                              Icons.camera_alt,
-                                              size: 32,
+                                          GestureDetector(
+                                            onTap: () {
+                                              if (getOutOfStock(
+                                                    viewModel
+                                                        .priceList[index]
+                                                        .productID
+                                                        .toString(),
+                                                  ) ==
+                                                  false) {
+                                                _showImagePickerDialog(
+                                                  'left',
+                                                  onImageSelected: (
+                                                    String path,
+                                                  ) {
+                                                    setState(() {
+                                                      print(
+                                                        'selected image $path',
+                                                      );
+                                                    });
+
+                                                    viewModel.updateProductEntry(
+                                                      productId:
+                                                          viewModel
+                                                              .priceList[index]
+                                                              .productID
+                                                              .toString(),
+                                                      storeId:
+                                                          widget.storeId
+                                                              .toString(),
+                                                      visitId:
+                                                          widget.visiteId
+                                                              .toString(),
+                                                      token:
+                                                          viewModel
+                                                              .user
+                                                              ?.apiToken ??
+                                                          '',
+                                                      teamMemberId:
+                                                          viewModel
+                                                              .user
+                                                              ?.teamMemberID
+                                                              .toString(),
+                                                      imagePath: path,
+                                                    );
+                                                  },
+                                                );
+                                              }
+                                            },
+                                            child: Container(
+                                              width: 100,
+                                              height: 100,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    AppColors
+                                                        .lightGreyBackground,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Builder(
+                                                builder: (_) {
+                                                  final imagePath =
+                                                      getChecklistImagePath(
+                                                        viewModel
+                                                            .priceList[index]
+                                                            .productID
+                                                            .toString(),
+                                                      );
+                                                  if (imagePath != null &&
+                                                      imagePath.isNotEmpty) {
+                                                    return ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                      child: Image.file(
+                                                        File(imagePath),
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    return Icon(
+                                                      Icons.camera_alt,
+                                                      size: 32,
+                                                    );
+                                                  }
+                                                },
+                                              ),
                                             ),
                                           ),
                                         ],
@@ -298,6 +566,29 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                       Container(
                                         color: AppColors.lightGreyBackground,
                                         child: TextField(
+                                          enabled: !(isOutOfStock ?? false),
+                                          keyboardType: TextInputType.text,
+                                          onChanged: (value) {
+                                            viewModel.updateProductEntry(
+                                              productId:
+                                                  viewModel
+                                                      .priceList[index]
+                                                      .productID
+                                                      .toString(),
+                                              storeId:
+                                                  widget.storeId.toString(),
+                                              visitId:
+                                                  widget.visiteId.toString(),
+                                              token:
+                                                  viewModel.user?.apiToken ??
+                                                  '',
+                                              teamMemberId:
+                                                  viewModel.user?.teamMemberID
+                                                      .toString(),
+
+                                              promotion: value,
+                                            );
+                                          },
                                           decoration: InputDecoration(
                                             labelText: 'Promotions',
                                             border: OutlineInputBorder(),

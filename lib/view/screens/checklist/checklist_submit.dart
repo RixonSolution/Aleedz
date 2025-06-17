@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/utils/app_snackbar.dart';
+import 'package:aleedz/models/checklist_entry.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/checklist_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +28,10 @@ class ChecklistSubmit extends ConsumerStatefulWidget {
 }
 
 class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
-  void _showImagePickerDialog(String direction) {
+  void _showImagePickerDialog(
+    String direction, {
+    required Function(String) onImageSelected,
+  }) {
     showDialog(
       context: context,
       builder: (context) {
@@ -43,11 +49,12 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                   'From Camera',
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
-                onTap: () {
-                  ref
+                onTap: () async {
+                  final path = await ref
                       .read(checklistModelProvider.notifier)
                       .pickFromCamera(direction);
                   Navigator.pop(context);
+                  if (path != null) onImageSelected(path);
                 },
               ),
               ListTile(
@@ -55,11 +62,12 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                   'From Gallery',
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
-                onTap: () {
-                  ref
+                onTap: () async {
+                  final path = await ref
                       .read(checklistModelProvider.notifier)
                       .pickFromGallery(direction);
                   Navigator.pop(context);
+                  if (path != null) onImageSelected(path);
                 },
               ),
             ],
@@ -86,6 +94,54 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
     );
   }
 
+  String? getChecklistImagePath(String checklistId) {
+    final viewModel = ref.watch(checklistModelProvider);
+
+    final matchingEntries = viewModel.checklistEntries.where(
+      (e) => e.checkListID == checklistId,
+    );
+
+    if (matchingEntries.isNotEmpty) {
+      return matchingEntries.first.imagePath;
+    }
+
+    return null;
+  }
+
+  bool loader = false;
+
+  Future<void> submitChecklistEntries() async {
+    final viewModel = ref.watch(checklistModelProvider);
+
+    setState(() {
+      loader = true;
+    });
+
+    for (int i = 0; i < viewModel.checklistEntries.length; i++) {
+      final entry = viewModel.checklistEntries[i];
+
+      print("Submitting entry ${i + 1}/${viewModel.checklistEntries.length}:");
+      print(entry.toJson());
+
+      await viewModel.checklistSubmit(
+        token: entry.token,
+        checklistAuditId: entry.checklistAuditID.toString(),
+        checklistId: entry.checkListID.toString(),
+        storeId: entry.storeID.toString(),
+        checklistStatus: entry.checkListStatus.toString(),
+        teamMemberId: entry.teamMemberID.toString(),
+        visitId: entry.visitID.toString(),
+        checkInImgFile: entry.imagePath != null ? File(entry.imagePath!) : null,
+      );
+
+      // Check if the last response was successful before continuing
+    }
+    setState(() {
+      loader = false;
+    });
+    print("✅ All checklist entries submitted.");
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(checklistModelProvider);
@@ -96,16 +152,14 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
           margin: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           color: Colors.white,
           child: ElevatedButton(
-            onPressed: () {
-              // Handle submit action here
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    "Form Submitted!",
-                    style: TextStyle(color: AppColors.whiteColor),
-                  ),
-                ),
-              );
+            onPressed: () async {
+              await submitChecklistEntries();
+
+              viewModel.checklistEntries = [];
+
+              AppSnackBar.showSuccess(context, 'Checklist submitted}');
+
+              // // Handle submit action here
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.secondary,
@@ -114,10 +168,16 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                 borderRadius: BorderRadius.circular(0),
               ),
             ),
-            child: Text(
-              "Submit",
-              style: TextStyle(fontSize: 14, color: AppColors.whiteColor),
-            ),
+            child:
+                loader
+                    ? CircularProgressIndicator(color: AppColors.whiteColor)
+                    : Text(
+                      "Submit",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.whiteColor,
+                      ),
+                    ),
           ),
         ),
         backgroundColor: AppColors.whiteColor,
@@ -223,54 +283,254 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                                 .checkListSubmitView[index]
                                                 .inputTypeID ==
                                             1
-                                        ? ToggleYesNo()
+                                        ? ToggleYesNo(
+                                          onChanged: (value) {
+                                            print(
+                                              viewModel
+                                                  .checkListSubmitView[index]
+                                                  .checklistID,
+                                            );
+                                            print("User selected: $value");
+
+                                            viewModel.addOrUpdateChecklistEntry(
+                                              ChecklistEntry(
+                                                token:
+                                                    viewModel.user?.apiToken ??
+                                                    '',
+                                                checklistAuditID:
+                                                    viewModel
+                                                                .checkListSubmitView[index]
+                                                                .checklistAuditID ==
+                                                            null
+                                                        ? '0'
+                                                        : viewModel
+                                                            .checkListSubmitView[index]
+                                                            .checklistAuditID,
+                                                checkListID:
+                                                    viewModel
+                                                        .checkListSubmitView[index]
+                                                        .checklistID
+                                                        .toString(),
+                                                storeID:
+                                                    widget.storeId.toString(),
+                                                checkListStatus: value,
+                                                teamMemberID:
+                                                    viewModel.user?.teamMemberID
+                                                        .toString() ??
+                                                    '',
+                                                visitID:
+                                                    widget.visiteId.toString(),
+                                                // imagePath: '/new/path.jpg',
+                                              ),
+                                            );
+                                          },
+                                        )
                                         : viewModel
                                                 .checkListSubmitView[index]
                                                 .inputTypeID ==
                                             2
-                                        ? QuantityBox()
+                                        ? QuantityBox(
+                                          onChanged: (String value) {
+                                            print(
+                                              viewModel
+                                                  .checkListSubmitView[index]
+                                                  .checklistID,
+                                            );
+                                            print(
+                                              "Quantity: $value",
+                                            ); // or answers[index].answer = value;
+
+                                            viewModel.addOrUpdateChecklistEntry(
+                                              ChecklistEntry(
+                                                token:
+                                                    viewModel.user?.apiToken ??
+                                                    '',
+                                                checklistAuditID:
+                                                    viewModel
+                                                                .checkListSubmitView[index]
+                                                                .checklistAuditID ==
+                                                            null
+                                                        ? '0'
+                                                        : viewModel
+                                                            .checkListSubmitView[index]
+                                                            .checklistAuditID,
+                                                checkListID:
+                                                    viewModel
+                                                        .checkListSubmitView[index]
+                                                        .checklistID
+                                                        .toString(),
+                                                storeID:
+                                                    widget.storeId.toString(),
+                                                checkListStatus: value,
+                                                teamMemberID:
+                                                    viewModel.user?.teamMemberID
+                                                        .toString() ??
+                                                    '',
+                                                visitID:
+                                                    widget.visiteId.toString(),
+                                                // imagePath: '/new/path.jpg',
+                                              ),
+                                            );
+                                          },
+                                        )
                                         : viewModel
                                                 .checkListSubmitView[index]
                                                 .inputTypeID ==
                                             3
-                                        ? DateBox()
-                                        : TextBox(),
+                                        ? DateBox(
+                                          onChanged: (String selectedDate) {
+                                            print(
+                                              viewModel
+                                                  .checkListSubmitView[index]
+                                                  .checklistID,
+                                            );
+                                            print(
+                                              "Selected date: $selectedDate",
+                                            ); // or update answers[index].answer
+
+                                            viewModel.addOrUpdateChecklistEntry(
+                                              ChecklistEntry(
+                                                token:
+                                                    viewModel.user?.apiToken ??
+                                                    '',
+                                                checklistAuditID:
+                                                    viewModel
+                                                                .checkListSubmitView[index]
+                                                                .checklistAuditID ==
+                                                            null
+                                                        ? '0'
+                                                        : viewModel
+                                                            .checkListSubmitView[index]
+                                                            .checklistAuditID,
+                                                checkListID:
+                                                    viewModel
+                                                        .checkListSubmitView[index]
+                                                        .checklistID
+                                                        .toString(),
+                                                storeID:
+                                                    widget.storeId.toString(),
+                                                checkListStatus: selectedDate,
+                                                teamMemberID:
+                                                    viewModel.user?.teamMemberID
+                                                        .toString() ??
+                                                    '',
+                                                visitID:
+                                                    widget.visiteId.toString(),
+                                                // imagePath: '/new/path.jpg',
+                                              ),
+                                            );
+                                          },
+                                        )
+                                        : TextBox(
+                                          onChanged: (value) {
+                                            print(
+                                              viewModel
+                                                  .checkListSubmitView[index]
+                                                  .checklistID,
+                                            );
+                                            print(
+                                              "Text value: $value",
+                                            ); // or update your JSON model here
+
+                                            viewModel.addOrUpdateChecklistEntry(
+                                              ChecklistEntry(
+                                                token:
+                                                    viewModel.user?.apiToken ??
+                                                    '',
+                                                checklistAuditID:
+                                                    viewModel
+                                                                .checkListSubmitView[index]
+                                                                .checklistAuditID ==
+                                                            null
+                                                        ? '0'
+                                                        : viewModel
+                                                            .checkListSubmitView[index]
+                                                            .checklistAuditID,
+                                                checkListID:
+                                                    viewModel
+                                                        .checkListSubmitView[index]
+                                                        .checklistID
+                                                        .toString(),
+                                                storeID:
+                                                    widget.storeId.toString(),
+                                                checkListStatus: value,
+                                                teamMemberID:
+                                                    viewModel.user?.teamMemberID
+                                                        .toString() ??
+                                                    '',
+                                                visitID:
+                                                    widget.visiteId.toString(),
+                                                // imagePath: '/new/path.jpg',
+                                              ),
+                                            );
+                                          },
+                                        ),
                                 index: index + 1,
-                                onTap: () {
-                                  _showImagePickerDialog('left');
+                                onPickImage: () {
+                                  _showImagePickerDialog(
+                                    'left',
+                                    onImageSelected: (String path) {
+                                      setState(() {
+                                        print('selected image ${path}');
+                                      });
+
+                                      viewModel.addOrUpdateChecklistEntry(
+                                        ChecklistEntry(
+                                          token: viewModel.user?.apiToken ?? '',
+                                          checklistAuditID:
+                                              viewModel
+                                                          .checkListSubmitView[index]
+                                                          .checklistAuditID ==
+                                                      null
+                                                  ? '0'
+                                                  : viewModel
+                                                      .checkListSubmitView[index]
+                                                      .checklistAuditID,
+                                          checkListID:
+                                              viewModel
+                                                  .checkListSubmitView[index]
+                                                  .checklistID
+                                                  .toString(),
+                                          storeID: widget.storeId.toString(),
+                                          teamMemberID:
+                                              viewModel.user?.teamMemberID
+                                                  .toString() ??
+                                              '',
+                                          visitID: widget.visiteId.toString(),
+                                          imagePath: path,
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                imagePath: getChecklistImagePath(
+                                  viewModel
+                                      .checkListSubmitView[index]
+                                      .checklistID
+                                      .toString(),
+                                ),
+
+                                onDescriptionChanged: (value) {
+                                  print(
+                                    viewModel
+                                        .checkListSubmitView[index]
+                                        .checklistID,
+                                  );
+                                  print(
+                                    viewModel
+                                        .checkListSubmitView[index]
+                                        .checklistID,
+                                  );
+                                  print("Description: $value");
                                 },
                               ),
+
                               Divider(indent: 12, endIndent: 12),
                             ],
                           );
                         },
                       ),
                     ),
-
-                    // Expanded(
-                    //   child: ListView(
-                    //     children: [
-                    //       ProductCard(
-                    //         title:
-                    //             'Zone Vibe 100 wireless headphones - GRAPHITE',
-                    //         optionWidget: QuantityBox(),
-                    //         onTap: () {
-                    //           _showImagePickerDialog('left');
-                    //         },
-                    //       ),
-                    //       Divider(indent: 12, endIndent: 12),
-                    //       ProductCard(
-                    //         title:
-                    //             'Zone Vibe 100 wireless headphones - GRAPHITE',
-                    //         optionWidget: DateBox(),
-                    //         onTap: () {
-                    //           _showImagePickerDialog('left');
-                    //         },
-                    //       ),
-                    //       Divider(indent: 12, endIndent: 12),
-                    //     ],
-                    //   ),
-                    // ),
                   ],
                 ),
       ),
@@ -278,19 +538,28 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
   }
 }
 
-class ProductCard extends StatelessWidget {
+class ProductCard extends StatefulWidget {
   final String title;
   final Widget optionWidget;
   dynamic index;
-  void Function() onTap;
+  final Function(String)? onDescriptionChanged;
+  final String? imagePath;
+  final Function()? onPickImage;
 
   ProductCard({
     required this.title,
     required this.optionWidget,
     required this.index,
-    required this.onTap,
+    this.onDescriptionChanged,
+    this.imagePath,
+    this.onPickImage,
   });
 
+  @override
+  State<ProductCard> createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -301,14 +570,17 @@ class ProductCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('$index. ', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                '${widget.index}. ',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               Expanded(
                 child: Text(
-                  title,
+                  widget.title,
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-              optionWidget,
+              widget.optionWidget,
             ],
           ),
           SizedBox(height: 12),
@@ -316,6 +588,11 @@ class ProductCard extends StatelessWidget {
             children: [
               Expanded(
                 child: TextField(
+                  onChanged: (value) {
+                    if (widget.onDescriptionChanged != null) {
+                      widget.onDescriptionChanged!(value);
+                    }
+                  },
                   decoration: InputDecoration(
                     labelText: 'Description',
                     border: OutlineInputBorder(),
@@ -327,7 +604,7 @@ class ProductCard extends StatelessWidget {
               ),
               SizedBox(width: 12),
               GestureDetector(
-                onTap: onTap,
+                onTap: widget.onPickImage,
                 child: Container(
                   height: 80,
                   width: 80,
@@ -335,7 +612,16 @@ class ProductCard extends StatelessWidget {
                     color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(Icons.camera_alt),
+                  child:
+                      widget.imagePath != null
+                          ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(
+                              File(widget.imagePath!),
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                          : Icon(Icons.camera_alt),
                 ),
               ),
             ],
@@ -347,6 +633,9 @@ class ProductCard extends StatelessWidget {
 }
 
 class ToggleYesNo extends StatefulWidget {
+  final Function(String) onChanged;
+  ToggleYesNo({required this.onChanged}); // constructor
+
   @override
   _ToggleYesNoState createState() => _ToggleYesNoState();
 }
@@ -367,6 +656,7 @@ class _ToggleYesNoState extends State<ToggleYesNo> {
       onTap: () {
         setState(() {
           selected = value;
+          widget.onChanged(value);
         });
       },
       child: Container(
@@ -383,20 +673,31 @@ class _ToggleYesNoState extends State<ToggleYesNo> {
   }
 }
 
-class QuantityBox extends StatelessWidget {
+class QuantityBox extends StatefulWidget {
   final TextEditingController? controller;
+  final Function(String)? onChanged;
 
-  const QuantityBox({this.controller});
+  const QuantityBox({this.controller, this.onChanged});
 
+  @override
+  State<QuantityBox> createState() => _QuantityBoxState();
+}
+
+class _QuantityBoxState extends State<QuantityBox> {
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 80, // Set a fixed width similar to your design
       height: 36,
       child: TextField(
-        controller: controller,
+        controller: widget.controller,
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
+        onChanged: (value) {
+          if (widget.onChanged != null) {
+            widget.onChanged!(value);
+          }
+        },
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           hintText: 'Quantity',
@@ -413,19 +714,29 @@ class QuantityBox extends StatelessWidget {
   }
 }
 
-class TextBox extends StatelessWidget {
+class TextBox extends StatefulWidget {
   final TextEditingController? controller;
+  final Function(String)? onChanged;
+  const TextBox({this.controller, this.onChanged});
 
-  const TextBox({this.controller});
+  @override
+  State<TextBox> createState() => _TextBoxState();
+}
 
+class _TextBoxState extends State<TextBox> {
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 80, // Set a fixed width similar to your design
       height: 36,
       child: TextField(
-        controller: controller,
+        controller: widget.controller,
         keyboardType: TextInputType.text,
+        onChanged: (value) {
+          if (widget.onChanged != null) {
+            widget.onChanged!(value);
+          }
+        },
         textAlign: TextAlign.center,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -444,8 +755,9 @@ class TextBox extends StatelessWidget {
 }
 
 class DateBox extends StatefulWidget {
-  const DateBox({Key? key}) : super(key: key);
+  final Function(String)? onChanged;
 
+  const DateBox({Key? key, this.onChanged}) : super(key: key);
   @override
   _DateBoxState createState() => _DateBoxState();
 }
@@ -465,6 +777,11 @@ class _DateBoxState extends State<DateBox> {
       setState(() {
         selectedDate = picked;
       });
+
+      if (widget.onChanged != null) {
+        String formatted = DateFormat('dd-MM-yyyy').format(picked);
+        widget.onChanged!(formatted);
+      }
     }
   }
 

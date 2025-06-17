@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aleedz/core/services/checklist_services.dart';
 
 class ChecklistController {
@@ -28,6 +30,28 @@ class ChecklistController {
       teamMemberId: teamMemberId,
       checklistCateId: checklistCateId,
       visiteId: visiteId,
+    );
+  }
+
+  Future<Map<String, dynamic>?> checklistSubmit({
+    required String token,
+    required String checklistAuditId,
+    required String checklistId,
+    required String storeId,
+    required String checklistStatus,
+    required String teamMemberId,
+    required String visitId,
+    File? checkInImgFile,
+  }) async {
+    return await _apiService.checklistSubmit(
+      token: token,
+      storeId: storeId,
+      teamMemberId: teamMemberId,
+      checklistAuditId: checklistAuditId,
+      checklistId: checklistId,
+      checklistStatus: checklistStatus,
+      visitId: visitId,
+      checkInImgFile: checkInImgFile,
     );
   }
 }

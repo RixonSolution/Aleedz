@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:aleedz/core/controllers/checklist_controller.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
+import 'package:aleedz/models/checklist_entry.dart';
 import 'package:aleedz/models/checklist_model.dart';
 import 'package:aleedz/models/checklist_submit_model.dart';
 import 'package:aleedz/models/user_model.dart';
@@ -21,6 +22,8 @@ class checklistViewModel extends ChangeNotifier {
   List<ChecklistModel> checkList = [];
   List<ChecklistSubmitModel> checkListSubmitView = [];
 
+  List<ChecklistEntry> checklistEntries = [];
+
   File? leftImage;
   File? rightImage;
   final ImagePicker picker = ImagePicker();
@@ -39,30 +42,22 @@ class checklistViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> pickFromCamera(String direction) async {
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      if (direction == 'left') {
-        leftImage = File(pickedFile.path);
-        notifyListeners();
-      } else {
-        rightImage = File(pickedFile.path);
-        notifyListeners();
-      }
+  Future<String?> pickFromCamera(String direction) async {
+    final image = await ImagePicker().pickImage(source: ImageSource.camera);
+    if (image != null) {
+      // Save or process the image if needed
+      return image.path;
     }
+    return null;
   }
 
-  Future<void> pickFromGallery(String direction) async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      if (direction == 'left') {
-        leftImage = File(pickedFile.path);
-        notifyListeners();
-      } else {
-        rightImage = File(pickedFile.path);
-        notifyListeners();
-      }
+  Future<String?> pickFromGallery(String direction) async {
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      // Save or process the image if needed
+      return image.path;
     }
+    return null;
   }
 
   Future<void> getCheckListType({required String storeId}) async {
@@ -92,6 +87,7 @@ class checklistViewModel extends ChangeNotifier {
   }) async {
     loader = true;
     checkListSubmitView = [];
+    checklistEntries = [];
     notifyListeners();
 
     final response = await _checkController.checklistSubmitList(
@@ -112,6 +108,54 @@ class checklistViewModel extends ChangeNotifier {
       loader = false;
       notifyListeners();
       debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  void addOrUpdateChecklistEntry(ChecklistEntry newEntry) {
+    final index = checklistEntries.indexWhere(
+      (e) => e.checkListID == newEntry.checkListID,
+    );
+    if (index != -1) {
+      // Update existing entry
+      checklistEntries[index] = newEntry;
+      notifyListeners();
+    } else {
+      // Add new entry
+      checklistEntries.add(newEntry);
+      notifyListeners();
+    }
+  }
+
+  Future<void> checklistSubmit({
+    required String token,
+    required String checklistAuditId,
+    required String checklistId,
+    required String storeId,
+    required String checklistStatus,
+    required String teamMemberId,
+    required String visitId,
+    File? checkInImgFile,
+  }) async {
+    notifyListeners();
+
+    final response = await _checkController.checklistSubmit(
+      token: user?.apiToken ?? '',
+      storeId: storeId,
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      checklistAuditId: checklistAuditId,
+      checklistId: checklistId,
+      checklistStatus: checklistStatus,
+      visitId: visitId,
+      checkInImgFile: checkInImgFile,
+    );
+
+    if (response != null && response["status"] == 200) {
+      print('submitted');
+      notifyListeners();
+    } else {
+      loader = false;
+      notifyListeners();
+      debugPrint("Checklist list Error: ${response?['data']}");
     }
   }
 
