@@ -44,6 +44,182 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
 
   bool isChecked = false;
 
+  Widget _buildGridItem(
+    BuildContext context,
+    dynamic ros, {
+    bool isFullWidth = false,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+        padding: EdgeInsets.symmetric(vertical: 15),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.blackColor),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.network(
+              '${ApiConstants.baseUrl}${ros.imageLocation}',
+              height: 60,
+              width: 60,
+              fit: BoxFit.cover,
+            ),
+            SizedBox(height: 3),
+            Text(
+              ros.rosLabelName,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.blackColor,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFullWidthItem(dynamic ros, {required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12.0),
+        child: Container(
+          width: double.infinity,
+          margin: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+          padding: EdgeInsets.symmetric(vertical: 15),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.blackColor),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.network(
+                '${ApiConstants.baseUrl}${ros.imageLocation}',
+                height: 60,
+                width: 60,
+                fit: BoxFit.cover,
+              ),
+              SizedBox(height: 3),
+              Text(
+                ros.rosLabelName,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.blackColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleTap(BuildContext context, dynamic ros) {
+    final int id = ros.rosLabelID;
+
+    switch (id) {
+      case 29:
+        NavigationService.navigateTo(
+          ChecklistView(
+            storeName: widget.storeName,
+            checkInTime: widget.checkInTime,
+            storeId: widget.storeId,
+            visiteId: 1,
+          ),
+        );
+        break;
+      case 30:
+        NavigationService.navigateTo(
+          TrainingListView(
+            storeName: widget.storeName,
+            checkInTime: widget.checkInTime,
+            storeId: widget.storeId,
+          ),
+        );
+        break;
+      case 31:
+        NavigationService.navigateTo(
+          DisplayPicture(
+            storeName: widget.storeName,
+            checkInTime: widget.checkInTime,
+            storeId: widget.storeId,
+          ),
+        );
+        break;
+      case 32:
+        if (!isChecked) {
+          AppSnackBar.showError(
+            context,
+            'Select the checkbox if you updated the store stock.',
+          );
+        } else {
+          NavigationService.navigateTo(
+            DisplayAuditCheckSummary(
+              storeName: widget.storeName,
+              checkInTime: widget.checkInTime,
+              storeId: widget.storeId,
+            ),
+          );
+        }
+        break;
+      case 33:
+        if (widget.checkInTime != '0' && widget.checkInTime != '') {
+          NavigationService.navigateTo(
+            TransferView(
+              storeName: widget.storeName,
+              checkInTime: widget.checkInTime,
+              storeId: widget.storeId,
+            ),
+          );
+        } else {
+          AppSnackBar.showError(
+            context,
+            'Please check in before transferring the products.',
+          );
+        }
+        break;
+      case 35:
+        NavigationService.navigateTo(
+          ActivityView(
+            storeName: widget.storeName,
+            checkInTime: widget.checkInTime,
+            storeId: widget.storeId,
+          ),
+        );
+        break;
+      case 37:
+        NavigationService.navigateTo(
+          PriceView(
+            storeName: widget.storeName,
+            checkInTime: widget.checkInTime,
+            storeId: widget.storeId,
+            visiteId: 0,
+          ),
+        );
+        break;
+      case 38:
+        NavigationService.navigateTo(
+          SaleView(
+            storeName: widget.storeName,
+            checkInTime: widget.checkInTime,
+            storeId: widget.storeId,
+          ),
+        );
+        break;
+      default:
+        print("Unhandled rosLabelID: $id");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(storeModelProvider);
@@ -251,141 +427,56 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                 : Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: GridView.builder(
-                      itemCount: viewModel.rosLabels.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 1.3,
-                      ),
+                    child: ListView.builder(
+                      itemCount: (viewModel.rosLabels.length / 2).ceil(),
                       itemBuilder: (context, index) {
-                        final ros = viewModel.rosLabels[index];
-                        return InkWell(
-                          onTap: () {
-                            if (viewModel.rosLabels[index].rosLabelID == 29) {
-                              NavigationService.navigateTo(
-                                ChecklistView(
-                                  storeName: widget.storeName,
-                                  checkInTime: widget.checkInTime,
-                                  storeId: widget.storeId,
-                                  visiteId: 1,
-                                ),
-                              );
-                            } else if (viewModel.rosLabels[index].rosLabelID ==
-                                30) {
-                              NavigationService.navigateTo(
-                                TrainingListView(
-                                  storeName: widget.storeName,
-                                  checkInTime: widget.checkInTime,
-                                  storeId: widget.storeId,
-                                ),
-                              );
-                            } else if (viewModel.rosLabels[index].rosLabelID ==
-                                31) {
-                              NavigationService.navigateTo(
-                                DisplayPicture(
-                                  storeName: widget.storeName,
-                                  checkInTime: widget.checkInTime,
-                                  storeId: widget.storeId,
-                                ),
-                              );
-                            } else if (viewModel.rosLabels[index].rosLabelID ==
-                                32) {
-                              if (isChecked == false) {
-                                AppSnackBar.showError(
-                                  context,
-                                  'Select the checkbox if you updated the store stock.',
-                                );
-                              } else {
-                                NavigationService.navigateTo(
-                                  DisplayAuditCheckSummary(
-                                    storeName: widget.storeName,
-                                    checkInTime: widget.checkInTime,
-                                    storeId: widget.storeId,
-                                  ),
-                                );
-                              }
-                            } else if (viewModel.rosLabels[index].rosLabelID ==
-                                33) {
-                              if (widget.checkInTime != '0' &&
-                                  widget.checkInTime != '') {
-                                NavigationService.navigateTo(
-                                  TransferView(
-                                    storeName: widget.storeName,
-                                    checkInTime: widget.checkInTime,
-                                    storeId: widget.storeId,
-                                  ),
-                                );
-                              } else {
-                                AppSnackBar.showError(
-                                  context,
-                                  'Please check in before transferring the products.',
-                                );
-                              }
-                            } else if (viewModel.rosLabels[index].rosLabelID ==
-                                35) {
-                              NavigationService.navigateTo(
-                                ActivityView(
-                                  storeName: widget.storeName,
-                                  checkInTime: widget.checkInTime,
-                                  storeId: widget.storeId,
-                                ),
-                              );
-                            } else if (viewModel.rosLabels[index].rosLabelID ==
-                                37) {
-                              NavigationService.navigateTo(
-                                PriceView(
-                                  storeName: widget.storeName,
-                                  checkInTime: widget.checkInTime,
-                                  storeId: widget.storeId,
-                                  visiteId: 0,
-                                ),
-                              );
-                            } else if (viewModel.rosLabels[index].rosLabelID ==
-                                38) {
-                              NavigationService.navigateTo(
-                                SaleView(
-                                  storeName: widget.storeName,
-                                  checkInTime: widget.checkInTime,
-                                  storeId: widget.storeId,
-                                ),
-                              );
-                            } else {}
-                          },
-                          child: Container(
-                            margin: EdgeInsets.symmetric(horizontal: 5),
-                            padding: EdgeInsets.only(top: 15, bottom: 15),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: AppColors.blackColor),
-                              borderRadius: BorderRadius.circular(12),
+                        int first = index * 2;
+                        int second = first + 1;
+
+                        // If it's the last row and only one item left (odd count)
+                        if (second >= viewModel.rosLabels.length) {
+                          final ros = viewModel.rosLabels[first];
+
+                          return _buildFullWidthItem(
+                            viewModel.rosLabels[first],
+                            onTap: () => _handleTap(context, ros),
+                          );
+                        }
+                        // Regular row with two items
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: _buildGridItem(
+                                onTap:
+                                    () => _handleTap(
+                                      context,
+                                      viewModel.rosLabels[first],
+                                    ),
+
+                                context,
+                                viewModel.rosLabels[first],
+                              ),
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.network(
-                                  '${ApiConstants.baseUrl}${viewModel.rosLabels[index].imageLocation}',
-                                  height: 60,
-                                  width: 60,
-                                  fit: BoxFit.cover,
-                                ),
-                                SizedBox(height: 3),
-                                Text(
-                                  viewModel.rosLabels[index].rosLabelName,
-                                  style: TextStyle(
-                                    color: AppColors.blackColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: _buildGridItem(
+                                onTap:
+                                    () => _handleTap(
+                                      context,
+                                      viewModel.rosLabels[second],
+                                    ),
+
+                                context,
+                                viewModel.rosLabels[second],
+                              ),
                             ),
-                          ),
+                          ],
                         );
                       },
                     ),
                   ),
                 ),
+
             SizedBox(height: 20),
           ],
         ),
@@ -393,3 +484,132 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
     );
   }
 }
+
+
+
+
+
+
+
+// InkWell(
+//                           onTap: () {
+//                             if (viewModel.rosLabels[index].rosLabelID == 29) {
+//                               NavigationService.navigateTo(
+//                                 ChecklistView(
+//                                   storeName: widget.storeName,
+//                                   checkInTime: widget.checkInTime,
+//                                   storeId: widget.storeId,
+//                                   visiteId: 1,
+//                                 ),
+//                               );
+//                             } else if (viewModel.rosLabels[index].rosLabelID ==
+//                                 30) {
+//                               NavigationService.navigateTo(
+//                                 TrainingListView(
+//                                   storeName: widget.storeName,
+//                                   checkInTime: widget.checkInTime,
+//                                   storeId: widget.storeId,
+//                                 ),
+//                               );
+//                             } else if (viewModel.rosLabels[index].rosLabelID ==
+//                                 31) {
+//                               NavigationService.navigateTo(
+//                                 DisplayPicture(
+//                                   storeName: widget.storeName,
+//                                   checkInTime: widget.checkInTime,
+//                                   storeId: widget.storeId,
+//                                 ),
+//                               );
+//                             } else if (viewModel.rosLabels[index].rosLabelID ==
+//                                 32) {
+//                               if (isChecked == false) {
+//                                 AppSnackBar.showError(
+//                                   context,
+//                                   'Select the checkbox if you updated the store stock.',
+//                                 );
+//                               } else {
+//                                 NavigationService.navigateTo(
+//                                   DisplayAuditCheckSummary(
+//                                     storeName: widget.storeName,
+//                                     checkInTime: widget.checkInTime,
+//                                     storeId: widget.storeId,
+//                                   ),
+//                                 );
+//                               }
+//                             } else if (viewModel.rosLabels[index].rosLabelID ==
+//                                 33) {
+//                               if (widget.checkInTime != '0' &&
+//                                   widget.checkInTime != '') {
+//                                 NavigationService.navigateTo(
+//                                   TransferView(
+//                                     storeName: widget.storeName,
+//                                     checkInTime: widget.checkInTime,
+//                                     storeId: widget.storeId,
+//                                   ),
+//                                 );
+//                               } else {
+//                                 AppSnackBar.showError(
+//                                   context,
+//                                   'Please check in before transferring the products.',
+//                                 );
+//                               }
+//                             } else if (viewModel.rosLabels[index].rosLabelID ==
+//                                 35) {
+//                               NavigationService.navigateTo(
+//                                 ActivityView(
+//                                   storeName: widget.storeName,
+//                                   checkInTime: widget.checkInTime,
+//                                   storeId: widget.storeId,
+//                                 ),
+//                               );
+//                             } else if (viewModel.rosLabels[index].rosLabelID ==
+//                                 37) {
+//                               NavigationService.navigateTo(
+//                                 PriceView(
+//                                   storeName: widget.storeName,
+//                                   checkInTime: widget.checkInTime,
+//                                   storeId: widget.storeId,
+//                                   visiteId: 0,
+//                                 ),
+//                               );
+//                             } else if (viewModel.rosLabels[index].rosLabelID ==
+//                                 38) {
+//                               NavigationService.navigateTo(
+//                                 SaleView(
+//                                   storeName: widget.storeName,
+//                                   checkInTime: widget.checkInTime,
+//                                   storeId: widget.storeId,
+//                                 ),
+//                               );
+//                             } else {}
+//                           },
+//                           child: Container(
+//                             margin: EdgeInsets.symmetric(horizontal: 5),
+//                             padding: EdgeInsets.only(top: 15, bottom: 15),
+//                             decoration: BoxDecoration(
+//                               border: Border.all(color: AppColors.blackColor),
+//                               borderRadius: BorderRadius.circular(12),
+//                             ),
+//                             child: Column(
+//                               mainAxisAlignment: MainAxisAlignment.center,
+//                               children: [
+//                                 Image.network(
+//                                   '${ApiConstants.baseUrl}${viewModel.rosLabels[index].imageLocation}',
+//                                   height: 60,
+//                                   width: 60,
+//                                   fit: BoxFit.cover,
+//                                 ),
+//                                 SizedBox(height: 3),
+//                                 Text(
+//                                   viewModel.rosLabels[index].rosLabelName,
+//                                   style: TextStyle(
+//                                     color: AppColors.blackColor,
+//                                     fontSize: 14,
+//                                     fontWeight: FontWeight.bold,
+//                                   ),
+//                                 ),
+//                               ],
+//                             ),
+//                           ),
+//                         );
+                  

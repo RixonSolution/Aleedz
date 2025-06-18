@@ -197,7 +197,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Total',
+                      LabelService().getLabel(77),
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
@@ -424,17 +424,16 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                               );
                               return model.productModelName ?? '';
                             },
-                            dropdownDecoratorProps:
-                                const DropDownDecoratorProps(
-                                  dropdownSearchDecoration: InputDecoration(
-                                    hintText: 'Search Model',
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 0,
-                                      vertical: 12,
-                                    ),
-                                  ),
+                            dropdownDecoratorProps: DropDownDecoratorProps(
+                              dropdownSearchDecoration: InputDecoration(
+                                hintText: LabelService().getLabel(74),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 0,
+                                  vertical: 12,
                                 ),
+                              ),
+                            ),
                             popupProps: const PopupProps.menu(
                               showSearchBox: true,
                               searchFieldProps: TextFieldProps(
@@ -464,17 +463,17 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                         child: Row(
                           children: [
                             buildTextField(
-                              "Quantity",
+                              LabelService().getLabel(75),
                               quantityController,
                               onChanged: (_) => calculateTotal(),
                             ),
                             buildTextField(
-                              "Price",
+                              LabelService().getLabel(76),
                               priceController,
                               onChanged: (_) => calculateTotal(),
                             ),
                             buildTextField(
-                              "Total",
+                              LabelService().getLabel(77),
                               totalController,
                               readOnly: true,
                             ),
@@ -537,8 +536,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                       ),
                                       backgroundColor: AppColors.secondary,
                                     ),
-                                    child: const Text(
-                                      "Submit",
+                                    child: Text(
+                                      LabelService().getLabel(79),
                                       style: TextStyle(
                                         color: AppColors.whiteColor,
                                         fontWeight: FontWeight.bold,
@@ -603,7 +602,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                       child: Row(
                         children: [
                           Text(
-                            'Quantity',
+                            LabelService().getLabel(75),
+
                             style: TextStyle(
                               color: AppColors.whiteColor,
                               fontSize: 14,
@@ -612,7 +612,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                           ),
                           SizedBox(width: 20),
                           Text(
-                            'Total',
+                            LabelService().getLabel(77),
                             style: TextStyle(
                               color: AppColors.whiteColor,
                               fontSize: 14,

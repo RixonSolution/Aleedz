@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/models/product_price_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
@@ -148,7 +149,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                     viewModel.loader
                         ? Center(child: CircularProgressIndicator())
                         : Text(
-                          'Submit',
+                          LabelService().getLabel(73),
                           style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                   ],
@@ -297,7 +298,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                         );
                                       },
                                     ),
-                                    Text("Out of stock"),
+                                    Text(LabelService().getLabel(72)),
                                   ],
                                 ),
                                 Padding(
@@ -396,7 +397,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                                         decoration: InputDecoration(
                                                           contentPadding:
                                                               EdgeInsets.zero,
-                                                          hintText: 'RRP',
+                                                          hintText:
+                                                              LabelService()
+                                                                  .getLabel(69),
                                                           border:
                                                               OutlineInputBorder(),
                                                           filled: true,
@@ -454,7 +457,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                                         decoration: InputDecoration(
                                                           contentPadding:
                                                               EdgeInsets.zero,
-                                                          hintText: 'Net Price',
+                                                          hintText:
+                                                              LabelService()
+                                                                  .getLabel(70),
                                                           border:
                                                               OutlineInputBorder(),
                                                           filled: true,
@@ -590,7 +595,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                             );
                                           },
                                           decoration: InputDecoration(
-                                            labelText: 'Promotions',
+                                            labelText: LabelService().getLabel(
+                                              71,
+                                            ),
                                             border: OutlineInputBorder(),
                                             filled: true,
                                             fillColor:

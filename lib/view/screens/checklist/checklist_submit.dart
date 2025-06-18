@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/models/checklist_entry.dart';
 import 'package:aleedz/routes/navigation_services.dart';
@@ -172,7 +173,7 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                 loader
                     ? CircularProgressIndicator(color: AppColors.whiteColor)
                     : Text(
-                      "Submit",
+                      LabelService().getLabel(73),
                       style: TextStyle(
                         fontSize: 14,
                         color: AppColors.whiteColor,
@@ -594,7 +595,7 @@ class _ProductCardState extends State<ProductCard> {
                     }
                   },
                   decoration: InputDecoration(
-                    labelText: 'Description',
+                    labelText: LabelService().getLabel(66),
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Colors.grey[100],
@@ -700,7 +701,7 @@ class _QuantityBoxState extends State<QuantityBox> {
         },
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          hintText: 'Quantity',
+          hintText: LabelService().getLabel(63),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(4),
             borderSide: BorderSide(color: Colors.grey),
@@ -740,7 +741,7 @@ class _TextBoxState extends State<TextBox> {
         textAlign: TextAlign.center,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          hintText: 'Text',
+          hintText: LabelService().getLabel(65),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(4),
             borderSide: BorderSide(color: Colors.grey),

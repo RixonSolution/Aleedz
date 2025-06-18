@@ -33,7 +33,7 @@ class PriceServices {
     required String brandId,
     required String token,
   }) async {
-    final encodedStoreId = Uri.encodeComponent('5');
+    final encodedStoreId = Uri.encodeComponent(storeId);
     final encodedBrandId = Uri.encodeComponent(brandId);
     final encodedToken = Uri.encodeComponent(token);
 
@@ -62,7 +62,7 @@ class PriceServices {
     required String storeId,
     required String visiteId,
   }) async {
-    final encodedStoreId = Uri.encodeComponent('5');
+    final encodedStoreId = Uri.encodeComponent(storeId);
     final encodedBrandId = Uri.encodeComponent(brandId);
     final encodedToken = Uri.encodeComponent(token);
     final encodedVisitStatus = Uri.encodeComponent(visiteId);

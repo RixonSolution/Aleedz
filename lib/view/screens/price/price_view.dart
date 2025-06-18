@@ -175,7 +175,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                         SizedBox(
                                           width: 70,
                                           child: Text(
-                                            'Models Count',
+                                            LabelService().getLabel(67),
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               color: AppColors.blackColor,
@@ -188,7 +188,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                         SizedBox(
                                           width: 70,
                                           child: Text(
-                                            'Models Updated',
+                                            LabelService().getLabel(68),
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               color: AppColors.blackColor,
