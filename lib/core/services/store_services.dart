@@ -410,6 +410,33 @@ class StoreServices {
     }
   }
 
+  Future<Map<String, dynamic>?> getVisiteId({
+    required String storeId,
+    required String teamMemberId,
+    required String token,
+  }) async {
+    final encodedStoreId = Uri.encodeComponent(storeId);
+    final encodedTeamMemberId = Uri.encodeComponent(teamMemberId);
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse(
+      '${ApiConstants.getVisiteId}?StoreID=$encodedStoreId&TeamMemberID=$encodedTeamMemberId&_token=$encodedToken',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
   Future<File?> compressImage(File file) async {
     final dir = await getTemporaryDirectory();
     final targetPath = path.join(

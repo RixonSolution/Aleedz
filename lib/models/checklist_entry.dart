@@ -6,7 +6,9 @@ class ChecklistEntry {
   final String? checkListStatus;
   final String teamMemberID;
   final String visitID;
-  String? imagePath;
+  final String? description;
+
+  final String? imagePath;
 
   ChecklistEntry({
     required this.token,
@@ -16,10 +18,36 @@ class ChecklistEntry {
     this.checkListStatus,
     required this.teamMemberID,
     required this.visitID,
+    this.description,
+
     this.imagePath,
   });
 
-  // Optional: toJson for sending to API
+  ChecklistEntry copyWith({
+    String? token,
+    dynamic checklistAuditID,
+    String? checkListID,
+    String? storeID,
+    String? checkListStatus,
+    String? teamMemberID,
+    String? visitID,
+    String? description,
+
+    String? imagePath,
+  }) {
+    return ChecklistEntry(
+      token: token ?? this.token,
+      checklistAuditID: checklistAuditID ?? this.checklistAuditID,
+      checkListID: checkListID ?? this.checkListID,
+      storeID: storeID ?? this.storeID,
+      checkListStatus: checkListStatus ?? this.checkListStatus,
+      teamMemberID: teamMemberID ?? this.teamMemberID,
+      visitID: visitID ?? this.visitID,
+      description: description ?? this.description,
+      imagePath: imagePath ?? this.imagePath,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       '_token': token,
@@ -29,6 +57,7 @@ class ChecklistEntry {
       'CheckListStatus': checkListStatus,
       'TeamMemberID': teamMemberID,
       'VisitID': visitID,
+      'Checklist_Description': description,
       'CheckList_Img': imagePath,
     };
   }

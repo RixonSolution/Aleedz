@@ -115,15 +115,51 @@ class checklistViewModel extends ChangeNotifier {
     final index = checklistEntries.indexWhere(
       (e) => e.checkListID == newEntry.checkListID,
     );
+
     if (index != -1) {
-      // Update existing entry
-      checklistEntries[index] = newEntry;
+      final existingEntry = checklistEntries[index];
+      print('exist ${checklistEntries[index].description}');
+
+      // Merge values: new values overwrite old; old values are preserved if null
+      final mergedEntry = existingEntry.copyWith(
+        token: newEntry.token.isNotEmpty ? newEntry.token : null,
+        checklistAuditID:
+            newEntry.checklistAuditID ?? existingEntry.checklistAuditID,
+        storeID: newEntry.storeID.isNotEmpty ? newEntry.storeID : null,
+        checkListStatus:
+            newEntry.checkListStatus ?? existingEntry.checkListStatus,
+        teamMemberID:
+            newEntry.teamMemberID.isNotEmpty ? newEntry.teamMemberID : null,
+        visitID: newEntry.visitID.isNotEmpty ? newEntry.visitID : null,
+        imagePath: newEntry.imagePath ?? existingEntry.imagePath,
+        description: newEntry.description ?? existingEntry.description,
+      );
+
+      checklistEntries[index] = mergedEntry;
       notifyListeners();
     } else {
-      // Add new entry
+      print('new ${newEntry}');
+
       checklistEntries.add(newEntry);
       notifyListeners();
     }
+  }
+
+  String? getChecklistEntryDescription(String checkListID) {
+    return checklistEntries
+        .firstWhere(
+          (e) => e.checkListID == checkListID,
+          orElse:
+              () => ChecklistEntry(
+                token: '',
+                checklistAuditID: '0',
+                checkListID: checkListID,
+                storeID: '',
+                teamMemberID: '',
+                visitID: '',
+              ),
+        )
+        .description;
   }
 
   Future<void> checklistSubmit({
@@ -134,6 +170,8 @@ class checklistViewModel extends ChangeNotifier {
     required String checklistStatus,
     required String teamMemberId,
     required String visitId,
+    required String description,
+
     File? checkInImgFile,
   }) async {
     notifyListeners();
@@ -146,6 +184,7 @@ class checklistViewModel extends ChangeNotifier {
       checklistId: checklistId,
       checklistStatus: checklistStatus,
       visitId: visitId,
+      description: description,
       checkInImgFile: checkInImgFile,
     );
 

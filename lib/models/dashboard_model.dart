@@ -22,6 +22,7 @@ class DashboardModel {
   final String storeTypeName;
   final String imageLocation;
   final int visitTypeId;
+  final String gradeName;
 
   DashboardModel({
     required this.visitId,
@@ -47,6 +48,7 @@ class DashboardModel {
     required this.storeTypeName,
     required this.imageLocation,
     required this.visitTypeId,
+    required this.gradeName,
   });
 
   factory DashboardModel.fromJson(Map<String, dynamic> json) {
@@ -74,6 +76,7 @@ class DashboardModel {
       storeTypeName: json['StoreTypeName'],
       imageLocation: json['ImageLocation'],
       visitTypeId: json['VisitTypeID'],
+      gradeName: json['GradeName'],
     );
   }
 
@@ -102,6 +105,7 @@ class DashboardModel {
       'StoreTypeName': storeTypeName,
       'ImageLocation': imageLocation,
       'VisitTypeID': visitTypeId,
+      'GradeName': gradeName,
     };
   }
 }

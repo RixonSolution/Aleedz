@@ -132,6 +132,8 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
         checklistStatus: entry.checkListStatus.toString(),
         teamMemberId: entry.teamMemberID.toString(),
         visitId: entry.visitID.toString(),
+        description: entry.description.toString(),
+
         checkInImgFile: entry.imagePath != null ? File(entry.imagePath!) : null,
       );
 
@@ -156,7 +158,7 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
             onPressed: () async {
               await submitChecklistEntries();
 
-              viewModel.checklistEntries = [];
+              // viewModel.checklistEntries = [];
 
               AppSnackBar.showSuccess(context, 'Checklist submitted}');
 
@@ -274,6 +276,8 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                           return Column(
                             children: [
                               ProductCard(
+                                index1: index + 1,
+
                                 title:
                                     viewModel
                                         .checkListSubmitView[index]
@@ -466,7 +470,7 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                             );
                                           },
                                         ),
-                                index: index + 1,
+                                index: index,
                                 onPickImage: () {
                                   _showImagePickerDialog(
                                     'left',
@@ -511,18 +515,44 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                       .toString(),
                                 ),
 
-                                onDescriptionChanged: (value) {
+                                onChanged: (String value) {
                                   print(
                                     viewModel
                                         .checkListSubmitView[index]
                                         .checklistID,
                                   );
                                   print(
-                                    viewModel
-                                        .checkListSubmitView[index]
-                                        .checklistID,
+                                    "Description: $value",
+                                  ); // or answers[index].answer = value;
+
+                                  viewModel.addOrUpdateChecklistEntry(
+                                    ChecklistEntry(
+                                      token: viewModel.user?.apiToken ?? '',
+                                      checklistAuditID:
+                                          viewModel
+                                                      .checkListSubmitView[index]
+                                                      .checklistAuditID ==
+                                                  null
+                                              ? '0'
+                                              : viewModel
+                                                  .checkListSubmitView[index]
+                                                  .checklistAuditID,
+                                      checkListID:
+                                          viewModel
+                                              .checkListSubmitView[index]
+                                              .checklistID
+                                              .toString(),
+                                      storeID: widget.storeId.toString(),
+                                      // checkListStatus: value,
+                                      teamMemberID:
+                                          viewModel.user?.teamMemberID
+                                              .toString() ??
+                                          '',
+                                      visitID: widget.visiteId.toString(),
+                                      description: value,
+                                      // imagePath: '/new/path.jpg',
+                                    ),
                                   );
-                                  print("Description: $value");
                                 },
                               ),
 
@@ -542,18 +572,26 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
 class ProductCard extends StatefulWidget {
   final String title;
   final Widget optionWidget;
-  dynamic index;
-  final Function(String)? onDescriptionChanged;
+  final int index; // change from dynamic to int
+  final int index1; // change from dynamic to int
+
+  final Function(String)? onChanged;
   final String? imagePath;
   final Function()? onPickImage;
+  final String? initialDescription;
 
   ProductCard({
     required this.title,
     required this.optionWidget,
     required this.index,
-    this.onDescriptionChanged,
+    required this.index1,
+
+    this.onChanged,
     this.imagePath,
     this.onPickImage,
+    this.initialDescription,
+
+    Key? key,
   });
 
   @override
@@ -572,7 +610,7 @@ class _ProductCardState extends State<ProductCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${widget.index}. ',
+                '${widget.index1}. ',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               Expanded(
@@ -590,8 +628,8 @@ class _ProductCardState extends State<ProductCard> {
               Expanded(
                 child: TextField(
                   onChanged: (value) {
-                    if (widget.onDescriptionChanged != null) {
-                      widget.onDescriptionChanged!(value);
+                    if (widget.onChanged != null) {
+                      widget.onChanged!(value);
                     }
                   },
                   decoration: InputDecoration(
@@ -646,8 +684,28 @@ class _ToggleYesNoState extends State<ToggleYesNo> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [_buildOption('Yes'), SizedBox(width: 12), _buildOption('No')],
+    return Column(
+      children: [
+        Row(
+          children: [
+            _buildOption('Yes'),
+            SizedBox(width: 12),
+            _buildOption('No'),
+          ],
+        ),
+        Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 10, top: 5),
+              child: Text('Yes'),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10, top: 5),
+              child: Text('No'),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -739,7 +797,9 @@ class _TextBoxState extends State<TextBox> {
           }
         },
         textAlign: TextAlign.center,
+        maxLength: 10,
         decoration: InputDecoration(
+          counterText: '',
           contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           hintText: LabelService().getLabel(65),
           border: OutlineInputBorder(

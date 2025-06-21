@@ -35,7 +35,7 @@ class PriceViewModel extends ChangeNotifier {
     notifyListeners();
     print("Selected Channel ID: ${brand?.brandId}");
     if (brand != null) {
-      pricePromotion(storeId, brand.brandId!);
+      pricePromotion(storeId, brand.brandId);
     }
   }
 

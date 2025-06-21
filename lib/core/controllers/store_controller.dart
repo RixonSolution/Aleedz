@@ -154,4 +154,16 @@ class StoreController {
       pictureName: pictureName,
     );
   }
+
+  Future<Map<String, dynamic>?> getVisitId({
+    required String storeId,
+    required String teamMemberId,
+    required String token,
+  }) async {
+    return await _apiService.getVisiteId(
+      token: token,
+      storeId: storeId,
+      teamMemberId: teamMemberId,
+    );
+  }
 }

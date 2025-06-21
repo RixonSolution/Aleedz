@@ -450,7 +450,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
             StoreHome(
               storeName: store.storeName,
               checkInTime: store.checkInTime,
-              grade: 'A',
+              grade: store.gradName,
               address: store.address,
               storeId: store.storeId,
             ),
@@ -522,7 +522,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                 StoreHome(
                   storeName: store.storeName,
                   checkInTime: store.checkInTime,
-                  grade: 'A',
+                  grade: store.gradeName,
                   address: store.address,
                   storeId: store.storeId,
                 ),
@@ -795,7 +795,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                             storeName: selectedStore.storeName,
                                             checkInTime:
                                                 selectedStore.checkInTime,
-                                            grade: 'A',
+                                            grade: selectedStore.gradeName,
                                             address: selectedStore.address,
                                             storeId: selectedStore.storeId,
                                           ),
@@ -827,7 +827,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                           storeName: selectedStore.storeName,
                                           checkInTime:
                                               selectedStore.checkInTime,
-                                          grade: 'A',
+                                          grade: selectedStore.gradeName,
                                           address: selectedStore.address,
                                           storeId: selectedStore.storeId,
                                         ),

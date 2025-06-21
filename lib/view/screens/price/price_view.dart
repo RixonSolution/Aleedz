@@ -27,7 +27,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(priceModelProvider.notifier).loadPriceData(widget.storeId, 0);
+      ref.read(priceModelProvider.notifier).loadPriceData(widget.storeId, 1);
     });
   }
 
@@ -149,153 +149,146 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                     itemCount: viewModel.brands.length,
                     itemBuilder: (context, brandIndex) {
                       final brand = viewModel.brands[brandIndex];
-                      int index = brandIndex++;
+
+                      final productIndex = brandIndex + 1;
+
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            color: AppColors.darkGreyBackground,
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      brand.productCategoryName.toString(),
-                                      style: TextStyle(
-                                        color: AppColors.blackColor,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                          // 🟢 Header (if needed only once)
+                          if (brandIndex == 0)
+                            Container(
+                              color: AppColors.darkGreyBackground,
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    brand.brandName.toString(),
+                                    style: TextStyle(
+                                      color: AppColors.blackColor,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 70,
-                                          child: Text(
-                                            LabelService().getLabel(67),
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: AppColors.blackColor,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: 8),
-                                        SizedBox(
-                                          width: 70,
-                                          child: Text(
-                                            LabelService().getLabel(68),
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: AppColors.blackColor,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          ...viewModel.brands.asMap().entries.map((entry) {
-                            int productIndex =
-                                entry.key + 1; // Start from 1 (optional)
-                            var item = entry.value;
-
-                            return GestureDetector(
-                              onTap: () {
-                                NavigationService.navigateTo(
-                                  PriceSubmit(
-                                    storeName: widget.storeName,
-                                    checkInTime: widget.checkInTime,
-                                    storeId: widget.storeId,
-                                    brandId: item.brandID!,
-                                    visiteId: widget.visiteId,
-                                    productCategoryId: item.productCategoryID!,
                                   ),
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 6,
-                                  horizontal: 12,
-                                ),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 8),
-                                  color: AppColors.lightGreyBackground,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                  Row(
                                     children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text('$productIndex. '),
-                                                Text(
-                                                  item.productCategoryName
-                                                      .toString(),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  '$productIndex. ',
-                                                  style: TextStyle(
-                                                    color:
-                                                        AppColors
-                                                            .lightGreyBackground,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  item.updatedBy.toString(),
-                                                  style: TextStyle(
-                                                    color:
-                                                        item.updatedBy == '1'
-                                                            ? AppColors.primary
-                                                            : AppColors
-                                                                .blackColor,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            // SizedBox(width: 24),
-                                          ],
-                                        ),
-                                      ),
                                       SizedBox(
                                         width: 70,
                                         child: Text(
-                                          item.noOfModels.toString(),
+                                          LabelService().getLabel(67),
                                           textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
+                                      SizedBox(width: 8),
                                       SizedBox(
                                         width: 70,
                                         child: Text(
-                                          item.nofModelUpdated.toString(),
+                                          LabelService().getLabel(68),
                                           textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ),
+                                ],
+                              ),
+                            ),
+
+                          // 🔵 Brand Row
+                          GestureDetector(
+                            onTap: () {
+                              NavigationService.navigateTo(
+                                PriceSubmit(
+                                  storeName: widget.storeName,
+                                  checkInTime: widget.checkInTime,
+                                  storeId: widget.storeId,
+                                  brandId: brand.brandID!,
+                                  visiteId: widget.visiteId,
+                                  productCategoryId: brand.productCategoryID!,
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 6,
+                                horizontal: 12,
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                color: AppColors.lightGreyBackground,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text('$productIndex. '),
+                                              Text(
+                                                brand.productCategoryName
+                                                    .toString(),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                '$productIndex. ',
+                                                style: TextStyle(
+                                                  color:
+                                                      AppColors
+                                                          .lightGreyBackground,
+                                                ),
+                                              ),
+                                              Text(
+                                                brand.updatedBy.toString(),
+                                                style: TextStyle(
+                                                  color:
+                                                      brand.updatedBy == '1'
+                                                          ? AppColors.primary
+                                                          : AppColors
+                                                              .blackColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 70,
+                                      child: Text(
+                                        brand.noOfModels.toString(),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 70,
+                                      child: Text(
+                                        brand.nofModelUpdated.toString(),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            );
-                          }),
+                            ),
+                          ),
 
-                          const Divider(thickness: 1),
+                          Divider(thickness: 1),
                         ],
                       );
                     },

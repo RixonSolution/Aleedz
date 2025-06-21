@@ -36,10 +36,18 @@ class StoreHome extends ConsumerStatefulWidget {
 class _StoreHomeState extends ConsumerState<StoreHome> {
   @override
   void initState() {
-    Future.microtask(() {
-      ref.read(storeModelProvider.notifier).getROSLabels();
-    });
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
+    });
+  }
+
+  Future<void> _initializeData() async {
+    final notifier = ref.read(storeModelProvider.notifier);
+
+    await notifier.getROSLabels();
+    await notifier.getVisiteId(storeId: widget.storeId.toString());
   }
 
   bool isChecked = false;
@@ -124,6 +132,8 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
   }
 
   void _handleTap(BuildContext context, dynamic ros) {
+    final viewModel = ref.watch(storeModelProvider);
+
     final int id = ros.rosLabelID;
 
     switch (id) {
@@ -133,7 +143,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
             storeName: widget.storeName,
             checkInTime: widget.checkInTime,
             storeId: widget.storeId,
-            visiteId: 1,
+            visiteId: viewModel.visitId,
           ),
         );
         break;
@@ -202,7 +212,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
             storeName: widget.storeName,
             checkInTime: widget.checkInTime,
             storeId: widget.storeId,
-            visiteId: 0,
+            visiteId: viewModel.visitId,
           ),
         );
         break;

@@ -73,6 +73,8 @@ class ChecklistServices {
     required String checklistStatus,
     required String teamMemberId,
     required String visitId,
+    required String description,
+
     File? checkInImgFile,
   }) async {
     try {
@@ -105,7 +107,8 @@ class ChecklistServices {
         'StoreID=${Uri.encodeComponent(storeId)}&'
         'CheckListStatus=${Uri.encodeComponent(checklistStatus)}&'
         'TeamMemberID=${Uri.encodeComponent(teamMemberId)}&'
-        'VisitID=${Uri.encodeComponent(visitId)}',
+        'VisitID=${Uri.encodeComponent(visitId)}&'
+        'Checklist_Description=${Uri.encodeComponent(description)}',
       );
 
       var request = http.MultipartRequest('POST', url);

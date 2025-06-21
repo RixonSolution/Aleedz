@@ -1076,7 +1076,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                           viewModel
                                                               .dashBoardList[index]
                                                               .checkInTime,
-                                                      grade: 'A',
+                                                      grade:
+                                                          viewModel
+                                                              .dashBoardList[index]
+                                                              .gradeName,
+
                                                       address:
                                                           viewModel
                                                               .dashBoardList[index]
@@ -1169,7 +1173,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                           viewModel
                                                               .dashBoardList[index]
                                                               .checkInTime,
-                                                      grade: 'A',
+                                                      grade:
+                                                          viewModel
+                                                              .dashBoardList[index]
+                                                              .gradeName,
                                                       address:
                                                           viewModel
                                                               .dashBoardList[index]
@@ -1656,7 +1663,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                           checkInTime:
                                                               selectedStore
                                                                   .checkInTime,
-                                                          grade: 'A',
+                                                          grade:
+                                                              viewModel
+                                                                  .dashBoardList[index]
+                                                                  .gradeName,
                                                           address:
                                                               selectedStore
                                                                   .address,
@@ -1696,7 +1706,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                         checkInTime:
                                                             selectedStore
                                                                 .checkInTime,
-                                                        grade: 'A',
+                                                        grade:
+                                                            viewModel
+                                                                .dashBoardList[index]
+                                                                .gradeName,
                                                         address:
                                                             selectedStore
                                                                 .address,

@@ -34,6 +34,7 @@ class StoreViewModel extends ChangeNotifier {
 
   List<PictureViewModel> viewPicture = [];
   List<DashboardModel> dashBoardList = [];
+  int visitId = 1;
 
   bool leftImageRemoved = false; // Add this in your ViewModel
   bool rightImageRemoved = false;
@@ -578,6 +579,27 @@ class StoreViewModel extends ChangeNotifier {
       notifyListeners();
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> getVisiteId({required String storeId}) async {
+    final response = await _storeController.getVisitId(
+      token: user?.apiToken ?? '',
+      storeId: storeId,
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]["data"] as List;
+      if (data.isNotEmpty) {
+        visitId = data.first['VisitID'];
+      }
+
+      print('visit Id:$visitId');
+
+      notifyListeners();
+    } else {
+      debugPrint("visit Id = Error: ${response?['data']}");
     }
   }
 

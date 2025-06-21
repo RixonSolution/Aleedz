@@ -41,6 +41,8 @@ class ChecklistController {
     required String checklistStatus,
     required String teamMemberId,
     required String visitId,
+    required String description,
+
     File? checkInImgFile,
   }) async {
     return await _apiService.checklistSubmit(
@@ -51,6 +53,7 @@ class ChecklistController {
       checklistId: checklistId,
       checklistStatus: checklistStatus,
       visitId: visitId,
+      description: description,
       checkInImgFile: checkInImgFile,
     );
   }

@@ -86,7 +86,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
           .pricePromotionList(
             brandId: widget.brandId.toString(),
             productCategoryId: widget.productCategoryId.toString(),
-            storeId: widget.storeName,
+            storeId: widget.storeId.toString(),
             visiteId: widget.visiteId.toString(),
           );
     });
