@@ -6,10 +6,13 @@ import 'package:aleedz/models/brand_list_model.dart';
 import 'package:aleedz/models/brand_model.dart';
 import 'package:aleedz/models/chanel_mode.dart';
 import 'package:aleedz/models/product_selection_model.dart';
+import 'package:aleedz/models/product_transfer_model.dart'
+    show ProductTransferModel;
 import 'package:aleedz/models/transfer_check_brand.dart';
 import 'package:aleedz/models/transfer_model.dart';
 import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/models/user_model.dart';
+import 'package:aleedz/routes/navigation_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -36,6 +39,8 @@ class TransferViewModel extends ChangeNotifier {
   List<BrandListModel> brandList = [];
   List<ProductSelection> selectedProducts = [];
 
+  List<ProductTransferModel> selectedProducts1 = [];
+
   UserPermission? permission;
 
   List<Brand> brands = [];
@@ -49,6 +54,7 @@ class TransferViewModel extends ChangeNotifier {
     loader = true;
     auditList = [];
     selectedProducts = [];
+    selectedProducts1 = [];
     notifyListeners();
     final response = await _transferController.transferSubmitList(
       storeId: storeId.toString(),
@@ -83,6 +89,85 @@ class TransferViewModel extends ChangeNotifier {
       loader = false;
       notifyListeners();
     }
+  }
+
+  Future<void> transferSubmit({
+    required List<ProductTransferModel> transferModel,
+  }) async {
+    loader = true;
+    notifyListeners();
+
+    final response = await _transferController.transferSubmit(
+      transferModel: transferModel,
+    );
+
+    if (response != null && response["status"] == 200) {
+      NavigationService.goBack();
+      loader = false;
+      notifyListeners();
+    } else {
+      debugPrint("Transfer submit error: ${response?['data']}");
+      loader = false;
+      notifyListeners();
+    }
+  }
+
+  void addOrUpdateProductSelection({
+    required int productId,
+    required int isTransfer,
+    required int transferCount,
+    required String token,
+    required int storeId,
+    required String teamMemberId,
+    required String transferId,
+    required int visitId,
+  }) {
+    // 🔁 Update UI list
+    final index = selectedProducts.indexWhere((p) => p.productId == productId);
+    if (index != -1) {
+      selectedProducts[index]
+        ..displayCheck = isTransfer
+        ..displayCheckCount = transferCount;
+    } else {
+      selectedProducts.add(
+        ProductSelection(
+          productId: productId,
+          displayCheck: isTransfer,
+          displayCheckCount: transferCount,
+          token: token,
+          storeId: storeId.toString(),
+          teamMemberId: teamMemberId,
+        ),
+      );
+    }
+
+    // 🔁 Update Transfer submission list
+    final transferIndex = selectedProducts1.indexWhere(
+      (p) => p.productId == productId.toString(),
+    );
+
+    if (transferIndex != -1) {
+      // ✅ Update existing
+      selectedProducts1[transferIndex]
+        ..isTransfer = isTransfer.toString()
+        ..transferCount = transferCount.toString();
+    } else {
+      // ✅ Add new
+      selectedProducts1.add(
+        ProductTransferModel(
+          productId: productId.toString(),
+          isTransfer: isTransfer.toString(),
+          transferCount: transferCount.toString(),
+          token: token,
+          storeId: storeId.toString(),
+          teamMemberId: teamMemberId,
+          transferId: transferId,
+          visitId: visitId.toString(),
+        ),
+      );
+    }
+
+    notifyListeners();
   }
 
   Future<UserPermission?> loadStoredPermissions() async {

@@ -102,6 +102,22 @@ class checklistViewModel extends ChangeNotifier {
       final data = response["data"]['data'] as List;
       checkListSubmitView =
           data.map((e) => ChecklistSubmitModel.fromJson(e)).toList();
+
+      checklistEntries =
+          checkListSubmitView.map((item) {
+            return ChecklistEntry(
+              token: user?.apiToken ?? '',
+              checklistAuditID: item.checklistAuditID,
+              checkListID: item.checklistID?.toString() ?? '',
+              storeID: item.storeID?.toString() ?? '',
+              checkListStatus: item.checkListStatus?.toString(),
+              teamMemberID: user?.teamMemberID.toString() ?? '',
+              visitID: item.visitID?.toString() ?? visitedId,
+              description: item.descritpion?.toString(),
+              imagePath: '',
+            );
+          }).toList();
+
       loader = false;
       notifyListeners();
     } else {
@@ -162,6 +178,8 @@ class checklistViewModel extends ChangeNotifier {
         .description;
   }
 
+  Map<String, TextEditingController> descriptionControllers = {};
+
   Future<void> checklistSubmit({
     required String token,
     required String checklistAuditId,
@@ -171,7 +189,6 @@ class checklistViewModel extends ChangeNotifier {
     required String teamMemberId,
     required String visitId,
     required String description,
-
     File? checkInImgFile,
   }) async {
     notifyListeners();

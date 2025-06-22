@@ -212,6 +212,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                   brandId: brand.brandID!,
                                   visiteId: widget.visiteId,
                                   productCategoryId: brand.productCategoryID!,
+                                  productName:
+                                      brand.productCategoryName.toString(),
+                                  brandName: brand.brandName.toString(),
                                 ),
                               );
                             },

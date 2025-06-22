@@ -121,7 +121,7 @@ class PriceServices {
       }
 
       File? compressedImage;
-      if (checkInImgFile != null) {
+      if (checkInImgFile != null && checkInImgFile.path != '') {
         compressedImage = await compressImage(checkInImgFile);
       }
       final url = Uri.parse(
@@ -137,7 +137,7 @@ class PriceServices {
         'Installment_3Month=${Uri.encodeComponent(installment3Month)}&'
         'Installment_6Month=${Uri.encodeComponent(installment6Month)}&'
         'Installment_12Month=${Uri.encodeComponent(installment12Month)}&'
-        'IsOutOFStock=${Uri.encodeComponent(isOutOfStock)}&'
+        'IsOutOFStock=${Uri.encodeComponent('1')}&'
         'VisitID=${Uri.encodeComponent(visitId)}',
       );
 

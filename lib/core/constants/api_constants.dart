@@ -90,4 +90,7 @@ class ApiConstants {
   static String get checklistSubmit => "$baseUrl/Checklist.asmx/ChecklistAdd";
 
   static String get getVisiteId => "$baseUrl/WebService.asmx/GetVisitID";
+
+  static String get addProductTrasfer =>
+      "$baseUrl/ProductTransfer.asmx/TransferAdd";
 }

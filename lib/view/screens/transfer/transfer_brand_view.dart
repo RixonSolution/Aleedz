@@ -13,7 +13,7 @@ import 'package:intl/intl.dart';
 
 class TransferBrandView extends ConsumerStatefulWidget {
   String storeName, checkInTime, transferStore, transferStoreAddress;
-  int storeId;
+  int storeId, visiteId;
   TransferBrandView({
     Key? key,
     required this.storeName,
@@ -21,6 +21,7 @@ class TransferBrandView extends ConsumerStatefulWidget {
     required this.storeId,
     required this.transferStore,
     required this.transferStoreAddress,
+    required this.visiteId,
   }) : super(key: key);
 
   @override
@@ -276,6 +277,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                                     transferStore: widget.transferStore,
                                     transferStoreAddress:
                                         widget.transferStoreAddress,
+                                    visiteId: widget.visiteId,
                                   ),
                                 );
                               },

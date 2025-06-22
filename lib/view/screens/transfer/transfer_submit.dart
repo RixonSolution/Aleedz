@@ -4,6 +4,7 @@ import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/product_selection_model.dart';
+import 'package:aleedz/models/product_transfer_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:aleedz/viewmodel/transfer_viewmodel.dart';
@@ -21,7 +22,7 @@ class TransferSubmit extends ConsumerStatefulWidget {
       updateBy,
       transferStore,
       transferStoreAddress;
-  int storeId, categoryId;
+  int storeId, categoryId, visiteId;
   TransferSubmit({
     Key? key,
     required this.storeName,
@@ -33,6 +34,7 @@ class TransferSubmit extends ConsumerStatefulWidget {
     required this.updateBy,
     required this.transferStore,
     required this.transferStoreAddress,
+    required this.visiteId,
   }) : super(key: key);
 
   @override
@@ -45,6 +47,7 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
   @override
   void initState() {
     super.initState();
+
     Future.microtask(() {
       ref
           .read(transferModelProvider.notifier)
@@ -74,7 +77,11 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () async {},
+                      onPressed: () async {
+                        await viewModel.transferSubmit(
+                          transferModel: viewModel.selectedProducts1,
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         shape: const RoundedRectangleBorder(
                           borderRadius:
@@ -408,43 +415,82 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                             item.productId,
                                                       );
 
+                                                  // Toggle value based on previous state
+                                                  int newIsTransfer;
+                                                  int newCount;
+
                                                   if (existing != null) {
                                                     existing.displayCheck =
                                                         existing.displayCheck ==
                                                                 1
                                                             ? 0
                                                             : 1;
-                                                    // ✅ If availability is unchecked, also uncheck 'less than 2'
+
                                                     if (existing.displayCheck ==
                                                         0) {
                                                       existing
                                                           .displayCheckCount = 0;
                                                     }
+
+                                                    newIsTransfer =
+                                                        existing.displayCheck;
+                                                    newCount =
+                                                        existing
+                                                            .displayCheckCount;
                                                   } else {
-                                                    viewModel.selectedProducts
-                                                        .add(
-                                                          ProductSelection(
-                                                            productId:
-                                                                item.productId,
-                                                            displayCheck: 1,
-                                                            displayCheckCount:
-                                                                0,
-                                                            token:
-                                                                viewModel
-                                                                    .user!
-                                                                    .apiToken
-                                                                    .toString(),
-                                                            storeId:
-                                                                widget.storeId
-                                                                    .toString(),
-                                                            teamMemberId:
-                                                                viewModel
-                                                                    .user!
-                                                                    .teamMemberID
-                                                                    .toString(),
-                                                          ),
+                                                    final newProduct =
+                                                        ProductSelection(
+                                                          productId:
+                                                              item.productId,
+                                                          displayCheck: 1,
+                                                          displayCheckCount: 0,
+                                                          token:
+                                                              viewModel
+                                                                  .user!
+                                                                  .apiToken
+                                                                  .toString(),
+                                                          storeId:
+                                                              widget.storeId
+                                                                  .toString(),
+                                                          teamMemberId:
+                                                              viewModel
+                                                                  .user!
+                                                                  .teamMemberID
+                                                                  .toString(),
                                                         );
+
+                                                    viewModel.selectedProducts
+                                                        .add(newProduct);
+                                                    newIsTransfer = 1;
+                                                    newCount = 0;
                                                   }
+
+                                                  // Now call update after local state is changed
+                                                  viewModel
+                                                      .addOrUpdateProductSelection(
+                                                        productId:
+                                                            item.productId,
+                                                        isTransfer:
+                                                            newIsTransfer,
+                                                        transferCount: newCount,
+                                                        token:
+                                                            viewModel
+                                                                .user!
+                                                                .apiToken
+                                                                .toString(),
+                                                        storeId: widget.storeId,
+                                                        teamMemberId:
+                                                            viewModel
+                                                                .user!
+                                                                .teamMemberID
+                                                                .toString(),
+                                                        transferId:
+                                                            item.productId
+                                                                .toString(),
+                                                        visitId:
+                                                            widget.visiteId,
+                                                      );
+
                                                   viewModel.notifyListeners();
                                                 },
                                                 child: Padding(
@@ -612,13 +658,38 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                                     e.productId ==
                                                                     item.productId,
                                                               );
+
                                                           if (existing !=
-                                                              null) {
-                                                            existing.displayCheckCount =
-                                                                count;
+                                                                  null &&
+                                                              existing.displayCheck ==
+                                                                  1) {
+                                                            viewModel.addOrUpdateProductSelection(
+                                                              productId:
+                                                                  item.productId,
+                                                              isTransfer: 1,
+                                                              transferCount:
+                                                                  count,
+                                                              token:
+                                                                  viewModel
+                                                                      .user!
+                                                                      .apiToken
+                                                                      .toString(),
+                                                              storeId:
+                                                                  widget
+                                                                      .storeId,
+                                                              teamMemberId:
+                                                                  viewModel
+                                                                      .user!
+                                                                      .teamMemberID
+                                                                      .toString(),
+                                                              transferId:
+                                                                  item.productId
+                                                                      .toString(),
+                                                              visitId:
+                                                                  widget
+                                                                      .visiteId,
+                                                            );
                                                           }
-                                                          viewModel
-                                                              .notifyListeners();
                                                         },
                                                         style: TextStyle(
                                                           fontSize: 14,

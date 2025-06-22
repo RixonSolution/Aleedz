@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:aleedz/core/constants/api_constants.dart';
+import 'package:aleedz/models/product_transfer_model.dart';
 import 'package:http/http.dart' as http;
 
 class TransferServices {
@@ -169,5 +170,50 @@ class TransferServices {
       print('Unhandled error: $e');
       return null;
     }
+  }
+
+  Future<Map<String, dynamic>?> transferSubmit({
+    required List<ProductTransferModel> transferModelList,
+  }) async {
+    final List<dynamic> responses = [];
+
+    for (var transferModel in transferModelList) {
+      final queryParams = {
+        '_token': transferModel.token,
+        'TransferID': transferModel.transferId.toString(),
+        'ProductID': transferModel.productId.toString(),
+        'isTransfer': transferModel.isTransfer.toString(),
+        'TransferCount': transferModel.transferCount.toString(),
+        'TeamMemberID': transferModel.teamMemberId.toString(),
+        'StoreID': transferModel.storeId.toString(),
+        'VisitID': transferModel.visitId.toString(),
+      };
+
+      final uri = Uri.parse(
+        ApiConstants.addProductTrasfer,
+      ).replace(queryParameters: queryParams);
+
+      try {
+        final response = await http.get(
+          uri,
+          headers: {'Accept': 'application/json'},
+        );
+
+        final data = json.decode(response.body);
+        responses.add({
+          'productId': transferModel.productId,
+          'status': response.statusCode,
+          'data': data,
+        });
+      } catch (e) {
+        responses.add({
+          'productId': transferModel.productId,
+          'status': 500,
+          'error': e.toString(),
+        });
+      }
+    }
+
+    return {'status': 200, 'results': responses};
   }
 }

@@ -14,6 +14,7 @@ class ChecklistSubmitModel {
   dynamic visitID;
   dynamic checklistAuditID;
   dynamic checklistImage;
+  dynamic descritpion;
 
   ChecklistSubmitModel({
     this.checklistID,
@@ -31,6 +32,7 @@ class ChecklistSubmitModel {
     this.visitID,
     this.checklistAuditID,
     this.checklistImage,
+    this.descritpion,
   });
 
   ChecklistSubmitModel.fromJson(Map<String, dynamic> json) {
@@ -49,6 +51,7 @@ class ChecklistSubmitModel {
     visitID = json['VisitID'];
     checklistAuditID = json['Checklist_Audit_ID'];
     checklistImage = json['Checklist_Image'];
+    descritpion = json['Checklist_Description'];
   }
 
   Map<String, dynamic> toJson() {
@@ -68,6 +71,8 @@ class ChecklistSubmitModel {
     data['VisitID'] = this.visitID;
     data['Checklist_Audit_ID'] = this.checklistAuditID;
     data['Checklist_Image'] = this.checklistImage;
+    data['Checklist_Description'] = this.descritpion;
+
     return data;
   }
 }

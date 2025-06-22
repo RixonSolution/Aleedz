@@ -9,13 +9,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TransferView extends ConsumerStatefulWidget {
   String storeName, checkInTime;
-  int storeId;
+  int storeId, visiteId;
 
   TransferView({
     super.key,
     required this.storeName,
     required this.checkInTime,
     required this.storeId,
+    required this.visiteId,
   });
 
   @override
@@ -223,6 +224,7 @@ class _CoverageViewState extends ConsumerState<TransferView> {
                                   viewModel.transfer[index].storeName ?? '',
                               transferStoreAddress:
                                   viewModel.transfer[index].address ?? '',
+                              visiteId: widget.visiteId,
                             ),
                           );
                         },

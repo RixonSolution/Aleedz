@@ -96,7 +96,7 @@ class ChecklistServices {
       }
 
       File? compressedImage;
-      if (checkInImgFile != null) {
+      if (checkInImgFile != null && checkInImgFile.path != '') {
         compressedImage = await compressImage(checkInImgFile);
       }
       final url = Uri.parse(

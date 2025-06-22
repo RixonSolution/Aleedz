@@ -1,4 +1,5 @@
 import 'package:aleedz/core/services/transfer_services.dart';
+import 'package:aleedz/models/product_transfer_model.dart';
 
 class TransferController {
   final TransferServices _apiService = TransferServices();
@@ -71,5 +72,11 @@ class TransferController {
       categoryId: categoryId,
       visiteStatus: visiteStatus,
     );
+  }
+
+  Future<Map<String, dynamic>?> transferSubmit({
+    required List<ProductTransferModel> transferModel,
+  }) async {
+    return await _apiService.transferSubmit(transferModelList: transferModel);
   }
 }

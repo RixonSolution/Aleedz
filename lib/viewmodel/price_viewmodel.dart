@@ -7,6 +7,7 @@ import 'package:aleedz/models/price_list_model.dart';
 import 'package:aleedz/models/price_model.dart';
 import 'package:aleedz/models/product_price_model.dart';
 import 'package:aleedz/models/user_model.dart';
+import 'package:aleedz/routes/navigation_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -136,6 +137,28 @@ class PriceViewModel extends ChangeNotifier {
         response['data']['data'].map((x) => PriceListModel.fromJson(x)),
       );
       priceList = priceModelList;
+
+      // Map each PriceListModel into a ProductPriceEntry
+      productEntries =
+          priceModelList.map((item) {
+            return ProductPriceEntry(
+              token: user?.apiToken ?? '',
+              productId: item.productID?.toString() ?? '',
+              storeId: item.storeID?.toString() ?? '',
+              price: item.price?.toString() ?? '0',
+              promotion: item.promotion?.toString() ?? '',
+              priceTagPictureId: item.piceTagPictureID?.toString() ?? '',
+              teamMemberId: item.teamMemberID?.toString(),
+              netPrice: item.netPrice?.toString() ?? '0',
+              installment3Month: item.installment3Month?.toString() ?? '0',
+              installment6Month: item.installment6Month?.toString() ?? '0',
+              installment12Month: item.installment12Month?.toString() ?? '0',
+              isOutOfStock: item.isOutOFStock?.toString() == '1',
+              visitId: item.visitID?.toString() ?? '',
+              priceImage: null, // or add logic to map if you have image path
+            );
+          }).toList();
+
       loader = false;
       notifyListeners();
     } else {
@@ -203,6 +226,8 @@ class PriceViewModel extends ChangeNotifier {
     }
   }
 
+  Map<String, TextEditingController> priceControllers = {};
+
   Future<void> priceSubmit({
     required String productId,
     required String storeID,
@@ -243,7 +268,7 @@ class PriceViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> submitAllPrices() async {
+  Future<void> submitAllPrices(int storeId) async {
     loader = true;
     notifyListeners();
     for (var entry in productEntries) {
@@ -278,7 +303,9 @@ class PriceViewModel extends ChangeNotifier {
         break; // stop on error, or handle retry if needed
       }
     }
-    productEntries = [];
+    await loadPriceData(storeId, 1);
+    // productEntries = [];
+    NavigationService.goBack();
 
     loader = false;
     notifyListeners();
