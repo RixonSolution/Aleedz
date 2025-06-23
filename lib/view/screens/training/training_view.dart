@@ -1,8 +1,8 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
-import 'package:aleedz/models/activity_type_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/checklist/checklist_submit.dart';
+import 'package:aleedz/view/screens/training/training_stores.dart';
 import 'package:aleedz/viewmodel/checklist_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,40 +24,12 @@ class TrainingView extends ConsumerStatefulWidget {
 
 class _MyConsumerState extends ConsumerState<TrainingView> {
   TextEditingController searchController = TextEditingController();
-  List<ActivityModelType> filteredActivityType = [];
 
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      loadUserAndFetchCoverage();
-    });
-
-    searchController.addListener(() {
-      filterActivityList(searchController.text);
-    });
-  }
-
-  Future<void> loadUserAndFetchCoverage() async {
-    final notifier = ref.read(checklistModelProvider.notifier);
-    await notifier.loadActivity(widget.storeId.toString());
-    setState(() {
-      filteredActivityType = List.from(notifier.checkList);
-    });
-  }
-
-  void filterActivityList(String query) {
-    final lowerQuery = query.toLowerCase();
-    final fullList = ref.read(checklistModelProvider.notifier).checkList;
-
-    // setState(() {
-    //   filteredActivityType =
-    //       fullList.where((item) {
-    //         final name = item.activityTypeName?.toLowerCase() ?? '';
-    //         return name.contains(lowerQuery);
-    //       }).toList();
-    // });
-  }
+  final List<Map<String, dynamic>> trainings = [
+    {'training': 'Online Trainings'},
+    {'training': 'Classroom Trainings'},
+    {'training': 'Store Training'},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -150,72 +122,65 @@ class _MyConsumerState extends ConsumerState<TrainingView> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    if (filteredActivityType.isEmpty)
-                      const Expanded(
-                        child: Center(child: Text('No results found')),
-                      )
-                    else
-                      Expanded(
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(5),
-                          itemCount: filteredActivityType.length,
-                          itemBuilder: (context, index) {
-                            final activity = filteredActivityType[index];
 
-                            return Column(
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    NavigationService.navigateTo(
-                                      ChecklistSubmit(
-                                        storeName: widget.storeName,
-                                        checkInTime: widget.checkInTime,
-                                        storeId: widget.storeId,
-                                        checklistName:
-                                            activity.activityTypeName ?? '',
-                                        visiteId: 0,
-                                        checklistTypeId: 0,
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(5),
+                        itemCount: trainings.length,
+                        itemBuilder: (context, index) {
+                          final training = trainings[index];
+
+                          return Column(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  NavigationService.navigateTo(
+                                    TrainingStores(
+                                      storeName: widget.storeName,
+                                      checkInTime: widget.checkInTime,
+                                      storeId: widget.storeId,
+                                      trainingName: training['training'],
+                                    ),
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        width: 24,
+                                        child: Text(
+                                          '${index + 1}.',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.blackColor,
+                                          ),
+                                        ),
                                       ),
-                                    );
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                    ),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(
-                                          width: 24,
-                                          child: Text(
-                                            '${index + 1}.',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              color: AppColors.blackColor,
-                                            ),
+                                      Expanded(
+                                        child: Text(
+                                          training['training'],
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                            color: AppColors.blackColor,
                                           ),
                                         ),
-                                        Expanded(
-                                          child: Text(
-                                            activity.activityTypeName ?? '',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                              color: AppColors.blackColor,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const Divider(height: 25),
-                              ],
-                            );
-                          },
-                        ),
+                              ),
+                              const Divider(height: 25),
+                            ],
+                          );
+                        },
                       ),
+                    ),
                   ],
                 ),
       ),

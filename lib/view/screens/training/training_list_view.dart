@@ -31,7 +31,7 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      loadUserAndFetchCoverage();
+      // loadUserAndFetchCoverage();
     });
 
     searchController.addListener(() {
