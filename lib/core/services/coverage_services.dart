@@ -302,13 +302,15 @@ class CoverageServices {
     required String storeId,
     required String brandId,
     required String token,
+    required String visitId,
   }) async {
     final encodedStoreId = Uri.encodeComponent(storeId);
     final encodedBrandId = Uri.encodeComponent(brandId);
     final encodedToken = Uri.encodeComponent(token);
+    final encodedVisiId = Uri.encodeComponent(visitId);
 
     final url = Uri.parse(
-      '${ApiConstants.displayCheckSummary}?StoreID=$encodedStoreId&BrandID=$encodedBrandId&_token=$encodedToken',
+      '${ApiConstants.displayCheckSummary}?StoreID=$encodedStoreId&BrandID=$encodedBrandId&_token=$encodedToken&VisitID=$encodedVisiId',
     );
 
     try {
@@ -330,14 +332,16 @@ class CoverageServices {
     required String categoryId,
     required String brandId, // <-- new parameter
     required String token,
+    required String visitId,
   }) async {
     final encodedStoreId = Uri.encodeComponent(storeId);
     final encodedCategoryId = Uri.encodeComponent(categoryId);
     final encodedBrandId = Uri.encodeComponent(brandId); // <-- encode new param
     final encodedToken = Uri.encodeComponent(token);
+    final encodedVisitId = Uri.encodeComponent(visitId);
 
     final url = Uri.parse(
-      '${ApiConstants.checkAudit}?StoreID=$encodedStoreId&ProductCategoryID=$encodedCategoryId&BrandID=$encodedBrandId&_token=$encodedToken',
+      '${ApiConstants.checkAudit}?StoreID=$encodedStoreId&ProductCategoryID=$encodedCategoryId&BrandID=$encodedBrandId&_token=$encodedToken&VisitID=$encodedVisitId',
     );
 
     try {

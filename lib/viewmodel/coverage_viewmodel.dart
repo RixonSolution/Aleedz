@@ -405,6 +405,7 @@ class CoverageViewModel extends ChangeNotifier {
     int storeId,
     int categoryId,
     String brandId, // <-- new parameter
+    int visitId,
   ) async {
     loader = true;
     auditList = [];
@@ -414,6 +415,7 @@ class CoverageViewModel extends ChangeNotifier {
       categoryId: categoryId.toString(),
       token: user?.apiToken ?? '',
       brandId: brandId,
+      visitId: visitId.toString(),
     );
 
     if (response != null && response["status"] == 200) {

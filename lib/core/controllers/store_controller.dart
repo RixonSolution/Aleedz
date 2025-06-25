@@ -9,32 +9,6 @@ class StoreController {
     return await _apiService.getBrandDropDown(token: token);
   }
 
-  Future<Map<String, dynamic>?> displayCheckSummany({
-    required String storeId,
-    required String branddId,
-    required String token,
-  }) async {
-    return await _apiService.displayCheckSummary(
-      storeId: storeId,
-      brandId: branddId,
-      token: token,
-    );
-  }
-
-  Future<Map<String, dynamic>?> checkAudit({
-    required String storeId,
-    required String categoryId,
-    required String token,
-    required String brandId, // ➕ New parameter
-  }) async {
-    return await _apiService.checkAudit(
-      storeId: storeId,
-      categoryId: categoryId,
-      token: token,
-      brandId: brandId,
-    );
-  }
-
   Future<Map<String, dynamic>?> checkDisplayMaster({
     required String teamMemberId,
     required String storeId,
@@ -58,6 +32,7 @@ class StoreController {
     required String displayCheckMark,
     required String teamMemberId,
     required String brandId, // ➕ New parameter
+    required String visitId, // ➕ New parameter
 
     required List<File>
     checkInImages1, // List for DisplayCheckImage1 variations
@@ -73,6 +48,7 @@ class StoreController {
       checkInImages1: checkInImages1,
       checkInImages2: checkInImages2,
       brandId: brandId,
+      visitId: visitId,
     );
   }
 

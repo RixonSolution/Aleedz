@@ -9,12 +9,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DisplayAuditCheckSummary extends ConsumerStatefulWidget {
   String storeName, checkInTime;
-  int storeId;
+  int storeId, visitId;
   DisplayAuditCheckSummary({
     Key? key,
     required this.storeName,
     required this.checkInTime,
     required this.storeId,
+    required this.visitId,
   }) : super(key: key);
 
   @override
@@ -29,7 +30,9 @@ class _DisplayAuditCheckSummaryState
     super.initState();
     Future.microtask(() {
       ref.read(storeModelProvider.notifier).getBrandDropDown();
-      ref.read(storeModelProvider.notifier).checkSummary(widget.storeId, 0);
+      ref
+          .read(storeModelProvider.notifier)
+          .checkSummary(widget.storeId, 0, widget.visitId);
     });
   }
 
@@ -223,6 +226,7 @@ class _DisplayAuditCheckSummaryState
                                     lastUpdate: item.lastUpdate,
                                     updateBy: item.updateBy,
                                     brandId: brand.brandId.toString(),
+                                    visitId: widget.visitId,
                                   ),
                                 );
                               },

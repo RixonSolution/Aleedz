@@ -106,13 +106,14 @@ class CoverageController {
   Future<Map<String, dynamic>?> displayCheckSummany({
     required String storeId,
     required String branddId,
-
     required String token,
+    required String visitId,
   }) async {
     return await _apiService.displayCheckSummary(
       storeId: storeId,
       brandId: branddId,
       token: token,
+      visitId: visitId,
     );
   }
 
@@ -120,13 +121,15 @@ class CoverageController {
     required String storeId,
     required String categoryId,
     required String token,
-    required String brandId, // <-- new parameter
+    required String brandId,
+    required String visitId,
   }) async {
     return await _apiService.checkAudit(
       storeId: storeId,
       categoryId: categoryId,
       token: token,
       brandId: brandId,
+      visitId: visitId,
     );
   }
 

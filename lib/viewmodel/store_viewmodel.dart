@@ -86,7 +86,7 @@ class StoreViewModel extends ChangeNotifier {
     //   elementId: selectedPictureModel?.pictureElementId.toString() ?? '1',
     // );
     if (brand != null) {
-      await checkSummary(storeId, brand.brandId);
+      await checkSummary(storeId, brand.brandId, visitId);
     }
     loader = false;
     notifyListeners();
@@ -177,7 +177,7 @@ class StoreViewModel extends ChangeNotifier {
 
   bool loader = false;
 
-  Future<void> checkSummary(int storeId, int brandId) async {
+  Future<void> checkSummary(int storeId, int brandId, int visitId) async {
     loader = true;
     brands = [];
     notifyListeners();
@@ -185,6 +185,7 @@ class StoreViewModel extends ChangeNotifier {
       storeId: storeId.toString(),
       branddId: brandId.toString(),
       token: user?.apiToken ?? '',
+      visitId: visitId.toString(),
     );
 
     if (response != null && response["status"] == 200) {
@@ -248,7 +249,8 @@ class StoreViewModel extends ChangeNotifier {
   Future<void> checkAudit(
     int storeId,
     int categoryId,
-    String brandId, // <-- new parameter
+    String brandId,
+    int visitId,
   ) async {
     loader = true;
     auditList = [];
@@ -259,6 +261,7 @@ class StoreViewModel extends ChangeNotifier {
       categoryId: categoryId.toString(),
       token: user?.apiToken ?? '',
       brandId: brandId,
+      visitId: visitId.toString(),
     );
 
     if (response != null && response["status"] == 200) {
@@ -367,7 +370,8 @@ class StoreViewModel extends ChangeNotifier {
     int storeId,
     String productCategoryId,
     String displayCheckMark,
-    String brandId, { // ➕ New parameter
+    String brandId,
+    int visitId, { // ➕ New parameter
     required List<File> checkInImages1, // For DisplayCheckImage1 variations
     required List<File> checkInImages2, // For DisplayCheckImage2 variations
   }) async {
@@ -383,6 +387,7 @@ class StoreViewModel extends ChangeNotifier {
       checkInImages1: checkInImages1,
       checkInImages2: checkInImages2,
       brandId: brandId,
+      visitId: visitId.toString(),
     );
 
     if (response != null && response["status"] == 200) {

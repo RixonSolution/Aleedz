@@ -28,33 +28,6 @@ class StoreServices {
     }
   }
 
-  Future<Map<String, dynamic>?> displayCheckSummary({
-    required String storeId,
-    required String brandId,
-    required String token,
-  }) async {
-    final encodedStoreId = Uri.encodeComponent(storeId);
-    final encodedBrandId = Uri.encodeComponent(brandId);
-    final encodedToken = Uri.encodeComponent(token);
-
-    final url = Uri.parse(
-      '${ApiConstants.displayCheckSummary}?StoreID=$encodedStoreId&BrandID=$encodedBrandId&_token=$encodedToken',
-    );
-
-    try {
-      final response = await http.get(
-        url,
-        headers: {'Accept': 'application/json'},
-      );
-
-      final data = json.decode(response.body);
-      return {"status": response.statusCode, "data": data};
-    } catch (e) {
-      print('Unhandled error: $e');
-      return null;
-    }
-  }
-
   Future<Map<String, dynamic>?> checkAudit({
     required String storeId,
     required String categoryId,
@@ -122,6 +95,7 @@ class StoreServices {
     required String displayCheckMark,
     required String teamMemberId,
     required String brandId, // ➕ New parameter
+    required String visitId, // ➕ New parameter
 
     required List<File> checkInImages1, // For DisplayCheckImage1, 1_2, 1_3
     required List<File> checkInImages2, // For DisplayCheckImage2, 2_2, 2_3
@@ -173,6 +147,7 @@ class StoreServices {
       request.fields['DisplayCheckRemarks'] = displayCheckMark;
       request.fields['BrandID'] = brandId; // ➕ Added BrandID here
       request.fields['TeamMemberID'] = teamMemberId;
+      request.fields['VisitID'] = visitId;
 
       // Add multiple image files
       await addCompressedImages(

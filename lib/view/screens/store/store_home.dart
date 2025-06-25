@@ -158,19 +158,12 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
         break;
       case 31:
         NavigationService.navigateTo(
-          TrainingListView(
+          DisplayPicture(
             storeName: widget.storeName,
             checkInTime: widget.checkInTime,
             storeId: widget.storeId,
           ),
         );
-        // NavigationService.navigateTo(
-        //   DisplayPicture(
-        //     storeName: widget.storeName,
-        //     checkInTime: widget.checkInTime,
-        //     storeId: widget.storeId,
-        //   ),
-        // );
         break;
       case 32:
         if (!isChecked) {
@@ -184,6 +177,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
               storeName: widget.storeName,
               checkInTime: widget.checkInTime,
               storeId: widget.storeId,
+              visitId: viewModel.visitId,
             ),
           );
         }

@@ -1,36 +1,35 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/checklist/checklist_submit.dart';
-import 'package:aleedz/view/screens/training/training_promoter.dart';
 import 'package:aleedz/viewmodel/checklist_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TrainingStores extends ConsumerStatefulWidget {
+class TrainingSubmit extends ConsumerStatefulWidget {
   String checkInTime, storeName, trainingName;
-  int storeId;
+  int storeId, storeCount;
 
-  TrainingStores({
+  TrainingSubmit({
     Key? key,
     required this.checkInTime,
     required this.storeName,
     required this.storeId,
     required this.trainingName,
+    required this.storeCount,
   }) : super(key: key);
 
   @override
-  ConsumerState<TrainingStores> createState() => _MyConsumerState();
+  ConsumerState<TrainingSubmit> createState() => _MyConsumerState();
 }
 
-class _MyConsumerState extends ConsumerState<TrainingStores> {
+class _MyConsumerState extends ConsumerState<TrainingSubmit> {
   TextEditingController searchController = TextEditingController();
   final Set<int> selectedIndexes = {};
 
   final List<Map<String, dynamic>> trainings = [
-    {'training': 'Store Name 1', 'address': 'Address Of Store'},
-    {'training': 'Store Name 2', 'address': 'Address Of Store'},
-    {'training': 'Store Name 3', 'address': 'Address Of Store'},
+    {'training': 'Promoter Name 1', 'address': 'Store Name'},
+    {'training': 'Promoter Name 2', 'address': 'Store Name'},
+    {'training': 'Promoter Name 3', 'address': 'Store Name'},
   ];
 
   @override
@@ -43,17 +42,7 @@ class _MyConsumerState extends ConsumerState<TrainingStores> {
           margin: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           color: Colors.white,
           child: ElevatedButton(
-            onPressed: () async {
-              NavigationService.navigateTo(
-                TrainingPromoter(
-                  storeName: widget.storeName,
-                  checkInTime: widget.checkInTime,
-                  storeId: widget.storeId,
-                  trainingName: widget.trainingName,
-                  storeCount: selectedIndexes.length,
-                ),
-              );
-            },
+            onPressed: () async {},
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.secondary,
               padding: EdgeInsets.symmetric(vertical: 16),
@@ -62,7 +51,7 @@ class _MyConsumerState extends ConsumerState<TrainingStores> {
               ),
             ),
             child: Text(
-              'Next',
+              'Submit',
               style: TextStyle(fontSize: 14, color: AppColors.whiteColor),
             ),
           ),
@@ -134,71 +123,71 @@ class _MyConsumerState extends ConsumerState<TrainingStores> {
                         ),
                       ),
                     ),
-
                     Container(
                       margin: EdgeInsets.symmetric(vertical: 8),
                       padding: EdgeInsets.symmetric(vertical: 12),
 
                       decoration: BoxDecoration(color: AppColors.secondary),
-                      child: Center(
-                        child: Text(
-                          widget.trainingName,
-                          style: TextStyle(
-                            color: AppColors.whiteColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
+                      child: Column(
+                        children: [
+                          Center(
+                            child: Text(
+                              'Training ID : 3030',
+                              style: TextStyle(
+                                color: AppColors.whiteColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                        ),
+                          Center(
+                            child: Text(
+                              widget.trainingName,
+                              style: TextStyle(
+                                color: AppColors.whiteColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
                       ),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200], // Light grey background
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      decoration: BoxDecoration(color: AppColors.secondary),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          /// Search TextField
-                          Expanded(
-                            child: TextField(
-                              controller: searchController,
-                              style: const TextStyle(
-                                color: AppColors.blackColor,
-                              ),
-                              decoration: const InputDecoration(
-                                hintText: 'Search',
-                                hintStyle: TextStyle(color: AppColors.greyText),
-                                border: InputBorder.none, // 🔴 Remove underline
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 12,
+                          Row(
+                            children: [
+                              Text(
+                                '#   ',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: AppColors.whiteColor,
                                 ),
                               ),
-                            ),
-                          ),
-
-                          /// Selected Count
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 25,
-                              vertical: 15,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[500],
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                            child: Text(
-                              "${selectedIndexes.length}", // <- Use your selected count
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                              Text(
+                                'Attendese Details',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: AppColors.whiteColor,
+                                ),
                               ),
+                            ],
+                          ),
+                          Text(
+                            'Score %',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              color: AppColors.whiteColor,
                             ),
                           ),
                         ],
@@ -209,6 +198,7 @@ class _MyConsumerState extends ConsumerState<TrainingStores> {
 
                     Expanded(
                       child: ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
                         padding: const EdgeInsets.all(5),
                         itemCount: trainings.length,
                         itemBuilder: (context, index) {
