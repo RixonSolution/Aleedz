@@ -1,10 +1,9 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
-import 'package:aleedz/models/activity_type_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/checklist/checklist_submit.dart';
+import 'package:aleedz/view/screens/training/training_promoter.dart';
 import 'package:aleedz/view/screens/training/training_view.dart';
-import 'package:aleedz/viewmodel/checklist_viewmodel.dart';
+import 'package:aleedz/viewmodel/training_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,72 +23,22 @@ class TrainingListView extends ConsumerStatefulWidget {
 }
 
 class _MyConsumerState extends ConsumerState<TrainingListView> {
-  TextEditingController searchController = TextEditingController();
-  List<ActivityModelType> filteredActivityType = [];
-
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
-      // loadUserAndFetchCoverage();
-    });
-
-    searchController.addListener(() {
-      filterActivityList(searchController.text);
+      loadUserAndFetchCoverage();
     });
   }
 
   Future<void> loadUserAndFetchCoverage() async {
-    final notifier = ref.read(checklistModelProvider.notifier);
-    await notifier.loadActivity(widget.storeId.toString());
-    setState(() {
-      filteredActivityType = List.from(notifier.checkList);
-    });
+    final notifier = ref.read(trainingModelProvider.notifier);
+    await notifier.loadTraining(widget.storeId.toString());
   }
-
-  void filterActivityList(String query) {
-    final lowerQuery = query.toLowerCase();
-    final fullList = ref.read(checklistModelProvider.notifier).checkList;
-
-    // setState(() {
-    //   filteredActivityType =
-    //       fullList.where((item) {
-    //         final name = item.activityTypeName?.toLowerCase() ?? '';
-    //         return name.contains(lowerQuery);
-    //       }).toList();
-    // });
-  }
-
-  final List<Map<String, dynamic>> trainings = [
-    {
-      'id': 9992,
-      'category': 'Product Category',
-      'description':
-          'Description of trainings Description of trainings Description of trainings',
-      'date': '20-01-2024',
-      'attendees': 4,
-    },
-    {
-      'id': 9993,
-      'category': 'Product Category',
-      'description':
-          'Description of trainings Description of trainings Description of trainings',
-      'date': '20-01-2024',
-      'attendees': 4,
-    },
-    {
-      'id': 9994,
-      'category': 'Product Category',
-      'description':
-          'Description of trainings Description of trainings Description of trainings',
-      'date': '20-01-2024',
-      'attendees': 4,
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(checklistModelProvider);
+    final viewModel = ref.watch(trainingModelProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -99,15 +48,24 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
           color: Colors.white,
           child: ElevatedButton(
             onPressed: () {
-              // Handle submit action here
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    "Form Submitted!",
-                    style: TextStyle(color: AppColors.whiteColor),
-                  ),
+              NavigationService.navigateTo(
+                TrainingPromoter(
+                  storeName: widget.storeName,
+                  checkInTime: widget.checkInTime,
+                  storeId: widget.storeId,
+                  trainingName: '',
+                  storeCount: 0,
                 ),
               );
+
+              // ScaffoldMessenger.of(context).showSnackBar(
+              //   SnackBar(
+              //     content: Text(
+              //       "Form Submitted!",
+              //       style: TextStyle(color: AppColors.whiteColor),
+              //     ),
+              //   ),
+              // );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.secondary,
@@ -243,9 +201,9 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
                     ),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: trainings.length,
+                        itemCount: viewModel.trainingList.length,
                         itemBuilder: (context, index) {
-                          final training = trainings[index];
+                          final training = viewModel.trainingList[index];
                           return GestureDetector(
                             onTap: () {
                               NavigationService.navigateTo(
@@ -282,25 +240,28 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Training ID: ${training['id']}',
+                                          'Training ID: ${viewModel.trainingList[index].trainingID}',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          '${training['category']}',
+                                          'Product Category',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         SizedBox(height: 4),
                                         Text(
-                                          training['description'],
+                                          viewModel
+                                              .trainingList[index]
+                                              .description
+                                              .toString(),
                                           style: TextStyle(fontSize: 12),
                                         ),
                                         SizedBox(height: 4),
                                         Text(
-                                          'Date: ${training['date']}',
+                                          'Date: ${viewModel.trainingList[index].trainingDateTime.toString()}',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 12,
@@ -314,7 +275,7 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
                                     child: Padding(
                                       padding: const EdgeInsets.only(right: 8),
                                       child: Text(
-                                        '${training['attendees']}',
+                                        '${viewModel.trainingList[index].attendese.toString()}',
                                         textAlign: TextAlign.end,
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,

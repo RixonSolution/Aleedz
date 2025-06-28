@@ -1,9 +1,8 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/checklist/checklist_submit.dart';
 import 'package:aleedz/view/screens/training/training_model_view.dart';
-import 'package:aleedz/viewmodel/checklist_viewmodel.dart';
+import 'package:aleedz/viewmodel/training_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,6 +36,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
   ];
 
   List<String> promoterNames = [];
+  List<String> promoterNames1 = [];
 
   void addName() {
     final name = nameController.text.trim();
@@ -46,6 +46,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
         nameController.clear();
       });
     }
+    addPromoterName(name);
   }
 
   void removeName(int index) {
@@ -54,9 +55,32 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
     });
   }
 
+  void addPromoterName(String name) {
+    if (promoterNames1.contains(name)) {
+      promoterNames1.remove(name);
+      setState(() {});
+    } else {
+      promoterNames1.add(name);
+      setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      loadUserAndFetchPromoter();
+    });
+  }
+
+  Future<void> loadUserAndFetchPromoter() async {
+    final notifier = ref.read(trainingModelProvider.notifier);
+    await notifier.getPromoterList(storeId: widget.storeId.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(checklistModelProvider);
+    final viewModel = ref.watch(trainingModelProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -73,6 +97,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                   trainingName: widget.trainingName,
                   storeCount: widget.storeCount,
                   promotorCount: selectedIndexes.length,
+                  promoterNames1: promoterNames1,
 
                   // checklistName: training['training'],
                 ),
@@ -221,9 +246,8 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         padding: const EdgeInsets.all(5),
-                        itemCount: trainings.length,
+                        itemCount: viewModel.promoterList.length,
                         itemBuilder: (context, index) {
-                          final training = trainings[index];
                           final isSelected = selectedIndexes.contains(index);
 
                           return Column(
@@ -258,7 +282,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    '${training['training']}',
+                                                    '${viewModel.promoterList[index].teamMemberName}',
                                                     style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.w700,
@@ -268,7 +292,10 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                                     ),
                                                   ),
                                                   Text(
-                                                    training['address'],
+                                                    viewModel
+                                                        .promoterList[index]
+                                                        .storeName
+                                                        .toString(),
                                                     style: const TextStyle(
                                                       fontSize: 12,
                                                       color:
@@ -293,6 +320,12 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                             selectedIndexes.add(index);
                                           }
                                         });
+                                        addPromoterName(
+                                          viewModel
+                                              .promoterList[index]
+                                              .teamMemberName
+                                              .toString(),
+                                        );
                                       },
                                       child: Container(
                                         width: 24,
@@ -491,7 +524,10 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                   flex: 2,
                                   child: Center(
                                     child: InkWell(
-                                      onTap: () => removeName(index),
+                                      onTap: () {
+                                        removeName(index);
+                                        addPromoterName(name);
+                                      },
                                       child: Container(
                                         padding: const EdgeInsets.all(4),
                                         decoration: BoxDecoration(

@@ -1,8 +1,9 @@
 import 'dart:io';
-
-import 'package:aleedz/core/controllers/checklist_controller.dart';
+import 'package:aleedz/core/controllers/training_controller.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
-import 'package:aleedz/models/activity_type_model.dart';
+import 'package:aleedz/models/promoter_list_model.dart';
+import 'package:aleedz/models/trainig_model.dart';
+import 'package:aleedz/models/training_model.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,10 +14,13 @@ final trainingModelProvider = ChangeNotifierProvider<TrainingViewModel>((ref) {
 });
 
 class TrainingViewModel extends ChangeNotifier {
-  final ChecklistController _checkController = ChecklistController();
+  final TrainingController _checkController = TrainingController();
 
   UserModel? user;
-  List<ActivityModelType> activityType = [];
+  List<TrainingListModel> trainingList = [];
+  List<PromoterListModel> promoterList = [];
+  List<TraingModel> trainingModel = [];
+
   final ImagePicker picker = ImagePicker();
 
   List<File> rightImages = []; // instead of File? rightImage;
@@ -58,11 +62,11 @@ class TrainingViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> getActivityType({required String storeId}) async {
-    activityType = [];
+  Future<void> getTrainingList({required String storeId}) async {
+    trainingList = [];
     notifyListeners();
 
-    final response = await _checkController.checklistType(
+    final response = await _checkController.trainingList(
       token: user?.apiToken ?? '',
       storeId: storeId,
       teamMemberId: user?.teamMemberID.toString() ?? '',
@@ -70,20 +74,109 @@ class TrainingViewModel extends ChangeNotifier {
 
     if (response != null && response["status"] == 200) {
       final data = response["data"]['data'] as List;
-      activityType = data.map((e) => ActivityModelType.fromJson(e)).toList();
+      trainingList = data.map((e) => TrainingListModel.fromJson(e)).toList();
 
       notifyListeners();
     } else {
-      debugPrint("coverage list Error: ${response?['data']}");
+      debugPrint("training list Error: ${response?['data']}");
     }
   }
 
-  Future loadActivity(String storeId) async {
-    activityType = [];
+  Future<void> getPromoterList({required String storeId}) async {
+    loader = true;
+    promoterList = [];
+    notifyListeners();
+
+    final response = await _checkController.promoterList(
+      token: user?.apiToken ?? '',
+      storeId: storeId,
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'] as List;
+      promoterList = data.map((e) => PromoterListModel.fromJson(e)).toList();
+      loader = false;
+      notifyListeners();
+    } else {
+      loader = false;
+      notifyListeners();
+      debugPrint("promoter list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> getTrainingModelList() async {
+    loader = true;
+    trainingModel = [];
+    notifyListeners();
+
+    final response = await _checkController.trainingModelList(
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'] as List;
+      trainingModel = data.map((e) => TraingModel.fromJson(e)).toList();
+      loader = false;
+      notifyListeners();
+    } else {
+      loader = false;
+      notifyListeners();
+      debugPrint("model list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> trainingSubmit({
+    required String storeId,
+    required String description,
+    required String trainingDateTime,
+    required String startTime,
+    required String endTime,
+    required String attendeseTypeId,
+    required String trainingTypeId,
+    required String trainingTitle,
+    required String noOfAttendees,
+    required String attendees,
+    required String store,
+    required String trainingModel,
+    File? file,
+  }) async {
+    loader = true;
+    notifyListeners();
+
+    final response = await _checkController.trainingSubmit(
+      token: user?.apiToken ?? '',
+      storeId: storeId,
+      description: description,
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      trainingDateTime: trainingDateTime,
+      startTime: startTime,
+      endTime: endTime,
+      attendeseTypeId: attendeseTypeId,
+      trainingTypeId: trainingTypeId,
+      trainingTitle: trainingTitle,
+      noOfAttendees: noOfAttendees,
+      attendees: attendees,
+      store: store,
+      trainingModel: trainingModel,
+      file: file,
+    );
+
+    if (response != null && response["status"] == 200) {
+      loader = false;
+      notifyListeners();
+    } else {
+      loader = false;
+      notifyListeners();
+      debugPrint("training submit Error: ${response?['data']}");
+    }
+  }
+
+  Future loadTraining(String storeId) async {
+    trainingList = [];
     loader = true;
     notifyListeners();
     await loadUser();
-    await getActivityType(storeId: storeId);
+    await getTrainingList(storeId: storeId);
     loader = false;
     notifyListeners();
   }

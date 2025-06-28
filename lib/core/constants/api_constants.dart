@@ -93,4 +93,14 @@ class ApiConstants {
 
   static String get addProductTrasfer =>
       "$baseUrl/ProductTransfer.asmx/TransferAdd";
+
+  static String get trainingList => "$baseUrl/Trainings.asmx/TrainingList";
+
+  static String get promoterList =>
+      "$baseUrl/Trainings.asmx/TrainingPromoterList";
+
+  static String get trainingModel =>
+      "$baseUrl/Trainings.asmx/TrainingModelsList";
+
+  static String get trainingSubmit => "$baseUrl/Trainings.asmx/TrainingAdd";
 }

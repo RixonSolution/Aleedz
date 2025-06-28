@@ -1,10 +1,6 @@
-import 'dart:io';
-
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/training/training_submit.dart';
-import 'package:aleedz/viewmodel/checklist_viewmodel.dart';
 import 'package:aleedz/viewmodel/training_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class TrainingModelView extends ConsumerStatefulWidget {
   String checkInTime, storeName, trainingName;
   int storeId, storeCount, promotorCount;
+  List<String> promoterNames1;
 
   TrainingModelView({
     Key? key,
@@ -21,6 +18,7 @@ class TrainingModelView extends ConsumerStatefulWidget {
     required this.trainingName,
     required this.storeCount,
     required this.promotorCount,
+    required this.promoterNames1,
   }) : super(key: key);
 
   @override
@@ -28,7 +26,9 @@ class TrainingModelView extends ConsumerStatefulWidget {
 }
 
 class _MyConsumerState extends ConsumerState<TrainingModelView> {
-  TextEditingController searchController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController titleController = TextEditingController();
+
   final Set<int> selectedIndexes = {};
 
   final List<Map<String, dynamic>> trainings = [
@@ -108,6 +108,33 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
 
   TimeOfDay? startTime;
   TimeOfDay? endTime;
+  List<String> selectedTraining = [];
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      loadUserAndFetchModel();
+    });
+  }
+
+  Future<void> loadUserAndFetchModel() async {
+    final notifier = ref.read(trainingModelProvider.notifier);
+    await notifier.getTrainingModelList();
+    print(widget.promoterNames1);
+  }
+
+  String formatList(List<String> names) {
+    return names
+        .asMap()
+        .entries
+        .map((entry) {
+          final index = entry.key + 1;
+          final name = entry.value;
+          return '$index:$name';
+        })
+        .join(':');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,14 +147,29 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
           color: Colors.white,
           child: ElevatedButton(
             onPressed: () async {
-              NavigationService.navigateTo(
-                TrainingSubmit(
-                  storeName: widget.storeName,
-                  checkInTime: widget.checkInTime,
-                  storeId: widget.storeId,
-                  trainingName: widget.trainingName,
-                  storeCount: widget.storeCount,
-                ),
+              // NavigationService.navigateTo(
+              //   TrainingSubmit(
+              //     storeName: widget.storeName,
+              //     checkInTime: widget.checkInTime,
+              //     storeId: widget.storeId,
+              //     trainingName: widget.trainingName,
+              //     storeCount: widget.storeCount,
+              //   ),
+              // );
+
+              viewModel.trainingSubmit(
+                storeId: widget.storeId.toString(),
+                description: descriptionController.text,
+                trainingDateTime: DateTime.now().toString(),
+                startTime: startTime.toString(),
+                endTime: endTime.toString(),
+                attendeseTypeId: '1',
+                trainingTypeId: '1',
+                trainingTitle: titleController.text,
+                noOfAttendees: widget.promoterNames1.length.toString(),
+                attendees: formatList(widget.promoterNames1),
+                store: widget.storeId.toString(),
+                trainingModel: selectedTraining.join(',').trim(),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -244,7 +286,7 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: TextField(
-                                  controller: searchController,
+                                  controller: descriptionController,
                                   enabled: false,
                                   style: const TextStyle(
                                     color: AppColors.blackColor,
@@ -277,7 +319,7 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: TextField(
-                                  controller: searchController,
+                                  controller: descriptionController,
                                   enabled: false,
                                   style: const TextStyle(
                                     color: AppColors.blackColor,
@@ -306,13 +348,14 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                       const SizedBox(height: 20),
 
                       ListView.builder(
-                        shrinkWrap: true, // 🔥 Important
+                        shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
                         padding: const EdgeInsets.all(5),
-                        itemCount: trainings.length,
+                        itemCount: viewModel.trainingModel.length,
                         itemBuilder: (context, index) {
-                          final training = trainings[index];
                           final isSelected = selectedIndexes.contains(index);
+                          final itemString =
+                              '${viewModel.trainingModel[index].trainingModelID}:${viewModel.trainingModel[index].trainingModelFeatureID}';
 
                           return Column(
                             children: [
@@ -346,7 +389,7 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    '${training['training']}',
+                                                    '${viewModel.trainingModel[index].trainingModelTitle}',
                                                     style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.w700,
@@ -356,7 +399,10 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                                     ),
                                                   ),
                                                   Text(
-                                                    training['address'],
+                                                    viewModel
+                                                        .trainingModel[index]
+                                                        .trainingModelFeatureTitle
+                                                        .toString(),
                                                     style: const TextStyle(
                                                       fontSize: 12,
                                                       color:
@@ -377,8 +423,10 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                         setState(() {
                                           if (isSelected) {
                                             selectedIndexes.remove(index);
+                                            selectedTraining.remove(itemString);
                                           } else {
                                             selectedIndexes.add(index);
+                                            selectedTraining.add(itemString);
                                           }
                                         });
                                       },
@@ -411,6 +459,7 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                           );
                         },
                       ),
+
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -424,7 +473,43 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                           children: [
                             Expanded(
                               child: TextField(
-                                controller: searchController,
+                                controller: titleController,
+                                style: const TextStyle(
+                                  color: AppColors.blackColor,
+                                ),
+                                decoration: const InputDecoration(
+                                  hintText: 'Title',
+                                  hintStyle: TextStyle(
+                                    color: AppColors.greyText,
+                                  ),
+                                  border:
+                                      InputBorder.none, // 🔴 Remove underline
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 10),
+
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200], // Light grey background
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: descriptionController,
                                 style: const TextStyle(
                                   color: AppColors.blackColor,
                                 ),
