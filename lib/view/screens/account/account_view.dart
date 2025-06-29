@@ -1,13 +1,21 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/%20login/login_view.dart';
-import 'package:aleedz/view/screens/choose_language/choose_language_view.dart';
+import 'package:aleedz/view/screens/training/training_list_view.dart';
+import 'package:aleedz/view/screens/user_training/user_training_list_view.dart';
+import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LogoutScreen extends StatelessWidget {
+class LogoutScreen extends ConsumerStatefulWidget {
   const LogoutScreen({super.key});
 
+  @override
+  ConsumerState<LogoutScreen> createState() => _LogoutScreenState();
+}
+
+class _LogoutScreenState extends ConsumerState<LogoutScreen> {
   Future<void> _showLogoutDialog(BuildContext context) async {
     showDialog(
       context: context,
@@ -50,15 +58,84 @@ class LogoutScreen extends StatelessWidget {
     );
   }
 
+  List<Map<String, dynamic>> getMenuItems(BuildContext context) {
+    return [
+      {
+        'title': 'My Profile',
+        'icon': Icons.person,
+        'onTap': () {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => MyProfileScreen()),
+          // );
+        },
+      },
+      {
+        'title': 'Change Password',
+        'icon': Icons.lock,
+        'onTap': () {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => ChangePasswordScreen()),
+          // );
+        },
+      },
+      {
+        'title': 'Training',
+        'icon': Icons.school,
+        'onTap': () {
+          NavigationService.navigateTo(UserTrainingListView());
+        },
+        'visible': true, // Control visibility
+      },
+      {
+        'title': 'Logout',
+        'icon': Icons.logout,
+        'onTap': () {
+          _showLogoutDialog(context);
+        },
+      },
+    ];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
+    });
+  }
+
+  Future<void> _initializeData() async {
+    final notifier = ref.read(storeModelProvider.notifier);
+
+    await notifier.getROSLabels();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Show the dialog when this screen is loaded
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showLogoutDialog(context);
-    });
+    final viewModel = ref.watch(storeModelProvider);
 
-    return const Scaffold(
-      body: Center(child: SizedBox()), // Empty blank screen
+    final menuItems = getMenuItems(context);
+    return Scaffold(
+      body:
+          viewModel.loader
+              ? Center(child: CircularProgressIndicator())
+              : ListView(
+                children:
+                    menuItems
+                        .where((item) => item['visible'] != false)
+                        .map(
+                          (item) => ListTile(
+                            leading: Icon(item['icon'], color: Colors.blue),
+                            title: Text(item['title']),
+                            trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                            onTap: item['onTap'],
+                          ),
+                        )
+                        .toList(),
+              ),
     );
   }
 }

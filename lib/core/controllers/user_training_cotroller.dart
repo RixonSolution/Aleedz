@@ -1,9 +1,8 @@
 import 'dart:io';
+import 'package:aleedz/core/services/user_trainig_services.dart';
 
-import 'package:aleedz/core/services/training_services.dart';
-
-class TrainingController {
-  final TrainingServices _apiService = TrainingServices();
+class UserTrainingController {
+  final UserTrainingServices _apiService = UserTrainingServices();
 
   Future<Map<String, dynamic>?> trainingList({
     required String token,
@@ -21,13 +20,35 @@ class TrainingController {
     required String token,
     required String storeId,
   }) async {
-    return await _apiService.promoterList(token: token, storeId: storeId);
+    return await _apiService.trainingType(token: token, storeId: storeId);
   }
 
   Future<Map<String, dynamic>?> trainingModelList({
     required String token,
   }) async {
     return await _apiService.trainingModelList(token: token);
+  }
+
+  Future<Map<String, dynamic>?> userTrainingType({
+    required String token,
+  }) async {
+    return await _apiService.userTrainingType(token: token);
+  }
+
+  Future<Map<String, dynamic>?> coverageList({
+    required int teamMemberId,
+    required int chanelId,
+    required String searchKeyWord,
+    required String chanelTypeId,
+    required String token,
+  }) async {
+    return await _apiService.getCoverageList(
+      teamMemberId: teamMemberId,
+      chanelId: chanelId,
+      searchKeyWord: searchKeyWord,
+      chanelTypeId: chanelTypeId,
+      token: token,
+    );
   }
 
   Future<Map<String, dynamic>?> trainingSubmit({

@@ -2,30 +2,32 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/training_viewmodel.dart';
+import 'package:aleedz/viewmodel/user_training_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TrainingModelView extends ConsumerStatefulWidget {
-  String checkInTime, storeName, trainingName;
-  int storeId, storeCount, promotorCount;
+class UserTrainingModelView extends ConsumerStatefulWidget {
+  final String trainingName, trainingId, storeIds, storeId;
+
+  int storeCount, promotorCount;
   List<String> promoterNames1;
 
-  TrainingModelView({
+  UserTrainingModelView({
     Key? key,
-    required this.checkInTime,
-    required this.storeName,
     required this.storeId,
     required this.trainingName,
     required this.storeCount,
     required this.promotorCount,
     required this.promoterNames1,
+    required this.trainingId,
+    required this.storeIds,
   }) : super(key: key);
 
   @override
-  ConsumerState<TrainingModelView> createState() => _MyConsumerState();
+  ConsumerState<UserTrainingModelView> createState() => _MyConsumerState();
 }
 
-class _MyConsumerState extends ConsumerState<TrainingModelView> {
+class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController titleController = TextEditingController();
 
@@ -117,7 +119,7 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
   }
 
   Future<void> loadUserAndFetchModel() async {
-    final notifier = ref.read(trainingModelProvider.notifier);
+    final notifier = ref.read(userTrainingModelProvider.notifier);
     await notifier.getTrainingModelList();
     print(widget.promoterNames1);
   }
@@ -136,7 +138,7 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(trainingModelProvider);
+    final viewModel = ref.watch(userTrainingModelProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -149,19 +151,21 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                   child: ElevatedButton(
                     onPressed: () async {
                       await viewModel.trainingSubmit(
-                        storeId: widget.storeId.toString(),
+                        storeId: widget.storeIds,
                         description: descriptionController.text,
                         trainingDateTime: DateTime.now().toString(),
                         startTime: formatTimeOfDays(startTime!),
                         endTime: formatTimeOfDays(endTime!),
                         attendeseTypeId: '1',
-                        trainingTypeId: '1',
+                        trainingTypeId: widget.trainingId,
                         trainingTitle: titleController.text,
                         noOfAttendees: widget.promoterNames1.length.toString(),
                         attendees: formatList(widget.promoterNames1),
-                        store: widget.storeId.toString(),
+                        store: widget.storeIds,
                         trainingModel: selectedTraining.join(',').trim(),
                       );
+                      NavigationService.goBack();
+                      NavigationService.goBack();
                       NavigationService.goBack();
                       NavigationService.goBack();
                     },
@@ -229,26 +233,7 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                         child: Divider(color: AppColors.primary, height: 0),
                       ),
                       const SizedBox(height: 5),
-                      Center(
-                        child: Text(
-                          widget.storeName,
-                          style: const TextStyle(
-                            color: AppColors.blackColor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Center(
-                        child: Text(
-                          'Checked In ${widget.checkInTime}',
-                          style: const TextStyle(
-                            color: AppColors.blackColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+
                       Container(
                         margin: EdgeInsets.symmetric(vertical: 8),
                         padding: EdgeInsets.symmetric(vertical: 12),

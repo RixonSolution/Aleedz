@@ -1,29 +1,24 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/training/training_promoter.dart';
 import 'package:aleedz/view/screens/training/training_submit.dart';
-import 'package:aleedz/view/screens/training/training_view.dart';
+import 'package:aleedz/view/screens/user_training/user_training_promoter.dart';
+import 'package:aleedz/view/screens/user_training/user_training_stores.dart';
+import 'package:aleedz/view/screens/user_training/user_training_submit.dart';
+import 'package:aleedz/view/screens/user_training/user_training_view.dart';
 import 'package:aleedz/viewmodel/training_viewmodel.dart';
+import 'package:aleedz/viewmodel/user_training_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TrainingListView extends ConsumerStatefulWidget {
-  String checkInTime, storeName;
-  int storeId;
-
-  TrainingListView({
-    Key? key,
-    required this.checkInTime,
-    required this.storeName,
-    required this.storeId,
-  }) : super(key: key);
+class UserTrainingListView extends ConsumerStatefulWidget {
+  UserTrainingListView({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<TrainingListView> createState() => _MyConsumerState();
+  ConsumerState<UserTrainingListView> createState() => _MyConsumerState();
 }
 
-class _MyConsumerState extends ConsumerState<TrainingListView> {
+class _MyConsumerState extends ConsumerState<UserTrainingListView> {
   @override
   void initState() {
     super.initState();
@@ -33,13 +28,13 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
   }
 
   Future<void> loadUserAndFetchCoverage() async {
-    final notifier = ref.read(trainingModelProvider.notifier);
-    await notifier.loadTraining(widget.storeId.toString());
+    final notifier = ref.read(userTrainingModelProvider.notifier);
+    await notifier.loadTraining('1');
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(trainingModelProvider);
+    final viewModel = ref.watch(userTrainingModelProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -49,24 +44,7 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
           color: Colors.white,
           child: ElevatedButton(
             onPressed: () {
-              NavigationService.navigateTo(
-                TrainingPromoter(
-                  storeName: widget.storeName,
-                  checkInTime: widget.checkInTime,
-                  storeId: widget.storeId,
-                  trainingName: '',
-                  storeCount: 0,
-                ),
-              );
-
-              // ScaffoldMessenger.of(context).showSnackBar(
-              //   SnackBar(
-              //     content: Text(
-              //       "Form Submitted!",
-              //       style: TextStyle(color: AppColors.whiteColor),
-              //     ),
-              //   ),
-              // );
+              NavigationService.navigateTo(UserTrainingView());
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.secondary,
@@ -126,26 +104,7 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
                       child: Divider(color: AppColors.primary, height: 0),
                     ),
                     const SizedBox(height: 5),
-                    Center(
-                      child: Text(
-                        widget.storeName,
-                        style: const TextStyle(
-                          color: AppColors.blackColor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        'Checked In ${widget.checkInTime}',
-                        style: const TextStyle(
-                          color: AppColors.blackColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+
                     SizedBox(height: 10),
                     Center(
                       child: Text(
@@ -207,13 +166,7 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
                           return GestureDetector(
                             onTap: () {
                               NavigationService.navigateTo(
-                                TrainingSubmit(
-                                  storeName: widget.storeName,
-                                  checkInTime: widget.checkInTime,
-                                  storeId: widget.storeId,
-                                  trainingName: '',
-                                  storeCount: 0,
-                                ),
+                                UserTrainingSubmit(trainingName: ''),
                               );
                             },
 

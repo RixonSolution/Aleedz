@@ -1,24 +1,31 @@
 import 'dart:io';
-import 'package:aleedz/core/controllers/training_controller.dart';
+import 'package:aleedz/core/controllers/user_training_cotroller.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/promoter_list_model.dart';
+import 'package:aleedz/models/store_model.dart';
 import 'package:aleedz/models/trainig_model.dart';
 import 'package:aleedz/models/training_model.dart';
 import 'package:aleedz/models/user_model.dart';
+import 'package:aleedz/models/user_training_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
-final trainingModelProvider = ChangeNotifierProvider<TrainingViewModel>((ref) {
-  return TrainingViewModel();
-});
+final userTrainingModelProvider = ChangeNotifierProvider<UserTrainingViewModel>(
+  (ref) {
+    return UserTrainingViewModel();
+  },
+);
 
-class TrainingViewModel extends ChangeNotifier {
-  final TrainingController _checkController = TrainingController();
+class UserTrainingViewModel extends ChangeNotifier {
+  final UserTrainingController _checkController = UserTrainingController();
 
   UserModel? user;
   List<TrainingListModel> trainingList = [];
   List<PromoterListModel> promoterList = [];
+  List<UserTrainingType> trainingTypeList = [];
+  List<StoreModel> stores = [];
+
   List<TraingModel> trainingModel = [];
 
   final ImagePicker picker = ImagePicker();
@@ -101,6 +108,58 @@ class TrainingViewModel extends ChangeNotifier {
       loader = false;
       notifyListeners();
       debugPrint("promoter list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> userTrainingType() async {
+    loader = true;
+    trainingTypeList = [];
+    notifyListeners();
+
+    final response = await _checkController.userTrainingType(
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'] as List;
+      trainingTypeList = data.map((e) => UserTrainingType.fromJson(e)).toList();
+      loader = false;
+      notifyListeners();
+    } else {
+      loader = false;
+      notifyListeners();
+      debugPrint("promoter list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> getCoverageList(
+    BuildContext context, {
+    String searchKeyword = '',
+    int channelId = 0,
+  }) async {
+    loader = true;
+    stores = [];
+    notifyListeners();
+    final response = await _checkController.coverageList(
+      teamMemberId: user?.teamMemberID ?? 0,
+      chanelId: channelId,
+      searchKeyWord: searchKeyword,
+      chanelTypeId: '',
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final dataList = response["data"]['data'];
+
+      if (dataList != null && dataList is List && dataList.isNotEmpty) {
+        stores = dataList.map((e) => StoreModel.fromJson(e)).toList();
+        loader = false;
+        notifyListeners();
+      }
+    } else {
+      loader = false;
+      notifyListeners();
+      debugPrint("coverage list Error: ${response?['data']}");
     }
   }
 
