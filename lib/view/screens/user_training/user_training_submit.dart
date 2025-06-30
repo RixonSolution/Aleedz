@@ -235,36 +235,52 @@ class _MyConsumerState extends ConsumerState<UserTrainingSubmit> {
                                       ),
                                     ),
 
-                                    /// Custom Circular Checkbox
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          if (isSelected) {
-                                            selectedIndexes.remove(index);
-                                          } else {
-                                            selectedIndexes.add(index);
-                                          }
-                                        });
-                                      },
-                                      child: Container(
-                                        width: 24,
-                                        height: 24,
-                                        margin: const EdgeInsets.only(
-                                          right: 10,
-                                          top: 2,
+                                    SizedBox(
+                                      width: 50,
+                                      height: 24,
+                                      child: TextField(
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.blackColor,
                                         ),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color:
-                                              isSelected
-                                                  ? Colors.black
-                                                  : Colors.grey[400],
+                                        decoration: InputDecoration(
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                vertical: 0,
+                                                horizontal: 4,
+                                              ),
+                                          hintText: '0',
+                                          hintStyle: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              5,
+                                            ), // Circular like checkbox
+                                            borderSide: const BorderSide(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              5,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              5,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.black,
+                                            ),
+                                          ),
                                         ),
-                                        child: const Icon(
-                                          Icons.check,
-                                          color: Colors.white,
-                                          size: 16,
-                                        ),
+                                        keyboardType: TextInputType.number,
                                       ),
                                     ),
                                   ],

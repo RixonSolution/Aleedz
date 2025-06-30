@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/models/user_training_type.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/user_training/user_training_stores.dart';
 import 'package:aleedz/viewmodel/user_training_viewmodel.dart';
@@ -27,6 +28,34 @@ class _MyConsumerState extends ConsumerState<UserTrainingView> {
   Future<void> loadUserAndFetchType() async {
     final notifier = ref.read(userTrainingModelProvider.notifier);
     await notifier.userTrainingType();
+    filteredTrainingList = notifier.trainingTypeList;
+    searchController.addListener(() {
+      filterSearchResults();
+    });
+  }
+
+  List<UserTrainingType> filteredTrainingList = [];
+
+  void filterSearchResults() {
+    final viewModel = ref.watch(userTrainingModelProvider);
+
+    String query = searchController.text.toLowerCase();
+    setState(() {
+      if (query.isEmpty) {
+        filteredTrainingList = viewModel.trainingTypeList;
+      } else {
+        filteredTrainingList =
+            viewModel.trainingTypeList.where((item) {
+              return item.trainingTypeName!.toLowerCase().contains(query);
+            }).toList();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -105,10 +134,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingView> {
                     Expanded(
                       child: ListView.builder(
                         padding: const EdgeInsets.all(5),
-                        itemCount: viewModel.trainingTypeList.length,
+                        itemCount: filteredTrainingList.length,
                         itemBuilder: (context, index) {
-                          final training = viewModel.trainingTypeList[index];
-
                           return Column(
                             children: [
                               InkWell(

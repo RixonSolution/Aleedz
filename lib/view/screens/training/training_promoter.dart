@@ -184,61 +184,6 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                           ),
                         ),
                       ),
-                      Container(
-                        margin: EdgeInsets.symmetric(vertical: 8),
-                        padding: EdgeInsets.symmetric(vertical: 12),
-
-                        decoration: BoxDecoration(color: AppColors.secondary),
-                        child: Center(
-                          child: Text(
-                            widget.trainingName,
-                            style: TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200], // Light grey background
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            /// Search TextField
-                            Expanded(
-                              child: TextField(
-                                controller: searchController,
-                                enabled: false,
-                                style: const TextStyle(
-                                  color: AppColors.blackColor,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText:
-                                      '${widget.storeCount.toString()} Stores Selected',
-
-                                  hintStyle: TextStyle(
-                                    color: AppColors.greyText,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
 
                       const SizedBox(height: 20),
 
@@ -402,7 +347,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                     color: AppColors.blackColor,
                                   ),
                                   decoration: InputDecoration(
-                                    hintText: 'Add promter name',
+                                    hintText: 'Add promoter name',
                                     hintStyle: TextStyle(
                                       color: AppColors.greyText,
                                       fontSize: 14,
@@ -461,7 +406,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                               flex: 5,
                               child: Center(
                                 child: Text(
-                                  'Scan Code',
+                                  'Promoter name',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,

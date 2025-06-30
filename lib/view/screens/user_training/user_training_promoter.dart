@@ -84,7 +84,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
                 UserTrainingModelView(
                   storeId: widget.storeIds.toString(),
                   trainingName: widget.trainingName,
-                  storeCount: 1,
+                  storeCount: widget.storeIds.length,
                   promotorCount: selectedIndexes.length,
                   promoterNames1: promoterNames1,
                   trainingId: widget.trainingId,
@@ -333,7 +333,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
                                     color: AppColors.blackColor,
                                   ),
                                   decoration: InputDecoration(
-                                    hintText: 'Add promter name',
+                                    hintText: 'Add promoter name',
                                     hintStyle: TextStyle(
                                       color: AppColors.greyText,
                                       fontSize: 14,
@@ -392,7 +392,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
                               flex: 5,
                               child: Center(
                                 child: Text(
-                                  'Scan Code',
+                                  'Promoter name',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,

@@ -46,6 +46,7 @@ class TrainingViewModel extends ChangeNotifier {
       final files = images.map((img) => File(img.path)).toList();
       if (direction == 'right') {
         rightImages.addAll(files);
+        notifyListeners();
       }
       notifyListeners();
     }
@@ -56,7 +57,6 @@ class TrainingViewModel extends ChangeNotifier {
     if (image != null) {
       if (direction == 'right') {
         rightImages.add(File(image.path));
-
         notifyListeners();
       }
     }

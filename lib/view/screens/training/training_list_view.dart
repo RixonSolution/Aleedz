@@ -263,7 +263,7 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
                                         ),
                                         SizedBox(height: 4),
                                         Text(
-                                          'Date: ${viewModel.trainingList[index].trainingDateTime.toString()}',
+                                          '${viewModel.trainingList[index].trainingDateTime.toString()}',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 12,

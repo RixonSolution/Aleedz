@@ -53,7 +53,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                 ),
                 onTap: () {
                   ref
-                      .read(trainingModelProvider.notifier)
+                      .read(userTrainingModelProvider.notifier)
                       .pickFromCameras(direction);
                   Navigator.pop(context);
                 },
@@ -65,7 +65,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                 ),
                 onTap: () {
                   ref
-                      .read(trainingModelProvider.notifier)
+                      .read(userTrainingModelProvider.notifier)
                       .pickFromGallerys(direction);
                   Navigator.pop(context);
                 },
@@ -600,12 +600,12 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                           // Image Picker Button on Left
                           GestureDetector(
                             onTap: () {
-                              if (viewModel.rightImages.length < 4) {
+                              if (viewModel.rightImages.length < 2) {
                                 _showImagePickerDialog('right');
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Maximum 4 images allowed.'),
+                                    content: Text('Maximum 2 images allowed.'),
                                   ),
                                 );
                               }

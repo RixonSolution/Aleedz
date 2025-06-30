@@ -249,21 +249,7 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                           ),
                         ),
                       ),
-                      Container(
-                        margin: EdgeInsets.symmetric(vertical: 8),
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(color: AppColors.secondary),
-                        child: Center(
-                          child: Text(
-                            widget.trainingName,
-                            style: TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
+
                       Container(
                         padding: const EdgeInsets.symmetric(
                           // horizontal: 16,
@@ -272,40 +258,6 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
 
                         child: Row(
                           children: [
-                            /// Search TextField
-                            Expanded(
-                              child: Container(
-                                padding: EdgeInsets.only(left: 10),
-                                decoration: BoxDecoration(
-                                  color:
-                                      Colors.grey[200], // Light grey background
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: TextField(
-                                  controller: descriptionController,
-                                  enabled: false,
-                                  style: const TextStyle(
-                                    color: AppColors.blackColor,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        '${widget.storeCount.toString()} Stores Selected',
-
-                                    hintStyle: TextStyle(
-                                      color: AppColors.greyText,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 5),
                             Expanded(
                               child: Container(
                                 padding: EdgeInsets.only(left: 10),
@@ -680,10 +632,11 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                         right: 4,
                                         child: GestureDetector(
                                           onTap: () {
-                                            viewModel.rightImages.removeAt(
-                                              index,
-                                            );
-                                            setState(() {}); // Refresh UI
+                                            setState(() {
+                                              viewModel.rightImages.removeAt(
+                                                index,
+                                              );
+                                            });
                                           },
                                           child: Container(
                                             decoration: const BoxDecoration(

@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/models/store_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/user_training/user_training_promoter.dart';
 import 'package:aleedz/viewmodel/user_training_viewmodel.dart';
@@ -17,7 +18,8 @@ class UserTrainingStores extends ConsumerStatefulWidget {
 
 class _MyConsumerState extends ConsumerState<UserTrainingStores> {
   TextEditingController searchController = TextEditingController();
-  final Set<int> selectedIndexes = {};
+  final Set<int> selectedStoreIds = {}; // Use storeId, not index
+  List<StoreModel> filteredStores = [];
 
   List<int> storeIds = [];
 
@@ -29,9 +31,20 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
     });
   }
 
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> loadUserAndFetchStore() async {
     final notifier = ref.read(userTrainingModelProvider.notifier);
     await notifier.getCoverageList(context);
+    filteredStores = notifier.stores;
+
+    searchController.addListener(() {
+      filterSearchResults();
+    });
   }
 
   void addStoreIds(int id) {
@@ -42,6 +55,23 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
       storeIds.add(id);
       setState(() {});
     }
+  }
+
+  void filterSearchResults() {
+    final viewModel = ref.watch(userTrainingModelProvider);
+
+    String query = searchController.text.toLowerCase();
+    setState(() {
+      if (query.isEmpty) {
+        filteredStores = viewModel.stores;
+      } else {
+        filteredStores =
+            viewModel.stores.where((store) {
+              return store.storeName.toLowerCase().contains(query) ||
+                  store.address.toLowerCase().contains(query);
+            }).toList();
+      }
+    });
   }
 
   @override
@@ -123,6 +153,22 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
                       child: Divider(color: AppColors.primary, height: 0),
                     ),
                     const SizedBox(height: 5),
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 8),
+                      padding: EdgeInsets.symmetric(vertical: 12),
+
+                      decoration: BoxDecoration(color: AppColors.secondary),
+                      child: Center(
+                        child: Text(
+                          widget.trainingName,
+                          style: TextStyle(
+                            color: AppColors.whiteColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
 
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -145,10 +191,10 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
                               decoration: const InputDecoration(
                                 hintText: 'Search',
                                 hintStyle: TextStyle(color: AppColors.greyText),
-                                border: InputBorder.none, // 🔴 Remove underline
+                                border: InputBorder.none,
                                 isDense: true,
                                 contentPadding: EdgeInsets.symmetric(
-                                  vertical: 12,
+                                  vertical: 5,
                                 ),
                               ),
                             ),
@@ -157,15 +203,15 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
                           /// Selected Count
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 25,
-                              vertical: 15,
+                              horizontal: 15,
+                              vertical: 5,
                             ),
                             decoration: BoxDecoration(
                               color: Colors.grey[500],
                               borderRadius: BorderRadius.circular(2),
                             ),
                             child: Text(
-                              "${selectedIndexes.length}", // <- Use your selected count
+                              "${selectedStoreIds.length}", // <- Use your selected count
                               style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 16,
@@ -182,9 +228,11 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
                     Expanded(
                       child: ListView.builder(
                         padding: const EdgeInsets.all(5),
-                        itemCount: viewModel.stores.length,
+                        itemCount: filteredStores.length,
                         itemBuilder: (context, index) {
-                          final isSelected = selectedIndexes.contains(index);
+                          final isSelected = selectedStoreIds.contains(
+                            filteredStores[index].storeId,
+                          );
 
                           return Column(
                             children: [
@@ -220,8 +268,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
                                                   SizedBox(
                                                     width: 200,
                                                     child: Text(
-                                                      viewModel
-                                                          .stores[index]
+                                                      filteredStores[index]
                                                           .storeName,
                                                       style: const TextStyle(
                                                         fontWeight:
@@ -236,8 +283,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
                                                   SizedBox(
                                                     width: 200,
                                                     child: Text(
-                                                      viewModel
-                                                          .stores[index]
+                                                      filteredStores[index]
                                                           .address,
                                                       style: const TextStyle(
                                                         fontSize: 12,
@@ -259,13 +305,15 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
                                     GestureDetector(
                                       onTap: () {
                                         setState(() {
+                                          final storeId =
+                                              filteredStores[index].storeId;
                                           if (isSelected) {
-                                            selectedIndexes.remove(index);
+                                            selectedStoreIds.remove(storeId);
                                           } else {
-                                            selectedIndexes.add(index);
+                                            selectedStoreIds.add(storeId);
                                           }
                                           addStoreIds(
-                                            viewModel.stores[index].storeId,
+                                            filteredStores[index].storeId,
                                           );
                                         });
                                       },
