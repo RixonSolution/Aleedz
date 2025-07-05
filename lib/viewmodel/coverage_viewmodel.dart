@@ -158,8 +158,12 @@ class CoverageViewModel extends ChangeNotifier {
   bool loader = false;
 
   Future<void> getCoverageCount(BuildContext context) async {
+    // If already fetched and not zero, skip API call
+    if (storeCount != '0') return;
+
     selectedChannel = null;
     notifyListeners();
+
     final response = await _coverageController.coverageCount(
       teamMemberId: user?.teamMemberID ?? 0,
       token: user?.apiToken ?? '',
@@ -182,7 +186,11 @@ class CoverageViewModel extends ChangeNotifier {
     BuildContext context, {
     String searchKeyword = '',
     int channelId = 0,
+    bool forceRefresh = false,
   }) async {
+    // Condition to skip API call unless list is empty or forceRefresh is true
+    if (stores.isNotEmpty && !forceRefresh) return;
+
     final response = await _coverageController.coverageList(
       teamMemberId: user?.teamMemberID ?? 0,
       chanelId: channelId,
@@ -204,6 +212,9 @@ class CoverageViewModel extends ChangeNotifier {
   }
 
   Future<void> getCoverageDropDown() async {
+    // If channelList already has data, skip API call
+    if (channelList.isNotEmpty) return;
+
     final response = await _coverageController.coverageDropDown(
       token: user?.apiToken ?? '',
     );
@@ -246,7 +257,7 @@ class CoverageViewModel extends ChangeNotifier {
     );
 
     if (response != null && response["status"] == 200) {
-      await getCoverageList(context);
+      await getCoverageList(context, forceRefresh: true);
       loader = false;
       notifyListeners();
     } else {
@@ -296,14 +307,6 @@ class CoverageViewModel extends ChangeNotifier {
     loader = true;
     notifyListeners();
 
-    // Ensure that an image file is passed, otherwise show an error
-    // if (checkOutImgFile == null) {
-    //   debugPrint("No image selected for checkout.");
-    //   loader = false;
-    //   notifyListeners();
-    //   return;
-    // }
-
     final response = await _coverageController.coverageCheckOut(
       visitedId: visitedId.toString(),
       longitude: longitude.toString(),
@@ -314,7 +317,7 @@ class CoverageViewModel extends ChangeNotifier {
     );
 
     if (response != null && response["status"] == 200) {
-      await getCoverageList(context);
+      await getCoverageList(context, forceRefresh: true);
       await getDashboard();
 
       loader = false;
@@ -390,7 +393,7 @@ class CoverageViewModel extends ChangeNotifier {
     );
 
     if (response != null && response["status"] == 200) {
-      await getCoverageList(context);
+      await getCoverageList(context, forceRefresh: true);
       await getDashboard();
       loader = false;
       notifyListeners();
@@ -447,12 +450,11 @@ class CoverageViewModel extends ChangeNotifier {
   Future loadCoverageData(context) async {
     loader = true;
     notifyListeners();
-    await loadUser();
-    await getLatLong();
+    // await loadUser();
+    // await getLatLong();
     await getCoverageCount(context);
     await getCoverageDropDown();
     await getCoverageList(context);
-    await getDashboard();
 
     loader = false;
     notifyListeners();

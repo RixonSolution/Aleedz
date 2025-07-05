@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:aleedz/core/controllers/coverage_controller.dart';
 import 'package:aleedz/core/controllers/store_controller.dart';
-import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/brand_list_model.dart';
@@ -14,7 +13,6 @@ import 'package:aleedz/models/product_selection_model.dart';
 import 'package:aleedz/models/ros_label.dart';
 import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/models/user_model.dart';
-import 'package:aleedz/routes/navigation_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -34,7 +32,7 @@ class StoreViewModel extends ChangeNotifier {
 
   List<PictureViewModel> viewPicture = [];
   List<DashboardModel> dashBoardList = [];
-  int visitId = 1;
+  int visitId = 0;
 
   bool leftImageRemoved = false; // Add this in your ViewModel
   bool rightImageRemoved = false;
@@ -176,7 +174,7 @@ class StoreViewModel extends ChangeNotifier {
   }
 
   Future loadUser() async {
-    loader = true;
+    // loader = true;
     notifyListeners();
     final store = StoreLocalData();
 
@@ -617,6 +615,10 @@ class StoreViewModel extends ChangeNotifier {
   }
 
   Future<void> getVisiteId({required String storeId}) async {
+    loader = true;
+    notifyListeners();
+    await loadUser();
+
     final response = await _storeController.getVisitId(
       token: user?.apiToken ?? '',
       storeId: storeId,
@@ -628,7 +630,8 @@ class StoreViewModel extends ChangeNotifier {
       if (data.isNotEmpty) {
         visitId = data.first['VisitID'];
       }
-
+      loader = false;
+      notifyListeners();
       print('visit Id:$visitId');
 
       notifyListeners();
