@@ -31,12 +31,12 @@ class PriceViewModel extends ChangeNotifier {
 
   bool loader = false;
 
-  void selectBrand(int storeId, BrandListModel? brand) async {
+  void selectBrand(int storeId, BrandListModel? brand, String visitId) async {
     selectedBrand = brand;
     notifyListeners();
     print("Selected Channel ID: ${brand?.brandId}");
     if (brand != null) {
-      pricePromotion(storeId, brand.brandId);
+      pricePromotion(storeId, brand.brandId, visitId);
     }
   }
 
@@ -90,7 +90,7 @@ class PriceViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> pricePromotion(int storeId, int brandId) async {
+  Future<void> pricePromotion(int storeId, int brandId, String visitId) async {
     loader = true;
     brands = [];
     notifyListeners();
@@ -98,6 +98,7 @@ class PriceViewModel extends ChangeNotifier {
       storeId: storeId.toString(),
       branddId: brandId.toString(),
       token: user?.apiToken ?? '',
+      visiteId: visitId,
     );
 
     if (response != null && response["status"] == 200) {
@@ -268,7 +269,7 @@ class PriceViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> submitAllPrices(int storeId) async {
+  Future<void> submitAllPrices(int storeId, String visitId) async {
     loader = true;
     notifyListeners();
     for (var entry in productEntries) {
@@ -303,7 +304,7 @@ class PriceViewModel extends ChangeNotifier {
         break; // stop on error, or handle retry if needed
       }
     }
-    await loadPriceData(storeId, 1);
+    await loadPriceData(storeId, 1, visitId);
     // productEntries = [];
     NavigationService.goBack();
 
@@ -313,12 +314,12 @@ class PriceViewModel extends ChangeNotifier {
     debugPrint("📤 All submissions attempted.");
   }
 
-  Future loadPriceData(int storeId, int brandId) async {
+  Future loadPriceData(int storeId, int brandId, String visitId) async {
     loader = true;
     notifyListeners();
     await loadUser();
     await getBrandDropDown();
-    await pricePromotion(storeId, brandId);
+    await pricePromotion(storeId, brandId, visitId);
     loader = false;
     notifyListeners();
   }

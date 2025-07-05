@@ -1,13 +1,12 @@
 import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_constants.dart';
-import 'package:aleedz/core/constants/assets/app_images.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/%20login/login_provider.dart';
 import 'package:aleedz/view/screens/choose_language/choose_language_view.dart';
+import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LoginView extends ConsumerStatefulWidget {
@@ -26,12 +25,14 @@ class _LoginViewState extends ConsumerState<LoginView> {
 
   Future<void> _loadLabels() async {
     await LabelService().loadLabels();
+
     setState(() {}); // Trigger a rebuild after labels are loaded
   }
 
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(loginViewModelProvider);
+    final storeViewModel = ref.watch(storeModelProvider);
     final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return SafeArea(
@@ -179,6 +180,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                   child: InkWell(
                                     onTap: () async {
                                       await viewModel.onLogin(context);
+
+                                      await storeViewModel.getROSLabels();
                                     },
                                     child: Container(
                                       padding: EdgeInsets.symmetric(

@@ -177,7 +177,10 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
           backgroundColor: AppColors.whiteColor,
           bottomNavigationBar: GestureDetector(
             onTap: () async {
-              await viewModel.submitAllPrices(widget.storeId);
+              await viewModel.submitAllPrices(
+                widget.storeId,
+                widget.visiteId.toString(),
+              );
               AppSnackBar.showSuccess(context, 'Price Promotions submitted}');
             },
             child: Padding(

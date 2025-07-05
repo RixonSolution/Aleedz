@@ -12,6 +12,7 @@ import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:aleedz/view/screens/store/store_home.dart';
 import 'package:aleedz/view/screens/today_plan/today_plan_view.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
+import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -35,6 +36,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   Future<void> loadUserAndFetchCoverage() async {
     await ref.read(coverageModelProvider.notifier).loadDashboard(context);
+    final notifier = ref.read(storeModelProvider.notifier);
+    await notifier.loadROSLabelsFromPrefs();
   }
 
   Future<void> showImagePopup({

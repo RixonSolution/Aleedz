@@ -27,7 +27,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(priceModelProvider.notifier).loadPriceData(widget.storeId, 1);
+      ref
+          .read(priceModelProvider.notifier)
+          .loadPriceData(widget.storeId, 0, widget.visiteId.toString());
     });
   }
 
@@ -134,7 +136,11 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                   final selected = viewModel.brandList.firstWhere(
                     (c) => c.brandId == branddlId,
                   );
-                  viewModel.selectBrand(widget.storeId, selected);
+                  viewModel.selectBrand(
+                    widget.storeId,
+                    selected,
+                    widget.visiteId.toString(),
+                  );
                 },
               ),
             ),

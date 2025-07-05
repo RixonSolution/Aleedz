@@ -12,13 +12,14 @@ class PriceController {
   Future<Map<String, dynamic>?> pricePromotion({
     required String storeId,
     required String branddId,
-
     required String token,
+    required String visiteId,
   }) async {
     return await _apiService.pricePromotion(
       storeId: storeId,
       brandId: branddId,
       token: token,
+      visiteId: visiteId,
     );
   }
 

@@ -32,13 +32,15 @@ class PriceServices {
     required String storeId,
     required String brandId,
     required String token,
+    required String visiteId,
   }) async {
     final encodedStoreId = Uri.encodeComponent(storeId);
     final encodedBrandId = Uri.encodeComponent(brandId);
     final encodedToken = Uri.encodeComponent(token);
+    final encodedVisitId = Uri.encodeComponent(visiteId);
 
     final url = Uri.parse(
-      '${ApiConstants.pricePromotion}?_token=$encodedToken&StoreID=$encodedStoreId&BrandID=$encodedBrandId',
+      '${ApiConstants.pricePromotion}?_token=$encodedToken&StoreID=$encodedStoreId&BrandID=$encodedBrandId&VisitID=$encodedVisitId',
     );
 
     try {

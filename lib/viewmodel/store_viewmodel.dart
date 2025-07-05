@@ -50,6 +50,23 @@ class StoreViewModel extends ChangeNotifier {
     return null;
   }
 
+  Future<void> saveROSLabelsToPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final rosLabelJson = rosLabels.map((e) => e.toJson()).toList();
+    await prefs.setString('rosLabels', jsonEncode(rosLabelJson));
+  }
+
+  Future<void> loadROSLabelsFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('rosLabels');
+
+    if (jsonString != null) {
+      final List<dynamic> decoded = jsonDecode(jsonString);
+      rosLabels = decoded.map((e) => ROSLabel.fromJson(e)).toList();
+      notifyListeners();
+    }
+  }
+
   UserModel? user;
   File? leftImage;
   File? rightImage;
@@ -400,48 +417,60 @@ class StoreViewModel extends ChangeNotifier {
   }
 
   Future<void> getROSLabels() async {
-    rosLabels = [];
     loader = true;
     notifyListeners();
+
     await loadUser();
-    final response = await _storeController.getROSLabels(languageId: '1');
-    final response1 = await _storeController.getPermissionRequest(
-      teamMemberId: user?.teamMemberID.toString() ?? '',
-      token: user?.apiToken.toString() ?? '',
-    );
 
-    if (response != null && response1 != null) {
-      final dataList = response["data"]['data'];
-      final dataList1 = response1["data"]['data'];
-      if (dataList is List && dataList1 is List) {
-        rosLabels = [];
+    // Load from cache first
+    await loadROSLabelsFromPrefs();
 
-        for (var permissionItem in dataList1) {
-          final int? permissionId = permissionItem["PermissionID"];
-          final String? permissionValue = permissionItem["Permission"];
+    try {
+      final response = await _storeController.getROSLabels(languageId: '1');
+      final response1 = await _storeController.getPermissionRequest(
+        teamMemberId: user?.teamMemberID.toString() ?? '',
+        token: user?.apiToken.toString() ?? '',
+      );
 
-          // Filter PermissionIDs 28–40 with value "Y"
-          if (permissionId != null &&
-              permissionId >= 28 &&
-              permissionId <= 40 &&
-              permissionValue == "Y") {
-            final int dataIndex = permissionId - 1;
+      if (response != null && response1 != null) {
+        final dataList = response["data"]['data'];
+        final dataList1 = response1["data"]['data'];
 
-            // Ensure the index is valid in dataList
-            if (dataIndex >= 0 && dataIndex < dataList.length) {
-              final rosLabelItem = dataList[dataIndex];
-              rosLabels.add(ROSLabel.fromJson(rosLabelItem));
+        if (dataList is List && dataList1 is List) {
+          List<ROSLabel> updatedLabels = [];
+
+          for (var permissionItem in dataList1) {
+            final int? permissionId = permissionItem["PermissionID"];
+            final String? permissionValue = permissionItem["Permission"];
+
+            if (permissionId != null &&
+                permissionId >= 28 &&
+                permissionId <= 40 &&
+                permissionValue == "Y") {
+              final int dataIndex = permissionId - 1;
+
+              if (dataIndex >= 0 && dataIndex < dataList.length) {
+                final rosLabelItem = dataList[dataIndex];
+                updatedLabels.add(ROSLabel.fromJson(rosLabelItem));
+              }
             }
           }
-        }
 
+          rosLabels = updatedLabels;
+          await saveROSLabelsToPrefs(); // Save to cache
+
+          loader = false;
+          notifyListeners();
+        }
+      } else {
         loader = false;
         notifyListeners();
+        debugPrint("Error fetching ROS Labels: ${response?['data']}");
       }
-    } else {
+    } catch (e) {
       loader = false;
       notifyListeners();
-      debugPrint("Error fetching ROS Labels: ${response?['data']}");
+      debugPrint("Error fetching ROS Labels: $e");
     }
   }
 

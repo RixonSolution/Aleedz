@@ -1,17 +1,18 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
-import 'package:aleedz/models/activity_type_model.dart';
+import 'package:aleedz/models/activity_category_Id_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/activity/activity_category_view.dart';
-import 'package:aleedz/viewmodel/activity_viewmodel.dart';
+import 'package:aleedz/view/screens/delployement/deployment_submit.dart';
+import 'package:aleedz/viewmodel/deployement_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ActivityView extends ConsumerStatefulWidget {
+class DeploymentView extends ConsumerStatefulWidget {
   String checkInTime, storeName;
   int storeId;
 
-  ActivityView({
+  DeploymentView({
     Key? key,
     required this.checkInTime,
     required this.storeName,
@@ -19,18 +20,18 @@ class ActivityView extends ConsumerStatefulWidget {
   }) : super(key: key);
 
   @override
-  ConsumerState<ActivityView> createState() => _MyConsumerState();
+  ConsumerState<DeploymentView> createState() => _MyConsumerState();
 }
 
-class _MyConsumerState extends ConsumerState<ActivityView> {
+class _MyConsumerState extends ConsumerState<DeploymentView> {
   TextEditingController searchController = TextEditingController();
-  List<ActivityModelType> filteredActivityType = [];
+  List<ActivityCategoryModel> filteredDeploymentList = [];
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
-      loadUserAndFetchCoverage();
+      loadUserAndFetchDeployment();
     });
 
     searchController.addListener(() {
@@ -38,22 +39,22 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
     });
   }
 
-  Future<void> loadUserAndFetchCoverage() async {
-    final notifier = ref.read(activityModelProvider.notifier);
+  Future<void> loadUserAndFetchDeployment() async {
+    final notifier = ref.read(deploymentModelProvider.notifier);
     await notifier.loadActivity();
     setState(() {
-      filteredActivityType = List.from(notifier.activityType);
+      filteredDeploymentList = List.from(notifier.deploymentList);
     });
   }
 
   void filterActivityList(String query) {
     final lowerQuery = query.toLowerCase();
-    final fullList = ref.read(activityModelProvider.notifier).activityType;
+    final fullList = ref.read(deploymentModelProvider.notifier).deploymentList;
 
     setState(() {
-      filteredActivityType =
+      filteredDeploymentList =
           fullList.where((item) {
-            final name = item.activityTypeName?.toLowerCase() ?? '';
+            final name = item.activityCategoryName?.toLowerCase() ?? '';
             return name.contains(lowerQuery);
           }).toList();
     });
@@ -61,7 +62,7 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(activityModelProvider);
+    final viewModel = ref.watch(deploymentModelProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -89,7 +90,7 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                             ),
                           ),
                           const Text(
-                            'Activity',
+                            'Deployment',
                             style: TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 20,
@@ -150,7 +151,7 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    if (filteredActivityType.isEmpty)
+                    if (filteredDeploymentList.isEmpty)
                       const Expanded(
                         child: Center(child: Text('No results found')),
                       )
@@ -158,26 +159,30 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                       Expanded(
                         child: ListView.builder(
                           padding: const EdgeInsets.all(5),
-                          itemCount: filteredActivityType.length,
+                          itemCount: filteredDeploymentList.length,
                           itemBuilder: (context, index) {
-                            final activity = filteredActivityType[index];
+                            final activity = filteredDeploymentList[index];
 
                             return Column(
                               children: [
                                 InkWell(
                                   onTap: () {
                                     NavigationService.navigateTo(
-                                      ActivityCategoryView(
+                                      DeployementSubmitView(
                                         storeName: widget.storeName,
                                         checkInTime: widget.checkInTime,
-                                        activityTypeName:
-                                            activity.activityTypeName ?? '',
+
                                         storeId: widget.storeId,
                                         divisionId:
                                             activity.divisionID?.toInt() ?? 1,
                                         activityTypeId:
                                             activity.activityTypeID?.toInt() ??
                                             1,
+                                        activityCategoryName:
+                                            activity.activityCategoryName
+                                                .toString(),
+                                        activitiCategoryId:
+                                            activity.activityCategoryID!,
                                       ),
                                     );
                                   },
@@ -201,7 +206,7 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                                         ),
                                         Expanded(
                                           child: Text(
-                                            activity.activityTypeName ?? '',
+                                            activity.activityCategoryName ?? '',
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 14,

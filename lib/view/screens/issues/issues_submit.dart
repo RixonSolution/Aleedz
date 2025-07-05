@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
@@ -7,21 +6,21 @@ import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/activity_viewmodel.dart';
+import 'package:aleedz/viewmodel/issues_veiwmodel.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shimmer/shimmer.dart';
 
-class ActivitySubmitView extends ConsumerStatefulWidget {
-  String checkInTime, storeName, activityTypeName, activityCategoryName;
+class IssueSubmitView extends ConsumerStatefulWidget {
+  String checkInTime, storeName, activityCategoryName;
   int storeId, divisionId, activityTypeId, activitiCategoryId;
 
-  ActivitySubmitView({
+  IssueSubmitView({
     Key? key,
     required this.checkInTime,
     required this.storeName,
-    required this.activityTypeName,
     required this.activityCategoryName,
     required this.divisionId,
     required this.activityTypeId,
@@ -30,10 +29,10 @@ class ActivitySubmitView extends ConsumerStatefulWidget {
   }) : super(key: key);
 
   @override
-  ConsumerState<ActivitySubmitView> createState() => _MyConsumerState();
+  ConsumerState<IssueSubmitView> createState() => _MyConsumerState();
 }
 
-class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
+class _MyConsumerState extends ConsumerState<IssueSubmitView> {
   void _showImagePickerDialog() {
     showDialog(
       context: context,
@@ -59,15 +58,15 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                   );
                   if (pickedImage != null &&
                       ref
-                              .read(activityModelProvider.notifier)
+                              .read(issuesModelProvider.notifier)
                               .beforeActivityImages
                               .length <
                           4) {
                     ref
-                        .read(activityModelProvider.notifier)
+                        .read(issuesModelProvider.notifier)
                         .beforeActivityImages
                         .add(File(pickedImage.path));
-                    ref.read(activityModelProvider.notifier).notifyListeners();
+                    ref.read(issuesModelProvider.notifier).notifyListeners();
                   }
                 },
               ),
@@ -82,17 +81,17 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                   if (pickedImages.isNotEmpty) {
                     for (var image in pickedImages) {
                       if (ref
-                              .read(activityModelProvider.notifier)
+                              .read(issuesModelProvider.notifier)
                               .beforeActivityImages
                               .length >=
                           4)
                         break;
                       ref
-                          .read(activityModelProvider.notifier)
+                          .read(issuesModelProvider.notifier)
                           .beforeActivityImages
                           .add(File(image.path));
                     }
-                    ref.read(activityModelProvider.notifier).notifyListeners();
+                    ref.read(issuesModelProvider.notifier).notifyListeners();
                   }
                 },
               ),
@@ -115,7 +114,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
 
   Future<void> loadUserAndFetchActivity() async {
     await ref
-        .read(activityModelProvider.notifier)
+        .read(issuesModelProvider.notifier)
         .getMarketActivityList(
           storeId: widget.storeId.toString(),
           activityCategoryId: widget.activitiCategoryId.toString(),
@@ -164,11 +163,10 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
   }
 
   TextEditingController descriptionController = TextEditingController();
-  TextEditingController quantityController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(activityModelProvider);
+    final viewModel = ref.watch(issuesModelProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -194,7 +192,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                     ),
                   ),
                   Text(
-                    'Activity Category',
+                    'Issues',
                     style: TextStyle(
                       color: AppColors.blackColor,
                       fontSize: 20,
@@ -245,18 +243,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                   Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Text(
-                          widget.activityTypeName,
-                          style: TextStyle(
-                            color: AppColors.whiteColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(5.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           widget.activityCategoryName,
                           style: TextStyle(
@@ -300,7 +287,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                             minLines: 2,
                             decoration: const InputDecoration(
                               border: InputBorder.none,
-                              hintText: 'Description',
+                              hintText: 'Describe issue details',
                               contentPadding: EdgeInsets.symmetric(
                                 vertical: 12,
                               ),
@@ -308,26 +295,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                           ),
                         ),
                         SizedBox(height: 10),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: TextField(
-                            keyboardType: TextInputType.number,
-                            controller: quantityController,
-                            maxLines: 3,
-                            minLines: 2,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Quantity (if any)',
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: 12,
-                              ),
-                            ),
-                          ),
-                        ),
+
                         SizedBox(height: 10),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -450,11 +418,6 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                       context,
                                       'Please add description',
                                     );
-                                  } else if (quantityController.text.isEmpty) {
-                                    AppSnackBar.showError(
-                                      context,
-                                      'Please add quantity',
-                                    );
                                   } else if (viewModel
                                       .beforeActivityImages
                                       .isEmpty) {
@@ -473,13 +436,12 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                       activityDescription:
                                           descriptionController.text,
                                       statusId: '1',
-                                      quantity: quantityController.text,
+                                      quantity: '1',
                                       deployementReason: '1',
                                       beforeActivityPictures:
                                           viewModel.beforeActivityImages,
                                     );
                                     descriptionController.clear();
-                                    quantityController.clear();
                                     viewModel.beforeActivityImages.clear();
                                     setState(() {});
 
@@ -529,7 +491,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Recent Activity',
+                      'Open Issues',
                       style: TextStyle(
                         color: AppColors.secondary,
                         fontSize: 16,

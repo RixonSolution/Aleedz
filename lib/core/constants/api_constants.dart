@@ -5,7 +5,7 @@ class ApiConstants {
     _baseUrl = url;
   }
 
-  static String get baseUrl => _baseUrl ?? "https://ffm.aleedz.com"; // fallback
+  static String get baseUrl => _baseUrl ?? "https://ffm.aleedz.com";
 
   static String get login => "$baseUrl/WebService.asmx/ROSAppUserLogin";
   static String get language => "$baseUrl/WebService.asmx/AppSettings";
