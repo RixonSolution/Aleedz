@@ -61,14 +61,22 @@ class CoverageViewModel extends ChangeNotifier {
     return null;
   }
 
-  void selectChannel(ChannelModel? channel, BuildContext context) async {
+  void selectChannel(
+    ChannelModel? channel,
+    BuildContext context, {
+    bool forceRefresh = false,
+  }) async {
     loader = true;
     notifyListeners();
     selectedChannel = channel;
     notifyListeners();
     print("Selected Channel ID: ${channel?.channelId}");
     if (channel != null) {
-      await getCoverageList(context, channelId: channel.channelId);
+      await getCoverageList(
+        context,
+        channelId: channel.channelId,
+        forceRefresh: forceRefresh,
+      );
     }
     loader = false;
     notifyListeners();
@@ -188,6 +196,8 @@ class CoverageViewModel extends ChangeNotifier {
     int channelId = 0,
     bool forceRefresh = false,
   }) async {
+    loader = true;
+    notifyListeners();
     // Condition to skip API call unless list is empty or forceRefresh is true
     if (stores.isNotEmpty && !forceRefresh) return;
 
@@ -201,13 +211,15 @@ class CoverageViewModel extends ChangeNotifier {
 
     if (response != null && response["status"] == 200) {
       final dataList = response["data"]['data'];
-
+      loader = false;
+      notifyListeners();
       if (dataList != null && dataList is List && dataList.isNotEmpty) {
         stores = dataList.map((e) => StoreModel.fromJson(e)).toList();
-        notifyListeners();
       }
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
+      loader = false;
+      notifyListeners();
     }
   }
 

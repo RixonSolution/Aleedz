@@ -4,7 +4,7 @@ class SaleListModel {
   String? brandName;
   String? productCategoryName;
   int? saleQuantity;
-  int? saleValue;
+  dynamic saleValue;
   int? saleId;
 
   SaleListModel({

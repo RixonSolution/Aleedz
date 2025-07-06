@@ -607,7 +607,12 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Image.asset(AppIcons.locationIcon, height: 30, width: 30),
+                  InkWell(
+                    onTap: () {
+                      viewModel.getCoverageList(context, forceRefresh: true);
+                    },
+                    child: Icon(Icons.refresh, size: 30),
+                  ),
                 ],
               ),
             ),
@@ -650,7 +655,11 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: TextField(
                 onChanged: (value) {
-                  viewModel.getCoverageList(context, searchKeyword: value);
+                  viewModel.getCoverageList(
+                    context,
+                    searchKeyword: value,
+                    forceRefresh: true,
+                  );
                 },
                 decoration: InputDecoration(
                   hintText: LabelService().getLabel(18),
@@ -704,7 +713,11 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                   final selected = viewModel.channelList.firstWhere(
                     (c) => c.channelId == channelId,
                   );
-                  viewModel.selectChannel(selected, context);
+                  viewModel.selectChannel(
+                    selected,
+                    context,
+                    forceRefresh: true,
+                  );
                 },
               ),
             ),

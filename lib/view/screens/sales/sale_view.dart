@@ -6,6 +6,7 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/sale_viewmodel.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -129,6 +130,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
     TextEditingController controller, {
     bool readOnly = false,
     void Function(String)? onChanged,
+    int? maxLength,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return Expanded(
       child: Container(
@@ -138,9 +141,12 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
           readOnly: readOnly,
           onChanged: onChanged,
           keyboardType: TextInputType.number,
+          inputFormatters: inputFormatters,
+          maxLength: maxLength,
           decoration: InputDecoration(
             hintText: label,
             filled: true,
+            counterText: "", // hides character counter
             fillColor: Colors.grey.shade200,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
@@ -466,16 +472,27 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                               LabelService().getLabel(75),
                               quantityController,
                               onChanged: (_) => calculateTotal(),
+                              maxLength: 4,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
                             ),
                             buildTextField(
                               LabelService().getLabel(76),
                               priceController,
                               onChanged: (_) => calculateTotal(),
+                              maxLength: 7,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
                             ),
                             buildTextField(
                               LabelService().getLabel(77),
                               totalController,
                               readOnly: true,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
                             ),
                           ],
                         ),

@@ -198,8 +198,6 @@ class SaleViewModel extends ChangeNotifier {
       final data = response["data"]['data'] as List;
       saleList = data.map((e) => SaleListModel.fromJson(e)).toList();
 
-      print(saleList);
-
       notifyListeners();
     } else {
       debugPrint("Sale List  Error: ${response?['data']}");

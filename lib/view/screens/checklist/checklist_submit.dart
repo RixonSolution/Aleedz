@@ -319,7 +319,8 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                         initialValue:
                                             viewModel
                                                 .checkListSubmitView[index]
-                                                .checkListStatus,
+                                                .checkListStatus ??
+                                            'Yes',
                                         index: index,
                                         storeId: widget.storeId,
                                         visiteId: widget.visiteId,
@@ -332,7 +333,8 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                         initialValue:
                                             viewModel
                                                 .checkListSubmitView[index]
-                                                .checkListStatus,
+                                                .checkListStatus ??
+                                            '0',
                                         index: index,
                                         storeId: widget.storeId,
                                         visiteId: widget.visiteId,
@@ -345,7 +347,8 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                         initialValue:
                                             viewModel
                                                 .checkListSubmitView[index]
-                                                .checkListStatus,
+                                                .checkListStatus ??
+                                            '',
                                         index: index,
                                         storeId: widget.storeId,
                                         visiteId: widget.visiteId,
@@ -354,7 +357,8 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                         initialValue:
                                             viewModel
                                                 .checkListSubmitView[index]
-                                                .checkListStatus,
+                                                .checkListStatus ??
+                                            '',
                                         index: index,
                                         storeId: widget.storeId,
                                         visiteId: widget.visiteId,

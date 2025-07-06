@@ -155,14 +155,18 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                     itemCount: viewModel.brands.length,
                     itemBuilder: (context, brandIndex) {
                       final brand = viewModel.brands[brandIndex];
-
                       final productIndex = brandIndex + 1;
+
+                      // 👇 Header should show only at the first item or when brand name changes
+                      final shouldShowHeader =
+                          brandIndex == 0 ||
+                          brand.brandName !=
+                              viewModel.brands[brandIndex - 1].brandName;
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // 🟢 Header (if needed only once)
-                          if (brandIndex == 0)
+                          if (shouldShowHeader)
                             Container(
                               color: AppColors.darkGreyBackground,
                               padding: const EdgeInsets.all(12),
@@ -185,18 +189,18 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                         child: Text(
                                           LabelService().getLabel(67),
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
-                                      SizedBox(width: 8),
+                                      const SizedBox(width: 8),
                                       SizedBox(
                                         width: 70,
                                         child: Text(
                                           LabelService().getLabel(68),
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -296,7 +300,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                               ),
                             ),
                           ),
-
                           Divider(thickness: 1),
                         ],
                       );
