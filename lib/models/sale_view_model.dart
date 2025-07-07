@@ -3,6 +3,8 @@ class SaleListModel {
   int? productCategoryID;
   String? brandName;
   String? productCategoryName;
+  dynamic productModelCode;
+  dynamic productModelName;
   int? saleQuantity;
   dynamic saleValue;
   int? saleId;
@@ -25,6 +27,8 @@ class SaleListModel {
     saleQuantity = json['SaleCount'];
     saleValue = json['SalePrice'];
     saleId = json['SaleID'];
+    productModelCode = json['ProductModelCode'];
+    productModelName = json['ProductModelName'];
   }
 
   Map<String, dynamic> toJson() {
@@ -36,6 +40,8 @@ class SaleListModel {
     data['SaleCount'] = this.saleQuantity;
     data['SalePrice'] = this.saleValue;
     data['SaleID'] = this.saleId;
+    data['ProductModelCode'] = this.productModelCode;
+    data['ProductModelName'] = this.productModelName;
 
     return data;
   }

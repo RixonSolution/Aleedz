@@ -6,9 +6,9 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/sale_viewmodel.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class SaleView extends ConsumerStatefulWidget {
   String storeName, checkInTime;
@@ -37,6 +37,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
           .read(saleModelProvider.notifier)
           .loadsale(context, widget.storeId.toString(), formattedDate2);
     });
+
     clcTotal();
   }
 
@@ -46,44 +47,71 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
     setState(() {});
     for (var item in ref.read(saleModelProvider.notifier).saleList) {
       final qty = int.tryParse(item.saleQuantity?.toString() ?? '0') ?? 0;
-      final price = int.tryParse(item.saleValue?.toString() ?? '0') ?? 0;
+      final price = double.tryParse(item.saleValue?.toString() ?? '0') ?? 0;
 
       totalQuantity += qty;
       totalPrice += qty * price;
+      setState(() {});
     }
-    setState(() {});
   }
 
   FocusNode remarksFocus = FocusNode();
 
   bool deleteLoader = false;
-  DateTime _selectedDate = DateTime.now(); // default is today
+
+  DateTime _selectedDate = DateTime.now();
+  DateTime _startDate = DateTime.now().subtract(Duration(days: 3));
+
+  List<DateTime> get visibleDates {
+    return List.generate(7, (index) => _startDate.add(Duration(days: index)));
+  }
 
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController totalController = TextEditingController();
 
   void calculateTotal() {
-    final quantity = int.tryParse(quantityController.text) ?? 0;
+    final quantity = double.tryParse(quantityController.text) ?? 0;
     final price = double.tryParse(priceController.text) ?? 0.0;
     final total = quantity * price;
 
-    totalController.text = total.toStringAsFixed(0);
+    totalController.text = total.toStringAsFixed(2);
+    setState(() {});
   }
 
-  Future<void> _pickDate() async {
-    DateTime? picked = await showDatePicker(
+  void _showCustomCalendar() {
+    showModalBottomSheet(
       context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.all(16),
+          child: TableCalendar(
+            firstDay: DateTime(2000),
+            lastDay: DateTime(2100),
+            focusedDay: _selectedDate,
+            calendarFormat: CalendarFormat.week, // 🔄 Shows one row of days
+            selectedDayPredicate: (day) => isSameDay(day, _selectedDate),
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDate = selectedDay;
+              });
+              Navigator.pop(context); // Close calendar after selection
+            },
+            calendarStyle: CalendarStyle(
+              todayDecoration: BoxDecoration(
+                color: Colors.blue,
+                shape: BoxShape.circle,
+              ),
+              selectedDecoration: BoxDecoration(
+                color: Colors.black,
+                shape: BoxShape.circle,
+              ),
+            ),
+            headerVisible: false, // Optional: hide month header
+          ),
+        );
+      },
     );
-
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
   }
 
   Future<void> _showLogoutDialog(
@@ -131,7 +159,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
     bool readOnly = false,
     void Function(String)? onChanged,
     int? maxLength,
-    List<TextInputFormatter>? inputFormatters,
   }) {
     return Expanded(
       child: Container(
@@ -141,7 +168,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
           readOnly: readOnly,
           onChanged: onChanged,
           keyboardType: TextInputType.number,
-          inputFormatters: inputFormatters,
           maxLength: maxLength,
           decoration: InputDecoration(
             hintText: label,
@@ -166,8 +192,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
     super.dispose();
   }
 
-  int totalQuantity = 0;
-  int totalPrice = 0;
+  double totalQuantity = 0;
+  double totalPrice = 0.0;
 
   final List<String> modelNames = [
     "Model A",
@@ -181,9 +207,17 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
   Widget build(BuildContext context) {
     final viewModel = ref.watch(saleModelProvider);
     String formattedDate = DateFormat('dd MMM yyyy').format(_selectedDate);
+
     String formattedDate2 = DateFormat(
       'yyyy-MM-dd',
     ).format(_selectedDate); // e.g., 2025-06-05
+
+    bool isSameDay(DateTime a, DateTime b) {
+      return a.year == b.year && a.month == b.month && a.day == b.day;
+    }
+
+    calculateTotal();
+    clcTotal();
 
     return GestureDetector(
       onTap: () {
@@ -210,7 +244,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                   SizedBox(
                     width: 40,
                     child: Text(
-                      totalQuantity.toString(),
+                      totalQuantity.toStringAsFixed(0),
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
@@ -288,24 +322,84 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                   ),
                 ),
               ),
-              GestureDetector(
-                onTap: _pickDate,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.keyboard_arrow_left, size: 40),
-                    Text(
-                      formattedDate,
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
+              SizedBox(height: 10),
+              SizedBox(
+                height: 80,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: visibleDates.length,
+                  itemBuilder: (context, index) {
+                    final date = visibleDates[index];
+                    final isSelected = isSameDay(date, _selectedDate);
+
+                    return GestureDetector(
+                      onTap: () async {
+                        setState(() {
+                          _selectedDate = date;
+                        });
+                        final formattedDate = DateFormat(
+                          'yyyy-MM-dd',
+                        ).format(date);
+
+                        await viewModel.loadsale(
+                          context,
+                          widget.storeId.toString(),
+                          formattedDate,
+                        );
+                      },
+                      child: Container(
+                        width: 60,
+                        margin: EdgeInsets.symmetric(horizontal: 6),
+                        decoration: BoxDecoration(
+                          color:
+                              isSelected
+                                  ? AppColors.secondary
+                                  : Colors.grey[200],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        alignment: Alignment.center,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              DateFormat.E().format(date), // Mon, Tue
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              date.day.toString(), // 1, 2, 3...
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : Colors.black,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Icon(Icons.keyboard_arrow_right, size: 40),
-                  ],
+                    );
+                  },
                 ),
               ),
+              // GestureDetector(
+              //   onTap: _showCustomCalendar,
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     children: [
+              //       Icon(Icons.keyboard_arrow_left, size: 40),
+              //       Text(
+              //         formattedDate,
+              //         style: TextStyle(
+              //           color: AppColors.blackColor,
+              //           fontSize: 30,
+              //           fontWeight: FontWeight.bold,
+              //         ),
+              //       ),
+              //       Icon(Icons.keyboard_arrow_right, size: 40),
+              //     ],
+              //   ),
+              // ),
               SizedBox(height: 20),
 
               Container(
@@ -473,26 +567,17 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                               quantityController,
                               onChanged: (_) => calculateTotal(),
                               maxLength: 4,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
                             ),
                             buildTextField(
                               LabelService().getLabel(76),
                               priceController,
                               onChanged: (_) => calculateTotal(),
                               maxLength: 7,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
                             ),
                             buildTextField(
                               LabelService().getLabel(77),
                               totalController,
                               readOnly: true,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
                             ),
                           ],
                         ),
@@ -528,8 +613,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                           context,
                                           productCategoryId:
                                               viewModel
-                                                  .selectedProductCategory!
-                                                  .productCategoryID
+                                                  .selectedSaleSearch!
+                                                  .productID
                                                   .toString(),
                                           storeId: widget.storeId.toString(),
                                           saleCount: quantityController.text,
@@ -675,129 +760,157 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                               viewModel.notifyListeners();
                             });
                           },
-                          child: Column(
+                          child: Stack(
                             children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8),
-                                    child: Text(
-                                      '${index + 1}.',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Text(
+                                  '${index + 1}.',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        Column(
+                                ),
+                              ),
+                              Column(
+                                children: [
+                                  Row(
+                                    // crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 8),
+                                        child: Text(
+                                          '${index + 1}.',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Row(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                              CrossAxisAlignment.end,
                                           children: [
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                  ),
-                                              child: SizedBox(
-                                                width: 190,
-                                                // color: Colors.red,
-                                                child: Text(
-                                                  viewModel
-                                                      .saleList[index]
-                                                      .saleId
-                                                      .toString(),
-                                                  style: TextStyle(
-                                                    color: AppColors.blackColor,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                  ),
-                                              child: SizedBox(
-                                                width: 190,
-                                                // color: Colors.red,
-                                                child: Text(
-                                                  viewModel
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                      ),
+                                                  child: SizedBox(
+                                                    width: 190,
+                                                    // color: Colors.red,
+                                                    child: Text(
+                                                      viewModel
                                                           .saleList[index]
-                                                          .productCategoryName ??
-                                                      '',
-                                                  style: TextStyle(
-                                                    color: AppColors.greyText,
-                                                    fontSize: 14,
+                                                          .productModelCode
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColors
+                                                                .blackColor,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                  ),
-                                              child: SizedBox(
-                                                width: 190,
-                                                // color: Colors.red,
-                                                child: Text(
-                                                  'Price: ${viewModel.saleList[index].saleValue}',
-                                                  style: TextStyle(
-                                                    color: AppColors.blackColor,
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.bold,
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                      ),
+                                                  child: SizedBox(
+                                                    width: 190,
+                                                    // color: Colors.red,
+                                                    child: Text(
+                                                      viewModel
+                                                              .saleList[index]
+                                                              .productModelName ??
+                                                          '',
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColors.greyText,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                      ),
+                                                  child: SizedBox(
+                                                    width: 190,
+                                                    // color: Colors.red,
+                                                    child: Text(
+                                                      'Price: ${viewModel.saleList[index].saleValue}',
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColors
+                                                                .blackColor,
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    // color: Colors.red,
-                                    width: 40,
-                                    padding: const EdgeInsets.only(right: 0),
-                                    child: Text(
-                                      viewModel.saleList[index].saleQuantity
-                                          .toString(),
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
                                       ),
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  Container(
-                                    // color: Colors.red,
-                                    width: 70,
-                                    padding: const EdgeInsets.only(right: 00),
-                                    child: Text(
-                                      '${(int.tryParse(viewModel.saleList[index].saleQuantity?.toString() ?? '0') ?? 0) * (int.tryParse(viewModel.saleList[index].saleValue?.toString() ?? '0') ?? 0)}',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
+                                      Container(
+                                        // color: Colors.red,
+                                        width: 40,
+                                        padding: const EdgeInsets.only(
+                                          right: 0,
+                                        ),
+                                        child: Text(
+                                          viewModel.saleList[index].saleQuantity
+                                              .toString(),
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      SizedBox(width: 10),
+                                      Container(
+                                        // color: Colors.red,
+                                        width: 70,
+                                        padding: const EdgeInsets.only(
+                                          right: 00,
+                                        ),
+                                        child: Text(
+                                          '${(viewModel.saleList[index].saleQuantity ?? 0.0) * (viewModel.saleList[index].saleValue ?? 0.0)}',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  Divider(
+                                    color: Colors.grey[300],
+                                    thickness: 1,
+                                    indent: 12,
+                                    endIndent: 12,
                                   ),
                                 ],
-                              ),
-
-                              Divider(
-                                color: Colors.grey[300],
-                                thickness: 1,
-                                indent: 12,
-                                endIndent: 12,
                               ),
                             ],
                           ),
