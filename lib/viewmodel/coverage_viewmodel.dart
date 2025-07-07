@@ -183,6 +183,7 @@ class CoverageViewModel extends ChangeNotifier {
         storeCount = dataList[0]["MyCoverageStoresCount"];
         storeTimeSpend = dataList[1]["MyCoverageStoresCount"];
         storeTotalTravel = dataList[2]["MyCoverageStoresCount"];
+        print(storeCount);
         notifyListeners();
       }
     } else {

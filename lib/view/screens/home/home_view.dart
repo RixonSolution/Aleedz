@@ -1657,7 +1657,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
                                                     // 2. If multi-check-in allowed, allow navigation
                                                     if (allowMultiCheckIn ==
-                                                        'Y') {
+                                                            'Y' &&
+                                                        visitStatusId == 2) {
                                                       NavigationService.navigateTo(
                                                         StoreHome(
                                                           storeName:
@@ -1701,26 +1702,26 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                     }
 
                                                     // ✅ All good, navigate
-                                                    NavigationService.navigateTo(
-                                                      StoreHome(
-                                                        storeName:
-                                                            selectedStore
-                                                                .storeName,
-                                                        checkInTime:
-                                                            selectedStore
-                                                                .checkInTime,
-                                                        grade:
-                                                            viewModel
-                                                                .dashBoardList[index]
-                                                                .gradeName,
-                                                        address:
-                                                            selectedStore
-                                                                .address,
-                                                        storeId:
-                                                            selectedStore
-                                                                .storeId,
-                                                      ),
-                                                    );
+                                                    // NavigationService.navigateTo(
+                                                    //   StoreHome(
+                                                    //     storeName:
+                                                    //         selectedStore
+                                                    //             .storeName,
+                                                    //     checkInTime:
+                                                    //         selectedStore
+                                                    //             .checkInTime,
+                                                    //     grade:
+                                                    //         viewModel
+                                                    //             .dashBoardList[index]
+                                                    //             .gradeName,
+                                                    //     address:
+                                                    //         selectedStore
+                                                    //             .address,
+                                                    //     storeId:
+                                                    //         selectedStore
+                                                    //             .storeId,
+                                                    //   ),
+                                                    // );
                                                   },
                                                   child: Padding(
                                                     padding:
