@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:aleedz/core/controllers/coverage_controller.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/audit_model.dart';
@@ -16,7 +15,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
-import 'dart:convert';
 import 'package:image/image.dart' as img;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -167,7 +165,7 @@ class CoverageViewModel extends ChangeNotifier {
 
   Future<void> getCoverageCount(BuildContext context) async {
     // If already fetched and not zero, skip API call
-    if (storeCount != '0') return;
+    // if (storeCount != '0') return;
 
     selectedChannel = null;
     notifyListeners();
@@ -183,7 +181,6 @@ class CoverageViewModel extends ChangeNotifier {
         storeCount = dataList[0]["MyCoverageStoresCount"];
         storeTimeSpend = dataList[1]["MyCoverageStoresCount"];
         storeTotalTravel = dataList[2]["MyCoverageStoresCount"];
-        print(storeCount);
         notifyListeners();
       }
     } else {

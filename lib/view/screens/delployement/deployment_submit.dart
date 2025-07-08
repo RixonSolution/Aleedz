@@ -5,7 +5,6 @@ import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/viewmodel/activity_viewmodel.dart';
 import 'package:aleedz/viewmodel/issues_veiwmodel.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -173,7 +172,6 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
         backgroundColor: AppColors.whiteColor,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-
           children: [
             SizedBox(height: 10),
             Padding(
@@ -235,6 +233,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
               ),
             ),
             SizedBox(height: 10),
+
             Container(
               decoration: BoxDecoration(color: AppColors.secondary),
               child: Row(
@@ -258,6 +257,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                 ],
               ),
             ),
+
             SizedBox(height: 10),
             Container(
               margin: EdgeInsets.symmetric(horizontal: 10),
@@ -295,7 +295,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                           ),
                         ),
                         SizedBox(height: 10),
-
+                        BarcodeScannerUI(),
                         SizedBox(height: 10),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -335,65 +335,62 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                Expanded(
-                                  child: SizedBox(
-                                    height: 80,
-                                    child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount:
-                                          viewModel.beforeActivityImages.length,
-                                      itemBuilder: (context, index) {
-                                        final file =
-                                            viewModel
-                                                .beforeActivityImages[index];
-                                        return Stack(
-                                          children: [
-                                            Container(
-                                              margin: const EdgeInsets.only(
-                                                right: 10,
+                                SizedBox(
+                                  height: 80,
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount:
+                                        viewModel.beforeActivityImages.length,
+                                    itemBuilder: (context, index) {
+                                      final file =
+                                          viewModel.beforeActivityImages[index];
+                                      return Stack(
+                                        children: [
+                                          Container(
+                                            margin: const EdgeInsets.only(
+                                              right: 10,
+                                            ),
+                                            height: 70,
+                                            width: 80,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              image: DecorationImage(
+                                                image: FileImage(file),
+                                                fit: BoxFit.cover,
                                               ),
-                                              height: 70,
-                                              width: 80,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                image: DecorationImage(
-                                                  image: FileImage(file),
-                                                  fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 4,
+                                            right: 4,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                viewModel.beforeActivityImages
+                                                    .removeAt(index);
+                                                viewModel.notifyListeners();
+                                              },
+                                              child: Container(
+                                                decoration: const BoxDecoration(
+                                                  color: AppColors.secondary,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                padding: const EdgeInsets.all(
+                                                  4,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.close,
+                                                  size: 16,
+                                                  color: Colors.white,
                                                 ),
                                               ),
                                             ),
-                                            Positioned(
-                                              top: 4,
-                                              right: 4,
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  viewModel.beforeActivityImages
-                                                      .removeAt(index);
-                                                  viewModel.notifyListeners();
-                                                },
-                                                child: Container(
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                        color:
-                                                            AppColors.secondary,
-                                                        shape: BoxShape.circle,
-                                                      ),
-                                                  padding: const EdgeInsets.all(
-                                                    4,
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.close,
-                                                    size: 16,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    ),
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   ),
                                 ),
                               ],
@@ -406,7 +403,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                   Padding(
                     padding: const EdgeInsets.all(12),
                     child: SizedBox(
-                      width: double.infinity,
+                      // width: double.infinity,
                       height: 50,
                       child:
                           viewModel.loader
@@ -456,13 +453,18 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                   ),
                                   backgroundColor: AppColors.secondary,
                                 ),
-                                child: const Text(
-                                  "Submit",
-                                  style: TextStyle(
-                                    color: AppColors.whiteColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      "Submit",
+                                      style: TextStyle(
+                                        color: AppColors.whiteColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                     ),
@@ -519,173 +521,324 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                 ),
               ],
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: viewModel.marketActivityList.length,
-                shrinkWrap: true,
-                physics: ScrollPhysics(),
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onLongPress: () {
-                      _showLogoutDialog(context, () async {
-                        NavigationService.goBack();
+            ListView.builder(
+              itemCount: viewModel.marketActivityList.length,
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onLongPress: () {
+                    _showLogoutDialog(context, () async {
+                      NavigationService.goBack();
 
-                        await viewModel.removeActivity(
-                          activityId:
-                              viewModel.marketActivityList[index].activityID
-                                  .toString(),
-                          activityTypeId:
-                              viewModel.marketActivityList[index].activityTypeID
-                                  .toString(),
-                        );
-                        await loadUserAndFetchActivity();
-                      });
-                    },
-                    child: Column(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Text(
-                                '${index + 1}.',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                      await viewModel.removeActivity(
+                        activityId:
+                            viewModel.marketActivityList[index].activityID
+                                .toString(),
+                        activityTypeId:
+                            viewModel.marketActivityList[index].activityTypeID
+                                .toString(),
+                      );
+                      await loadUserAndFetchActivity();
+                    });
+                  },
+                  child: Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Text(
+                              '${index + 1}.',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
-                                        child: SizedBox(
-                                          width: 190,
-                                          // color: Colors.red,
-                                          child: Text(
-                                            '${viewModel.marketActivityList[index].activityTypeName} - ${viewModel.marketActivityList[index].activityCategoryName}',
-                                            style: TextStyle(
-                                              color: AppColors.blackColor,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
-                                        child: SizedBox(
-                                          width: 190,
-                                          // color: Colors.red,
-                                          child: Text(
-                                            viewModel
-                                                .marketActivityList[index]
-                                                .activityDescription
-                                                .toString(),
-                                            style: TextStyle(
-                                              color: AppColors.greyText,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(height: 15),
-
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
-                                        child: Text(
-                                          'Date: ${viewModel.marketActivityList[index].activityDateTime}}',
-                                          style: TextStyle(
-                                            color: AppColors.blackColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(height: 5),
-
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
-                                        child: Text(
-                                          'Quantity: ${viewModel.marketActivityList[index].quantity}',
-                                          style: TextStyle(
-                                            color: AppColors.blackColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                          ),
+                          Expanded(
+                            child: Row(
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 12),
-                                  child: CachedNetworkImage(
-                                    //
-                                    imageUrl:
-                                        '${ApiConstants.baseUrl}/${viewModel.marketActivityList[index].imageActivity}',
-                                    // imageUrl:
-                                    //     '${ApiConstants.baseUrl}${viewModel.viewPicture[index].column1 ?? ''}',
-                                    height: 100,
-                                    width: 90,
-
-                                    placeholder:
-                                        (context, url) => Shimmer.fromColors(
-                                          baseColor: Colors.grey[300]!,
-                                          highlightColor: Colors.grey[100]!,
-                                          child: Container(
-                                            height: 70,
-                                            width: 80,
-                                            color: Colors.white,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      child: SizedBox(
+                                        width: 190,
+                                        // color: Colors.red,
+                                        child: Text(
+                                          '${viewModel.marketActivityList[index].activityTypeName} - ${viewModel.marketActivityList[index].activityCategoryName}',
+                                          style: TextStyle(
+                                            color: AppColors.blackColor,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
                                           ),
                                         ),
-                                    errorWidget:
-                                        (context, url, error) => Icon(
-                                          Icons.error,
-                                        ), // optional error widget
-                                    fit: BoxFit.cover, // optional fit
-                                  ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      child: SizedBox(
+                                        width: 190,
+                                        // color: Colors.red,
+                                        child: Text(
+                                          viewModel
+                                              .marketActivityList[index]
+                                              .activityDescription
+                                              .toString(),
+                                          style: TextStyle(
+                                            color: AppColors.greyText,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 15),
+
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      child: Text(
+                                        'Date: ${viewModel.marketActivityList[index].activityDateTime}}',
+                                        style: TextStyle(
+                                          color: AppColors.blackColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 5),
+
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      child: Text(
+                                        'Quantity: ${viewModel.marketActivityList[index].quantity}',
+                                        style: TextStyle(
+                                          color: AppColors.blackColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: CachedNetworkImage(
+                                  //
+                                  imageUrl:
+                                      '${ApiConstants.baseUrl}/${viewModel.marketActivityList[index].imageActivity}',
+                                  // imageUrl:
+                                  //     '${ApiConstants.baseUrl}${viewModel.viewPicture[index].column1 ?? ''}',
+                                  height: 100,
+                                  width: 90,
 
-                        Divider(
-                          color: Colors.grey[300],
-                          thickness: 1,
-                          indent: 12,
-                          endIndent: 12,
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                                  placeholder:
+                                      (context, url) => Shimmer.fromColors(
+                                        baseColor: Colors.grey[300]!,
+                                        highlightColor: Colors.grey[100]!,
+                                        child: Container(
+                                          height: 70,
+                                          width: 80,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                  errorWidget:
+                                      (context, url, error) => Icon(
+                                        Icons.error,
+                                      ), // optional error widget
+                                  fit: BoxFit.cover, // optional fit
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+
+                      Divider(
+                        color: Colors.grey[300],
+                        thickness: 1,
+                        indent: 12,
+                        endIndent: 12,
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class BarcodeScannerUI extends StatefulWidget {
+  const BarcodeScannerUI({super.key});
+
+  @override
+  State<BarcodeScannerUI> createState() => _BarcodeScannerUIState();
+}
+
+class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
+  final TextEditingController _barcodeController = TextEditingController();
+  final List<String> scannedCodes = [];
+
+  void _addCode() {
+    final code = _barcodeController.text.trim();
+    if (code.isNotEmpty) {
+      setState(() {
+        scannedCodes.add(code);
+        _barcodeController.clear();
+      });
+    }
+  }
+
+  void _removeCode(int index) {
+    setState(() {
+      scannedCodes.removeAt(index);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        /// Input Row
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _barcodeController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  border: OutlineInputBorder(),
+                  hintText: 'Enter Scan Code',
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            GestureDetector(
+              onTap: _addCode,
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.add, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        /// Table Header
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.black),
+            color: Colors.grey.shade200,
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+          child: Row(
+            children: const [
+              Expanded(
+                flex: 1,
+                child: Text('#', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              Expanded(
+                flex: 4,
+                child: Text(
+                  'Scan Code',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  'Action',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        /// Table List
+        ...List.generate(scannedCodes.length, (index) {
+          return Container(
+            decoration: BoxDecoration(
+              border: Border(
+                left: BorderSide(color: Colors.black),
+                right: BorderSide(color: Colors.black),
+                bottom: BorderSide(color: Colors.black),
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+            child: Row(
+              children: [
+                Expanded(flex: 1, child: Text('${index + 1}')),
+                Expanded(flex: 4, child: Text(scannedCodes[index])),
+                Expanded(
+                  flex: 2,
+                  child: IconButton(
+                    onPressed: () => _removeCode(index),
+                    icon: Icon(Icons.cancel, color: Colors.orange),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+
+        /// Table Footer
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.black),
+            color: Colors.grey.shade100,
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+          child: Row(
+            children: [
+              const Expanded(
+                flex: 5,
+                child: Text(
+                  'Total Count',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  '${scannedCodes.length}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

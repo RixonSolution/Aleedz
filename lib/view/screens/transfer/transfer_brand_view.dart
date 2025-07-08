@@ -37,7 +37,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
       ref.read(transferModelProvider.notifier).getBrandDropDown();
       ref
           .read(transferModelProvider.notifier)
-          .transferCheckBrand(widget.storeId, 0);
+          .transferCheckBrand(widget.storeId, 0, widget.visiteId.toString());
     });
   }
 
@@ -209,7 +209,11 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                   final selected = viewModel.brandList.firstWhere(
                     (c) => c.brandId == branddlId,
                   );
-                  viewModel.selectBrand(widget.storeId, selected);
+                  viewModel.selectBrand(
+                    widget.storeId,
+                    selected,
+                    widget.visiteId.toString(),
+                  );
                 },
               ),
             ),

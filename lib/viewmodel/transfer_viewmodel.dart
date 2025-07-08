@@ -317,7 +317,7 @@ class TransferViewModel extends ChangeNotifier {
     }
   }
 
-  void selectBrand(int storeId, BrandListModel? brand) async {
+  void selectBrand(int storeId, BrandListModel? brand, String visitId) async {
     loader = true;
     notifyListeners();
     selectedBrand = brand;
@@ -325,7 +325,7 @@ class TransferViewModel extends ChangeNotifier {
     print("Selected Channel ID: ${brand?.brandId}");
 
     if (brand != null) {
-      await transferCheckBrand(storeId, brand.brandId);
+      await transferCheckBrand(storeId, brand.brandId, visitId);
     }
     loader = false;
     notifyListeners();
@@ -347,7 +347,11 @@ class TransferViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> transferCheckBrand(int storeId, int brandId) async {
+  Future<void> transferCheckBrand(
+    int storeId,
+    int brandId,
+    String visitId,
+  ) async {
     loader = true;
     brands = [];
     notifyListeners();
@@ -355,7 +359,7 @@ class TransferViewModel extends ChangeNotifier {
       storeId: storeId.toString(),
       brandId: brandId.toString(),
       token: user?.apiToken ?? '',
-      visiteId: '0',
+      visiteId: visitId,
     );
 
     if (response != null && response["status"] == 200) {

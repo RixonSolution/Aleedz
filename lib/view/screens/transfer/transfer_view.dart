@@ -219,7 +219,7 @@ class _CoverageViewState extends ConsumerState<TransferView> {
                             TransferBrandView(
                               storeName: widget.storeName,
                               checkInTime: widget.checkInTime,
-                              storeId: widget.storeId,
+                              storeId: viewModel.transfer[index].storeID!,
                               transferStore:
                                   viewModel.transfer[index].storeName ?? '',
                               transferStoreAddress:

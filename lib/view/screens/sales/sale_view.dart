@@ -216,20 +216,29 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                     ),
                   ),
                   SizedBox(
-                    // width: 40,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: Text(
-                        totalQuantity.toStringAsFixed(0),
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
+                    // color: Colors.red,
+                    width: 80,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          totalQuantity.toStringAsFixed(0),
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(
-                    // width: 50,
-                    child: Text(
-                      totalPrice.toStringAsFixed(1),
-                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    // color: Colors.red,
+                    width: 80,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          totalPrice.toStringAsFixed(1),
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ],
                     ),
                   ),
                 ],

@@ -18,12 +18,13 @@ class DashboardView extends ConsumerStatefulWidget {
 
 class _DashboardViewState extends ConsumerState<DashboardView> {
   late int _selectedIndex;
+  bool _showProfileDrawer = false;
 
   final List<Widget> _screens = [
     HomeView(),
     CoverageView(),
     HomeView(),
-    LogoutScreen(),
+    SizedBox(), // Placeholder for drawer
   ];
 
   @override
@@ -33,8 +34,23 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   }
 
   void _onItemTapped(int index) {
+    if (index == 3) {
+      // Profile icon tapped - show drawer
+      setState(() {
+        _showProfileDrawer = true;
+      });
+    } else {
+      // Navigate to other tabs normally
+      setState(() {
+        _selectedIndex = index;
+        _showProfileDrawer = false;
+      });
+    }
+  }
+
+  void _closeDrawer() {
     setState(() {
-      _selectedIndex = index;
+      _showProfileDrawer = false;
     });
   }
 
@@ -43,57 +59,79 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     return WillPopScope(
       onWillPop: () async => false,
       child: SafeArea(
-        child: Scaffold(
-          body: _screens[_selectedIndex],
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
-            backgroundColor: AppColors.secondary,
-            selectedItemColor: AppColors.whiteColor,
-            unselectedItemColor: AppColors.whiteColor,
-            items: [
-              BottomNavigationBarItem(
-                icon: Image.asset(
-                  AppIcons.dashboardIcon,
-                  height: 30,
-                  width: 30,
-                  color: AppColors.whiteColor,
-                ),
+        child: Stack(
+          children: [
+            Scaffold(
+              body: _screens[_selectedIndex],
+              bottomNavigationBar: BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                currentIndex: _selectedIndex,
+                onTap: _onItemTapped,
+                backgroundColor: AppColors.secondary,
+                selectedItemColor: AppColors.whiteColor,
+                unselectedItemColor: AppColors.whiteColor,
+                items: [
+                  BottomNavigationBarItem(
+                    icon: Image.asset(
+                      AppIcons.dashboardIcon,
+                      height: 30,
+                      width: 30,
+                      color: AppColors.whiteColor,
+                    ),
+                    label: LabelService().getLabel(7),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Image.asset(
+                      AppIcons.coverageIcon,
+                      height: 30,
+                      width: 30,
+                      color: AppColors.whiteColor,
+                    ),
+                    label: LabelService().getLabel(8),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Image.asset(
+                      AppIcons.notificationIcon,
+                      height: 30,
+                      width: 30,
+                      color: AppColors.whiteColor,
+                    ),
+                    label: LabelService().getLabel(9),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Image.asset(
+                      AppIcons.accountIcon,
+                      height: 30,
+                      width: 30,
+                      color: AppColors.whiteColor,
+                    ),
+                    label: LabelService().getLabel(10),
+                  ),
+                ],
+              ),
+            ),
 
-                label: LabelService().getLabel(7),
-              ),
-              BottomNavigationBarItem(
-                icon: Image.asset(
-                  AppIcons.coverageIcon,
-                  height: 30,
-                  width: 30,
-                  color: AppColors.whiteColor,
+            // 🔹 Profile Drawer Panel
+            if (_showProfileDrawer)
+              GestureDetector(
+                onTap: _closeDrawer,
+                child: Container(
+                  color: Colors.black54,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: FractionallySizedBox(
+                      widthFactor: 0.75, // 75% of screen width
+                      child: Material(
+                        elevation: 16,
+                        child: ProfileScreen(
+                          onClose: _closeDrawer, // Optional close callback
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-
-                label: LabelService().getLabel(8),
               ),
-              BottomNavigationBarItem(
-                icon: Image.asset(
-                  AppIcons.notificationIcon,
-                  height: 30,
-                  width: 30,
-                  color: AppColors.whiteColor,
-                ),
-
-                label: LabelService().getLabel(9),
-              ),
-              BottomNavigationBarItem(
-                icon: Image.asset(
-                  AppIcons.accountIcon,
-                  height: 30,
-                  width: 30,
-                  color: AppColors.whiteColor,
-                ),
-                label: LabelService().getLabel(10),
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );

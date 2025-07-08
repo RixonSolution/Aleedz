@@ -320,7 +320,7 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                             viewModel
                                                 .checkListSubmitView[index]
                                                 .checkListStatus ??
-                                            'Yes',
+                                            '',
                                         index: index,
                                         storeId: widget.storeId,
                                         visiteId: widget.visiteId,
@@ -334,7 +334,7 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                             viewModel
                                                 .checkListSubmitView[index]
                                                 .checkListStatus ??
-                                            '0',
+                                            '',
                                         index: index,
                                         storeId: widget.storeId,
                                         visiteId: widget.visiteId,
