@@ -651,6 +651,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                 ],
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: TextField(

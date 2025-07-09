@@ -33,7 +33,9 @@ class _CoverageViewState extends ConsumerState<TransferView> {
   }
 
   void loadData() async {
-    ref.read(transferModelProvider.notifier).loadCoverageData(context);
+    ref
+        .read(transferModelProvider.notifier)
+        .loadCoverageData(context, widget.visiteId.toString());
   }
 
   @override
@@ -113,7 +115,11 @@ class _CoverageViewState extends ConsumerState<TransferView> {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: TextField(
                 onChanged: (value) {
-                  viewModel.getTransferList(context, searchKeyword: value);
+                  viewModel.getTransferList(
+                    context,
+                    searchKeyword: value,
+                    visitId: widget.visiteId.toString(),
+                  );
                 },
                 decoration: InputDecoration(
                   hintText: LabelService().getLabel(18),

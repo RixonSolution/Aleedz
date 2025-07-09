@@ -105,4 +105,7 @@ class ApiConstants {
   static String get trainingSubmit => "$baseUrl/Trainings.asmx/TrainingAdd";
 
   static String get trainingType => "$baseUrl/Trainings.asmx/TrainingType";
+
+  static String get pendingDeployment =>
+      "$baseUrl/Deployments.asmx/PendingDeployment";
 }

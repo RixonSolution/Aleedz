@@ -55,6 +55,8 @@ class TransferViewModel extends ChangeNotifier {
     auditList = [];
     selectedProducts = [];
     selectedProducts1 = [];
+    quantityControllers = {};
+
     notifyListeners();
     final response = await _transferController.transferSubmitList(
       storeId: storeId.toString(),
@@ -81,6 +83,7 @@ class TransferViewModel extends ChangeNotifier {
 
         selectedProducts.add(product);
       });
+      print(selectedProducts);
 
       loader = false;
       notifyListeners();
@@ -280,6 +283,7 @@ class TransferViewModel extends ChangeNotifier {
     BuildContext context, {
     String searchKeyword = '',
     int channelId = 0,
+    String? visitId,
   }) async {
     final response = await _transferController.transferList(
       teamMemberId: user?.teamMemberID.toString() ?? '0',
@@ -287,7 +291,7 @@ class TransferViewModel extends ChangeNotifier {
       searchKeyWord: searchKeyword,
       chanelTypeId: '0',
       token: user?.apiToken ?? '',
-      visiteId: '0',
+      visiteId: visitId.toString(),
     );
 
     if (response != null && response["status"] == 200) {
@@ -375,13 +379,13 @@ class TransferViewModel extends ChangeNotifier {
     }
   }
 
-  Future loadCoverageData(context) async {
+  Future loadCoverageData(context, String visitId) async {
     loader = true;
     notifyListeners();
     await loadUser();
     await getLatLong();
     await getTransferDropDown();
-    await getTransferList(context);
+    await getTransferList(context, visitId: visitId);
 
     loader = false;
     notifyListeners();

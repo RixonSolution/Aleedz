@@ -150,6 +150,7 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 20),
                     if (filteredActivityType.isEmpty)
                       const Expanded(

@@ -36,6 +36,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   Future<void> loadUserAndFetchCoverage() async {
     await ref.read(coverageModelProvider.notifier).loadDashboard(context);
+    await ref.read(storeModelProvider).getROSLabels();
     final notifier = ref.read(storeModelProvider.notifier);
     await notifier.loadROSLabelsFromPrefs();
   }

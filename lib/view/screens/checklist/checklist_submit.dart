@@ -124,13 +124,20 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
   }
 
   bool loader = false;
+  bool canSubmitChecklist() {
+    final viewModel = ref.watch(checklistModelProvider);
+    return viewModel.checklistEntries.any(
+      (entry) => entry.checkListStatus != null,
+    );
+  }
 
   Future<void> submitChecklistEntries() async {
     final viewModel = ref.watch(checklistModelProvider);
-
-    setState(() {
-      loader = true;
-    });
+    if (mounted) {
+      setState(() {
+        loader = true;
+      });
+    }
 
     for (int i = 0; i < viewModel.checklistEntries.length; i++) {
       final entry = viewModel.checklistEntries[i];
@@ -153,9 +160,11 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
 
       // Check if the last response was successful before continuing
     }
-    setState(() {
-      loader = false;
-    });
+    if (mounted) {
+      setState(() {
+        loader = false;
+      });
+    }
     print("✅ All checklist entries submitted.");
   }
 
@@ -171,16 +180,14 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
           margin: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           color: Colors.white,
           child: ElevatedButton(
-            onPressed: () async {
-              await submitChecklistEntries();
-              NavigationService.goBack();
-
-              // viewModel.checklistEntries = [];
-
-              AppSnackBar.showSuccess(context, 'Checklist submitted}');
-
-              // // Handle submit action here
-            },
+            onPressed:
+                canSubmitChecklist() && !loader
+                    ? () async {
+                      await submitChecklistEntries();
+                      NavigationService.goBack();
+                      AppSnackBar.showSuccess(context, 'Checklist submitted');
+                    }
+                    : null, // disables the button if no checklistStatus is present or loader is true
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.secondary,
               padding: EdgeInsets.symmetric(vertical: 16),
@@ -205,8 +212,8 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
         body:
             viewModel.loader
                 ? const Center(child: CircularProgressIndicator())
-                : ListView(
-                  // crossAxisAlignment: CrossAxisAlignment.start,
+                : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 10),
                     Padding(
@@ -284,163 +291,167 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                     ),
                     SizedBox(height: 10),
 
-                    ListView.builder(
-                      itemCount: viewModel.checkListSubmitView.length,
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      primary: true,
-                      itemBuilder: (BuildContext context, int index) {
-                        final descriptionController = TextEditingController(
-                          text: getChecklistDescription(
-                            viewModel.checkListSubmitView[index].checklistID
-                                .toString(),
-                          ),
-                        );
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: viewModel.checkListSubmitView.length,
+                        shrinkWrap: true,
+                        physics: ScrollPhysics(),
+                        primary: true,
+                        itemBuilder: (BuildContext context, int index) {
+                          final descriptionController = TextEditingController(
+                            text: getChecklistDescription(
+                              viewModel.checkListSubmitView[index].checklistID
+                                  .toString(),
+                            ),
+                          );
 
-                        return Column(
-                          children: [
-                            ProductCard(
-                              storeId: widget.storeId,
-                              visitId: widget.visiteId,
-                              initialDescription: descriptionController.text,
-                              index1: index + 1,
+                          return Column(
+                            children: [
+                              ProductCard(
+                                storeId: widget.storeId,
+                                visitId: widget.visiteId,
+                                initialDescription: descriptionController.text,
+                                index1: index + 1,
 
-                              title:
+                                title:
+                                    viewModel
+                                        .checkListSubmitView[index]
+                                        .question ??
+                                    '',
+                                optionWidget:
+                                    viewModel
+                                                .checkListSubmitView[index]
+                                                .inputTypeID ==
+                                            1
+                                        ? ToggleYesNo(
+                                          initialValue:
+                                              viewModel
+                                                  .checkListSubmitView[index]
+                                                  .checkListStatus ??
+                                              '',
+                                          index: index,
+                                          storeId: widget.storeId,
+                                          visiteId: widget.visiteId,
+                                        )
+                                        : viewModel
+                                                .checkListSubmitView[index]
+                                                .inputTypeID ==
+                                            2
+                                        ? QuantityBox(
+                                          initialValue:
+                                              viewModel
+                                                  .checkListSubmitView[index]
+                                                  .checkListStatus ??
+                                              '',
+                                          index: index,
+                                          storeId: widget.storeId,
+                                          visiteId: widget.visiteId,
+                                        )
+                                        : viewModel
+                                                .checkListSubmitView[index]
+                                                .inputTypeID ==
+                                            3
+                                        ? DateBox(
+                                          initialValue:
+                                              viewModel
+                                                  .checkListSubmitView[index]
+                                                  .checkListStatus ??
+                                              '',
+                                          index: index,
+                                          storeId: widget.storeId,
+                                          visiteId: widget.visiteId,
+                                        )
+                                        : TextBox(
+                                          initialValue:
+                                              viewModel
+                                                  .checkListSubmitView[index]
+                                                  .checkListStatus ??
+                                              '',
+                                          index: index,
+                                          storeId: widget.storeId,
+                                          visiteId: widget.visiteId,
+                                        ),
+                                index: index,
+                                onRemoveImage: () {
+                                  setState(() {});
+                                  viewModel.addOrUpdateChecklistEntry(
+                                    ChecklistEntry(
+                                      token: viewModel.user?.apiToken ?? '',
+                                      checklistAuditID:
+                                          viewModel
+                                                      .checkListSubmitView[index]
+                                                      .checklistAuditID ==
+                                                  null
+                                              ? '0'
+                                              : viewModel
+                                                  .checkListSubmitView[index]
+                                                  .checklistAuditID,
+                                      checkListID:
+                                          viewModel
+                                              .checkListSubmitView[index]
+                                              .checklistID
+                                              .toString(),
+                                      storeID: widget.storeId.toString(),
+                                      teamMemberID:
+                                          viewModel.user?.teamMemberID
+                                              .toString() ??
+                                          '',
+                                      visitID: widget.visiteId.toString(),
+                                      imagePath: '',
+                                    ),
+                                  );
+                                  viewModel.notifyListeners();
+                                },
+                                onPickImage: () {
+                                  _showImagePickerDialog(
+                                    'left',
+                                    onImageSelected: (String path) {
+                                      setState(() {
+                                        print('selected image ${path}');
+                                      });
+
+                                      viewModel.addOrUpdateChecklistEntry(
+                                        ChecklistEntry(
+                                          token: viewModel.user?.apiToken ?? '',
+                                          checklistAuditID:
+                                              viewModel
+                                                          .checkListSubmitView[index]
+                                                          .checklistAuditID ==
+                                                      null
+                                                  ? '0'
+                                                  : viewModel
+                                                      .checkListSubmitView[index]
+                                                      .checklistAuditID,
+                                          checkListID:
+                                              viewModel
+                                                  .checkListSubmitView[index]
+                                                  .checklistID
+                                                  .toString(),
+                                          storeID: widget.storeId.toString(),
+                                          teamMemberID:
+                                              viewModel.user?.teamMemberID
+                                                  .toString() ??
+                                              '',
+                                          visitID: widget.visiteId.toString(),
+                                          imagePath: path,
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                imagePath: getChecklistImagePath(
                                   viewModel
                                       .checkListSubmitView[index]
-                                      .question ??
-                                  '',
-                              optionWidget:
-                                  viewModel
-                                              .checkListSubmitView[index]
-                                              .inputTypeID ==
-                                          1
-                                      ? ToggleYesNo(
-                                        initialValue:
-                                            viewModel
-                                                .checkListSubmitView[index]
-                                                .checkListStatus ??
-                                            '',
-                                        index: index,
-                                        storeId: widget.storeId,
-                                        visiteId: widget.visiteId,
-                                      )
-                                      : viewModel
-                                              .checkListSubmitView[index]
-                                              .inputTypeID ==
-                                          2
-                                      ? QuantityBox(
-                                        initialValue:
-                                            viewModel
-                                                .checkListSubmitView[index]
-                                                .checkListStatus ??
-                                            '',
-                                        index: index,
-                                        storeId: widget.storeId,
-                                        visiteId: widget.visiteId,
-                                      )
-                                      : viewModel
-                                              .checkListSubmitView[index]
-                                              .inputTypeID ==
-                                          3
-                                      ? DateBox(
-                                        initialValue:
-                                            viewModel
-                                                .checkListSubmitView[index]
-                                                .checkListStatus ??
-                                            '',
-                                        index: index,
-                                        storeId: widget.storeId,
-                                        visiteId: widget.visiteId,
-                                      )
-                                      : TextBox(
-                                        initialValue:
-                                            viewModel
-                                                .checkListSubmitView[index]
-                                                .checkListStatus ??
-                                            '',
-                                        index: index,
-                                        storeId: widget.storeId,
-                                        visiteId: widget.visiteId,
-                                      ),
-                              index: index,
-                              onRemoveImage: () {
-                                setState(() {});
-                                viewModel.addOrUpdateChecklistEntry(
-                                  ChecklistEntry(
-                                    token: viewModel.user?.apiToken ?? '',
-                                    checklistAuditID:
-                                        viewModel
-                                                    .checkListSubmitView[index]
-                                                    .checklistAuditID ==
-                                                null
-                                            ? '0'
-                                            : viewModel
-                                                .checkListSubmitView[index]
-                                                .checklistAuditID,
-                                    checkListID:
-                                        viewModel
-                                            .checkListSubmitView[index]
-                                            .checklistID
-                                            .toString(),
-                                    storeID: widget.storeId.toString(),
-                                    teamMemberID:
-                                        viewModel.user?.teamMemberID
-                                            .toString() ??
-                                        '',
-                                    visitID: widget.visiteId.toString(),
-                                    imagePath: '',
-                                  ),
-                                );
-                                viewModel.notifyListeners();
-                              },
-                              onPickImage: () {
-                                _showImagePickerDialog(
-                                  'left',
-                                  onImageSelected: (String path) {
-                                    setState(() {
-                                      print('selected image ${path}');
-                                    });
-
-                                    viewModel.addOrUpdateChecklistEntry(
-                                      ChecklistEntry(
-                                        token: viewModel.user?.apiToken ?? '',
-                                        checklistAuditID:
-                                            viewModel
-                                                        .checkListSubmitView[index]
-                                                        .checklistAuditID ==
-                                                    null
-                                                ? '0'
-                                                : viewModel
-                                                    .checkListSubmitView[index]
-                                                    .checklistAuditID,
-                                        checkListID:
-                                            viewModel
-                                                .checkListSubmitView[index]
-                                                .checklistID
-                                                .toString(),
-                                        storeID: widget.storeId.toString(),
-                                        teamMemberID:
-                                            viewModel.user?.teamMemberID
-                                                .toString() ??
-                                            '',
-                                        visitID: widget.visiteId.toString(),
-                                        imagePath: path,
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              imagePath: getChecklistImagePath(
-                                viewModel.checkListSubmitView[index].checklistID
-                                    .toString(),
+                                      .checklistID
+                                      .toString(),
+                                ),
                               ),
-                            ),
 
-                            Divider(indent: 12, endIndent: 12),
-                          ],
-                        );
-                      },
+                              Divider(indent: 12, endIndent: 12),
+                            ],
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),

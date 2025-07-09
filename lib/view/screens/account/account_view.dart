@@ -1,6 +1,7 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/%20login/login_view.dart';
+import 'package:aleedz/view/screens/pending_deployment/pending_deployment.dart';
 import 'package:aleedz/view/screens/user_training/user_training_list_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -69,6 +70,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         'visible': true,
       },
       {
+        'title': 'Pending Deployment',
+        'icon': Icons.school,
+        'onTap': () {
+          NavigationService.navigateTo(PendingDeplomentView());
+        },
+        'visible': true,
+      },
+      {
         'title': 'Logout',
         'icon': Icons.logout,
         'onTap': () {
@@ -82,7 +91,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeData();
+      // _initializeData();
     });
   }
 
