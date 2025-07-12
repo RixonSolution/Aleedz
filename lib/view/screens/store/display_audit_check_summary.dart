@@ -235,72 +235,84 @@ class _DisplayAuditCheckSummaryState
                                   vertical: 6,
                                   horizontal: 12,
                                 ),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 8),
-                                  color: AppColors.lightGreyBackground,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
+                                      // color: AppColors.lightGreyBackground,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
-                                                Text('$productIndex. '),
-                                                Text(item.productCategoryName),
+                                                Row(
+                                                  children: [
+                                                    Text('$productIndex. '),
+                                                    Text(
+                                                      item.productCategoryName,
+                                                    ),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      '$productIndex. ',
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColors
+                                                                .lightGreyBackground,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      item.lastUpdate,
+                                                      style: TextStyle(
+                                                        color:
+                                                            item.updateBy == '1'
+                                                                ? AppColors
+                                                                    .primary
+                                                                : AppColors
+                                                                    .blackColor,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                // SizedBox(width: 24),
                                               ],
                                             ),
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  '$productIndex. ',
-                                                  style: TextStyle(
-                                                    color:
-                                                        AppColors
-                                                            .lightGreyBackground,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  item.lastUpdate,
-                                                  style: TextStyle(
-                                                    color:
-                                                        item.updateBy == '1'
-                                                            ? AppColors.primary
-                                                            : AppColors
-                                                                .blackColor,
-                                                  ),
-                                                ),
-                                              ],
+                                          ),
+                                          SizedBox(
+                                            width: 70,
+                                            child: Text(
+                                              item.modelCount.toString(),
+                                              textAlign: TextAlign.center,
                                             ),
-                                            // SizedBox(width: 24),
-                                          ],
-                                        ),
+                                          ),
+                                          SizedBox(
+                                            width: 70,
+                                            child: Text(
+                                              item.displayCheckCount.toString(),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      SizedBox(
-                                        width: 70,
-                                        child: Text(
-                                          item.modelCount.toString(),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 70,
-                                        child: Text(
-                                          item.displayCheckCount.toString(),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                    // if (brandIndex !=
+                                    //     viewModel.brands.length - 1)
+                                    const Divider(thickness: 1),
+                                    // else
+                                    //   const SizedBox.shrink(),
+                                  ],
                                 ),
                               ),
                             );
                           }),
-
-                          const Divider(thickness: 1),
                         ],
                       );
                     },

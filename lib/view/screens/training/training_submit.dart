@@ -179,7 +179,7 @@ class _MyConsumerState extends ConsumerState<TrainingSubmit> {
 
                     Expanded(
                       child: ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: ScrollPhysics(),
                         padding: const EdgeInsets.all(5),
                         itemCount: trainings.length,
                         itemBuilder: (context, index) {

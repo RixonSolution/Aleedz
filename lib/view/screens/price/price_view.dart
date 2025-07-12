@@ -237,7 +237,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 8,
                                 ),
-                                color: AppColors.lightGreyBackground,
+                                // color: AppColors.lightGreyBackground,
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,

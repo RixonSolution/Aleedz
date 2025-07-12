@@ -190,187 +190,180 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
         body:
             viewModel.loader
                 ? const Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                NavigationService.goBack();
-                              },
-                              child: Image.asset(
-                                AppIcons.backArrow,
-                                height: 30,
-                                width: 30,
-                              ),
-                            ),
-                            const Text(
-                              'Trainings',
-                              style: TextStyle(
-                                color: AppColors.blackColor,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Image.asset(
-                              AppIcons.locationIcon,
+                : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              NavigationService.goBack();
+                            },
+                            child: Image.asset(
+                              AppIcons.backArrow,
                               height: 30,
                               width: 30,
-                              color: AppColors.whiteColor,
                             ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Divider(color: AppColors.primary, height: 0),
-                      ),
-                      const SizedBox(height: 5),
-
-                      Container(
-                        margin: EdgeInsets.symmetric(vertical: 8),
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(color: AppColors.secondary),
-                        child: Center(
-                          child: Text(
-                            widget.trainingName,
+                          ),
+                          const Text(
+                            'Trainings',
                             style: TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 14,
+                              color: AppColors.blackColor,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                          Image.asset(
+                            AppIcons.locationIcon,
+                            height: 30,
+                            width: 30,
+                            color: AppColors.whiteColor,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: Divider(color: AppColors.primary, height: 0),
+                    ),
+                    const SizedBox(height: 5),
+
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 8),
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(color: AppColors.secondary),
+                      child: Center(
+                        child: Text(
+                          widget.trainingName,
+                          style: TextStyle(
+                            color: AppColors.whiteColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          // horizontal: 16,
-                          vertical: 8,
-                        ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        // horizontal: 16,
+                        vertical: 8,
+                      ),
 
-                        child: Row(
-                          children: [
-                            /// Search TextField
-                            Expanded(
-                              child: Container(
-                                padding: EdgeInsets.only(left: 10),
-                                decoration: BoxDecoration(
-                                  color:
-                                      Colors.grey[200], // Light grey background
-                                  borderRadius: BorderRadius.circular(8),
+                      child: Row(
+                        children: [
+                          /// Search TextField
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.only(left: 10),
+                              decoration: BoxDecoration(
+                                color:
+                                    Colors.grey[200], // Light grey background
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: TextField(
+                                controller: descriptionController,
+                                enabled: false,
+                                style: const TextStyle(
+                                  color: AppColors.blackColor,
                                 ),
-                                child: TextField(
-                                  controller: descriptionController,
-                                  enabled: false,
-                                  style: const TextStyle(
-                                    color: AppColors.blackColor,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        '${widget.storeCount.toString()} Stores Selected',
+                                decoration: InputDecoration(
+                                  hintText:
+                                      '${widget.storeCount.toString()} Stores Selected',
 
-                                    hintStyle: TextStyle(
-                                      color: AppColors.greyText,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
+                                  hintStyle: TextStyle(
+                                    color: AppColors.greyText,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 12,
                                   ),
                                 ),
                               ),
                             ),
-                            SizedBox(width: 5),
-                            Expanded(
-                              child: Container(
-                                padding: EdgeInsets.only(left: 10),
-                                decoration: BoxDecoration(
-                                  color:
-                                      Colors.grey[200], // Light grey background
-                                  borderRadius: BorderRadius.circular(8),
+                          ),
+                          SizedBox(width: 5),
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.only(left: 10),
+                              decoration: BoxDecoration(
+                                color:
+                                    Colors.grey[200], // Light grey background
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: TextField(
+                                controller: descriptionController,
+                                enabled: false,
+                                style: const TextStyle(
+                                  color: AppColors.blackColor,
                                 ),
-                                child: TextField(
-                                  controller: descriptionController,
-                                  enabled: false,
-                                  style: const TextStyle(
-                                    color: AppColors.blackColor,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        '${widget.promotorCount.toString()}  Promoters Selected',
+                                decoration: InputDecoration(
+                                  hintText:
+                                      '${widget.promotorCount.toString()}  Promoters Selected',
 
-                                    hintStyle: TextStyle(
-                                      color: AppColors.greyText,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
+                                  hintStyle: TextStyle(
+                                    color: AppColors.greyText,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 12,
                                   ),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 20),
+                    ),
+                    const SizedBox(height: 20),
 
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.all(5),
-                        itemCount: viewModel.trainingModel.length,
-                        itemBuilder: (context, index) {
-                          final isSelected = selectedIndexes.contains(index);
-                          final itemString =
-                              '${viewModel.trainingModel[index].trainingModelID}:${viewModel.trainingModel[index].trainingModelFeatureID}';
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: ScrollPhysics(),
+                            padding: const EdgeInsets.all(5),
+                            itemCount: viewModel.trainingModel.length,
+                            itemBuilder: (context, index) {
+                              final isSelected = selectedIndexes.contains(
+                                index,
+                              );
+                              final itemString =
+                                  '${viewModel.trainingModel[index].trainingModelID}:${viewModel.trainingModel[index].trainingModelFeatureID}';
 
-                          return Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    /// Text Info
-                                    Expanded(
-                                      child: Column(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                              return Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        /// Text Info
+                                        Expanded(
+                                          child: Column(
                                             children: [
-                                              Text(
-                                                '${index + 1}.  ',
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 14,
-                                                  color: AppColors.blackColor,
-                                                ),
-                                              ),
-                                              Column(
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    '${viewModel.trainingModel[index].trainingModelTitle}',
+                                                    '${index + 1}.  ',
                                                     style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.w700,
@@ -379,321 +372,353 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                                                           AppColors.blackColor,
                                                     ),
                                                   ),
-                                                  Text(
-                                                    viewModel
-                                                        .trainingModel[index]
-                                                        .trainingModelFeatureTitle
-                                                        .toString(),
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color:
-                                                          AppColors.blackColor,
-                                                    ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        '${viewModel.trainingModel[index].trainingModelTitle}',
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          fontSize: 14,
+                                                          color:
+                                                              AppColors
+                                                                  .blackColor,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        viewModel
+                                                            .trainingModel[index]
+                                                            .trainingModelFeatureTitle
+                                                            .toString(),
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              AppColors
+                                                                  .blackColor,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ],
                                               ),
                                             ],
                                           ),
-                                        ],
+                                        ),
+
+                                        /// Custom Circular Checkbox
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              if (isSelected) {
+                                                selectedIndexes.remove(index);
+                                                selectedTraining.remove(
+                                                  itemString,
+                                                );
+                                              } else {
+                                                selectedIndexes.add(index);
+                                                selectedTraining.add(
+                                                  itemString,
+                                                );
+                                              }
+                                            });
+                                          },
+                                          child: Container(
+                                            width: 24,
+                                            height: 24,
+                                            margin: const EdgeInsets.only(
+                                              right: 10,
+                                              top: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color:
+                                                  isSelected
+                                                      ? Colors.black
+                                                      : Colors.grey[400],
+                                            ),
+                                            child: const Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                              size: 16,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Divider(height: 25),
+                                ],
+                              );
+                            },
+                          ),
+
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200], // Light grey background
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: titleController,
+                                    style: const TextStyle(
+                                      color: AppColors.blackColor,
+                                    ),
+                                    decoration: const InputDecoration(
+                                      hintText: 'Title',
+                                      hintStyle: TextStyle(
+                                        color: AppColors.greyText,
+                                      ),
+                                      border:
+                                          InputBorder
+                                              .none, // 🔴 Remove underline
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                        vertical: 5,
                                       ),
                                     ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 10),
 
-                                    /// Custom Circular Checkbox
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200], // Light grey background
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: descriptionController,
+                                    style: const TextStyle(
+                                      color: AppColors.blackColor,
+                                    ),
+                                    decoration: const InputDecoration(
+                                      hintText: 'Description',
+                                      hintStyle: TextStyle(
+                                        color: AppColors.greyText,
+                                      ),
+                                      border:
+                                          InputBorder
+                                              .none, // 🔴 Remove underline
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Start Time Picker
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Start Time',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 12,
+                                        color: AppColors.blackColor,
+                                      ),
+                                    ),
                                     GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          if (isSelected) {
-                                            selectedIndexes.remove(index);
-                                            selectedTraining.remove(itemString);
-                                          } else {
-                                            selectedIndexes.add(index);
-                                            selectedTraining.add(itemString);
-                                          }
-                                        });
-                                      },
+                                      onTap: () => _selectTime(context, true),
                                       child: Container(
-                                        width: 24,
-                                        height: 24,
-                                        margin: const EdgeInsets.only(
-                                          right: 10,
-                                          top: 2,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 10,
+                                          horizontal: 50,
                                         ),
                                         decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color:
-                                              isSelected
-                                                  ? Colors.black
-                                                  : Colors.grey[400],
+                                          color: Colors.grey[200],
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
-                                        child: const Icon(
-                                          Icons.check,
-                                          color: Colors.white,
-                                          size: 16,
+                                        child: Text(
+                                          formatTimeOfDay(startTime),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 12,
+                                            color: AppColors.blackColor,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
-                              const Divider(height: 25),
-                            ],
-                          );
-                        },
-                      ),
 
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200], // Light grey background
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: titleController,
-                                style: const TextStyle(
-                                  color: AppColors.blackColor,
-                                ),
-                                decoration: const InputDecoration(
-                                  hintText: 'Title',
-                                  hintStyle: TextStyle(
-                                    color: AppColors.greyText,
-                                  ),
-                                  border:
-                                      InputBorder.none, // 🔴 Remove underline
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    vertical: 5,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10),
-
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200], // Light grey background
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: descriptionController,
-                                style: const TextStyle(
-                                  color: AppColors.blackColor,
-                                ),
-                                decoration: const InputDecoration(
-                                  hintText: 'Description',
-                                  hintStyle: TextStyle(
-                                    color: AppColors.greyText,
-                                  ),
-                                  border:
-                                      InputBorder.none, // 🔴 Remove underline
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Start Time Picker
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Start Time',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 12,
-                                    color: AppColors.blackColor,
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () => _selectTime(context, true),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 10,
-                                      horizontal: 50,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      formatTimeOfDay(startTime),
-                                      style: const TextStyle(
+                                // End Time Picker
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'End Time',
+                                      style: TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 12,
                                         color: AppColors.blackColor,
                                       ),
                                     ),
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            // End Time Picker
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'End Time',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 12,
-                                    color: AppColors.blackColor,
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () => _selectTime(context, false),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 10,
-                                      horizontal: 50,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      formatTimeOfDay(endTime),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 12,
-                                        color: AppColors.blackColor,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Row(
-                        children: [
-                          // Image Picker Button on Left
-                          GestureDetector(
-                            onTap: () {
-                              if (viewModel.rightImages.length < 2) {
-                                _showImagePickerDialog('right');
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Maximum 2 images allowed.'),
-                                  ),
-                                );
-                              }
-                            },
-                            child: Container(
-                              margin: EdgeInsets.only(
-                                left: 10,
-                                top: 10,
-                                bottom: 10,
-                              ),
-                              height: 80,
-                              width: 80,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(width: 10),
-
-                          // Images Display with Remove Button on Right
-                          Expanded(
-                            child: SizedBox(
-                              height: 80,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: viewModel.rightImages.length,
-                                itemBuilder: (context, index) {
-                                  final file = viewModel.rightImages[index];
-                                  return Stack(
-                                    children: [
-                                      Container(
-                                        margin: const EdgeInsets.only(
-                                          right: 10,
+                                    GestureDetector(
+                                      onTap: () => _selectTime(context, false),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 10,
+                                          horizontal: 50,
                                         ),
-                                        height: 80,
-                                        width: 80,
                                         decoration: BoxDecoration(
+                                          color: Colors.grey[200],
                                           borderRadius: BorderRadius.circular(
                                             8,
                                           ),
-                                          image: DecorationImage(
-                                            image: FileImage(file),
-                                            fit: BoxFit.cover,
+                                        ),
+                                        child: Text(
+                                          formatTimeOfDay(endTime),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 12,
+                                            color: AppColors.blackColor,
                                           ),
                                         ),
                                       ),
-                                      Positioned(
-                                        top: 4,
-                                        right: 4,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            viewModel.rightImages.removeAt(
-                                              index,
-                                            );
-                                            setState(() {}); // Refresh UI
-                                          },
-                                          child: Container(
-                                            decoration: const BoxDecoration(
-                                              color: Colors.black54,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            padding: const EdgeInsets.all(4),
-                                            child: const Icon(
-                                              Icons.close,
-                                              size: 16,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
+                          ),
+
+                          Row(
+                            children: [
+                              // Image Picker Button on Left
+                              GestureDetector(
+                                onTap: () {
+                                  if (viewModel.rightImages.length < 2) {
+                                    _showImagePickerDialog('right');
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Maximum 2 images allowed.',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(
+                                    left: 10,
+                                    top: 10,
+                                    bottom: 10,
+                                  ),
+                                  height: 80,
+                                  width: 80,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(width: 10),
+
+                              // Images Display with Remove Button on Right
+                              Expanded(
+                                child: SizedBox(
+                                  height: 80,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: viewModel.rightImages.length,
+                                    itemBuilder: (context, index) {
+                                      final file = viewModel.rightImages[index];
+                                      return Stack(
+                                        children: [
+                                          Container(
+                                            margin: const EdgeInsets.only(
+                                              right: 10,
+                                            ),
+                                            height: 80,
+                                            width: 80,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              image: DecorationImage(
+                                                image: FileImage(file),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 4,
+                                            right: 4,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                viewModel.rightImages.removeAt(
+                                                  index,
+                                                );
+                                                setState(() {}); // Refresh UI
+                                              },
+                                              child: Container(
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.black54,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                padding: const EdgeInsets.all(
+                                                  4,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.close,
+                                                  size: 16,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
       ),
     );

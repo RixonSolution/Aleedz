@@ -48,6 +48,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Aleedz',
       theme: ThemeData(
+        fontFamily: 'PlusJakartaSans',
         colorScheme: ColorScheme.fromSeed(
           seedColor: AppColors.secondary,
           primary: AppColors.secondary,

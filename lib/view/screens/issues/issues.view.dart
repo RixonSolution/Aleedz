@@ -4,17 +4,10 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/issues_veiwmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class IssuesView extends ConsumerStatefulWidget {
-  String checkInTime, storeName;
-  int storeId;
-
-  IssuesView({
-    Key? key,
-    required this.checkInTime,
-    required this.storeName,
-    required this.storeId,
-  }) : super(key: key);
+  IssuesView({Key? key}) : super(key: key);
 
   @override
   ConsumerState<IssuesView> createState() => _MyConsumerState();
@@ -163,7 +156,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                             ),
                           ),
                           const Text(
-                            'Issues',
+                            'Sellout',
                             style: TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 20,
@@ -185,26 +178,18 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                       child: Divider(color: AppColors.primary, height: 0),
                     ),
                     const SizedBox(height: 5),
-                    Center(
-                      child: Text(
-                        widget.storeName,
-                        style: const TextStyle(
-                          color: AppColors.blackColor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        'Checked In ${widget.checkInTime}',
-                        style: const TextStyle(
-                          color: AppColors.blackColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+
+                    // Center(
+                    //   child: Text(
+                    //     widget.storeName,
+                    //     style: const TextStyle(
+                    //       color: AppColors.blackColor,
+                    //       fontSize: 18,
+                    //       fontWeight: FontWeight.bold,
+                    //     ),
+                    //   ),
+                    // ),
+                    WeeklyCalendar(),
                     SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -1244,6 +1229,141 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                     ),
                   ],
                 ),
+      ),
+    );
+  }
+}
+
+class WeeklyCalendar extends StatefulWidget {
+  @override
+  _WeeklyCalendarState createState() => _WeeklyCalendarState();
+}
+
+class _WeeklyCalendarState extends State<WeeklyCalendar> {
+  DateTime _startOfWeek = DateTime.now();
+  int _selectedDayIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _startOfWeek = _getStartOfWeek(DateTime.now());
+  }
+
+  DateTime _getStartOfWeek(DateTime date) {
+    return date.subtract(Duration(days: date.weekday - 1)); // Monday as start
+  }
+
+  void _goToNextWeek() {
+    setState(() {
+      _startOfWeek = _startOfWeek.add(Duration(days: 7));
+      _selectedDayIndex = 0;
+    });
+  }
+
+  void _goToPreviousWeek() {
+    setState(() {
+      _startOfWeek = _startOfWeek.subtract(Duration(days: 7));
+      _selectedDayIndex = 0;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<DateTime> weekDays = List.generate(7, (index) {
+      return _startOfWeek.add(Duration(days: index));
+    });
+
+    String currentMonth = DateFormat('MMMM').format(_startOfWeek);
+    int currentWeek =
+        ((DateTime.now().difference(_startOfWeek).inDays) ~/ 7) + 1;
+
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          // Month and Week Navigation
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                currentMonth,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.chevron_left),
+                    onPressed: _goToPreviousWeek,
+                  ),
+                  Text(
+                    'Week ${currentWeek}',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.secondary,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.chevron_right),
+                    onPressed: _goToNextWeek,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          // Day Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:
+                weekDays.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  DateTime date = entry.value;
+
+                  bool isSelected = index == _selectedDayIndex;
+
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedDayIndex = index;
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                      decoration: BoxDecoration(
+                        color:
+                            isSelected
+                                ? AppColors.secondary
+                                : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            DateFormat('d').format(date),
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            DateFormat('E').format(date),
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black87,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+          ),
+        ],
       ),
     );
   }

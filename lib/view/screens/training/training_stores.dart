@@ -209,6 +209,7 @@ class _MyConsumerState extends ConsumerState<TrainingStores> {
 
                     Expanded(
                       child: ListView.builder(
+                        physics: ScrollPhysics(),
                         padding: const EdgeInsets.all(5),
                         itemCount: trainings.length,
                         itemBuilder: (context, index) {

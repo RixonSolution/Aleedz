@@ -207,8 +207,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
           body:
               viewModel.loader
                   ? Center(child: CircularProgressIndicator())
-                  : ListView(
-                    // crossAxisAlignment: CrossAxisAlignment.start,
+                  : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 10),
                       Padding(
@@ -303,431 +303,447 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                         ),
                       ),
 
-                      ListView.builder(
-                        primary: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: viewModel.priceList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final isOutOfStock = getOutOfStock(
-                            viewModel.priceList[index].productID.toString(),
-                          );
-
-                          final priceController = TextEditingController(
-                            text: getPrice(
+                      Expanded(
+                        child: ListView.builder(
+                          primary: true,
+                          physics: ScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: viewModel.priceList.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final isOutOfStock = getOutOfStock(
                               viewModel.priceList[index].productID.toString(),
-                            ),
-                          );
-                          final netPriceController = TextEditingController(
-                            text: getNetPrice(
-                              viewModel.priceList[index].productID.toString(),
-                            ),
-                          );
+                            );
 
-                          final promotionController = TextEditingController(
-                            text: getPromotiion(
-                              viewModel.priceList[index].productID.toString(),
-                            ),
-                          );
-
-                          return Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Checkbox(
-                                    value: getOutOfStock(
-                                      viewModel.priceList[index].productID
-                                          .toString(),
-                                    ),
-                                    onChanged: (value) {
-                                      setState(() {});
-                                      viewModel.updateProductEntry(
-                                        productId:
-                                            viewModel.priceList[index].productID
-                                                .toString(),
-                                        storeId: widget.storeId.toString(),
-                                        visitId: widget.visiteId.toString(),
-                                        token: viewModel.user?.apiToken ?? '',
-                                        teamMemberId:
-                                            viewModel.user?.teamMemberID
-                                                .toString(),
-                                        isOutOfStock: value,
-                                        price: '0',
-                                        netPrice: '0',
-                                        promotion: '',
-                                        imagePath: '',
-                                      );
-                                    },
-                                  ),
-                                  Text(LabelService().getLabel(72)),
-                                ],
+                            final priceController = TextEditingController(
+                              text: getPrice(
+                                viewModel.priceList[index].productID.toString(),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                            );
+                            final netPriceController = TextEditingController(
+                              text: getNetPrice(
+                                viewModel.priceList[index].productID.toString(),
+                              ),
+                            );
+
+                            final promotionController = TextEditingController(
+                              text: getPromotiion(
+                                viewModel.priceList[index].productID.toString(),
+                              ),
+                            );
+
+                            return Column(
+                              children: [
+                                Row(
                                   children: [
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            children: [
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    '${index + 1}  ',
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    width: 200,
-                                                    child: Text(
-                                                      viewModel
-                                                              .priceList[index]
-                                                              .productmodelname ??
-                                                          '',
-                                                      textAlign:
-                                                          TextAlign.start,
+                                    Checkbox(
+                                      value: getOutOfStock(
+                                        viewModel.priceList[index].productID
+                                            .toString(),
+                                      ),
+                                      onChanged: (value) {
+                                        setState(() {});
+                                        viewModel.updateProductEntry(
+                                          productId:
+                                              viewModel
+                                                  .priceList[index]
+                                                  .productID
+                                                  .toString(),
+                                          storeId: widget.storeId.toString(),
+                                          visitId: widget.visiteId.toString(),
+                                          token: viewModel.user?.apiToken ?? '',
+                                          teamMemberId:
+                                              viewModel.user?.teamMemberID
+                                                  .toString(),
+                                          isOutOfStock: value,
+                                          price: '0',
+                                          netPrice: '0',
+                                          promotion: '',
+                                          imagePath: '',
+                                        );
+                                      },
+                                    ),
+                                    Text(LabelService().getLabel(72)),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      '${index + 1}  ',
                                                       style: TextStyle(
                                                         fontSize: 16,
                                                         fontWeight:
                                                             FontWeight.bold,
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                              SizedBox(height: 10),
-
-                                              Row(
-                                                children: [
-                                                  Container(
-                                                    width: 100,
-                                                    color:
-                                                        AppColors
-                                                            .lightGreyBackground,
-                                                    child: TextField(
-                                                      controller:
-                                                          priceController,
-                                                      enabled:
-                                                          !(isOutOfStock ??
-                                                              false),
-                                                      keyboardType:
-                                                          TextInputType.number,
-                                                      onChanged: (value) {
-                                                        viewModel.updateProductEntry(
-                                                          productId:
-                                                              viewModel
-                                                                  .priceList[index]
-                                                                  .productID
-                                                                  .toString(),
-                                                          storeId:
-                                                              widget.storeId
-                                                                  .toString(),
-                                                          visitId:
-                                                              widget.visiteId
-                                                                  .toString(),
-                                                          token:
-                                                              viewModel
-                                                                  .user
-                                                                  ?.apiToken ??
-                                                              '',
-                                                          teamMemberId:
-                                                              viewModel
-                                                                  .user
-                                                                  ?.teamMemberID
-                                                                  .toString(),
-
-                                                          price: value,
-                                                        );
-                                                      },
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      textAlignVertical:
-                                                          TextAlignVertical
-                                                              .center,
-                                                      decoration: InputDecoration(
-                                                        contentPadding:
-                                                            EdgeInsets.zero,
-                                                        hintText: LabelService()
-                                                            .getLabel(69),
-                                                        border:
-                                                            OutlineInputBorder(),
-                                                        filled: true,
-                                                        fillColor:
-                                                            AppColors
-                                                                .lightGreyBackground,
+                                                    SizedBox(
+                                                      width: 200,
+                                                      child: Text(
+                                                        viewModel
+                                                                .priceList[index]
+                                                                .productmodelname ??
+                                                            '',
+                                                        textAlign:
+                                                            TextAlign.start,
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Container(
-                                                    width: 100,
-                                                    color:
-                                                        AppColors
-                                                            .lightGreyBackground,
-                                                    child: TextField(
-                                                      controller:
-                                                          netPriceController,
-                                                      enabled:
-                                                          !(isOutOfStock ??
-                                                              false),
-                                                      keyboardType:
-                                                          TextInputType.number,
-                                                      onChanged: (value) {
-                                                        viewModel.updateProductEntry(
-                                                          productId:
-                                                              viewModel
-                                                                  .priceList[index]
-                                                                  .productID
-                                                                  .toString(),
-                                                          storeId:
-                                                              widget.storeId
-                                                                  .toString(),
-                                                          visitId:
-                                                              widget.visiteId
-                                                                  .toString(),
-                                                          token:
-                                                              viewModel
-                                                                  .user
-                                                                  ?.apiToken ??
-                                                              '',
-                                                          teamMemberId:
-                                                              viewModel
-                                                                  .user
-                                                                  ?.teamMemberID
-                                                                  .toString(),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 10),
 
-                                                          netPrice: value,
-                                                        );
-                                                      },
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      textAlignVertical:
-                                                          TextAlignVertical
-                                                              .center,
-                                                      decoration: InputDecoration(
-                                                        contentPadding:
-                                                            EdgeInsets.zero,
-                                                        hintText: LabelService()
-                                                            .getLabel(70),
-                                                        border:
-                                                            OutlineInputBorder(),
-                                                        filled: true,
-                                                        fillColor:
-                                                            AppColors
-                                                                .lightGreyBackground,
+                                                Row(
+                                                  children: [
+                                                    Container(
+                                                      width: 100,
+                                                      color:
+                                                          AppColors
+                                                              .lightGreyBackground,
+                                                      child: TextField(
+                                                        controller:
+                                                            priceController,
+                                                        enabled:
+                                                            !(isOutOfStock ??
+                                                                false),
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .number,
+                                                        onChanged: (value) {
+                                                          viewModel.updateProductEntry(
+                                                            productId:
+                                                                viewModel
+                                                                    .priceList[index]
+                                                                    .productID
+                                                                    .toString(),
+                                                            storeId:
+                                                                widget.storeId
+                                                                    .toString(),
+                                                            visitId:
+                                                                widget.visiteId
+                                                                    .toString(),
+                                                            token:
+                                                                viewModel
+                                                                    .user
+                                                                    ?.apiToken ??
+                                                                '',
+                                                            teamMemberId:
+                                                                viewModel
+                                                                    .user
+                                                                    ?.teamMemberID
+                                                                    .toString(),
+
+                                                            price: value,
+                                                          );
+                                                        },
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        textAlignVertical:
+                                                            TextAlignVertical
+                                                                .center,
+                                                        decoration: InputDecoration(
+                                                          contentPadding:
+                                                              EdgeInsets.zero,
+                                                          hintText:
+                                                              LabelService()
+                                                                  .getLabel(69),
+                                                          border:
+                                                              OutlineInputBorder(),
+                                                          filled: true,
+                                                          fillColor:
+                                                              AppColors
+                                                                  .lightGreyBackground,
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
+                                                    const SizedBox(width: 8),
+                                                    Container(
+                                                      width: 100,
+                                                      color:
+                                                          AppColors
+                                                              .lightGreyBackground,
+                                                      child: TextField(
+                                                        controller:
+                                                            netPriceController,
+                                                        enabled:
+                                                            !(isOutOfStock ??
+                                                                false),
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .number,
+                                                        onChanged: (value) {
+                                                          viewModel.updateProductEntry(
+                                                            productId:
+                                                                viewModel
+                                                                    .priceList[index]
+                                                                    .productID
+                                                                    .toString(),
+                                                            storeId:
+                                                                widget.storeId
+                                                                    .toString(),
+                                                            visitId:
+                                                                widget.visiteId
+                                                                    .toString(),
+                                                            token:
+                                                                viewModel
+                                                                    .user
+                                                                    ?.apiToken ??
+                                                                '',
+                                                            teamMemberId:
+                                                                viewModel
+                                                                    .user
+                                                                    ?.teamMemberID
+                                                                    .toString(),
+
+                                                            netPrice: value,
+                                                          );
+                                                        },
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        textAlignVertical:
+                                                            TextAlignVertical
+                                                                .center,
+                                                        decoration: InputDecoration(
+                                                          contentPadding:
+                                                              EdgeInsets.zero,
+                                                          hintText:
+                                                              LabelService()
+                                                                  .getLabel(70),
+                                                          border:
+                                                              OutlineInputBorder(),
+                                                          filled: true,
+                                                          fillColor:
+                                                              AppColors
+                                                                  .lightGreyBackground,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            if (getOutOfStock(
-                                                  viewModel
-                                                      .priceList[index]
-                                                      .productID
-                                                      .toString(),
-                                                ) ==
-                                                false) {
-                                              _showImagePickerDialog(
-                                                'left',
-                                                onImageSelected: (String path) {
-                                                  setState(() {
-                                                    print(
-                                                      'selected image $path',
-                                                    );
-                                                  });
+                                          GestureDetector(
+                                            onTap: () {
+                                              if (getOutOfStock(
+                                                    viewModel
+                                                        .priceList[index]
+                                                        .productID
+                                                        .toString(),
+                                                  ) ==
+                                                  false) {
+                                                _showImagePickerDialog(
+                                                  'left',
+                                                  onImageSelected: (
+                                                    String path,
+                                                  ) {
+                                                    setState(() {
+                                                      print(
+                                                        'selected image $path',
+                                                      );
+                                                    });
 
-                                                  viewModel.updateProductEntry(
-                                                    productId:
+                                                    viewModel.updateProductEntry(
+                                                      productId:
+                                                          viewModel
+                                                              .priceList[index]
+                                                              .productID
+                                                              .toString(),
+                                                      storeId:
+                                                          widget.storeId
+                                                              .toString(),
+                                                      visitId:
+                                                          widget.visiteId
+                                                              .toString(),
+                                                      token:
+                                                          viewModel
+                                                              .user
+                                                              ?.apiToken ??
+                                                          '',
+                                                      teamMemberId:
+                                                          viewModel
+                                                              .user
+                                                              ?.teamMemberID
+                                                              .toString(),
+                                                      imagePath: path,
+                                                    );
+                                                  },
+                                                );
+                                              }
+                                            },
+                                            child: Container(
+                                              width: 100,
+                                              height: 100,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    AppColors
+                                                        .lightGreyBackground,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Builder(
+                                                builder: (_) {
+                                                  final imagePath =
+                                                      getChecklistImagePath(
                                                         viewModel
                                                             .priceList[index]
                                                             .productID
                                                             .toString(),
-                                                    storeId:
-                                                        widget.storeId
-                                                            .toString(),
-                                                    visitId:
-                                                        widget.visiteId
-                                                            .toString(),
-                                                    token:
-                                                        viewModel
-                                                            .user
-                                                            ?.apiToken ??
-                                                        '',
-                                                    teamMemberId:
-                                                        viewModel
-                                                            .user
-                                                            ?.teamMemberID
-                                                            .toString(),
-                                                    imagePath: path,
-                                                  );
-                                                },
-                                              );
-                                            }
-                                          },
-                                          child: Container(
-                                            width: 100,
-                                            height: 100,
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  AppColors.lightGreyBackground,
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: Builder(
-                                              builder: (_) {
-                                                final imagePath =
-                                                    getChecklistImagePath(
-                                                      viewModel
-                                                          .priceList[index]
-                                                          .productID
-                                                          .toString(),
-                                                    );
-                                                if (imagePath != null &&
-                                                    imagePath.isNotEmpty) {
-                                                  return Stack(
-                                                    children: [
-                                                      ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              8,
-                                                            ),
-                                                        child: Image.file(
-                                                          File(imagePath),
-                                                          width: 100,
-                                                          height: 100,
-                                                          fit: BoxFit.cover,
+                                                      );
+                                                  if (imagePath != null &&
+                                                      imagePath.isNotEmpty) {
+                                                    return Stack(
+                                                      children: [
+                                                        ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                8,
+                                                              ),
+                                                          child: Image.file(
+                                                            File(imagePath),
+                                                            width: 100,
+                                                            height: 100,
+                                                            fit: BoxFit.cover,
+                                                          ),
                                                         ),
-                                                      ),
-                                                      Positioned(
-                                                        top: 4,
-                                                        right: 4,
-                                                        child: GestureDetector(
-                                                          onTap: () {
-                                                            setState(() {});
-                                                            viewModel.updateProductEntry(
-                                                              productId:
-                                                                  viewModel
-                                                                      .priceList[index]
-                                                                      .productID
-                                                                      .toString(),
-                                                              storeId:
-                                                                  widget.storeId
-                                                                      .toString(),
-                                                              visitId:
-                                                                  widget
-                                                                      .visiteId
-                                                                      .toString(),
-                                                              token:
-                                                                  viewModel
-                                                                      .user
-                                                                      ?.apiToken ??
-                                                                  '',
-                                                              teamMemberId:
-                                                                  viewModel
-                                                                      .user
-                                                                      ?.teamMemberID
-                                                                      .toString(),
-                                                              imagePath: '',
-                                                            );
-                                                          },
-                                                          child: Container(
-                                                            decoration:
-                                                                BoxDecoration(
-                                                                  color:
-                                                                      Colors
-                                                                          .black54,
-                                                                  shape:
-                                                                      BoxShape
-                                                                          .circle,
-                                                                ),
-                                                            padding:
-                                                                EdgeInsets.all(
-                                                                  4,
-                                                                ),
-                                                            child: Icon(
-                                                              Icons.close,
-                                                              size: 18,
-                                                              color:
-                                                                  Colors.white,
+                                                        Positioned(
+                                                          top: 4,
+                                                          right: 4,
+                                                          child: GestureDetector(
+                                                            onTap: () {
+                                                              setState(() {});
+                                                              viewModel.updateProductEntry(
+                                                                productId:
+                                                                    viewModel
+                                                                        .priceList[index]
+                                                                        .productID
+                                                                        .toString(),
+                                                                storeId:
+                                                                    widget
+                                                                        .storeId
+                                                                        .toString(),
+                                                                visitId:
+                                                                    widget
+                                                                        .visiteId
+                                                                        .toString(),
+                                                                token:
+                                                                    viewModel
+                                                                        .user
+                                                                        ?.apiToken ??
+                                                                    '',
+                                                                teamMemberId:
+                                                                    viewModel
+                                                                        .user
+                                                                        ?.teamMemberID
+                                                                        .toString(),
+                                                                imagePath: '',
+                                                              );
+                                                            },
+                                                            child: Container(
+                                                              decoration: BoxDecoration(
+                                                                color:
+                                                                    Colors
+                                                                        .black54,
+                                                                shape:
+                                                                    BoxShape
+                                                                        .circle,
+                                                              ),
+                                                              padding:
+                                                                  EdgeInsets.all(
+                                                                    4,
+                                                                  ),
+                                                              child: Icon(
+                                                                Icons.close,
+                                                                size: 18,
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
-                                                    ],
-                                                  );
-                                                } else {
-                                                  return Icon(
-                                                    Icons.camera_alt,
-                                                    size: 32,
-                                                  );
-                                                }
-                                              },
+                                                      ],
+                                                    );
+                                                  } else {
+                                                    return Icon(
+                                                      Icons.camera_alt,
+                                                      size: 32,
+                                                    );
+                                                  }
+                                                },
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 10),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10),
 
-                                    // Promotions field
-                                    Container(
-                                      color: AppColors.lightGreyBackground,
-                                      child: TextField(
-                                        controller: promotionController,
-                                        enabled: !(isOutOfStock ?? false),
-                                        keyboardType: TextInputType.text,
-                                        onChanged: (value) {
-                                          viewModel.updateProductEntry(
-                                            productId:
-                                                viewModel
-                                                    .priceList[index]
-                                                    .productID
-                                                    .toString(),
-                                            storeId: widget.storeId.toString(),
-                                            visitId: widget.visiteId.toString(),
-                                            token:
-                                                viewModel.user?.apiToken ?? '',
-                                            teamMemberId:
-                                                viewModel.user?.teamMemberID
-                                                    .toString(),
+                                      // Promotions field
+                                      Container(
+                                        color: AppColors.lightGreyBackground,
+                                        child: TextField(
+                                          controller: promotionController,
+                                          enabled: !(isOutOfStock ?? false),
+                                          keyboardType: TextInputType.text,
+                                          onChanged: (value) {
+                                            viewModel.updateProductEntry(
+                                              productId:
+                                                  viewModel
+                                                      .priceList[index]
+                                                      .productID
+                                                      .toString(),
+                                              storeId:
+                                                  widget.storeId.toString(),
+                                              visitId:
+                                                  widget.visiteId.toString(),
+                                              token:
+                                                  viewModel.user?.apiToken ??
+                                                  '',
+                                              teamMemberId:
+                                                  viewModel.user?.teamMemberID
+                                                      .toString(),
 
-                                            promotion: value,
-                                          );
-                                        },
-                                        decoration: InputDecoration(
-                                          labelText: LabelService().getLabel(
-                                            71,
+                                              promotion: value,
+                                            );
+                                          },
+                                          decoration: InputDecoration(
+                                            labelText: LabelService().getLabel(
+                                              71,
+                                            ),
+                                            border: OutlineInputBorder(),
+                                            filled: true,
+                                            fillColor:
+                                                AppColors.lightGreyBackground,
                                           ),
-                                          border: OutlineInputBorder(),
-                                          filled: true,
-                                          fillColor:
-                                              AppColors.lightGreyBackground,
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Divider(indent: 15, endIndent: 15),
-                            ],
-                          );
-                        },
+                                Divider(indent: 15, endIndent: 15),
+                              ],
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),

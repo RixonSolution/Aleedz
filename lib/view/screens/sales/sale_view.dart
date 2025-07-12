@@ -245,8 +245,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
               ),
             ),
           ),
-          body: ListView(
-            // crossAxisAlignment: CrossAxisAlignment.start,
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 10),
               Padding(
@@ -309,578 +309,640 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                 ),
               ),
               SizedBox(height: 10),
-              SizedBox(
-                height: 80,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  controller: _scrollController, // 👈 important
-                  // physics: NeverScrollableScrollPhysics(),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: visibleDates.length,
-                  itemBuilder: (context, index) {
-                    final date = visibleDates[index];
-                    final isSelected = isSameDay(date, _selectedDate);
-
-                    return GestureDetector(
-                      onTap: () async {
-                        setState(() {
-                          _selectedDate = date;
-                        });
-                        final formattedDate = DateFormat(
-                          'yyyy-MM-dd',
-                        ).format(date);
-
-                        await viewModel.loadsale(
-                          context,
-                          widget.storeId.toString(),
-                          formattedDate,
-                        );
-                      },
-                      child: Container(
-                        width: 60,
-                        margin: EdgeInsets.symmetric(horizontal: 6),
-                        decoration: BoxDecoration(
-                          color:
-                              isSelected
-                                  ? AppColors.secondary
-                                  : Colors.grey[200],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        alignment: Alignment.center,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              DateFormat.E().format(date), // Mon, Tue
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              date.day.toString(), // 1, 2, 3...
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.black,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-              SizedBox(height: 20),
-
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 10),
-                decoration: BoxDecoration(
-                  // border: Border.all(color: AppColors.blackColor),
-                ),
-                child: Column(
+              Expanded(
+                child: ListView(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100, // Light grey background
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: DropdownButtonFormField<int>(
-                          value: viewModel.selectedBrand?.brandId,
-                          decoration: const InputDecoration(
-                            hintText: 'Brand',
-                            border: InputBorder.none, // Removes underline
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 0,
-                              vertical: 12,
+                    SizedBox(
+                      height: 80,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        controller: _scrollController, // 👈 important
+                        // physics: NeverScrollableScrollPhysics(),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: visibleDates.length,
+                        itemBuilder: (context, index) {
+                          final date = visibleDates[index];
+                          final isSelected = isSameDay(date, _selectedDate);
+
+                          return GestureDetector(
+                            onTap: () async {
+                              setState(() {
+                                _selectedDate = date;
+                              });
+                              final formattedDate = DateFormat(
+                                'yyyy-MM-dd',
+                              ).format(date);
+
+                              await viewModel.loadsale(
+                                context,
+                                widget.storeId.toString(),
+                                formattedDate,
+                              );
+                            },
+                            child: Container(
+                              width: 60,
+                              margin: EdgeInsets.symmetric(horizontal: 6),
+                              decoration: BoxDecoration(
+                                color:
+                                    isSelected
+                                        ? AppColors.secondary
+                                        : Colors.grey[200],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    DateFormat.E().format(date), // Mon, Tue
+                                    style: TextStyle(
+                                      color:
+                                          isSelected
+                                              ? Colors.white
+                                              : Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    date.day.toString(), // 1, 2, 3...
+                                    style: TextStyle(
+                                      color:
+                                          isSelected
+                                              ? Colors.white
+                                              : Colors.black,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          items:
-                              viewModel.brandList.map((brand) {
-                                return DropdownMenuItem<int>(
-                                  value: brand.brandId,
-                                  child: Text(brand.brandName),
-                                );
-                              }).toList(),
-                          onChanged: (int? branddlId) {
-                            final selected = viewModel.brandList.firstWhere(
-                              (c) => c.brandId == branddlId,
-                            );
-                            viewModel.selectBrand(widget.storeId, selected);
-                          },
-                        ),
+                          );
+                        },
                       ),
                     ),
-                    if (viewModel.productCategory.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color:
-                                Colors.grey.shade100, // Light grey background
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: DropdownButtonFormField<int>(
-                            value:
-                                viewModel
-                                    .selectedProductCategory
-                                    ?.productCategoryID,
-                            isExpanded: true, // Optional: makes it full-width
-                            decoration: const InputDecoration(
-                              hintText: 'Product Category',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 12,
-                              ),
+
+                    SizedBox(height: 20),
+
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        // border: Border.all(color: AppColors.blackColor),
+                      ),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
                             ),
-                            items:
-                                viewModel.productCategory.map((category) {
-                                  return DropdownMenuItem<int>(
-                                    value: category.productCategoryID,
-                                    child: Text(
-                                      category.productCategoryName ?? '',
-                                    ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color:
+                                    Colors
+                                        .grey
+                                        .shade100, // Light grey background
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              child: DropdownButtonFormField<int>(
+                                value: viewModel.selectedBrand?.brandId,
+                                decoration: const InputDecoration(
+                                  hintText: 'Brand',
+                                  border: InputBorder.none, // Removes underline
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 0,
+                                    vertical: 12,
+                                  ),
+                                ),
+                                items:
+                                    viewModel.brandList.map((brand) {
+                                      return DropdownMenuItem<int>(
+                                        value: brand.brandId,
+                                        child: Text(brand.brandName),
+                                      );
+                                    }).toList(),
+                                onChanged: (int? branddlId) {
+                                  final selected = viewModel.brandList
+                                      .firstWhere(
+                                        (c) => c.brandId == branddlId,
+                                      );
+                                  viewModel.selectBrand(
+                                    widget.storeId,
+                                    selected,
                                   );
-                                }).toList(),
-                            onChanged: (int? categoryId) {
-                              if (categoryId != null) {
-                                final selected = viewModel.productCategory
-                                    .firstWhere(
-                                      (c) => c.productCategoryID == categoryId,
-                                    );
-                                viewModel.selectProductCategory(
-                                  widget.storeId,
-                                  selected,
-                                );
-                              }
-                            },
-                            // This makes sure a hint is shown when no value is selected
-                            hint: const Text('Select Product Category'),
-                          ),
-                        ),
-                      ),
-                    if (viewModel.saleSearch.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: DropdownSearch<int>(
-                            items:
-                                viewModel.saleSearch
-                                    .map((model) => model.productID!)
-                                    .toList(),
-                            selectedItem:
-                                viewModel.selectedSaleSearch?.productID,
-                            itemAsString: (int id) {
-                              final model = viewModel.saleSearch.firstWhere(
-                                (m) => m.productID == id,
-                              );
-                              return model.productModelName ?? '';
-                            },
-                            dropdownDecoratorProps: DropDownDecoratorProps(
-                              dropdownSearchDecoration: InputDecoration(
-                                hintText: LabelService().getLabel(74),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 12,
-                                ),
+                                },
                               ),
                             ),
-                            popupProps: const PopupProps.menu(
-                              showSearchBox: true,
-                              searchFieldProps: TextFieldProps(
-                                decoration: InputDecoration(
-                                  hintText: "Search model name...",
-                                ),
-                              ),
-                            ),
-                            onChanged: (int? id) {
-                              if (id != null) {
-                                final selected = viewModel.saleSearch
-                                    .firstWhere((m) => m.productID == id);
-                                viewModel.selectSearchModel(selected);
-                              }
-                            },
                           ),
-                        ),
-                      ),
-
-                    if (viewModel.saleSearch.isNotEmpty &&
-                        viewModel.productCategory.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        child: Row(
-                          children: [
-                            buildTextField(
-                              LabelService().getLabel(75),
-                              quantityController,
-                              onChanged: (_) => calculateTotal(),
-                              maxLength: 4,
-                            ),
-                            buildTextField(
-                              LabelService().getLabel(76),
-                              priceController,
-                              onChanged: (_) => calculateTotal(),
-                              maxLength: 7,
-                            ),
-                            buildTextField(
-                              LabelService().getLabel(77),
-                              totalController,
-                              readOnly: true,
-                            ),
-                          ],
-                        ),
-                      ),
-                    if (viewModel.saleSearch.isNotEmpty &&
-                        viewModel.productCategory.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child:
-                              viewModel.loader
-                                  ? Center(child: CircularProgressIndicator())
-                                  : ElevatedButton(
-                                    onPressed: () async {
-                                      if (quantityController.text.isEmpty) {
-                                        AppSnackBar.showError(
-                                          context,
-                                          'Please add quantity',
-                                        );
-                                      } else if (priceController.text.isEmpty) {
-                                        AppSnackBar.showError(
-                                          context,
-                                          'Please add price',
-                                        );
-                                      } else {
-                                        FocusScope.of(
-                                          context,
-                                        ).unfocus(); // Removes focus from any text field
-
-                                        await viewModel.addSale(
-                                          context,
-                                          productCategoryId:
-                                              viewModel
-                                                  .selectedSaleSearch!
-                                                  .productID
-                                                  .toString(),
-                                          storeId: widget.storeId.toString(),
-                                          saleCount: quantityController.text,
-                                          salePrice: priceController.text,
-                                          saleDate: formattedDate2,
-                                          saleType: '1',
-                                        );
-                                        quantityController.clear();
-                                        priceController.clear();
-                                        totalController.clear();
-                                        clcTotal();
-
-                                        setState(() {});
-                                      }
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius
-                                                .zero, // Removes rounded corners
-                                      ),
-                                      backgroundColor: AppColors.secondary,
+                          if (viewModel.productCategory.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color:
+                                      Colors
+                                          .grey
+                                          .shade100, // Light grey background
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                child: DropdownButtonFormField<int>(
+                                  value:
+                                      viewModel
+                                          .selectedProductCategory
+                                          ?.productCategoryID,
+                                  isExpanded:
+                                      true, // Optional: makes it full-width
+                                  decoration: const InputDecoration(
+                                    hintText: 'Product Category',
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 0,
+                                      vertical: 12,
                                     ),
-                                    child: Text(
-                                      LabelService().getLabel(79),
-                                      style: TextStyle(
-                                        color: AppColors.whiteColor,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
+                                  ),
+                                  items:
+                                      viewModel.productCategory.map((category) {
+                                        return DropdownMenuItem<int>(
+                                          value: category.productCategoryID,
+                                          child: Text(
+                                            category.productCategoryName ?? '',
+                                          ),
+                                        );
+                                      }).toList(),
+                                  onChanged: (int? categoryId) {
+                                    if (categoryId != null) {
+                                      final selected = viewModel.productCategory
+                                          .firstWhere(
+                                            (c) =>
+                                                c.productCategoryID ==
+                                                categoryId,
+                                          );
+                                      viewModel.selectProductCategory(
+                                        widget.storeId,
+                                        selected,
+                                      );
+                                    }
+                                  },
+                                  // This makes sure a hint is shown when no value is selected
+                                  hint: const Text('Select Product Category'),
+                                ),
+                              ),
+                            ),
+                          if (viewModel.saleSearch.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                child: DropdownSearch<int>(
+                                  items:
+                                      viewModel.saleSearch
+                                          .map((model) => model.productID!)
+                                          .toList(),
+                                  selectedItem:
+                                      viewModel.selectedSaleSearch?.productID,
+                                  itemAsString: (int id) {
+                                    final model = viewModel.saleSearch
+                                        .firstWhere((m) => m.productID == id);
+                                    return model.productModelName ?? '';
+                                  },
+                                  dropdownDecoratorProps:
+                                      DropDownDecoratorProps(
+                                        dropdownSearchDecoration:
+                                            InputDecoration(
+                                              hintText: LabelService().getLabel(
+                                                74,
+                                              ),
+                                              border: InputBorder.none,
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                    horizontal: 0,
+                                                    vertical: 12,
+                                                  ),
+                                            ),
+                                      ),
+                                  popupProps: const PopupProps.menu(
+                                    showSearchBox: true,
+                                    searchFieldProps: TextFieldProps(
+                                      decoration: InputDecoration(
+                                        hintText: "Search model name...",
                                       ),
                                     ),
                                   ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      right: 8,
-                      top: 5,
-                      bottom: 10,
-                    ),
-                    child: Text(
-                      LabelService().getLabel(56),
-                      style: TextStyle(color: AppColors.greyText, fontSize: 12),
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                decoration: BoxDecoration(color: AppColors.secondary),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Text(
-                            '#',
-                            style: TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(width: 20),
-                          Text(
-                            'Sales Description',
-                            style: TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: Row(
-                        children: [
-                          Text(
-                            LabelService().getLabel(75),
-
-                            style: TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(width: 20),
-                          Text(
-                            LabelService().getLabel(77),
-                            style: TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 10),
-              viewModel.loader
-                  ? Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                    itemCount: viewModel.saleList.length,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return InkWell(
-                        onLongPress: () {
-                          _showLogoutDialog(context, () async {
-                            NavigationService.goBack();
-                            viewModel.loader = true;
-                            viewModel.notifyListeners();
-
-                            await viewModel.deleteSale(
-                              context,
-                              storeId: widget.storeId.toString(),
-                              saleId:
-                                  viewModel.saleList[index].saleId.toString(),
-                            );
-                            await viewModel.saleView(
-                              context,
-                              storeId: widget.storeId.toString(),
-                              saleDate: formattedDate2,
-                            );
-                            clcTotal();
-
-                            viewModel.loader = false;
-                            viewModel.notifyListeners();
-                          });
-                        },
-                        child: Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Text(
-                                '${index + 1}.',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                                  onChanged: (int? id) {
+                                    if (id != null) {
+                                      final selected = viewModel.saleSearch
+                                          .firstWhere((m) => m.productID == id);
+                                      viewModel.selectSearchModel(selected);
+                                    }
+                                  },
                                 ),
                               ),
                             ),
-                            Column(
-                              children: [
-                                Row(
-                                  // crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 8),
-                                      child: Text(
-                                        '${index + 1}.',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                    ),
-                                                child: SizedBox(
-                                                  width: 190,
-                                                  // color: Colors.red,
-                                                  child: Text(
-                                                    viewModel
-                                                        .saleList[index]
-                                                        .productModelCode
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                      color:
-                                                          AppColors.blackColor,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                    ),
-                                                child: SizedBox(
-                                                  width: 190,
-                                                  // color: Colors.red,
-                                                  child: Text(
-                                                    viewModel
-                                                            .saleList[index]
-                                                            .productModelName ??
-                                                        '',
-                                                    style: TextStyle(
-                                                      color: AppColors.greyText,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                    ),
-                                                child: SizedBox(
-                                                  width: 190,
-                                                  // color: Colors.red,
-                                                  child: Text(
-                                                    'Price: ${viewModel.saleList[index].saleValue}',
-                                                    style: TextStyle(
-                                                      color:
-                                                          AppColors.blackColor,
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      // color: Colors.red,
-                                      width: 40,
-                                      padding: const EdgeInsets.only(right: 0),
-                                      child: Text(
-                                        viewModel.saleList[index].saleQuantity
-                                            .toString(),
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(width: 10),
-                                    Container(
-                                      // color: Colors.red,
-                                      width: 70,
-                                      padding: const EdgeInsets.only(right: 00),
-                                      child: Text(
-                                        '${(viewModel.saleList[index].saleQuantity ?? 0.0) * (viewModel.saleList[index].saleValue ?? 0.0)}',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
 
-                                Divider(
-                                  color: Colors.grey[300],
-                                  thickness: 1,
-                                  indent: 12,
-                                  endIndent: 12,
+                          if (viewModel.saleSearch.isNotEmpty &&
+                              viewModel.productCategory.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              child: Row(
+                                children: [
+                                  buildTextField(
+                                    LabelService().getLabel(75),
+                                    quantityController,
+                                    onChanged: (_) => calculateTotal(),
+                                    maxLength: 4,
+                                  ),
+                                  buildTextField(
+                                    LabelService().getLabel(76),
+                                    priceController,
+                                    onChanged: (_) => calculateTotal(),
+                                    maxLength: 7,
+                                  ),
+                                  buildTextField(
+                                    LabelService().getLabel(77),
+                                    totalController,
+                                    readOnly: true,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (viewModel.saleSearch.isNotEmpty &&
+                              viewModel.productCategory.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child:
+                                    viewModel.loader
+                                        ? Center(
+                                          child: CircularProgressIndicator(),
+                                        )
+                                        : ElevatedButton(
+                                          onPressed: () async {
+                                            if (quantityController
+                                                .text
+                                                .isEmpty) {
+                                              AppSnackBar.showError(
+                                                context,
+                                                'Please add quantity',
+                                              );
+                                            } else if (priceController
+                                                .text
+                                                .isEmpty) {
+                                              AppSnackBar.showError(
+                                                context,
+                                                'Please add price',
+                                              );
+                                            } else {
+                                              FocusScope.of(
+                                                context,
+                                              ).unfocus(); // Removes focus from any text field
+
+                                              await viewModel.addSale(
+                                                context,
+                                                productCategoryId:
+                                                    viewModel
+                                                        .selectedSaleSearch!
+                                                        .productID
+                                                        .toString(),
+                                                storeId:
+                                                    widget.storeId.toString(),
+                                                saleCount:
+                                                    quantityController.text,
+                                                salePrice: priceController.text,
+                                                saleDate: formattedDate2,
+                                                saleType: '1',
+                                              );
+                                              quantityController.clear();
+                                              priceController.clear();
+                                              totalController.clear();
+                                              clcTotal();
+
+                                              setState(() {});
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            shape: const RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius
+                                                      .zero, // Removes rounded corners
+                                            ),
+                                            backgroundColor:
+                                                AppColors.secondary,
+                                          ),
+                                          child: Text(
+                                            LabelService().getLabel(79),
+                                            style: TextStyle(
+                                              color: AppColors.whiteColor,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            right: 8,
+                            top: 5,
+                            bottom: 10,
+                          ),
+                          child: Text(
+                            LabelService().getLabel(56),
+                            style: TextStyle(
+                              color: AppColors.greyText,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(color: AppColors.secondary),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Text(
+                                  '#',
+                                  style: TextStyle(
+                                    color: AppColors.whiteColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(width: 20),
+                                Text(
+                                  'Sales Description',
+                                  style: TextStyle(
+                                    color: AppColors.whiteColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ],
                             ),
-                          ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Row(
+                              children: [
+                                Text(
+                                  LabelService().getLabel(75),
+
+                                  style: TextStyle(
+                                    color: AppColors.whiteColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(width: 20),
+                                Text(
+                                  LabelService().getLabel(77),
+                                  style: TextStyle(
+                                    color: AppColors.whiteColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    viewModel.loader
+                        ? Center(child: CircularProgressIndicator())
+                        : ListView.builder(
+                          itemCount: viewModel.saleList.length,
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onLongPress: () {
+                                _showLogoutDialog(context, () async {
+                                  NavigationService.goBack();
+                                  viewModel.loader = true;
+                                  viewModel.notifyListeners();
+
+                                  await viewModel.deleteSale(
+                                    context,
+                                    storeId: widget.storeId.toString(),
+                                    saleId:
+                                        viewModel.saleList[index].saleId
+                                            .toString(),
+                                  );
+                                  await viewModel.saleView(
+                                    context,
+                                    storeId: widget.storeId.toString(),
+                                    saleDate: formattedDate2,
+                                  );
+                                  clcTotal();
+
+                                  viewModel.loader = false;
+                                  viewModel.notifyListeners();
+                                });
+                              },
+                              child: Stack(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: Text(
+                                      '${index + 1}.',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  Column(
+                                    children: [
+                                      Row(
+                                        // crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 8,
+                                            ),
+                                            child: Text(
+                                              '${index + 1}.',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 12,
+                                                          ),
+                                                      child: SizedBox(
+                                                        width: 190,
+                                                        // color: Colors.red,
+                                                        child: Text(
+                                                          viewModel
+                                                              .saleList[index]
+                                                              .productModelCode
+                                                              .toString(),
+                                                          style: TextStyle(
+                                                            color:
+                                                                AppColors
+                                                                    .blackColor,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 12,
+                                                          ),
+                                                      child: SizedBox(
+                                                        width: 190,
+                                                        // color: Colors.red,
+                                                        child: Text(
+                                                          viewModel
+                                                                  .saleList[index]
+                                                                  .productModelName ??
+                                                              '',
+                                                          style: TextStyle(
+                                                            color:
+                                                                AppColors
+                                                                    .greyText,
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 12,
+                                                          ),
+                                                      child: SizedBox(
+                                                        width: 190,
+                                                        // color: Colors.red,
+                                                        child: Text(
+                                                          'Price: ${viewModel.saleList[index].saleValue}',
+                                                          style: TextStyle(
+                                                            color:
+                                                                AppColors
+                                                                    .blackColor,
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Container(
+                                            // color: Colors.red,
+                                            width: 40,
+                                            padding: const EdgeInsets.only(
+                                              right: 0,
+                                            ),
+                                            child: Text(
+                                              viewModel
+                                                  .saleList[index]
+                                                  .saleQuantity
+                                                  .toString(),
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                          Container(
+                                            // color: Colors.red,
+                                            width: 70,
+                                            padding: const EdgeInsets.only(
+                                              right: 00,
+                                            ),
+                                            child: Text(
+                                              '${(viewModel.saleList[index].saleQuantity ?? 0.0) * (viewModel.saleList[index].saleValue ?? 0.0)}',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+
+                                      Divider(
+                                        color: Colors.grey[300],
+                                        thickness: 1,
+                                        indent: 12,
+                                        endIndent: 12,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

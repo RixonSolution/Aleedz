@@ -158,6 +158,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingView> {
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 12,
+                                    vertical: 8,
                                   ),
                                   child: Row(
                                     crossAxisAlignment:

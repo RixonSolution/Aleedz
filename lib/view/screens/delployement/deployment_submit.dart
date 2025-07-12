@@ -258,429 +258,472 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
               ),
             ),
 
-            SizedBox(height: 10),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.blackColor),
-              ),
-              child: Column(
+            Expanded(
+              child: ListView(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
+                  SizedBox(height: 10),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.blackColor),
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 10),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: TextField(
-                            controller: descriptionController,
-                            maxLines: 3,
-                            minLines: 2,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Describe issue details',
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        BarcodeScannerUI(),
-                        SizedBox(height: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    if (viewModel.beforeActivityImages.length <
-                                        4) {
-                                      _showImagePickerDialog();
-                                    } else {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Maximum 4 images allowed.",
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: Container(
-                                    height: 80,
-                                    width: 80,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade100,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.camera_alt,
-                                        color: Colors.grey,
-                                      ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 10),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                child: TextField(
+                                  controller: descriptionController,
+                                  maxLines: 3,
+                                  minLines: 2,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: 'Describe issue details',
+                                    contentPadding: EdgeInsets.symmetric(
+                                      vertical: 12,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 10),
-                                SizedBox(
-                                  height: 80,
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount:
-                                        viewModel.beforeActivityImages.length,
-                                    itemBuilder: (context, index) {
-                                      final file =
-                                          viewModel.beforeActivityImages[index];
-                                      return Stack(
-                                        children: [
-                                          Container(
-                                            margin: const EdgeInsets.only(
-                                              right: 10,
-                                            ),
-                                            height: 70,
-                                            width: 80,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              image: DecorationImage(
-                                                image: FileImage(file),
-                                                fit: BoxFit.cover,
+                              ),
+                              SizedBox(height: 10),
+                              BarcodeScannerUI(),
+                              SizedBox(height: 10),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          if (viewModel
+                                                  .beforeActivityImages
+                                                  .length <
+                                              4) {
+                                            _showImagePickerDialog();
+                                          } else {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  "Maximum 4 images allowed.",
+                                                ),
                                               ),
+                                            );
+                                          }
+                                        },
+                                        child: Container(
+                                          height: 80,
+                                          width: 80,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey.shade100,
+                                            borderRadius: BorderRadius.circular(
+                                              8,
                                             ),
                                           ),
-                                          Positioned(
-                                            top: 4,
-                                            right: 4,
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                viewModel.beforeActivityImages
-                                                    .removeAt(index);
-                                                viewModel.notifyListeners();
-                                              },
-                                              child: Container(
-                                                decoration: const BoxDecoration(
-                                                  color: AppColors.secondary,
-                                                  shape: BoxShape.circle,
+                                          child: const Center(
+                                            child: Icon(
+                                              Icons.camera_alt,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      SizedBox(
+                                        height: 80,
+                                        child: ListView.builder(
+                                          shrinkWrap: true,
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          scrollDirection: Axis.horizontal,
+                                          itemCount:
+                                              viewModel
+                                                  .beforeActivityImages
+                                                  .length,
+                                          itemBuilder: (context, index) {
+                                            final file =
+                                                viewModel
+                                                    .beforeActivityImages[index];
+                                            return Stack(
+                                              children: [
+                                                Container(
+                                                  margin: const EdgeInsets.only(
+                                                    right: 10,
+                                                  ),
+                                                  height: 70,
+                                                  width: 80,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                    image: DecorationImage(
+                                                      image: FileImage(file),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
                                                 ),
-                                                padding: const EdgeInsets.all(
-                                                  4,
+                                                Positioned(
+                                                  top: 4,
+                                                  right: 4,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      viewModel
+                                                          .beforeActivityImages
+                                                          .removeAt(index);
+                                                      viewModel
+                                                          .notifyListeners();
+                                                    },
+                                                    child: Container(
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                            color:
+                                                                AppColors
+                                                                    .secondary,
+                                                            shape:
+                                                                BoxShape.circle,
+                                                          ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            4,
+                                                          ),
+                                                      child: const Icon(
+                                                        Icons.close,
+                                                        size: 16,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
                                                 ),
-                                                child: const Icon(
-                                                  Icons.close,
-                                                  size: 16,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
+                                              ],
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: SizedBox(
+                            // width: double.infinity,
+                            height: 50,
+                            child:
+                                viewModel.loader
+                                    ? Center(child: CircularProgressIndicator())
+                                    : ElevatedButton(
+                                      onPressed: () async {
+                                        if (descriptionController
+                                            .text
+                                            .isEmpty) {
+                                          AppSnackBar.showError(
+                                            context,
+                                            'Please add description',
+                                          );
+                                        } else if (viewModel
+                                            .beforeActivityImages
+                                            .isEmpty) {
+                                          AppSnackBar.showError(
+                                            context,
+                                            'Please add pictures',
+                                          );
+                                        } else {
+                                          await viewModel.marketActivityAdd(
+                                            storeID: widget.storeId.toString(),
+                                            activityTypeId:
+                                                widget.activityTypeId
+                                                    .toString(),
+                                            activityCategoryId:
+                                                widget.activitiCategoryId
+                                                    .toString(),
+                                            brandId: '1',
+                                            activityDescription:
+                                                descriptionController.text,
+                                            statusId: '1',
+                                            quantity: '1',
+                                            deployementReason: '1',
+                                            beforeActivityPictures:
+                                                viewModel.beforeActivityImages,
+                                          );
+                                          descriptionController.clear();
+                                          viewModel.beforeActivityImages
+                                              .clear();
+                                          setState(() {});
+
+                                          viewModel.notifyListeners();
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius
+                                                  .zero, // Removes rounded corners
+                                        ),
+                                        backgroundColor: AppColors.secondary,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Text(
+                                            "Submit",
+                                            style: TextStyle(
+                                              color: AppColors.whiteColor,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
                                             ),
                                           ),
                                         ],
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                      ),
+                                    ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: SizedBox(
-                      // width: double.infinity,
-                      height: 50,
-                      child:
-                          viewModel.loader
-                              ? Center(child: CircularProgressIndicator())
-                              : ElevatedButton(
-                                onPressed: () async {
-                                  if (descriptionController.text.isEmpty) {
-                                    AppSnackBar.showError(
-                                      context,
-                                      'Please add description',
-                                    );
-                                  } else if (viewModel
-                                      .beforeActivityImages
-                                      .isEmpty) {
-                                    AppSnackBar.showError(
-                                      context,
-                                      'Please add pictures',
-                                    );
-                                  } else {
-                                    await viewModel.marketActivityAdd(
-                                      storeID: widget.storeId.toString(),
-                                      activityTypeId:
-                                          widget.activityTypeId.toString(),
-                                      activityCategoryId:
-                                          widget.activitiCategoryId.toString(),
-                                      brandId: '1',
-                                      activityDescription:
-                                          descriptionController.text,
-                                      statusId: '1',
-                                      quantity: '1',
-                                      deployementReason: '1',
-                                      beforeActivityPictures:
-                                          viewModel.beforeActivityImages,
-                                    );
-                                    descriptionController.clear();
-                                    viewModel.beforeActivityImages.clear();
-                                    setState(() {});
 
-                                    viewModel.notifyListeners();
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius
-                                            .zero, // Removes rounded corners
-                                  ),
-                                  backgroundColor: AppColors.secondary,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      "Submit",
-                                      style: TextStyle(
-                                        color: AppColors.whiteColor,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                  const SizedBox(height: 10),
 
-            const SizedBox(height: 10),
-
-            GestureDetector(
-              onTap: () {
-                //
-              },
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 12),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.darkGreyBackground,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Recent Deployement',
-                      style: TextStyle(
-                        color: AppColors.secondary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                  GestureDetector(
+                    onTap: () {
+                      //
+                    },
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 5),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 12),
-              child: const Divider(color: AppColors.primary, height: 5),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8, top: 5, bottom: 10),
-                  child: Text(
-                    LabelService().getLabel(56),
-                    style: TextStyle(color: AppColors.greyText, fontSize: 12),
-                  ),
-                ),
-              ],
-            ),
-            ListView.builder(
-              itemCount: viewModel.marketActivityList.length,
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                return InkWell(
-                  onLongPress: () {
-                    _showLogoutDialog(context, () async {
-                      NavigationService.goBack();
-
-                      await viewModel.removeActivity(
-                        activityId:
-                            viewModel.marketActivityList[index].activityID
-                                .toString(),
-                        activityTypeId:
-                            viewModel.marketActivityList[index].activityTypeID
-                                .toString(),
-                      );
-                      await loadUserAndFetchActivity();
-                    });
-                  },
-                  child: Column(
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      decoration: BoxDecoration(
+                        color: AppColors.darkGreyBackground,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Text(
-                              '${index + 1}.',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          Text(
+                            'Recent Deployement',
+                            style: TextStyle(
+                              color: AppColors.secondary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Expanded(
-                            child: Row(
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 12),
+                    child: const Divider(color: AppColors.primary, height: 5),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          right: 8,
+                          top: 5,
+                          bottom: 10,
+                        ),
+                        child: Text(
+                          LabelService().getLabel(56),
+                          style: TextStyle(
+                            color: AppColors.greyText,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  ListView.builder(
+                    itemCount: viewModel.marketActivityList.length,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onLongPress: () {
+                          _showLogoutDialog(context, () async {
+                            NavigationService.goBack();
+
+                            await viewModel.removeActivity(
+                              activityId:
+                                  viewModel.marketActivityList[index].activityID
+                                      .toString(),
+                              activityTypeId:
+                                  viewModel
+                                      .marketActivityList[index]
+                                      .activityTypeID
+                                      .toString(),
+                            );
+                            await loadUserAndFetchActivity();
+                          });
+                        },
+                        child: Column(
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: Text(
+                                    '${index + 1}.',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                            ),
+                                            child: SizedBox(
+                                              width: 190,
+                                              // color: Colors.red,
+                                              child: Text(
+                                                '${viewModel.marketActivityList[index].activityTypeName} - ${viewModel.marketActivityList[index].activityCategoryName}',
+                                                style: TextStyle(
+                                                  color: AppColors.blackColor,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                            ),
+                                            child: SizedBox(
+                                              width: 190,
+                                              // color: Colors.red,
+                                              child: Text(
+                                                viewModel
+                                                    .marketActivityList[index]
+                                                    .activityDescription
+                                                    .toString(),
+                                                style: TextStyle(
+                                                  color: AppColors.greyText,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 15),
+
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                            ),
+                                            child: Text(
+                                              'Date: ${viewModel.marketActivityList[index].activityDateTime}}',
+                                              style: TextStyle(
+                                                color: AppColors.blackColor,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 5),
+
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                            ),
+                                            child: Text(
+                                              'Quantity: ${viewModel.marketActivityList[index].quantity}',
+                                              style: TextStyle(
+                                                color: AppColors.blackColor,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
                                 Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      child: SizedBox(
-                                        width: 190,
-                                        // color: Colors.red,
-                                        child: Text(
-                                          '${viewModel.marketActivityList[index].activityTypeName} - ${viewModel.marketActivityList[index].activityCategoryName}',
-                                          style: TextStyle(
-                                            color: AppColors.blackColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      child: SizedBox(
-                                        width: 190,
-                                        // color: Colors.red,
-                                        child: Text(
-                                          viewModel
-                                              .marketActivityList[index]
-                                              .activityDescription
-                                              .toString(),
-                                          style: TextStyle(
-                                            color: AppColors.greyText,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(height: 15),
+                                      padding: const EdgeInsets.only(right: 12),
+                                      child: CachedNetworkImage(
+                                        //
+                                        imageUrl:
+                                            '${ApiConstants.baseUrl}/${viewModel.marketActivityList[index].imageActivity}',
+                                        // imageUrl:
+                                        //     '${ApiConstants.baseUrl}${viewModel.viewPicture[index].column1 ?? ''}',
+                                        height: 100,
+                                        width: 90,
 
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      child: Text(
-                                        'Date: ${viewModel.marketActivityList[index].activityDateTime}}',
-                                        style: TextStyle(
-                                          color: AppColors.blackColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(height: 5),
-
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      child: Text(
-                                        'Quantity: ${viewModel.marketActivityList[index].quantity}',
-                                        style: TextStyle(
-                                          color: AppColors.blackColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                        ),
+                                        placeholder:
+                                            (context, url) =>
+                                                Shimmer.fromColors(
+                                                  baseColor: Colors.grey[300]!,
+                                                  highlightColor:
+                                                      Colors.grey[100]!,
+                                                  child: Container(
+                                                    height: 70,
+                                                    width: 80,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                        errorWidget:
+                                            (context, url, error) => Icon(
+                                              Icons.error,
+                                            ), // optional error widget
+                                        fit: BoxFit.cover, // optional fit
                                       ),
                                     ),
                                   ],
                                 ),
                               ],
                             ),
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 12),
-                                child: CachedNetworkImage(
-                                  //
-                                  imageUrl:
-                                      '${ApiConstants.baseUrl}/${viewModel.marketActivityList[index].imageActivity}',
-                                  // imageUrl:
-                                  //     '${ApiConstants.baseUrl}${viewModel.viewPicture[index].column1 ?? ''}',
-                                  height: 100,
-                                  width: 90,
 
-                                  placeholder:
-                                      (context, url) => Shimmer.fromColors(
-                                        baseColor: Colors.grey[300]!,
-                                        highlightColor: Colors.grey[100]!,
-                                        child: Container(
-                                          height: 70,
-                                          width: 80,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                  errorWidget:
-                                      (context, url, error) => Icon(
-                                        Icons.error,
-                                      ), // optional error widget
-                                  fit: BoxFit.cover, // optional fit
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-
-                      Divider(
-                        color: Colors.grey[300],
-                        thickness: 1,
-                        indent: 12,
-                        endIndent: 12,
-                      ),
-                    ],
+                            Divider(
+                              color: Colors.grey[300],
+                              thickness: 1,
+                              indent: 12,
+                              endIndent: 12,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ],
+              ),
             ),
           ],
         ),

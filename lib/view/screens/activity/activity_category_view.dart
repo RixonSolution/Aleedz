@@ -208,6 +208,7 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 12,
+                                    vertical: 8,
                                   ),
                                   child: Row(
                                     crossAxisAlignment:
@@ -232,6 +233,11 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
                                             color: AppColors.blackColor,
                                           ),
                                         ),
+                                      ),
+                                      Image.asset(
+                                        'assets/icons/arrow_right.jpeg',
+                                        height: 30,
+                                        width: 30,
                                       ),
                                     ],
                                   ),
