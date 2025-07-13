@@ -187,6 +187,11 @@ class _MyConsumerState extends ConsumerState<UserTrainingView> {
                                           ),
                                         ),
                                       ),
+                                      Image.asset(
+                                        'assets/icons/arrow_right.jpeg',
+                                        height: 30,
+                                        width: 30,
+                                      ),
                                     ],
                                   ),
                                 ),

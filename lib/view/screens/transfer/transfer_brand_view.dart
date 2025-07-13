@@ -266,62 +266,70 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                             int productIndex = entry.key + 1;
                             final item = entry.value;
 
-                            return GestureDetector(
-                              onTap: () {
-                                NavigationService.navigateTo(
-                                  TransferSubmit(
-                                    storeName: widget.storeName,
-                                    checkInTime: widget.checkInTime,
-                                    storeId: item.storeID!,
-                                    categoryId: item.productCategoryID!,
-                                    categoryName:
-                                        item.productCategoryName ?? '',
-                                    lastUpdate: item.lastUpdateDate ?? '',
-                                    updateBy: item.updatedBy ?? '',
-                                    transferStore: widget.transferStore,
-                                    transferStoreAddress:
-                                        widget.transferStoreAddress,
-                                    visiteId: widget.visiteId,
-                                  ),
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 6,
-                                  horizontal: 12,
-                                ),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 8),
-                                  color: AppColors.lightGreyBackground,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Row(
-                                          children: [
-                                            Text('$productIndex. '),
-                                            Text(
-                                              item.productCategoryName ?? '',
+                            return Column(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    NavigationService.navigateTo(
+                                      TransferSubmit(
+                                        storeName: widget.storeName,
+                                        checkInTime: widget.checkInTime,
+                                        storeId: item.storeID!,
+                                        categoryId: item.productCategoryID!,
+                                        categoryName:
+                                            item.productCategoryName ?? '',
+                                        lastUpdate: item.lastUpdateDate ?? '',
+                                        updateBy: item.updatedBy ?? '',
+                                        transferStore: widget.transferStore,
+                                        transferStoreAddress:
+                                            widget.transferStoreAddress,
+                                        visiteId: widget.visiteId,
+                                      ),
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                      horizontal: 12,
+                                    ),
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
+                                      // color: AppColors.lightGreyBackground,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Row(
+                                              children: [
+                                                Text('$productIndex. '),
+                                                Text(
+                                                  item.productCategoryName ??
+                                                      '',
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                          SizedBox(
+                                            width: 70,
+                                            child: Text(
+                                              item.transferModelCount
+                                                      ?.toString() ??
+                                                  '0',
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      SizedBox(
-                                        width: 70,
-                                        child: Text(
-                                          item.transferModelCount?.toString() ??
-                                              '0',
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
                                 ),
-                              ),
+                                const Divider(thickness: 1),
+                              ],
                             );
                           }),
-                          const Divider(thickness: 1),
                         ],
                       );
                     },
