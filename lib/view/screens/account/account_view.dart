@@ -3,6 +3,7 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/%20login/login_view.dart';
 import 'package:aleedz/view/screens/issues/issues.view.dart';
 import 'package:aleedz/view/screens/pending_deployment/pending_deployment.dart';
+import 'package:aleedz/view/screens/store_share/store_share_view.dart';
 import 'package:aleedz/view/screens/user_training/user_training_list_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +84,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         'icon': Icons.school,
         'onTap': () {
           NavigationService.navigateTo(IssuesView());
+        },
+        'visible': true,
+      },
+      {
+        'title': 'Store Share',
+        'icon': Icons.school,
+        'onTap': () {
+          NavigationService.navigateTo(
+            StoreShareView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
+          );
         },
         'visible': true,
       },
