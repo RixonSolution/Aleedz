@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/models/category_store_share_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/store_share_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -35,18 +36,6 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
   }
 
   int selectedTab = 0;
-
-  final List<String> brandList = ['1. Logitec', '2. Razer', '3. HP'];
-
-  final Map<String, List<String>> categoriesByBrand = {
-    'Logitec': ['B2C Category', 'Headphone'],
-    'Brand 2': ['B2C Category', 'Headphone'],
-  };
-
-  final Map<String, List<String>> productsByBrand = {
-    'Logitec': ['MX Master 3', 'Z200 Speakers'],
-    'Razer': ['BlackWidow V3', 'Kraken X'],
-  };
 
   // Temporary hardcoded permissions
   final Map<int, String> permissions = {
@@ -85,13 +74,29 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
     );
   }
 
-  Widget _buildGroupedList(Map<String, List<String>> groupedData) {
+  Map<String, List<CategoryStoreShareModel>> groupByBrand(
+    List<CategoryStoreShareModel> list,
+  ) {
+    final Map<String, List<CategoryStoreShareModel>> grouped = {};
+    for (var item in list) {
+      if (item.brandName == null) continue;
+      grouped.putIfAbsent(item.brandName!, () => []).add(item);
+    }
+    return grouped;
+  }
+
+  Widget _buildGroupedList() {
+    final viewModel = ref.watch(storeShareModelProvider);
+
+    final groupedData = groupByBrand(viewModel.categoryShareList);
+
     return ListView(
       children:
           groupedData.entries.map((entry) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Brand Header
                 Container(
                   color: Colors.grey[200],
                   padding: const EdgeInsets.symmetric(
@@ -110,11 +115,12 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
                       ),
                       Text(
                         showCheckIcon(selectedTab) ? "Available" : "Count",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                 ),
+                // List of Categories under this Brand
                 ...entry.value.map(
                   (item) => Column(
                     children: [
@@ -127,7 +133,7 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              item,
+                              item.productCategoryName ?? '',
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -135,14 +141,20 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
                             showCheckIcon(selectedTab)
                                 ? const Icon(
                                   Icons.check_circle,
-                                  color: Colors.black,
+                                  color: AppColors.greyText,
                                   size: 26,
                                 )
                                 : SizedBox(
                                   width: 100,
                                   height: 40,
                                   child: TextField(
-                                    decoration: InputDecoration(
+                                    controller: TextEditingController(
+                                      text: (item.count ?? '').toString(),
+                                    ),
+                                    onChanged: (value) {
+                                      item.count = int.tryParse(value) ?? 0;
+                                    },
+                                    decoration: const InputDecoration(
                                       border: OutlineInputBorder(),
                                       contentPadding: EdgeInsets.symmetric(
                                         horizontal: 8,
@@ -165,8 +177,10 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
   }
 
   Widget _buildBrandList() {
+    final viewModel = ref.watch(storeShareModelProvider);
+
     return ListView.builder(
-      itemCount: brandList.length,
+      itemCount: viewModel.brandShareList.length,
       itemBuilder: (context, index) {
         return Column(
           children: [
@@ -179,13 +193,13 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    brandList[index],
+                    '${index + 1}.  ${viewModel.brandShareList[index].brandName.toString()}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   showCheckIcon(0)
                       ? const Icon(
                         Icons.check_circle,
-                        color: Colors.black,
+                        color: AppColors.greyText,
                         size: 28,
                       )
                       : SizedBox(
@@ -204,7 +218,70 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
                 ],
               ),
             ),
-            if (index != brandList.length - 1) const Divider(height: 0),
+            if (index != viewModel.brandShareList.length - 1)
+              const Divider(height: 0),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildProductList() {
+    final viewModel = ref.watch(storeShareModelProvider);
+
+    return ListView.builder(
+      itemCount: viewModel.productShareList.length,
+      itemBuilder: (context, index) {
+        final product = viewModel.productShareList[index];
+
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 14,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Product Name
+                  SizedBox(
+                    width: 250,
+                    child: Text(
+                      product.productModelName ?? '',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  // Count or Check Icon
+                  showCheckIcon(selectedTab)
+                      ? const Icon(
+                        Icons.check_circle,
+                        color: AppColors.greyText,
+                        size: 26,
+                      )
+                      : SizedBox(
+                        width: 100,
+                        height: 40,
+                        child: TextField(
+                          controller: TextEditingController(
+                            text: (product.count ?? '').toString(),
+                          ),
+                          onChanged: (value) {
+                            product.count = int.tryParse(value) ?? 0;
+                          },
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 0,
+                            ),
+                          ),
+                        ),
+                      ),
+                ],
+              ),
+            ),
+            const Divider(height: 0),
           ],
         );
       },
@@ -309,7 +386,7 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: const [
                                 Text(
-                                  'Brand',
+                                  '  Brand',
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                                 Text(
@@ -364,11 +441,9 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
                       child:
                           selectedTab == 0
                               ? _buildBrandList()
-                              : _buildGroupedList(
-                                selectedTab == 1
-                                    ? categoriesByBrand
-                                    : productsByBrand,
-                              ),
+                              : selectedTab == 1
+                              ? _buildGroupedList()
+                              : _buildProductList(),
                     ),
                   ],
                 ),

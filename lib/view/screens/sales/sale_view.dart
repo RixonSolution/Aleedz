@@ -39,14 +39,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
     });
 
     clcTotal();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Adjust 66 if needed (60 width + 6 margin)
-      _scrollController.animateTo(
-        29 * 66.0, // index * item width
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    });
   }
 
   void clcTotal() {
@@ -312,75 +304,22 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
               Expanded(
                 child: ListView(
                   children: [
-                    SizedBox(
-                      height: 80,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        controller: _scrollController, // 👈 important
-                        // physics: NeverScrollableScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: visibleDates.length,
-                        itemBuilder: (context, index) {
-                          final date = visibleDates[index];
-                          final isSelected = isSameDay(date, _selectedDate);
-
-                          return GestureDetector(
-                            onTap: () async {
-                              setState(() {
-                                _selectedDate = date;
-                              });
-                              final formattedDate = DateFormat(
-                                'yyyy-MM-dd',
-                              ).format(date);
-
-                              await viewModel.loadsale(
-                                context,
-                                widget.storeId.toString(),
-                                formattedDate,
-                              );
-                            },
-                            child: Container(
-                              width: 60,
-                              margin: EdgeInsets.symmetric(horizontal: 6),
-                              decoration: BoxDecoration(
-                                color:
-                                    isSelected
-                                        ? AppColors.secondary
-                                        : Colors.grey[200],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              alignment: Alignment.center,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    DateFormat.E().format(date), // Mon, Tue
-                                    style: TextStyle(
-                                      color:
-                                          isSelected
-                                              ? Colors.white
-                                              : Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    date.day.toString(), // 1, 2, 3...
-                                    style: TextStyle(
-                                      color:
-                                          isSelected
-                                              ? Colors.white
-                                              : Colors.black,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                    WeeklyCalendar(
+                      selectedDate: _selectedDate,
+                      onDateSelected: (date) {
+                        setState(() {
+                          _selectedDate = date;
+                        });
+                        print(
+                          'Selected Date: ${DateFormat('dd MMM yyyy').format(_selectedDate)}',
+                        );
+                        viewModel.loadsale(
+                          context,
+                          widget.storeId.toString(),
+                          formattedDate2,
+                        );
+                      },
                     ),
-
                     SizedBox(height: 20),
 
                     Container(
@@ -946,6 +885,146 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class WeeklyCalendar extends StatefulWidget {
+  final DateTime selectedDate;
+  final Function(DateTime) onDateSelected;
+
+  const WeeklyCalendar({
+    Key? key,
+    required this.selectedDate,
+    required this.onDateSelected,
+  }) : super(key: key);
+
+  @override
+  _WeeklyCalendarState createState() => _WeeklyCalendarState();
+}
+
+class _WeeklyCalendarState extends State<WeeklyCalendar> {
+  late DateTime _startOfWeek;
+  late int _selectedDayIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _startOfWeek = _getStartOfWeek(widget.selectedDate);
+    _selectedDayIndex = widget.selectedDate.difference(_startOfWeek).inDays;
+  }
+
+  DateTime _getStartOfWeek(DateTime date) {
+    return date.subtract(Duration(days: date.weekday - 1)); // Monday
+  }
+
+  void _goToPreviousWeek() {
+    setState(() {
+      _startOfWeek = _startOfWeek.subtract(const Duration(days: 7));
+      _selectedDayIndex = 0;
+    });
+    widget.onDateSelected(_startOfWeek);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<DateTime> weekDays =
+        List.generate(
+          7,
+          (index) => _startOfWeek.add(Duration(days: index)),
+        ).where((date) => !date.isAfter(DateTime.now())).toList();
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          // Header with Backward Button Only
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                DateFormat('MMMM yyyy').format(_startOfWeek),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left),
+                    onPressed: _goToPreviousWeek,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Week of ${DateFormat('dd MMM').format(_startOfWeek)}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Week Days Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:
+                weekDays.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  DateTime date = entry.value;
+                  bool isSelected = index == _selectedDayIndex;
+
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedDayIndex = index;
+                      });
+                      widget.onDateSelected(date);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            isSelected
+                                ? AppColors.secondary
+                                : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            DateFormat('d').format(date),
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            DateFormat('E').format(date),
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black87,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+          ),
+        ],
       ),
     );
   }

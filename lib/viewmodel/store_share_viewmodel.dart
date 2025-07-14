@@ -1,7 +1,9 @@
 import 'package:aleedz/core/controllers/store_share_controller.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/brand_list_model.dart';
-import 'package:aleedz/models/training_model.dart';
+import 'package:aleedz/models/brand_store_share_model.dart';
+import 'package:aleedz/models/category_store_share_model.dart';
+import 'package:aleedz/models/product_store_share_model.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,7 +18,10 @@ class StoreShareViewModel extends ChangeNotifier {
   final StoreShareController _shareController = StoreShareController();
 
   UserModel? user;
-  List<TrainingListModel> trainingList = [];
+  List<BrandStoreShareModel> brandShareList = [];
+  List<CategoryStoreShareModel> categoryShareList = [];
+  List<ProductStoreShareModel> productShareList = [];
+
   List<BrandListModel> brandList = [];
   BrandListModel? selectedBrand;
 
@@ -62,19 +67,67 @@ class StoreShareViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> getTrainingList() async {
-    trainingList = [];
+  Future<void> getBrandList() async {
     notifyListeners();
 
-    final response = await _shareController.trainingList(
+    final response = await _shareController.brandList(
       token: user?.apiToken ?? '',
       storeId: '0',
       teamMemberId: user?.teamMemberID.toString() ?? '',
+      visitId: '1',
     );
 
     if (response != null && response["status"] == 200) {
       final data = response["data"]['data'] as List;
-      trainingList = data.map((e) => TrainingListModel.fromJson(e)).toList();
+      brandShareList =
+          data.map((e) => BrandStoreShareModel.fromJson(e)).toList();
+
+      print(brandShareList);
+
+      notifyListeners();
+    } else {
+      debugPrint("brand share list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> getCategoryList() async {
+    notifyListeners();
+
+    final response = await _shareController.categoryList(
+      token: user?.apiToken ?? '',
+      storeId: '0',
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      visitId: '1',
+      brandId: selectedBrand?.brandId.toString() ?? '0',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'] as List;
+      categoryShareList =
+          data.map((e) => CategoryStoreShareModel.fromJson(e)).toList();
+
+      notifyListeners();
+    } else {
+      debugPrint("training list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> getProductList() async {
+    notifyListeners();
+
+    final response = await _shareController.productList(
+      token: user?.apiToken ?? '',
+      storeId: '0',
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      visitId: '1',
+      brandId: selectedBrand?.brandId.toString() ?? '1',
+      productCategoryId: '2',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'] as List;
+      productShareList =
+          data.map((e) => ProductStoreShareModel.fromJson(e)).toList();
 
       notifyListeners();
     } else {
@@ -83,12 +136,16 @@ class StoreShareViewModel extends ChangeNotifier {
   }
 
   Future loadShare() async {
-    trainingList = [];
+    brandShareList = [];
+    categoryShareList = [];
+    productShareList = [];
     loader = true;
     notifyListeners();
     await loadUser();
-    getBrandDropDown();
-    // await getTrainingList();
+    await getBrandDropDown();
+    await getBrandList();
+    await getCategoryList();
+    await getProductList();
     loader = false;
     notifyListeners();
   }

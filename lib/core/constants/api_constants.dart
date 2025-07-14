@@ -108,4 +108,13 @@ class ApiConstants {
 
   static String get pendingDeployment =>
       "$baseUrl/Deployments.asmx/PendingDeployment";
+
+  static String get brandStoreShare =>
+      "$baseUrl/StoreShare.asmx/StoreShareView_ByBrand";
+
+  static String get categoryStoreShare =>
+      "$baseUrl/StoreShare.asmx/StoreShareView_ByCategory";
+
+  static String get productStoreShare =>
+      "$baseUrl/StoreShare.asmx/StoreShareView_ByProduct";
 }

@@ -37,16 +37,82 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
     'Furniture': ['Tables', 'Sofas', 'Beds'],
   };
 
-  List<Map<String, dynamic>> items = [
-    {"product": "Washing Machine, Top Load", "qty": 2, "total": 25999},
-    {"product": "Washing Machine, Top Load", "qty": 1, "total": 25999},
-    {"product": "Washing Machine, Top Load", "qty": 1, "total": 25999},
-    {"product": "Washing Machine, Top Load", "qty": 1, "total": 25999},
-    {"product": "Washing Machine, Top Load", "qty": 1, "total": 25999},
-  ];
+  List<Map<String, dynamic>> addedProducts = [];
+  void addProduct() {
+    if (selectedCategory != null &&
+        selectedSubCategory != null &&
+        quantity > 0 &&
+        priceController.text.isNotEmpty) {
+      final price = double.tryParse(priceController.text) ?? 0.0;
+      setState(() {
+        addedProducts.add({
+          'category': selectedCategory,
+          'subCategory': selectedSubCategory,
+          'qty': quantity,
+          'total': price * quantity,
+        });
+      });
+
+      // Clear Inputs
+      quantityController.clear();
+      priceController.clear();
+      quantity = 0;
+      totalAmount = 0.0;
+    }
+  }
+
+  void submitData() {
+    if (addedProducts.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please add at least one product'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (phoneController.text.isEmpty ||
+        naeController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        invoiceController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill all required fields'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Here you can handle API submission or logic
+
+    setState(() {
+      addedProducts.clear();
+      phoneController.clear();
+      naeController.clear();
+      emailController.clear();
+      invoiceController.clear();
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Product added successfully'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
 
   int quantity = 1;
+  TextEditingController quantityController = TextEditingController();
   TextEditingController priceController = TextEditingController();
+
+  TextEditingController phoneController = TextEditingController();
+
+  TextEditingController naeController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController invoiceController = TextEditingController();
+
   double totalAmount = 0.0;
 
   void calculateTotal() {
@@ -334,6 +400,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                         ],
                       ),
                     ),
+
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -374,96 +441,55 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                       ),
                     ),
                     SizedBox(height: 20),
+
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          // Quantity Selector
+                          // Quantity TextField
                           Expanded(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                // Decrement Button (Grey)
-                                GestureDetector(
-                                  onTap: () {
-                                    if (quantity > 1) {
-                                      setState(() {
-                                        quantity--;
-                                        calculateTotal();
-                                      });
-                                    }
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade400,
-                                    ),
-                                    child: const Icon(
-                                      Icons.remove,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 1,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
                                   ),
+                                ],
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 3,
+                              ),
+                              child: TextField(
+                                controller: quantityController,
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  setState(() {
+                                    quantity = int.tryParse(value) ?? 0;
+                                    calculateTotal();
+                                  });
+                                },
+                                textAlign: TextAlign.center,
+                                decoration: const InputDecoration(
+                                  hintText: 'Qty',
+                                  hintStyle: TextStyle(fontSize: 14),
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
                                 ),
-
-                                // Quantity Text in White Box
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        spreadRadius: 1,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Text(
-                                    '$quantity',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-
-                                // Increment Button (Green)
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      quantity++;
-                                      calculateTotal();
-                                    });
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8),
-
-                                    decoration: BoxDecoration(
-                                      color: Colors.green.shade400,
-                                    ),
-                                    child: const Icon(
-                                      Icons.add,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
 
                           // Price Input
                           Expanded(
                             child: Container(
-                              margin: EdgeInsets.only(left: 5),
+                              margin: const EdgeInsets.only(left: 5),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(8),
@@ -483,7 +509,9 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                 controller: priceController,
                                 keyboardType: TextInputType.number,
                                 onChanged: (value) {
-                                  calculateTotal();
+                                  setState(() {
+                                    calculateTotal();
+                                  });
                                 },
                                 textAlign: TextAlign.center,
                                 decoration: const InputDecoration(
@@ -500,7 +528,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                           // Total Amount Display
                           Expanded(
                             child: Container(
-                              margin: EdgeInsets.only(left: 5),
+                              margin: const EdgeInsets.only(left: 5),
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade300,
                                 borderRadius: BorderRadius.circular(8),
@@ -511,14 +539,13 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                               child: TextField(
                                 enabled: false,
                                 keyboardType: TextInputType.number,
-
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
                                   hintText:
                                       totalAmount == 0.0
                                           ? 'Total'
                                           : totalAmount.toString(),
-                                  hintStyle: TextStyle(
+                                  hintStyle: const TextStyle(
                                     fontSize: 14,
                                     color: Colors.black,
                                   ),
@@ -532,21 +559,25 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                         ],
                       ),
                     ),
+
                     SizedBox(height: 10),
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Center(
-                          child: Text(
-                            'Add Product',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                    InkWell(
+                      onTap: addProduct,
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Center(
+                            child: Text(
+                              'Add Product',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -554,151 +585,156 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                     ),
 
                     SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              spreadRadius: 2,
-                              blurRadius: 6,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            // Header
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 6,
+                    if (addedProducts.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                spreadRadius: 2,
+                                blurRadius: 6,
+                                offset: const Offset(0, 3),
                               ),
-                              decoration: BoxDecoration(
-                                color: Colors.blue.shade50,
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(12),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              // Header
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.shade50,
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(12),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: const [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        '#',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 4,
+                                      child: Text(
+                                        'Product',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        'Qty',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Text(
+                                        'Total',
+
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        'Delete',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              child: Row(
-                                children: const [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Text(
-                                      '#',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 4,
-                                    child: Text(
-                                      'Product',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Text(
-                                      'Qty',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      'Total',
 
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Text(
-                                      'Delete',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                              const Divider(height: 1),
 
-                            const Divider(height: 1),
-
-                            // List Items
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: items.length,
-                              separatorBuilder:
-                                  (context, index) => const Divider(height: 1),
-                              itemBuilder: (context, index) {
-                                final item = items[index];
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                    horizontal: 8,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 1,
-                                        child: Text('${index + 1}'),
-                                      ),
-                                      Expanded(
-                                        flex: 4,
-                                        child: Text(item['product']),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: Text('${item['qty']}'),
-                                      ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          '${item['total'].toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                              // List Items
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: addedProducts.length,
+                                separatorBuilder:
+                                    (context, index) =>
+                                        const Divider(height: 1),
+                                itemBuilder: (context, index) {
+                                  final item = addedProducts[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 8,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 1,
+                                          child: Text('${index + 1}'),
                                         ),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              items.removeAt(index);
-                                            });
-                                          },
-                                          icon: const Icon(
-                                            Icons.delete,
-                                            color: Colors.red,
+                                        Expanded(
+                                          flex: 4,
+                                          child: Text(
+                                            '${item['category']} - ${item['subCategory']}',
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
+                                        Expanded(
+                                          flex: 1,
+                                          child: Text('${item['qty']}'),
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            '${item['total'].toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 1,
+                                          child: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                addedProducts.removeAt(index);
+                                              });
+                                            },
+                                            icon: const Icon(
+                                              Icons.delete,
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
+                    // customer number
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Row(
@@ -722,7 +758,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                 horizontal: 3,
                               ),
                               child: TextField(
-                                // controller: priceController,
+                                controller: phoneController,
                                 keyboardType: TextInputType.number,
                                 onChanged: (value) {
                                   // calculateTotal();
@@ -757,7 +793,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                 horizontal: 3,
                               ),
                               child: TextField(
-                                // controller: priceController,
+                                controller: naeController,
                                 keyboardType: TextInputType.text,
                                 onChanged: (value) {},
                                 textAlign: TextAlign.center,
@@ -798,8 +834,8 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                 horizontal: 3,
                               ),
                               child: TextField(
-                                // controller: priceController,
-                                keyboardType: TextInputType.number,
+                                controller: emailController,
+                                keyboardType: TextInputType.emailAddress,
                                 onChanged: (value) {
                                   // calculateTotal();
                                 },
@@ -833,8 +869,8 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                 horizontal: 3,
                               ),
                               child: TextField(
-                                // controller: priceController,
-                                keyboardType: TextInputType.text,
+                                controller: invoiceController,
+                                keyboardType: TextInputType.number,
                                 onChanged: (value) {},
                                 textAlign: TextAlign.center,
                                 decoration: const InputDecoration(
@@ -871,18 +907,21 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                       ),
                     ),
                     SizedBox(height: 10),
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(color: AppColors.secondary),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Center(
-                          child: Text(
-                            'Submit',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                    InkWell(
+                      onTap: submitData,
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(color: AppColors.secondary),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Center(
+                            child: Text(
+                              'Submit',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
