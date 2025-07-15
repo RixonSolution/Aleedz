@@ -20,6 +20,8 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
     Future.microtask(() {
       loadUserAndFetchCoverage();
     });
+    filteredProducts = List.from(addedProducts);
+    _searchController.addListener(_onSearchChanged);
   }
 
   Future<void> loadUserAndFetchCoverage() async {
@@ -51,6 +53,8 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
           'qty': quantity,
           'total': price * quantity,
         });
+        // Refresh the filtered list based on the current search text
+        _onSearchChanged();
       });
 
       // Clear Inputs
@@ -85,10 +89,25 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
       return;
     }
 
-    // Here you can handle API submission or logic
-
     setState(() {
+      invoiceList.add({
+        "invoice": invoiceController.text.trim(),
+        "isExpanded": false,
+        "products":
+            addedProducts.map((product) {
+              return {
+                "name": "${product['category']} - ${product['subCategory']}",
+                "description": "", // You can add description if needed
+                "qty": product['qty'],
+                "price":
+                    (product['total'] / product['qty']).round(), // Unit price
+              };
+            }).toList(),
+      });
+
+      // Clear forms
       addedProducts.clear();
+      filteredProducts.clear();
       phoneController.clear();
       naeController.clear();
       emailController.clear();
@@ -103,6 +122,8 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
     );
   }
 
+  final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> filteredProducts = [];
   int quantity = 1;
   TextEditingController quantityController = TextEditingController();
   TextEditingController priceController = TextEditingController();
@@ -123,72 +144,26 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
     // setState(() {});
   }
 
-  List<Map<String, dynamic>> invoiceList = [
-    {
-      "invoice": "Inv-00178",
-      "isExpanded": true,
-      "products": [
-        {
-          "name": "EWF1242R8C",
-          "description": "Washing Machine\nTop Load",
-          "qty": 1,
-          "price": 25999,
-        },
-        {
-          "name": "EWF1242R8C",
-          "description": "Washing Machine\nTop Load",
-          "qty": 1,
-          "price": 25999,
-        },
-        {
-          "name": "EWF1242R8C",
-          "description": "Washing Machine\nTop Load",
-          "qty": 1,
-          "price": 25999,
-        },
-        {
-          "name": "EWF1242R8C",
-          "description": "Washing Machine\nTop Load",
-          "qty": 1,
-          "price": 25999,
-        },
-      ],
-    },
-    {
-      "invoice": "EWF1242R8C",
-      "isExpanded": false,
-      "products": [
-        {"name": "EWF1242R8C", "description": "", "qty": 1, "price": 25999},
-      ],
-    },
-    {
-      "invoice": "EWF1242R8C",
-      "isExpanded": false,
-      "products": [
-        {"name": "EWF1242R8C", "description": "", "qty": 1, "price": 25999},
-      ],
-    },
-    {
-      "invoice": "EWF1242R8C",
-      "isExpanded": false,
-      "products": [
-        {"name": "EWF1242R8C", "description": "", "qty": 1, "price": 25999},
-      ],
-    },
-    {
-      "invoice": "EWF1242R8C",
-      "isExpanded": false,
-      "products": [
-        {"name": "EWF1242R8C", "description": "", "qty": 1, "price": 25999},
-      ],
-    },
-  ];
+  List<Map<String, dynamic>> invoiceList = [];
 
   String formatNumber(int number) {
     return number.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]},',
     );
+  }
+
+  void _onSearchChanged() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      filteredProducts =
+          addedProducts.where((product) {
+            final productText =
+                '${product['category']} ${product['subCategory']}'
+                    .toLowerCase();
+            return productText.contains(query);
+          }).toList();
+    });
   }
 
   @override
@@ -402,6 +377,10 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                     ),
 
                     Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
@@ -415,11 +394,9 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                         ],
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      margin: const EdgeInsets.symmetric(horizontal: 14),
                       child: TextField(
-                        textAlign:
-                            TextAlign
-                                .start, // Or remove this for natural alignment
+                        controller: _searchController,
+                        onChanged: (_) => _onSearchChanged(),
                         decoration: const InputDecoration(
                           hintText:
                               'Search model based on selected subcategory',
@@ -428,14 +405,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                             color: Colors.grey,
                           ),
                           border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
                           prefixIcon: Icon(Icons.search, color: Colors.black),
-                          prefixIconConstraints: BoxConstraints(
-                            minWidth:
-                                40, // Adjust based on how close you want the icon
-                            minHeight: 40,
-                          ),
                           contentPadding: EdgeInsets.symmetric(vertical: 12),
                         ),
                       ),
@@ -586,6 +556,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
 
                     SizedBox(height: 10),
                     if (addedProducts.isNotEmpty)
+                      // Product List Card with Header and ListView
                       Padding(
                         padding: const EdgeInsets.all(12),
                         child: Container(
@@ -603,7 +574,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                           ),
                           child: Column(
                             children: [
-                              // Header
+                              // Header Row
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 12,
@@ -651,7 +622,6 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                       flex: 2,
                                       child: Text(
                                         'Total',
-
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 12,
@@ -671,19 +641,17 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                   ],
                                 ),
                               ),
-
                               const Divider(height: 1),
 
-                              // List Items
+                              // ListView inside Column with shrinkWrap
                               ListView.separated(
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
-                                itemCount: addedProducts.length,
+                                itemCount: filteredProducts.length,
                                 separatorBuilder:
-                                    (context, index) =>
-                                        const Divider(height: 1),
+                                    (_, __) => const Divider(height: 1),
                                 itemBuilder: (context, index) {
-                                  final item = addedProducts[index];
+                                  final item = filteredProducts[index];
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 12,
@@ -708,7 +676,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                         Expanded(
                                           flex: 2,
                                           child: Text(
-                                            '${item['total'].toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                                            '${item['total'].toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}',
                                           ),
                                         ),
                                         Expanded(
@@ -716,7 +684,8 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                           child: IconButton(
                                             onPressed: () {
                                               setState(() {
-                                                addedProducts.removeAt(index);
+                                                addedProducts.remove(item);
+                                                _onSearchChanged();
                                               });
                                             },
                                             icon: const Icon(
@@ -927,345 +896,351 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            '23June Sales',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                    if (invoiceList.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              DateFormat('d MMM yyyy').format(DateTime.now()),
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
+                            const SizedBox(height: 8),
 
-                          // Main Container
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.3),
-                                  spreadRadius: 2,
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                // Header
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                    horizontal: 8,
+                            // Main Container
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.3),
+                                    spreadRadius: 2,
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 3),
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(12),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  // Header
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade50,
+                                      borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(12),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: const [
+                                        Expanded(
+                                          flex: 1,
+                                          child: Text(
+                                            '#',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 3,
+                                          child: Text(
+                                            'Invoice',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            'Qty',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            'Price',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            'Total',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(flex: 1, child: SizedBox()),
+                                      ],
                                     ),
                                   ),
-                                  child: Row(
-                                    children: const [
-                                      Expanded(
-                                        flex: 1,
-                                        child: Text(
-                                          '#',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: Text(
-                                          'Invoice',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          'Qty',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          'Price',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          'Total',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(flex: 1, child: SizedBox()),
-                                    ],
-                                  ),
-                                ),
 
-                                const Divider(height: 1),
+                                  const Divider(height: 1),
 
-                                // List
-                                ListView.builder(
-                                  primary: true,
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  itemCount: invoiceList.length,
-                                  itemBuilder: (context, index) {
-                                    final invoice = invoiceList[index];
-                                    final products =
-                                        invoice["products"] as List;
+                                  // List
+                                  ListView.builder(
+                                    primary: true,
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: invoiceList.length,
+                                    itemBuilder: (context, index) {
+                                      final invoice = invoiceList[index];
+                                      final products =
+                                          invoice["products"] as List;
 
-                                    final totalQty = products.fold(
-                                      0,
-                                      (sum, item) => sum + (item["qty"] as int),
-                                    );
-                                    final totalAmount = products.fold(
-                                      0,
-                                      (sum, item) =>
-                                          sum +
-                                          (item["qty"] as int) *
-                                              (item["price"] as int),
-                                    );
+                                      final totalQty = products.fold(
+                                        0,
+                                        (sum, item) =>
+                                            sum + (item["qty"] as int),
+                                      );
+                                      final totalAmount = products.fold(
+                                        0,
+                                        (sum, item) =>
+                                            sum +
+                                            (item["qty"] as int) *
+                                                (item["price"] as int),
+                                      );
 
-                                    return Column(
-                                      children: [
-                                        // Parent Row
-                                        InkWell(
-                                          onTap: () {
-                                            setState(() {
-                                              invoice["isExpanded"] =
-                                                  !(invoice["isExpanded"]
-                                                      as bool);
-                                            });
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 12,
-                                              horizontal: 8,
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  flex: 1,
-                                                  child: Text('${index + 1}'),
-                                                ),
-                                                Expanded(
-                                                  flex: 3,
-                                                  child: Text(
-                                                    invoice["invoice"],
+                                      return Column(
+                                        children: [
+                                          // Parent Row
+                                          InkWell(
+                                            onTap: () {
+                                              setState(() {
+                                                invoice["isExpanded"] =
+                                                    !(invoice["isExpanded"]
+                                                        as bool);
+                                              });
+                                            },
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 12,
+                                                    horizontal: 8,
                                                   ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text('$totalQty'),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text('25,999'),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text(
-                                                    formatNumber(totalAmount),
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Text('${index + 1}'),
                                                   ),
-                                                ),
-                                                Expanded(
-                                                  flex: 1,
-                                                  child: Icon(
-                                                    invoice["isExpanded"]
-                                                        ? Icons
-                                                            .keyboard_arrow_up
-                                                        : Icons
-                                                            .keyboard_arrow_down,
-                                                    color: Colors.grey,
+                                                  Expanded(
+                                                    flex: 3,
+                                                    child: Text(
+                                                      invoice["invoice"],
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text('$totalQty'),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text('25,999'),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                      formatNumber(totalAmount),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Icon(
+                                                      invoice["isExpanded"]
+                                                          ? Icons
+                                                              .keyboard_arrow_up
+                                                          : Icons
+                                                              .keyboard_arrow_down,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                        ),
 
-                                        // Child Rows
-                                        if (invoice["isExpanded"] == true)
-                                          Column(
-                                            children:
-                                                products.map((product) {
-                                                  return Padding(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          vertical: 10,
-                                                          horizontal: 8,
-                                                        ),
-                                                    child: Row(
-                                                      children: [
-                                                        const Expanded(
-                                                          flex: 1,
-                                                          child: SizedBox(),
-                                                        ),
-                                                        Expanded(
-                                                          flex: 3,
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Text(
-                                                                product["name"],
-                                                                style: const TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
-                                                              ),
-                                                              if ((product["description"]
-                                                                      as String)
-                                                                  .isNotEmpty)
+                                          // Child Rows
+                                          if (invoice["isExpanded"] == true)
+                                            Column(
+                                              children:
+                                                  products.map((product) {
+                                                    return Padding(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            vertical: 10,
+                                                            horizontal: 8,
+                                                          ),
+                                                      child: Row(
+                                                        children: [
+                                                          const Expanded(
+                                                            flex: 1,
+                                                            child: SizedBox(),
+                                                          ),
+                                                          Expanded(
+                                                            flex: 3,
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
                                                                 Text(
-                                                                  product["description"],
+                                                                  product["name"],
                                                                   style: const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color:
-                                                                        Colors
-                                                                            .grey,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
                                                                   ),
                                                                 ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Expanded(
-                                                          flex: 2,
-                                                          child: Text(
-                                                            '${product["qty"]}',
-                                                          ),
-                                                        ),
-                                                        Expanded(
-                                                          flex: 2,
-                                                          child: Text(
-                                                            formatNumber(
-                                                              product["price"],
+                                                                if ((product["description"]
+                                                                        as String)
+                                                                    .isNotEmpty)
+                                                                  Text(
+                                                                    product["description"],
+                                                                    style: const TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color:
+                                                                          Colors
+                                                                              .grey,
+                                                                    ),
+                                                                  ),
+                                                              ],
                                                             ),
                                                           ),
-                                                        ),
-                                                        Expanded(
-                                                          flex: 2,
-                                                          child: Text(
-                                                            formatNumber(
-                                                              product["qty"] *
-                                                                  product["price"],
+                                                          Expanded(
+                                                            flex: 2,
+                                                            child: Text(
+                                                              '${product["qty"]}',
                                                             ),
                                                           ),
-                                                        ),
-                                                        const Expanded(
-                                                          flex: 1,
-                                                          child: SizedBox(),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                          ),
+                                                          Expanded(
+                                                            flex: 2,
+                                                            child: Text(
+                                                              formatNumber(
+                                                                product["price"],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Expanded(
+                                                            flex: 2,
+                                                            child: Text(
+                                                              formatNumber(
+                                                                product["qty"] *
+                                                                    product["price"],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          const Expanded(
+                                                            flex: 1,
+                                                            child: SizedBox(),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                            ),
 
-                                        const Divider(height: 1),
-                                      ],
-                                    );
-                                  },
-                                ),
-
-                                // Footer Row Total
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                    horizontal: 8,
+                                          const Divider(height: 1),
+                                        ],
+                                      );
+                                    },
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
-                                    borderRadius: const BorderRadius.vertical(
-                                      bottom: Radius.circular(12),
+
+                                  // Footer Row Total
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 8,
                                     ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Expanded(
-                                        flex: 1,
-                                        child: SizedBox(),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade50,
+                                      borderRadius: const BorderRadius.vertical(
+                                        bottom: Radius.circular(12),
                                       ),
-                                      const Expanded(
-                                        flex: 3,
-                                        child: Text(
-                                          'Total',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Expanded(
+                                          flex: 1,
+                                          child: SizedBox(),
                                         ),
-                                      ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          '${invoiceList.fold(0, (sum, item) => sum + (item["products"] as List).fold(0, (s, p) => s + (p["qty"] as int)))}',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      const Expanded(flex: 2, child: Text('')),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          formatNumber(
-                                            invoiceList.fold(
-                                              0,
-                                              (sum, item) =>
-                                                  sum +
-                                                          (item["products"]
-                                                                  as List)
-                                                              .fold(
-                                                                0,
-                                                                (s, p) =>
-                                                                    s +
-                                                                    (p["qty"] *
-                                                                        p["price"]),
-                                                              )
-                                                      as int,
+                                        const Expanded(
+                                          flex: 3,
+                                          child: Text(
+                                            'Total',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            '${invoiceList.fold(0, (sum, item) => sum + (item["products"] as List).fold(0, (s, p) => s + (p["qty"] as int)))}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      const Expanded(
-                                        flex: 1,
-                                        child: SizedBox(),
-                                      ),
-                                    ],
+                                        const Expanded(
+                                          flex: 2,
+                                          child: Text(''),
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            formatNumber(
+                                              invoiceList.fold(
+                                                0,
+                                                (sum, item) =>
+                                                    sum +
+                                                            (item["products"]
+                                                                    as List)
+                                                                .fold(
+                                                                  0,
+                                                                  (s, p) =>
+                                                                      s +
+                                                                      (p["qty"] *
+                                                                          p["price"]),
+                                                                )
+                                                        as int,
+                                              ),
+                                            ),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        const Expanded(
+                                          flex: 1,
+                                          child: SizedBox(),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
       ),
