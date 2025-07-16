@@ -1,125 +1,181 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/issues_veiwmodel.dart';
+import 'package:aleedz/viewmodel/sale_viewmodel.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 class IssuesView extends ConsumerStatefulWidget {
-  IssuesView({Key? key}) : super(key: key);
+  String storeName, checkInTime;
+  int storeId;
+
+  IssuesView({
+    Key? key,
+    required this.storeName,
+    required this.checkInTime,
+    required this.storeId,
+  }) : super(key: key);
 
   @override
   ConsumerState<IssuesView> createState() => _MyConsumerState();
 }
 
 class _MyConsumerState extends ConsumerState<IssuesView> {
+  DateTime _selectedDate = DateTime.now();
+  double totalQuantity = 0;
+  double totalPrice = 0.0;
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
-      loadUserAndFetchCoverage();
+      String formattedDate2 = DateFormat(
+        'yyyy-MM-dd',
+      ).format(_selectedDate); // e.g., 2025-06-05
+
+      ref
+          .read(saleModelProvider.notifier)
+          .loadsale(context, widget.storeId.toString(), formattedDate2);
     });
-    filteredProducts = List.from(addedProducts);
-    _searchController.addListener(_onSearchChanged);
+
+    clcTotal();
   }
 
-  Future<void> loadUserAndFetchCoverage() async {
-    final notifier = ref.read(issuesModelProvider.notifier);
-    // await notifier.loadTraining(widget.storeId.toString());
+  void clcTotal() {
+    totalQuantity = 0;
+    totalPrice = 0;
+    setState(() {});
+    for (var item in ref.read(saleModelProvider.notifier).saleList) {
+      final qty = int.tryParse(item.saleQuantity?.toString() ?? '0') ?? 0;
+      final price = double.tryParse(item.saleValue?.toString() ?? '0') ?? 0;
+
+      totalQuantity += qty;
+      totalPrice += qty * price;
+      setState(() {});
+    }
   }
 
-  String? selectedCategory;
-  String? selectedSubCategory;
+  Widget buildTextField(
+    String label,
+    TextEditingController controller, {
+    bool readOnly = false,
+    void Function(String)? onChanged,
+    int? maxLength,
+  }) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: TextField(
+          controller: controller,
+          readOnly: readOnly,
+          onChanged: onChanged,
+          keyboardType: TextInputType.number,
+          maxLength: maxLength,
+          decoration: InputDecoration(
+            hintText: label,
+            filled: true,
+            counterText: "", // hides character counter
+            fillColor: Colors.grey.shade200,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-  final List<String> categories = ['Electronics', 'Clothing', 'Furniture'];
-  final Map<String, List<String>> subCategories = {
-    'Electronics': ['Mobiles', 'Laptops', 'Cameras'],
-    'Clothing': ['Men', 'Women', 'Kids'],
-    'Furniture': ['Tables', 'Sofas', 'Beds'],
-  };
+  Future<void> _showLogoutDialog(
+    BuildContext context,
 
-  List<Map<String, dynamic>> addedProducts = [];
-  void addProduct() {
-    if (selectedCategory != null &&
-        selectedSubCategory != null &&
-        quantity > 0 &&
+    void Function()? onPressed,
+  ) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent closing by tapping outside
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: AppColors.secondary,
+            title: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.whiteColor),
+            ),
+            content: const Text(
+              'Are you sure you want to delete?',
+              style: TextStyle(color: AppColors.whiteColor),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(), // Close dialog
+                child: const Text(
+                  'No',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+              ),
+              TextButton(
+                onPressed: onPressed,
+                child: const Text(
+                  'Yes',
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
+  List<Map<String, dynamic>> pendingSales = [];
+
+  void addPendingSale() {
+    final viewModel = ref.watch(saleModelProvider);
+
+    if (viewModel.selectedSaleSearch != null &&
+        quantityController.text.isNotEmpty &&
         priceController.text.isNotEmpty) {
-      final price = double.tryParse(priceController.text) ?? 0.0;
       setState(() {
-        addedProducts.add({
-          'category': selectedCategory,
-          'subCategory': selectedSubCategory,
-          'qty': quantity,
-          'total': price * quantity,
+        pendingSales.add({
+          'productCategoryId':
+              viewModel.selectedSaleSearch!.productID.toString(),
+          'storeId': widget.storeId.toString(),
+          'saleCount': quantityController.text,
+          'salePrice': priceController.text,
+          'saleDate':
+              DateFormat('dd MMM yyyy').format(_selectedDate).toString(),
+          'saleType': '1',
         });
-        // Refresh the filtered list based on the current search text
-        _onSearchChanged();
       });
 
       // Clear Inputs
       quantityController.clear();
       priceController.clear();
-      quantity = 0;
-      totalAmount = 0.0;
     }
   }
 
-  void submitData() {
-    if (addedProducts.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add at least one product'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+  Future<void> submitAllSales() async {
+    final viewModel = ref.watch(saleModelProvider);
 
-    if (phoneController.text.isEmpty ||
-        naeController.text.isEmpty ||
-        emailController.text.isEmpty ||
-        invoiceController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill all required fields'),
-          backgroundColor: Colors.red,
-        ),
+    for (var sale in pendingSales) {
+      await viewModel.addSale(
+        context,
+        productCategoryId: sale['productCategoryId'],
+        storeId: sale['storeId'],
+        saleCount: sale['saleCount'],
+        salePrice: sale['salePrice'],
+        saleDate: sale['saleDate'],
+        saleType: sale['saleType'],
       );
-      return;
     }
 
     setState(() {
-      invoiceList.add({
-        "invoice": invoiceController.text.trim(),
-        "isExpanded": false,
-        "products":
-            addedProducts.map((product) {
-              return {
-                "name": "${product['category']} - ${product['subCategory']}",
-                "description": "", // You can add description if needed
-                "qty": product['qty'],
-                "price":
-                    (product['total'] / product['qty']).round(), // Unit price
-              };
-            }).toList(),
-      });
-
-      // Clear forms
-      addedProducts.clear();
-      filteredProducts.clear();
-      phoneController.clear();
-      naeController.clear();
-      emailController.clear();
-      invoiceController.clear();
+      pendingSales.clear(); // Clear after submitting
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Product added successfully'),
-        backgroundColor: Colors.green,
-      ),
-    );
+    AppSnackBar.showSuccess(context, 'Sale submitted.');
   }
 
   final TextEditingController _searchController = TextEditingController();
@@ -133,15 +189,17 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
   TextEditingController naeController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController invoiceController = TextEditingController();
+  final TextEditingController totalController = TextEditingController();
 
   double totalAmount = 0.0;
 
   void calculateTotal() {
-    double price = double.tryParse(priceController.text) ?? 0;
-    totalAmount = quantity * price;
+    final quantity = double.tryParse(quantityController.text) ?? 0;
+    final price = double.tryParse(priceController.text) ?? 0.0;
+    final total = quantity * price;
+
+    totalController.text = total.toStringAsFixed(2);
     setState(() {});
-    // Call setState if in StatefulWidget
-    // setState(() {});
   }
 
   List<Map<String, dynamic>> invoiceList = [];
@@ -153,22 +211,21 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
     );
   }
 
-  void _onSearchChanged() {
-    final query = _searchController.text.toLowerCase();
-    setState(() {
-      filteredProducts =
-          addedProducts.where((product) {
-            final productText =
-                '${product['category']} ${product['subCategory']}'
-                    .toLowerCase();
-            return productText.contains(query);
-          }).toList();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(issuesModelProvider);
+    final viewModel = ref.watch(saleModelProvider);
+    String formattedDate = DateFormat('dd MMM yyyy').format(_selectedDate);
+
+    String formattedDate2 = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedDate); // e.g., 2025-06-05
+
+    bool isSameDay(DateTime a, DateTime b) {
+      return a.year == b.year && a.month == b.month && a.day == b.day;
+    }
+
+    calculateTotal();
+    clcTotal();
 
     return SafeArea(
       child: Scaffold(
@@ -177,8 +234,9 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
         body:
             viewModel.loader
                 ? const Center(child: CircularProgressIndicator())
-                : ListView(
-                  // crossAxisAlignment: CrossAxisAlignment.start,
+                : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: [
                     const SizedBox(height: 10),
                     Padding(
@@ -220,1027 +278,960 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                     ),
                     const SizedBox(height: 5),
 
-                    // Center(
-                    //   child: Text(
-                    //     widget.storeName,
-                    //     style: const TextStyle(
-                    //       color: AppColors.blackColor,
-                    //       fontSize: 18,
-                    //       fontWeight: FontWeight.bold,
-                    //     ),
-                    //   ),
-                    // ),
-                    WeeklyCalendar(),
-                    SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
+                    Expanded(
+                      child: ListView(
                         children: [
-                          // Category Dropdown
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 1,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
+                          WeeklyCalendar(
+                            selectedDate: _selectedDate,
+                            onDateSelected: (date) {
+                              setState(() {
+                                _selectedDate = date;
+                              });
+                              print(
+                                'Selected Date: ${DateFormat('dd MMM yyyy').format(_selectedDate)}',
+                              );
+                              viewModel.loadsale(
+                                context,
+                                widget.storeId.toString(),
+                                formattedDate2,
+                              );
+                            },
+                          ),
+                          SizedBox(height: 20),
+                          // brand
+                          Container(
+                            // margin: EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              // border: Border.all(color: AppColors.blackColor),
+                            ),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 5,
                                   ),
-                                ],
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                              ),
-                              child: DropdownButtonFormField<String>(
-                                decoration: const InputDecoration(
-                                  hintText: 'Category',
-                                  hintStyle: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color:
+                                          Colors
+                                              .grey
+                                              .shade100, // Light grey background
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    child: DropdownButtonFormField<int>(
+                                      value: viewModel.selectedBrand?.brandId,
+                                      decoration: const InputDecoration(
+                                        hintText: 'Brand',
+                                        border:
+                                            InputBorder
+                                                .none, // Removes underline
+                                        contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 0,
+                                          vertical: 12,
+                                        ),
+                                      ),
+                                      items:
+                                          viewModel.brandList.map((brand) {
+                                            return DropdownMenuItem<int>(
+                                              value: brand.brandId,
+                                              child: Text(brand.brandName),
+                                            );
+                                          }).toList(),
+                                      onChanged: (int? branddlId) {
+                                        final selected = viewModel.brandList
+                                            .firstWhere(
+                                              (c) => c.brandId == branddlId,
+                                            );
+                                        viewModel.selectBrand(
+                                          widget.storeId,
+                                          selected,
+                                        );
+                                      },
+                                    ),
                                   ),
                                 ),
-                                icon: const Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.black,
-                                ),
-                                value: selectedCategory,
-                                isExpanded: true,
-                                hint: const Center(
-                                  child: Text(
-                                    'Category',
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
-                                ),
-                                items:
-                                    categories.map((String category) {
-                                      return DropdownMenuItem<String>(
-                                        value: category,
-                                        child: Center(
-                                          child: Text(
-                                            category,
-                                            textAlign: TextAlign.center,
+                                if (viewModel.productCategory.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Colors
+                                                .grey
+                                                .shade100, // Light grey background
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      child: DropdownButtonFormField<int>(
+                                        value:
+                                            viewModel
+                                                .selectedProductCategory
+                                                ?.productCategoryID,
+                                        isExpanded:
+                                            true, // Optional: makes it full-width
+                                        decoration: const InputDecoration(
+                                          hintText: 'Product Category',
+                                          border: InputBorder.none,
+                                          contentPadding: EdgeInsets.symmetric(
+                                            horizontal: 0,
+                                            vertical: 12,
                                           ),
                                         ),
-                                      );
-                                    }).toList(),
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    selectedCategory = newValue;
-                                    selectedSubCategory =
-                                        null; // Reset subcategory when category changes
-                                  });
-                                },
-                              ),
+                                        items:
+                                            viewModel.productCategory.map((
+                                              category,
+                                            ) {
+                                              return DropdownMenuItem<int>(
+                                                value:
+                                                    category.productCategoryID,
+                                                child: Text(
+                                                  category.productCategoryName ??
+                                                      '',
+                                                ),
+                                              );
+                                            }).toList(),
+                                        onChanged: (int? categoryId) {
+                                          if (categoryId != null) {
+                                            final selected = viewModel
+                                                .productCategory
+                                                .firstWhere(
+                                                  (c) =>
+                                                      c.productCategoryID ==
+                                                      categoryId,
+                                                );
+                                            viewModel.selectProductCategory(
+                                              widget.storeId,
+                                              selected,
+                                            );
+                                          }
+                                        },
+                                        // This makes sure a hint is shown when no value is selected
+                                        hint: const Text(
+                                          'Select Product Category',
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                if (viewModel.saleSearch.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade100,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      child: DropdownSearch<int>(
+                                        items:
+                                            viewModel.saleSearch
+                                                .map(
+                                                  (model) => model.productID!,
+                                                )
+                                                .toList(),
+                                        selectedItem:
+                                            viewModel
+                                                .selectedSaleSearch
+                                                ?.productID,
+                                        itemAsString: (int id) {
+                                          final model = viewModel.saleSearch
+                                              .firstWhere(
+                                                (m) => m.productID == id,
+                                              );
+                                          return model.productModelName ?? '';
+                                        },
+                                        dropdownDecoratorProps:
+                                            DropDownDecoratorProps(
+                                              dropdownSearchDecoration:
+                                                  InputDecoration(
+                                                    hintText: LabelService()
+                                                        .getLabel(74),
+                                                    border: InputBorder.none,
+                                                    contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                          horizontal: 0,
+                                                          vertical: 12,
+                                                        ),
+                                                  ),
+                                            ),
+                                        popupProps: const PopupProps.menu(
+                                          showSearchBox: true,
+                                          searchFieldProps: TextFieldProps(
+                                            decoration: InputDecoration(
+                                              hintText: "Search model name...",
+                                            ),
+                                          ),
+                                        ),
+                                        onChanged: (int? id) {
+                                          if (id != null) {
+                                            final selected = viewModel
+                                                .saleSearch
+                                                .firstWhere(
+                                                  (m) => m.productID == id,
+                                                );
+                                            viewModel.selectSearchModel(
+                                              selected,
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ),
+
+                                if (viewModel.saleSearch.isNotEmpty &&
+                                    viewModel.productCategory.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        buildTextField(
+                                          LabelService().getLabel(75),
+                                          quantityController,
+                                          onChanged: (_) => calculateTotal(),
+                                          maxLength: 4,
+                                        ),
+                                        buildTextField(
+                                          LabelService().getLabel(76),
+                                          priceController,
+                                          onChanged: (_) => calculateTotal(),
+                                          maxLength: 7,
+                                        ),
+                                        buildTextField(
+                                          LabelService().getLabel(77),
+                                          totalController,
+                                          readOnly: true,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
 
-                          const SizedBox(width: 16), // Space between dropdowns
-                          // Subcategory Dropdown
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 1,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                              ), // Optional inner padding
-                              child: DropdownButtonFormField<String>(
-                                decoration: const InputDecoration(
-                                  hintText: 'Sub Category',
-                                  hintStyle: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 0,
+                          const SizedBox(height: 10),
+                          if (viewModel.saleSearch.isNotEmpty &&
+                              viewModel.productCategory.isNotEmpty)
+                            viewModel.loader
+                                ? Center(child: CircularProgressIndicator())
+                                : InkWell(
+                                  onTap: () async {
+                                    if (quantityController.text.isEmpty) {
+                                      AppSnackBar.showError(
+                                        context,
+                                        'Please add quantity',
+                                      );
+                                    } else if (priceController.text.isEmpty) {
+                                      AppSnackBar.showError(
+                                        context,
+                                        'Please add price',
+                                      );
+                                    } else {
+                                      FocusScope.of(
+                                        context,
+                                      ).unfocus(); // Removes focus from any text field
+
+                                      // await viewModel.addSale(
+                                      //   context,
+                                      //   productCategoryId:
+                                      //       viewModel
+                                      //           .selectedSaleSearch!
+                                      //           .productID
+                                      //           .toString(),
+                                      //   storeId: widget.storeId.toString(),
+                                      //   saleCount: quantityController.text,
+                                      //   salePrice: priceController.text,
+                                      //   saleDate: formattedDate2,
+                                      //   saleType: '1',
+                                      // );
+                                      addPendingSale();
+                                      quantityController.clear();
+                                      priceController.clear();
+                                      totalController.clear();
+                                      clcTotal();
+
+                                      setState(() {});
+                                    }
+                                  },
+                                  child: Container(
+                                    margin: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.black),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Center(
+                                        child: Text(
+                                          'Add Product',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                icon: const Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.black, // Icon color
-                                ), // Dropdown icon on the right
-                                value: selectedSubCategory,
-                                isExpanded:
-                                    true, // Important to expand to full width
-                                hint: const Center(
-                                  child: Text(
-                                    'Sub Category',
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
+
+                          SizedBox(height: 10),
+                          if (pendingSales.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.3),
+                                      spreadRadius: 2,
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
                                 ),
-                                items:
-                                    (subCategories[selectedCategory] ?? []).map(
-                                      (String subCategory) {
-                                        return DropdownMenuItem<String>(
-                                          value: subCategory,
-                                          child: Center(
-                                            // Center the selected value
-                                            child: Text(
-                                              subCategory,
-                                              textAlign: TextAlign.center,
+                                child: Column(
+                                  children: [
+                                    // Header
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                        horizontal: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.shade50,
+                                        borderRadius:
+                                            const BorderRadius.vertical(
+                                              top: Radius.circular(12),
                                             ),
+                                      ),
+                                      child: Row(
+                                        children: const [
+                                          Expanded(
+                                            flex: 1,
+                                            child: Text(
+                                              '#',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 4,
+                                            child: Text(
+                                              'Product ID',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 1,
+                                            child: Text(
+                                              'Qty',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 2,
+                                            child: Text(
+                                              'Price',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 1,
+                                            child: Text(
+                                              'Delete',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Divider(height: 1),
+
+                                    // List Items
+                                    ListView.separated(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: pendingSales.length,
+                                      separatorBuilder:
+                                          (_, __) => const Divider(height: 1),
+                                      itemBuilder: (context, index) {
+                                        final item = pendingSales[index];
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 12,
+                                            horizontal: 8,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                flex: 1,
+                                                child: Text('${index + 1}'),
+                                              ),
+                                              Expanded(
+                                                flex: 4,
+                                                child: Text(
+                                                  item['productCategoryId']
+                                                      .toString(),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 1,
+                                                child: Text(
+                                                  item['saleCount'].toString(),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 2,
+                                                child: Text(
+                                                  item['salePrice'].toString(),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 1,
+                                                child: IconButton(
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      pendingSales.removeAt(
+                                                        index,
+                                                      );
+                                                    });
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.delete,
+                                                    color: Colors.red,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         );
                                       },
-                                    ).toList(),
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    selectedSubCategory = newValue;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 1,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (_) => _onSearchChanged(),
-                        decoration: const InputDecoration(
-                          hintText:
-                              'Search model based on selected subcategory',
-                          hintStyle: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
-                          border: InputBorder.none,
-                          prefixIcon: Icon(Icons.search, color: Colors.black),
-                          contentPadding: EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          // Quantity TextField
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 1,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 3,
-                              ),
-                              child: TextField(
-                                controller: quantityController,
-                                keyboardType: TextInputType.number,
-                                onChanged: (value) {
-                                  setState(() {
-                                    quantity = int.tryParse(value) ?? 0;
-                                    calculateTotal();
-                                  });
-                                },
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  hintText: 'Qty',
-                                  hintStyle: TextStyle(fontSize: 14),
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          // Price Input
-                          Expanded(
-                            child: Container(
-                              margin: const EdgeInsets.only(left: 5),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 1,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 3,
-                              ),
-                              child: TextField(
-                                controller: priceController,
-                                keyboardType: TextInputType.number,
-                                onChanged: (value) {
-                                  setState(() {
-                                    calculateTotal();
-                                  });
-                                },
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  hintText: 'Enter Price',
-                                  hintStyle: TextStyle(fontSize: 12),
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          // Total Amount Display
-                          Expanded(
-                            child: Container(
-                              margin: const EdgeInsets.only(left: 5),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 3,
-                              ),
-                              child: TextField(
-                                enabled: false,
-                                keyboardType: TextInputType.number,
-                                textAlign: TextAlign.center,
-                                decoration: InputDecoration(
-                                  hintText:
-                                      totalAmount == 0.0
-                                          ? 'Total'
-                                          : totalAmount.toString(),
-                                  hintStyle: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black,
-                                  ),
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 10),
-                    InkWell(
-                      onTap: addProduct,
-                      child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Center(
-                            child: Text(
-                              'Add Product',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 10),
-                    if (addedProducts.isNotEmpty)
-                      // Product List Card with Header and ListView
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.3),
-                                spreadRadius: 2,
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              // Header Row
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                  horizontal: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.shade50,
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(12),
-                                  ),
-                                ),
-                                child: Row(
-                                  children: const [
-                                    Expanded(
-                                      flex: 1,
-                                      child: Text(
-                                        '#',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 4,
-                                      child: Text(
-                                        'Product',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 1,
-                                      child: Text(
-                                        'Qty',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 2,
-                                      child: Text(
-                                        'Total',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 1,
-                                      child: Text(
-                                        'Delete',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
                                     ),
                                   ],
                                 ),
                               ),
-                              const Divider(height: 1),
-
-                              // ListView inside Column with shrinkWrap
-                              ListView.separated(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: filteredProducts.length,
-                                separatorBuilder:
-                                    (_, __) => const Divider(height: 1),
-                                itemBuilder: (context, index) {
-                                  final item = filteredProducts[index];
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                      horizontal: 8,
+                            ),
+                          if (pendingSales.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      margin: EdgeInsets.only(right: 5),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            spreadRadius: 1,
+                                            blurRadius: 5,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 3,
+                                      ),
+                                      child: TextField(
+                                        controller: phoneController,
+                                        keyboardType: TextInputType.number,
+                                        onChanged: (value) {
+                                          // calculateTotal();
+                                        },
+                                        textAlign: TextAlign.center,
+                                        decoration: const InputDecoration(
+                                          hintText: 'Customer Number',
+                                          hintStyle: TextStyle(fontSize: 12),
+                                          border: InputBorder.none,
+                                          enabledBorder: InputBorder.none,
+                                          focusedBorder: InputBorder.none,
+                                        ),
+                                      ),
                                     ),
-                                    child: Row(
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      margin: EdgeInsets.only(left: 5),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            spreadRadius: 1,
+                                            blurRadius: 5,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 3,
+                                      ),
+                                      child: TextField(
+                                        controller: naeController,
+                                        keyboardType: TextInputType.text,
+                                        onChanged: (value) {},
+                                        textAlign: TextAlign.center,
+                                        decoration: const InputDecoration(
+                                          hintText: 'Customer Name',
+                                          hintStyle: TextStyle(fontSize: 12),
+                                          border: InputBorder.none,
+                                          enabledBorder: InputBorder.none,
+                                          focusedBorder: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          SizedBox(height: 10),
+                          if (pendingSales.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      margin: EdgeInsets.only(right: 5),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            spreadRadius: 1,
+                                            blurRadius: 5,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 3,
+                                      ),
+                                      child: TextField(
+                                        controller: emailController,
+                                        keyboardType:
+                                            TextInputType.emailAddress,
+                                        onChanged: (value) {
+                                          // calculateTotal();
+                                        },
+                                        textAlign: TextAlign.center,
+                                        decoration: const InputDecoration(
+                                          hintText: 'Customer Email',
+                                          hintStyle: TextStyle(fontSize: 12),
+                                          border: InputBorder.none,
+                                          enabledBorder: InputBorder.none,
+                                          focusedBorder: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      margin: EdgeInsets.only(left: 5),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            spreadRadius: 1,
+                                            blurRadius: 5,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 3,
+                                      ),
+                                      child: TextField(
+                                        controller: invoiceController,
+                                        keyboardType: TextInputType.number,
+                                        onChanged: (value) {},
+                                        textAlign: TextAlign.center,
+                                        decoration: const InputDecoration(
+                                          hintText: 'Invoice Number',
+                                          hintStyle: TextStyle(fontSize: 12),
+                                          border: InputBorder.none,
+                                          enabledBorder: InputBorder.none,
+                                          focusedBorder: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          SizedBox(height: 10),
+                          if (pendingSales.isNotEmpty)
+                            Container(
+                              margin: EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.lightBlue),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Center(
+                                  child: Text(
+                                    'Upload attachment',
+                                    style: TextStyle(
+                                      color: Colors.lightBlue,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                          SizedBox(height: 10),
+                          if (pendingSales.isNotEmpty)
+                            InkWell(
+                              onTap: () async {
+                                await submitAllSales();
+                                quantityController.clear();
+                                priceController.clear();
+                                totalController.clear();
+                                clcTotal();
+
+                                setState(() {});
+                              },
+                              child: Container(
+                                margin: EdgeInsets.symmetric(horizontal: 12),
+                                decoration: BoxDecoration(
+                                  color: AppColors.secondary,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Center(
+                                    child: Text(
+                                      LabelService().getLabel(79),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          SizedBox(height: 10),
+
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.secondary,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        '#',
+                                        style: TextStyle(
+                                          color: AppColors.whiteColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(width: 20),
+                                      Text(
+                                        'Sales Description',
+                                        style: TextStyle(
+                                          color: AppColors.whiteColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        LabelService().getLabel(75),
+
+                                        style: TextStyle(
+                                          color: AppColors.whiteColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(width: 20),
+                                      Text(
+                                        LabelService().getLabel(77),
+                                        style: TextStyle(
+                                          color: AppColors.whiteColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          viewModel.loader
+                              ? Center(child: CircularProgressIndicator())
+                              : ListView.builder(
+                                itemCount: viewModel.saleList.length,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  return InkWell(
+                                    onLongPress: () {
+                                      _showLogoutDialog(context, () async {
+                                        NavigationService.goBack();
+                                        viewModel.loader = true;
+                                        viewModel.notifyListeners();
+
+                                        await viewModel.deleteSale(
+                                          context,
+                                          storeId: widget.storeId.toString(),
+                                          saleId:
+                                              viewModel.saleList[index].saleId
+                                                  .toString(),
+                                        );
+                                        await viewModel.saleView(
+                                          context,
+                                          storeId: widget.storeId.toString(),
+                                          saleDate: formattedDate2,
+                                        );
+                                        clcTotal();
+
+                                        viewModel.loader = false;
+                                        viewModel.notifyListeners();
+                                      });
+                                    },
+                                    child: Stack(
                                       children: [
-                                        Expanded(
-                                          flex: 1,
-                                          child: Text('${index + 1}'),
-                                        ),
-                                        Expanded(
-                                          flex: 4,
-                                          child: Text(
-                                            '${item['category']} - ${item['subCategory']}',
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 8,
                                           ),
-                                        ),
-                                        Expanded(
-                                          flex: 1,
-                                          child: Text('${item['qty']}'),
-                                        ),
-                                        Expanded(
-                                          flex: 2,
                                           child: Text(
-                                            '${item['total'].toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}',
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 1,
-                                          child: IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                addedProducts.remove(item);
-                                                _onSearchChanged();
-                                              });
-                                            },
-                                            icon: const Icon(
-                                              Icons.delete,
-                                              color: Colors.red,
+                                            '${index + 1}.',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
                                             ),
                                           ),
+                                        ),
+                                        Column(
+                                          children: [
+                                            Row(
+                                              // crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        left: 8,
+                                                      ),
+                                                  child: Text(
+                                                    '${index + 1}.',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    children: [
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                ),
+                                                            child: SizedBox(
+                                                              width: 190,
+                                                              // color: Colors.red,
+                                                              child: Text(
+                                                                viewModel
+                                                                    .saleList[index]
+                                                                    .productModelCode
+                                                                    .toString(),
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      AppColors
+                                                                          .blackColor,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 14,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                ),
+                                                            child: SizedBox(
+                                                              width: 190,
+                                                              // color: Colors.red,
+                                                              child: Text(
+                                                                viewModel
+                                                                        .saleList[index]
+                                                                        .productModelName ??
+                                                                    '',
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      AppColors
+                                                                          .greyText,
+                                                                  fontSize: 14,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                ),
+                                                            child: SizedBox(
+                                                              width: 190,
+                                                              // color: Colors.red,
+                                                              child: Text(
+                                                                'Price: ${viewModel.saleList[index].saleValue}',
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      AppColors
+                                                                          .blackColor,
+                                                                  fontSize: 14,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Container(
+                                                  // color: Colors.red,
+                                                  width: 40,
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        right: 0,
+                                                      ),
+                                                  child: Text(
+                                                    viewModel
+                                                        .saleList[index]
+                                                        .saleQuantity
+                                                        .toString(),
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(width: 10),
+                                                Container(
+                                                  // color: Colors.red,
+                                                  width: 70,
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        right: 00,
+                                                      ),
+                                                  child: Text(
+                                                    '${(viewModel.saleList[index].saleQuantity ?? 0.0) * (viewModel.saleList[index].saleValue ?? 0.0)}',
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+
+                                            Divider(
+                                              color: Colors.grey[300],
+                                              thickness: 1,
+                                              indent: 12,
+                                              endIndent: 12,
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
                                   );
                                 },
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    // customer number
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              margin: EdgeInsets.only(right: 5),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 1,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 3,
-                              ),
-                              child: TextField(
-                                controller: phoneController,
-                                keyboardType: TextInputType.number,
-                                onChanged: (value) {
-                                  // calculateTotal();
-                                },
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  hintText: 'Customer Number',
-                                  hintStyle: TextStyle(fontSize: 12),
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              margin: EdgeInsets.only(left: 5),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 1,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 3,
-                              ),
-                              child: TextField(
-                                controller: naeController,
-                                keyboardType: TextInputType.text,
-                                onChanged: (value) {},
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  hintText: 'Customer Name',
-                                  hintStyle: TextStyle(fontSize: 12),
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              margin: EdgeInsets.only(right: 5),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 1,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 3,
-                              ),
-                              child: TextField(
-                                controller: emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                onChanged: (value) {
-                                  // calculateTotal();
-                                },
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  hintText: 'Customer Email',
-                                  hintStyle: TextStyle(fontSize: 12),
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              margin: EdgeInsets.only(left: 5),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 1,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 3,
-                              ),
-                              child: TextField(
-                                controller: invoiceController,
-                                keyboardType: TextInputType.number,
-                                onChanged: (value) {},
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  hintText: 'Invoice Number',
-                                  hintStyle: TextStyle(fontSize: 12),
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.lightBlue),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Center(
-                          child: Text(
-                            'Upload attachment',
-                            style: TextStyle(
-                              color: Colors.lightBlue,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    InkWell(
-                      onTap: submitData,
-                      child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(color: AppColors.secondary),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Center(
-                            child: Text(
-                              'Submit',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (invoiceList.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              DateFormat('d MMM yyyy').format(DateTime.now()),
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-
-                            // Main Container
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.3),
-                                    spreadRadius: 2,
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                children: [
-                                  // Header
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                      horizontal: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue.shade50,
-                                      borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(12),
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: const [
-                                        Expanded(
-                                          flex: 1,
-                                          child: Text(
-                                            '#',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 3,
-                                          child: Text(
-                                            'Invoice',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: Text(
-                                            'Qty',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: Text(
-                                            'Price',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: Text(
-                                            'Total',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(flex: 1, child: SizedBox()),
-                                      ],
-                                    ),
-                                  ),
-
-                                  const Divider(height: 1),
-
-                                  // List
-                                  ListView.builder(
-                                    primary: true,
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemCount: invoiceList.length,
-                                    itemBuilder: (context, index) {
-                                      final invoice = invoiceList[index];
-                                      final products =
-                                          invoice["products"] as List;
-
-                                      final totalQty = products.fold(
-                                        0,
-                                        (sum, item) =>
-                                            sum + (item["qty"] as int),
-                                      );
-                                      final totalAmount = products.fold(
-                                        0,
-                                        (sum, item) =>
-                                            sum +
-                                            (item["qty"] as int) *
-                                                (item["price"] as int),
-                                      );
-
-                                      return Column(
-                                        children: [
-                                          // Parent Row
-                                          InkWell(
-                                            onTap: () {
-                                              setState(() {
-                                                invoice["isExpanded"] =
-                                                    !(invoice["isExpanded"]
-                                                        as bool);
-                                              });
-                                            },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 12,
-                                                    horizontal: 8,
-                                                  ),
-                                              child: Row(
-                                                children: [
-                                                  Expanded(
-                                                    flex: 1,
-                                                    child: Text('${index + 1}'),
-                                                  ),
-                                                  Expanded(
-                                                    flex: 3,
-                                                    child: Text(
-                                                      invoice["invoice"],
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    flex: 2,
-                                                    child: Text('$totalQty'),
-                                                  ),
-                                                  Expanded(
-                                                    flex: 2,
-                                                    child: Text('25,999'),
-                                                  ),
-                                                  Expanded(
-                                                    flex: 2,
-                                                    child: Text(
-                                                      formatNumber(totalAmount),
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    flex: 1,
-                                                    child: Icon(
-                                                      invoice["isExpanded"]
-                                                          ? Icons
-                                                              .keyboard_arrow_up
-                                                          : Icons
-                                                              .keyboard_arrow_down,
-                                                      color: Colors.grey,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-
-                                          // Child Rows
-                                          if (invoice["isExpanded"] == true)
-                                            Column(
-                                              children:
-                                                  products.map((product) {
-                                                    return Padding(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            vertical: 10,
-                                                            horizontal: 8,
-                                                          ),
-                                                      child: Row(
-                                                        children: [
-                                                          const Expanded(
-                                                            flex: 1,
-                                                            child: SizedBox(),
-                                                          ),
-                                                          Expanded(
-                                                            flex: 3,
-                                                            child: Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Text(
-                                                                  product["name"],
-                                                                  style: const TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                  ),
-                                                                ),
-                                                                if ((product["description"]
-                                                                        as String)
-                                                                    .isNotEmpty)
-                                                                  Text(
-                                                                    product["description"],
-                                                                    style: const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color:
-                                                                          Colors
-                                                                              .grey,
-                                                                    ),
-                                                                  ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          Expanded(
-                                                            flex: 2,
-                                                            child: Text(
-                                                              '${product["qty"]}',
-                                                            ),
-                                                          ),
-                                                          Expanded(
-                                                            flex: 2,
-                                                            child: Text(
-                                                              formatNumber(
-                                                                product["price"],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          Expanded(
-                                                            flex: 2,
-                                                            child: Text(
-                                                              formatNumber(
-                                                                product["qty"] *
-                                                                    product["price"],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          const Expanded(
-                                                            flex: 1,
-                                                            child: SizedBox(),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  }).toList(),
-                                            ),
-
-                                          const Divider(height: 1),
-                                        ],
-                                      );
-                                    },
-                                  ),
-
-                                  // Footer Row Total
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                      horizontal: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue.shade50,
-                                      borderRadius: const BorderRadius.vertical(
-                                        bottom: Radius.circular(12),
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Expanded(
-                                          flex: 1,
-                                          child: SizedBox(),
-                                        ),
-                                        const Expanded(
-                                          flex: 3,
-                                          child: Text(
-                                            'Total',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: Text(
-                                            '${invoiceList.fold(0, (sum, item) => sum + (item["products"] as List).fold(0, (s, p) => s + (p["qty"] as int)))}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        const Expanded(
-                                          flex: 2,
-                                          child: Text(''),
-                                        ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: Text(
-                                            formatNumber(
-                                              invoiceList.fold(
-                                                0,
-                                                (sum, item) =>
-                                                    sum +
-                                                            (item["products"]
-                                                                    as List)
-                                                                .fold(
-                                                                  0,
-                                                                  (s, p) =>
-                                                                      s +
-                                                                      (p["qty"] *
-                                                                          p["price"]),
-                                                                )
-                                                        as int,
-                                              ),
-                                            ),
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        const Expanded(
-                                          flex: 1,
-                                          child: SizedBox(),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                   ],
                 ),
       ),
@@ -1249,95 +1240,96 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
 }
 
 class WeeklyCalendar extends StatefulWidget {
+  final DateTime selectedDate;
+  final Function(DateTime) onDateSelected;
+
+  const WeeklyCalendar({
+    Key? key,
+    required this.selectedDate,
+    required this.onDateSelected,
+  }) : super(key: key);
+
   @override
   _WeeklyCalendarState createState() => _WeeklyCalendarState();
 }
 
 class _WeeklyCalendarState extends State<WeeklyCalendar> {
-  DateTime _startOfWeek = DateTime.now();
-  int _selectedDayIndex = 0;
+  late DateTime _startOfWeek;
+  late int _selectedDayIndex;
 
   @override
   void initState() {
     super.initState();
-    _startOfWeek = _getStartOfWeek(DateTime.now());
+    _startOfWeek = _getStartOfWeek(widget.selectedDate);
+    _selectedDayIndex = widget.selectedDate.difference(_startOfWeek).inDays;
   }
 
   DateTime _getStartOfWeek(DateTime date) {
-    return date.subtract(Duration(days: date.weekday - 1)); // Monday as start
-  }
-
-  void _goToNextWeek() {
-    setState(() {
-      _startOfWeek = _startOfWeek.add(Duration(days: 7));
-      _selectedDayIndex = 0;
-    });
+    return date.subtract(Duration(days: date.weekday - 1)); // Monday
   }
 
   void _goToPreviousWeek() {
     setState(() {
-      _startOfWeek = _startOfWeek.subtract(Duration(days: 7));
+      _startOfWeek = _startOfWeek.subtract(const Duration(days: 7));
       _selectedDayIndex = 0;
     });
+    widget.onDateSelected(_startOfWeek);
   }
 
   @override
   Widget build(BuildContext context) {
-    List<DateTime> weekDays = List.generate(7, (index) {
-      return _startOfWeek.add(Duration(days: index));
-    });
-
-    String currentMonth = DateFormat('MMMM').format(_startOfWeek);
-    int currentWeek =
-        ((DateTime.now().difference(_startOfWeek).inDays) ~/ 7) + 1;
+    List<DateTime> weekDays =
+        List.generate(
+          7,
+          (index) => _startOfWeek.add(Duration(days: index)),
+        ).where((date) => !date.isAfter(DateTime.now())).toList();
 
     return Container(
-      padding: EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
-          // Month and Week Navigation
+          // Header with Backward Button Only
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                currentMonth,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                DateFormat('MMMM yyyy').format(_startOfWeek),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               Row(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.chevron_left),
+                    icon: const Icon(Icons.chevron_left),
                     onPressed: _goToPreviousWeek,
                   ),
+                  const SizedBox(width: 8),
                   Text(
-                    'Week ${currentWeek}',
-                    style: TextStyle(
-                      fontSize: 16,
+                    'Week of ${DateFormat('dd MMM').format(_startOfWeek)}',
+                    style: const TextStyle(
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.secondary,
+                      color: Colors.black,
                     ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.chevron_right),
-                    onPressed: _goToNextWeek,
                   ),
                 ],
               ),
             ],
           ),
-          SizedBox(height: 12),
-          // Day Row
+          const SizedBox(height: 12),
+          // Week Days Row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children:
                 weekDays.asMap().entries.map((entry) {
                   int index = entry.key;
                   DateTime date = entry.value;
-
                   bool isSelected = index == _selectedDayIndex;
 
                   return GestureDetector(
@@ -1345,9 +1337,13 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
                       setState(() {
                         _selectedDayIndex = index;
                       });
+                      widget.onDateSelected(date);
                     },
                     child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 6,
+                      ),
                       decoration: BoxDecoration(
                         color:
                             isSelected

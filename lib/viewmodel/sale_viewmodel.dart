@@ -171,8 +171,6 @@ class SaleViewModel extends ChangeNotifier {
 
       await saleView(context, storeId: storeId, saleDate: saleDate);
 
-      AppSnackBar.showSuccess(context, 'Sale submitted.');
-
       notifyListeners();
     } else {
       debugPrint("Sale Search  Error: ${response?['data']}");

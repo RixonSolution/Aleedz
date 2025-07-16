@@ -2,7 +2,9 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/%20login/login_view.dart';
 import 'package:aleedz/view/screens/issues/issues.view.dart';
+import 'package:aleedz/view/screens/issues/issues_list.dart';
 import 'package:aleedz/view/screens/pending_deployment/pending_deployment.dart';
+import 'package:aleedz/view/screens/sales/sale_view.dart';
 import 'package:aleedz/view/screens/store_share/store_share_view.dart';
 import 'package:aleedz/view/screens/user_training/user_training_list_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
@@ -83,7 +85,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         'title': 'Sellout',
         'icon': Icons.school,
         'onTap': () {
-          NavigationService.navigateTo(IssuesView());
+          NavigationService.navigateTo(
+            IssuesView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
+          );
         },
         'visible': true,
       },
@@ -92,8 +96,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         'icon': Icons.school,
         'onTap': () {
           NavigationService.navigateTo(
-            StoreShareView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
+            SaleView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
           );
+
+          // NavigationService.navigateTo(
+          //   StoreShareView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
+          // );
         },
         'visible': true,
       },

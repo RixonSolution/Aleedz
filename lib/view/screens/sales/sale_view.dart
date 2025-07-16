@@ -301,6 +301,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                 ),
               ),
               SizedBox(height: 10),
+
               Expanded(
                 child: ListView(
                   children: [
@@ -321,7 +322,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                       },
                     ),
                     SizedBox(height: 20),
-
+                    // brand
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: 10),
                       decoration: BoxDecoration(
@@ -625,6 +626,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                         ),
                       ],
                     ),
+
                     Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 10,
