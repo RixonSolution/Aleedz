@@ -9,6 +9,7 @@ import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/coverage_details/google_map.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
+import 'package:aleedz/view/screens/open_issues/open_issues_view.dart';
 import 'package:aleedz/view/screens/store/store_home.dart';
 import 'package:aleedz/view/screens/today_plan/today_plan_view.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
@@ -748,14 +749,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                if (viewModel.dashBoardList.isEmpty) {
-                                  AppSnackBar.showError(
-                                    context,
-                                    "No journeys are planned for today.",
-                                  );
-                                } else {
-                                  NavigationService.navigateTo(TodayPlanView());
-                                }
+                                NavigationService.navigateTo(
+                                  StoreIssuesScreen(),
+                                );
                               },
                               child: Container(
                                 height: 110,
@@ -768,37 +764,22 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Image.asset(
-                                          AppIcons.toddayPlan,
-                                          height: 20,
-                                          width: 20,
-                                        ),
-                                        SizedBox(
-                                          width: 85,
-                                          child: Text(
-                                            LabelService().getLabel(12),
-                                            style: AppTextStyles.labelStyle,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
                                     Text(
-                                      formattedDate,
-                                      style: AppTextStyles.subLabelStyle,
+                                      // LabelService().getLabel(12),
+                                      'Open Issues',
+                                      style: AppTextStyles.labelStyle,
                                     ),
-                                    Text(
-                                      '${viewModel.userVisited}/${viewModel.userPlan}',
-                                      style: AppTextStyles.bigTextStyle,
-                                    ),
+                                    // Text(
+                                    //   formattedDate,
+                                    //   style: AppTextStyles.subLabelStyle,
+                                    // ),
+                                    // Text(
+                                    //   '${viewModel.userVisited}/${viewModel.userPlan}',
+                                    //   style: AppTextStyles.bigTextStyle,
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -909,7 +890,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
                       GestureDetector(
                         onTap: () {
-                          //
+                          if (viewModel.dashBoardList.isEmpty) {
+                            AppSnackBar.showError(
+                              context,
+                              "No journeys are planned for today.",
+                            );
+                          } else {
+                            NavigationService.navigateTo(TodayPlanView());
+                          }
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -925,6 +913,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
                             children: [
                               Text(
                                 LabelService().getLabel(51),
+                                style: TextStyle(
+                                  color: AppColors.secondary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(width: 20),
+                              Text(
+                                '(${viewModel.userVisited}/${viewModel.userPlan})',
                                 style: TextStyle(
                                   color: AppColors.secondary,
                                   fontSize: 16,
@@ -1241,10 +1238,40 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                           );
                                         }
                                       } else {
-                                        AppSnackBar.showError(
-                                          context,
-                                          "You don't have camera permission.",
-                                        );
+                                        {
+                                          await viewModel.dashboardCheckIn(
+                                            context,
+                                            viewModel
+                                                .dashBoardList[index]
+                                                .visitId,
+                                            remarks: '',
+                                          );
+                                          NavigationService.navigateTo(
+                                            StoreHome(
+                                              storeName:
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .storeName,
+                                              checkInTime:
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .checkInTime,
+                                              grade:
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .gradeName,
+
+                                              address:
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .address,
+                                              storeId:
+                                                  viewModel
+                                                      .dashBoardList[index]
+                                                      .storeId,
+                                            ),
+                                          );
+                                        }
                                       }
                                     },
                                     child: Column(
@@ -1487,10 +1514,17 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                           }
                                         }
                                       } else {
-                                        AppSnackBar.showError(
+                                        viewModel.coverageCheckout(
                                           context,
-                                          "You don't have camera permission.",
+                                          viewModel
+                                              .dashBoardList[index]
+                                              .visitId,
+                                          remarks: '',
                                         );
+                                        // AppSnackBar.showError(
+                                        //   context,
+                                        //   "You don't have camera permission.",
+                                        // );
                                       }
                                     },
                                     child: Column(

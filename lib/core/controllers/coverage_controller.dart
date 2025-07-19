@@ -72,7 +72,7 @@ class CoverageController {
     required String longitude,
     required String latitude,
     required String remarks,
-    required File checkInImgFile,
+    File? checkInImgFile, // ✅ NEW parameter
     required String token,
   }) async {
     return await _apiService.dashboardCheckIn(

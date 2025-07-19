@@ -281,7 +281,7 @@ class CoverageViewModel extends ChangeNotifier {
     BuildContext context,
     int visiteId, {
     String remarks = '',
-    required File checkInImgFile,
+    File? checkInImgFile, // ✅ NEW parameter
   }) async {
     loader = true;
     notifyListeners();

@@ -179,7 +179,7 @@ class CoverageServices {
     required String longitude,
     required String latitude,
     required String remarks,
-    required File checkInImgFile,
+    File? checkInImgFile, // ✅ NEW parameter
     required String token,
   }) async {
     try {
@@ -200,8 +200,10 @@ class CoverageServices {
         return result != null ? File(result.path) : null;
       }
 
-      File? compressedImage = await compressImage(checkInImgFile);
-
+      File? compressedImage;
+      if (checkInImgFile != null) {
+        compressedImage = await compressImage(checkInImgFile);
+      }
       final url = Uri.parse(
         '${ApiConstants.dashboardCheckIn}?'
         '_token=${Uri.encodeComponent(token)}&'

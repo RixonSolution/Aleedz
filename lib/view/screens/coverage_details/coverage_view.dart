@@ -3,6 +3,7 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
+import 'package:aleedz/models/store_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/coverage_details/google_map.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
@@ -421,7 +422,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
   Future<void> handleCheckInOrOut({
     required BuildContext context,
     required bool hasCameraPermission,
-    required dynamic store,
+    required StoreModel store,
     required double myLat,
     required double myLng,
     required double distance,
@@ -449,7 +450,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
             StoreHome(
               storeName: store.storeName,
               checkInTime: store.checkInTime,
-              grade: store.gradName,
+              grade: store.gradeName,
               address: store.address,
               storeId: store.storeId,
             ),
