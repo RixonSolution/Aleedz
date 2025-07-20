@@ -750,8 +750,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                             child: GestureDetector(
                               onTap: () {
                                 NavigationService.navigateTo(
-                                  StoreIssuesScreen(),
-                                );
+                                  DashboardView(initialIndex: 1),
+                                ); //
                               },
                               child: Container(
                                 height: 110,
@@ -764,22 +764,34 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      // LabelService().getLabel(12),
-                                      'Open Issues',
-                                      style: AppTextStyles.labelStyle,
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Image.asset(
+                                          AppIcons.toddayPlan,
+                                          height: 20,
+                                          width: 20,
+                                        ),
+                                        SizedBox(
+                                          width: 85,
+                                          child: Text(
+                                            LabelService().getLabel(80),
+                                            textAlign: TextAlign.center,
+                                            style: AppTextStyles.labelStyle,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    // Text(
-                                    //   formattedDate,
-                                    //   style: AppTextStyles.subLabelStyle,
-                                    // ),
-                                    // Text(
-                                    //   '${viewModel.userVisited}/${viewModel.userPlan}',
-                                    //   style: AppTextStyles.bigTextStyle,
-                                    // ),
+                                    Text(
+                                      "${viewModel.openIssueCount ?? 0}",
+                                      style: AppTextStyles.bigTextStyle,
+                                    ),
                                   ],
                                 ),
                               ),

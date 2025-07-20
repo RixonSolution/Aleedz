@@ -120,4 +120,7 @@ class ApiConstants {
 
   static String get openIssues =>
       "$baseUrl/OperMarketActivities.asmx/openIssues";
+
+  static String get openIssueCount =>
+      "$baseUrl/WebService.asmx/GetOpenIssuesCount";
 }

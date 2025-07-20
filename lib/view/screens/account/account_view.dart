@@ -1,4 +1,5 @@
 import 'package:aleedz/core/constants/app_colors.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/%20login/login_view.dart';
 import 'package:aleedz/view/screens/issues/issues.view.dart';
@@ -63,10 +64,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   List<Map<String, dynamic>> getMenuItems(BuildContext context) {
     return [
-      {'title': 'My Profile', 'icon': Icons.person, 'onTap': () {}},
-      {'title': 'Change Password', 'icon': Icons.lock, 'onTap': () {}},
       {
-        'title': 'Training',
+        'title': LabelService().getLabel(83),
+        'icon': Icons.person,
+        'onTap': () {},
+      },
+      {
+        'title': LabelService().getLabel(84),
+        'icon': Icons.lock,
+        'onTap': () {},
+      },
+      {
+        'title': LabelService().getLabel(81),
         'icon': Icons.school,
         'onTap': () {
           NavigationService.navigateTo(UserTrainingListView());
@@ -74,7 +83,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         'visible': true,
       },
       {
-        'title': 'Pending Deployment',
+        'title': LabelService().getLabel(82),
         'icon': Icons.school,
         'onTap': () {
           NavigationService.navigateTo(PendingDeplomentView());
@@ -106,7 +115,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         'visible': true,
       },
       {
-        'title': 'Logout',
+        'title': LabelService().getLabel(85),
         'icon': Icons.logout,
         'onTap': () {
           _showLogoutDialog(context);

@@ -5,7 +5,6 @@ import 'package:aleedz/models/pending_model.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 
 final pendingModelProvider = ChangeNotifierProvider<PendingDeploymentViewModel>(
   (ref) {
@@ -18,9 +17,11 @@ class PendingDeploymentViewModel extends ChangeNotifier {
       PendingDeploymentController();
 
   UserModel? user;
-  List<PendingModel> pendingList = [];
   ChannelModel? selectedChannel;
   List<ChannelModel> channelList = [];
+
+  List<PendingModel> pendingList = [];
+  List<PendingModel> filteredList = [];
 
   void selectChannel(
     ChannelModel? channel,
@@ -62,17 +63,64 @@ class PendingDeploymentViewModel extends ChangeNotifier {
     final response = await _checkController.pendingList(
       token: user?.apiToken ?? '',
       activityCategory: '0',
-      teamMemberId: user?.teamMemberID.toString() ?? '',
+      teamMemberId: '0',
+
+      // teamMemberId: user?.teamMemberID.toString() ?? '',
     );
 
     if (response != null && response["status"] == 200) {
       final data = response["data"]['data'] as List;
       pendingList = data.map((e) => PendingModel.fromJson(e)).toList();
 
+      filteredList = pendingList;
+
       notifyListeners();
     } else {
       debugPrint("pending list Error: ${response?['data']}");
     }
+  }
+
+  void filterPendingList(String query) {
+    if (query.isEmpty) {
+      filteredList = pendingList;
+    } else {
+      filteredList =
+          pendingList.where((item) {
+            return (item.storeName?.toLowerCase() ?? '').contains(
+                  query.toLowerCase(),
+                ) ||
+                (item.activityCategoryName?.toLowerCase() ?? '').contains(
+                  query.toLowerCase(),
+                ) ||
+                (item.taskDeploymentCategoryName?.toLowerCase() ?? '').contains(
+                  query.toLowerCase(),
+                );
+          }).toList();
+    }
+    notifyListeners();
+  }
+
+  List<String> get uniqueCategories {
+    final categories =
+        pendingList
+            .map((e) => e.activityCategoryName ?? '')
+            .where((name) => name.isNotEmpty)
+            .toSet()
+            .toList();
+    categories.sort(); // Optional: Sort alphabetically
+    return categories;
+  }
+
+  void filterByCategory(String? categoryName) {
+    if (categoryName == null || categoryName.isEmpty) {
+      filteredList = pendingList;
+    } else {
+      filteredList =
+          pendingList
+              .where((item) => item.activityCategoryName == categoryName)
+              .toList();
+    }
+    notifyListeners();
   }
 
   Future loadPending() async {

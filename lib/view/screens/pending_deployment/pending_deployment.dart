@@ -1,6 +1,5 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
-import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/pending_deployment_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -30,11 +29,11 @@ class _MyConsumerState extends ConsumerState<PendingDeplomentView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(pendingModelProvider);
+    final notifier = ref.read(pendingModelProvider.notifier);
 
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
-
         body:
             viewModel.loader
                 ? const Center(child: CircularProgressIndicator())
@@ -83,7 +82,11 @@ class _MyConsumerState extends ConsumerState<PendingDeplomentView> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: TextField(
-                        onChanged: (value) {},
+                        onChanged: (value) {
+                          ref
+                              .read(pendingModelProvider.notifier)
+                              .filterPendingList(value);
+                        },
                         decoration: InputDecoration(
                           hintText: 'Search',
                           border: UnderlineInputBorder(
@@ -106,10 +109,10 @@ class _MyConsumerState extends ConsumerState<PendingDeplomentView> {
 
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: DropdownButtonFormField<int>(
-                        value: viewModel.selectedChannel?.channelId,
+                      child: DropdownButtonFormField<String>(
+                        value: null,
                         decoration: InputDecoration(
-                          hintText: 'Activity Category',
+                          hintText: 'Select Activity Category',
                           border: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.grey),
                           ),
@@ -124,23 +127,15 @@ class _MyConsumerState extends ConsumerState<PendingDeplomentView> {
                             vertical: 12,
                           ),
                         ),
-
                         items:
-                            viewModel.channelList.map((channel) {
-                              return DropdownMenuItem<int>(
-                                value: channel.channelId,
-                                child: Text(channel.channelName),
+                            viewModel.uniqueCategories.map((category) {
+                              return DropdownMenuItem<String>(
+                                value: category,
+                                child: Text(category),
                               );
                             }).toList(),
-                        onChanged: (int? channelId) {
-                          final selected = viewModel.channelList.firstWhere(
-                            (c) => c.channelId == channelId,
-                          );
-                          viewModel.selectChannel(
-                            selected,
-                            context,
-                            forceRefresh: true,
-                          );
+                        onChanged: (String? selectedCategory) {
+                          notifier.filterByCategory(selectedCategory);
                         },
                       ),
                     ),
@@ -149,8 +144,10 @@ class _MyConsumerState extends ConsumerState<PendingDeplomentView> {
 
                     Expanded(
                       child: ListView.builder(
-                        itemCount: viewModel.pendingList.length,
+                        itemCount: viewModel.filteredList.length,
                         itemBuilder: (context, index) {
+                          final item = viewModel.filteredList[index];
+
                           return GestureDetector(
                             onTap: () {
                               // NavigationService.navigateTo(
@@ -189,23 +186,20 @@ class _MyConsumerState extends ConsumerState<PendingDeplomentView> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '${viewModel.pendingList[index].activityCategoryName}',
+                                          '${item.activityCategoryName}',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          viewModel.pendingList[index].storeName
-                                              .toString(),
+                                          item.storeName.toString(),
                                           style: TextStyle(
                                             // fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         SizedBox(height: 4),
                                         Text(
-                                          viewModel
-                                              .pendingList[index]
-                                              .taskDeploymentCategoryName
+                                          item.taskDeploymentCategoryName
                                               .toString(),
                                           style: TextStyle(fontSize: 12),
                                         ),
@@ -218,7 +212,7 @@ class _MyConsumerState extends ConsumerState<PendingDeplomentView> {
                                     child: Padding(
                                       padding: const EdgeInsets.only(right: 8),
                                       child: Text(
-                                        '${viewModel.pendingList[index].planDateTime.toString()}',
+                                        '${item.planDateTime.toString()}',
                                         textAlign: TextAlign.end,
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,

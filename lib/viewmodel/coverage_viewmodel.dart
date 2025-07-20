@@ -27,6 +27,8 @@ class CoverageViewModel extends ChangeNotifier {
 
   UserModel? user;
   String? storeCount = '0';
+  dynamic openIssueCount = 0;
+
   String? storeTimeSpend = '0';
   String? storeTotalTravel = '0';
 
@@ -181,6 +183,29 @@ class CoverageViewModel extends ChangeNotifier {
         storeCount = dataList[0]["MyCoverageStoresCount"];
         storeTimeSpend = dataList[1]["MyCoverageStoresCount"];
         storeTotalTravel = dataList[2]["MyCoverageStoresCount"];
+        notifyListeners();
+      }
+    } else {
+      debugPrint("Login Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> getOpenIssueCount(BuildContext context) async {
+    // If already fetched and not zero, skip API call
+    // if (storeCount != '0') return;
+
+    selectedChannel = null;
+    notifyListeners();
+
+    final response = await _coverageController.openIssueCount(
+      teamMemberId: user?.teamMemberID ?? 0,
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final dataList = response["data"]['data'];
+      if (dataList != null && dataList is List && dataList.isNotEmpty) {
+        openIssueCount = dataList[0]["Column1"];
         notifyListeners();
       }
     } else {
@@ -451,6 +476,7 @@ class CoverageViewModel extends ChangeNotifier {
     await loadUser();
     await getLatLong();
     await getCoverageCount(context);
+    await getOpenIssueCount(context);
     await getDashboard();
 
     loader = false;

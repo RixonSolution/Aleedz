@@ -1,3 +1,4 @@
+import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
@@ -6,6 +7,7 @@ import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:aleedz/viewmodel/open_issues_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shimmer/shimmer.dart';
 
 class StoreIssuesScreen extends ConsumerStatefulWidget {
   @override
@@ -69,7 +71,7 @@ class _StoreIssuesScreenState extends ConsumerState<StoreIssuesScreen> {
                     ),
                   ),
                   Text(
-                    LabelService().getLabel(16),
+                    LabelService().getLabel(80),
                     style: TextStyle(
                       color: AppColors.blackColor,
                       fontSize: 20,
@@ -160,10 +162,35 @@ class _StoreIssuesScreenState extends ConsumerState<StoreIssuesScreen> {
                                       .toString(),
                                 ),
                                 SizedBox(height: 8),
-                                Container(
+                                SizedBox(
                                   height: 100,
                                   width: double.infinity,
-                                  color: Colors.pink[200],
+                                  child: Image.network(
+                                    '${ApiConstants.baseUrl}/${viewModel.openIssueList[index].imageActivity.toString()}'
+                                        .trim(),
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (
+                                      context,
+                                      child,
+                                      loadingProgress,
+                                    ) {
+                                      if (loadingProgress == null) return child;
+                                      return Shimmer.fromColors(
+                                        baseColor: Colors.grey.shade300,
+                                        highlightColor: Colors.grey.shade100,
+                                        child: Container(color: Colors.white),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Center(
+                                        child: Icon(
+                                          Icons.broken_image,
+                                          size: 40,
+                                          color: Colors.grey,
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
                                 SizedBox(height: 8),
                                 Center(

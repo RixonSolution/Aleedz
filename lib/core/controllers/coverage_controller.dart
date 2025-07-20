@@ -15,6 +15,16 @@ class CoverageController {
     );
   }
 
+  Future<Map<String, dynamic>?> openIssueCount({
+    required int teamMemberId,
+    required String token,
+  }) async {
+    return await _apiService.getOpenIssueCount(
+      teamMemberId: teamMemberId,
+      token: token,
+    );
+  }
+
   Future<Map<String, dynamic>?> coverageList({
     required int teamMemberId,
     required int chanelId,

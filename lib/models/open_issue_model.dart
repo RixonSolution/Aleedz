@@ -11,6 +11,7 @@ class OpenIssueModel {
   String? cityName;
   String? activityCategoryName;
   String? activityTypeName;
+  String? imageActivity;
 
   OpenIssueModel({
     this.activityID,
@@ -25,6 +26,7 @@ class OpenIssueModel {
     this.cityName,
     this.activityCategoryName,
     this.activityTypeName,
+    this.imageActivity,
   });
 
   OpenIssueModel.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class OpenIssueModel {
     cityName = json['CityName'];
     activityCategoryName = json['ActivityCategoryName'];
     activityTypeName = json['ActivityTypeName'];
+    imageActivity = json['ImageActivity'];
   }
 
   Map<String, dynamic> toJson() {
@@ -56,6 +59,7 @@ class OpenIssueModel {
     data['CityName'] = this.cityName;
     data['ActivityCategoryName'] = this.activityCategoryName;
     data['ActivityTypeName'] = this.activityTypeName;
+    data['ImageActivity'] = this.imageActivity;
     return data;
   }
 }

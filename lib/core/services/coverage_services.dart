@@ -32,6 +32,31 @@ class CoverageServices {
     }
   }
 
+  Future<Map<String, dynamic>?> getOpenIssueCount({
+    required int teamMemberId,
+    required String token,
+  }) async {
+    final encodedTeamId = Uri.encodeComponent(teamMemberId.toString());
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse(
+      '${ApiConstants.openIssueCount}?TeamMemberID=$encodedTeamId&_token=$encodedToken',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
   Future<Map<String, dynamic>?> getCoverageList({
     required int teamMemberId,
     required int chanelId,
