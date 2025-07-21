@@ -1,7 +1,7 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/viewmodel/training_viewmodel.dart';
+import 'package:aleedz/view/screens/user_training/user_training_promoter.dart';
 import 'package:aleedz/viewmodel/user_training_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +10,8 @@ class UserTrainingModelView extends ConsumerStatefulWidget {
   final String trainingName, trainingId, storeIds, storeId;
 
   int storeCount, promotorCount;
-  List<String> promoterNames1;
+  List<Promoter> promoterNames1;
+  List<Promoter> promoterList;
 
   UserTrainingModelView({
     Key? key,
@@ -19,6 +20,7 @@ class UserTrainingModelView extends ConsumerStatefulWidget {
     required this.storeCount,
     required this.promotorCount,
     required this.promoterNames1,
+    required this.promoterList,
     required this.trainingId,
     required this.storeIds,
   }) : super(key: key);
@@ -124,16 +126,17 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
     print(widget.promoterNames1);
   }
 
-  String formatList(List<String> names) {
-    return names
+  String formatPromoterLists(List<Promoter> list1, List<Promoter> list2) {
+    final mergedList = [...list1, ...list2];
+
+    return mergedList
         .asMap()
         .entries
         .map((entry) {
-          final index = entry.key + 1;
-          final name = entry.value;
-          return '$index:$name';
+          final promoter = entry.value;
+          return '0:${promoter.name}:${promoter.id}';
         })
-        .join(':');
+        .join(',');
   }
 
   @override
@@ -160,7 +163,10 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                         trainingTypeId: widget.trainingId,
                         trainingTitle: titleController.text,
                         noOfAttendees: widget.promoterNames1.length.toString(),
-                        attendees: formatList(widget.promoterNames1),
+                        attendees: formatPromoterLists(
+                          widget.promoterList,
+                          widget.promoterNames1,
+                        ),
                         store: widget.storeIds,
                         trainingModel: selectedTraining.join(',').trim(),
                       );
@@ -266,7 +272,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: TextField(
-                                controller: descriptionController,
+                                // controller: descriptionController,
                                 enabled: false,
                                 style: const TextStyle(
                                   color: AppColors.blackColor,
@@ -299,14 +305,14 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: TextField(
-                                controller: descriptionController,
+                                // controller: descriptionController,
                                 enabled: false,
                                 style: const TextStyle(
                                   color: AppColors.blackColor,
                                 ),
                                 decoration: InputDecoration(
                                   hintText:
-                                      '${widget.promotorCount.toString()}  Promoters Selected',
+                                      '${widget.promoterList.length + widget.promoterNames1.length}  Promoters Selected',
 
                                   hintStyle: TextStyle(
                                     color: AppColors.greyText,

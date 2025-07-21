@@ -207,7 +207,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
                               vertical: 5,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.grey[500],
+                              // color: Colors.grey[500],
                               borderRadius: BorderRadius.circular(2),
                             ),
                             child: Text(
@@ -215,7 +215,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
                               style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),

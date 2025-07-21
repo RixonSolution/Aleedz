@@ -210,13 +210,13 @@ class _MyConsumerState extends ConsumerState<PendingDeplomentView> {
                                   Expanded(
                                     flex: 1,
                                     child: Padding(
-                                      padding: const EdgeInsets.only(right: 8),
+                                      padding: const EdgeInsets.only(right: 2),
                                       child: Text(
                                         '${item.planDateTime.toString()}',
                                         textAlign: TextAlign.end,
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                                          fontSize: 12,
                                         ),
                                       ),
                                     ),

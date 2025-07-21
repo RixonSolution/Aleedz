@@ -9,12 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 
-class StoreIssuesScreen extends ConsumerStatefulWidget {
+class OpenIssuesScreen extends ConsumerStatefulWidget {
   @override
-  _StoreIssuesScreenState createState() => _StoreIssuesScreenState();
+  _OpenIssuesScreenState createState() => _OpenIssuesScreenState();
 }
 
-class _StoreIssuesScreenState extends ConsumerState<StoreIssuesScreen> {
+class _OpenIssuesScreenState extends ConsumerState<OpenIssuesScreen> {
   TextEditingController searchController = TextEditingController();
   String searchQuery = '';
 

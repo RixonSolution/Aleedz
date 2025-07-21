@@ -26,43 +26,46 @@ class TrainingPromoter extends ConsumerStatefulWidget {
 class _MyConsumerState extends ConsumerState<TrainingPromoter> {
   TextEditingController searchController = TextEditingController();
   TextEditingController nameController = TextEditingController();
+  final TextEditingController idController = TextEditingController();
 
   final Set<int> selectedIndexes = {};
 
-  final List<Map<String, dynamic>> trainings = [
-    {'training': 'Promoter Name 1', 'address': 'Store Name'},
-    {'training': 'Promoter Name 2', 'address': 'Store Name'},
-    {'training': 'Promoter Name 3', 'address': 'Store Name'},
-  ];
-
-  List<String> promoterNames = [];
-  List<String> promoterNames1 = [];
+  List<Promoter> promoterList = [];
+  List<Promoter> promoterNames1 = [];
 
   void addName() {
-    final name = nameController.text.trim();
-    if (name.isNotEmpty) {
+    if (idController.text.isNotEmpty && nameController.text.isNotEmpty) {
       setState(() {
-        promoterNames.add(name);
+        promoterList.add(
+          Promoter(
+            id: idController.text.trim(),
+            name: nameController.text.trim(),
+          ),
+        );
+        idController.clear();
         nameController.clear();
       });
     }
-    addPromoterName(name);
   }
 
   void removeName(int index) {
     setState(() {
-      promoterNames.removeAt(index);
+      promoterList.removeAt(index);
     });
   }
 
-  void addPromoterName(String name) {
-    if (promoterNames1.contains(name)) {
-      promoterNames1.remove(name);
-      setState(() {});
-    } else {
-      promoterNames1.add(name);
-      setState(() {});
-    }
+  void addPromoterName(String name, String id) {
+    final existingIndex = promoterNames1.indexWhere(
+      (promoter) => promoter.id == id,
+    );
+
+    setState(() {
+      if (existingIndex != -1) {
+        promoterNames1.removeAt(existingIndex);
+      } else {
+        promoterNames1.add(Promoter(id: id.trim(), name: name.trim()));
+      }
+    });
   }
 
   @override
@@ -98,6 +101,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                   storeCount: widget.storeCount,
                   promotorCount: selectedIndexes.length,
                   promoterNames1: promoterNames1,
+                  promoterList: promoterList,
 
                   // checklistName: training['training'],
                 ),
@@ -280,6 +284,10 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                                   .promoterList[index]
                                                   .teamMemberName
                                                   .toString(),
+                                              viewModel
+                                                  .promoterList[index]
+                                                  .teamMemberID
+                                                  .toString(),
                                             );
                                           },
                                           child: Container(
@@ -335,94 +343,127 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                             ),
                           ),
 
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              // horizontal: 16,
-                              vertical: 8,
-                            ),
-
-                            child: Row(
-                              children: [
-                                /// Search TextField
-                                Expanded(
-                                  child: Container(
-                                    padding: EdgeInsets.only(left: 10),
-                                    margin: EdgeInsets.only(left: 10),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          Colors
-                                              .grey[200], // Light grey background
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: TextField(
-                                      controller: nameController,
-                                      style: const TextStyle(
-                                        color: AppColors.blackColor,
-                                      ),
-                                      decoration: InputDecoration(
-                                        hintText: 'Add promoter name',
-                                        hintStyle: TextStyle(
-                                          color: AppColors.greyText,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        border: InputBorder.none,
-                                        isDense: true,
-                                        contentPadding: EdgeInsets.symmetric(
-                                          vertical: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(right: 10, left: 10),
+                          Row(
+                            children: [
+                              /// ID Field
+                              Expanded(
+                                flex: 2,
+                                child: Container(
+                                  padding: EdgeInsets.only(left: 10),
+                                  margin: EdgeInsets.only(left: 10),
                                   decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: AppColors.blackColor,
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: InkWell(
-                                    onTap: addName,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(3.0),
-                                      child: Icon(
-                                        Icons.add,
-                                        color: AppColors.whiteColor,
+                                  child: TextField(
+                                    controller: idController,
+                                    decoration: InputDecoration(
+                                      hintText: 'Promoter ID',
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                        vertical: 12,
                                       ),
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
+                              ),
 
-                          /// Table Header
+                              /// Name Field
+                              Expanded(
+                                flex: 3,
+                                child: Container(
+                                  padding: EdgeInsets.only(left: 10),
+                                  margin: EdgeInsets.only(left: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: TextField(
+                                    controller: nameController,
+                                    decoration: InputDecoration(
+                                      hintText: 'Promoter Name',
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              /// Add Button
+                              Container(
+                                margin: EdgeInsets.only(left: 10, right: 10),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: AppColors.blackColor,
+                                ),
+                                child: InkWell(
+                                  onTap: addName,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(3.0),
+                                    child: Icon(
+                                      Icons.add,
+                                      color: AppColors.whiteColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+
+                          /// Table Header with Border
                           Container(
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.black),
+                              color: Colors.grey[300],
                             ),
                             child: Row(
                               children: const [
                                 Expanded(
                                   flex: 1,
                                   child: Center(
-                                    child: Text(
-                                      '#',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        '#',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                                 Expanded(
-                                  flex: 5,
+                                  flex: 3,
                                   child: Center(
-                                    child: Text(
-                                      'Promoter name',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        'ID',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 3,
+                                  child: Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        ' Name',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -430,11 +471,14 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                 Expanded(
                                   flex: 2,
                                   child: Center(
-                                    child: Text(
-                                      'Action',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        'Action',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -443,53 +487,53 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                             ),
                           ),
 
-                          /// List of Entries
+                          /// List of Entries with Border
                           ListView.builder(
                             shrinkWrap: true,
                             physics: NeverScrollableScrollPhysics(),
-                            itemCount: promoterNames.length,
+                            itemCount: promoterList.length,
                             itemBuilder: (context, index) {
-                              final name = promoterNames[index];
+                              final promoter = promoterList[index];
                               return Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(color: Colors.black),
                                 ),
                                 child: Row(
                                   children: [
-                                    /// Index #
                                     Expanded(
                                       flex: 1,
                                       child: Center(
-                                        child: Text('${index + 1}'),
-                                      ),
-                                    ),
-
-                                    /// Name
-                                    Expanded(
-                                      flex: 5,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          name,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
+                                        child: Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Text('${index + 1}'),
                                         ),
                                       ),
                                     ),
-
-                                    /// Action (Remove)
+                                    Expanded(
+                                      flex: 3,
+                                      child: Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Text(promoter.id),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Text(promoter.name),
+                                        ),
+                                      ),
+                                    ),
                                     Expanded(
                                       flex: 2,
                                       child: Center(
                                         child: InkWell(
-                                          onTap: () {
-                                            removeName(index);
-                                            addPromoterName(name);
-                                          },
+                                          onTap: () => removeName(index),
                                           child: Container(
-                                            padding: const EdgeInsets.all(4),
+                                            padding: EdgeInsets.all(4),
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
                                               border: Border.all(
@@ -497,7 +541,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                                 width: 2,
                                               ),
                                             ),
-                                            child: const Icon(
+                                            child: Icon(
                                               Icons.close,
                                               color: Colors.orange,
                                               size: 18,
@@ -519,4 +563,11 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
       ),
     );
   }
+}
+
+class Promoter {
+  final String id;
+  final String name;
+
+  Promoter({required this.id, required this.name});
 }

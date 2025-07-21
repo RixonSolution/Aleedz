@@ -750,7 +750,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                             child: GestureDetector(
                               onTap: () {
                                 NavigationService.navigateTo(
-                                  DashboardView(initialIndex: 1),
+                                  OpenIssuesScreen(),
                                 ); //
                               },
                               child: Container(
