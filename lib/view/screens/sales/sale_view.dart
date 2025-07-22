@@ -910,6 +910,19 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
   late DateTime _startOfWeek;
   late int _selectedDayIndex;
 
+  void _goToNextWeek() {
+    final nextWeek = _startOfWeek.add(const Duration(days: 7));
+    final startOfCurrentWeek = _getStartOfWeek(DateTime.now());
+
+    if (!nextWeek.isAfter(startOfCurrentWeek)) {
+      setState(() {
+        _startOfWeek = nextWeek;
+        _selectedDayIndex = 0;
+      });
+      widget.onDateSelected(_startOfWeek);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -929,13 +942,24 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
     widget.onDateSelected(_startOfWeek);
   }
 
+  bool get isOnCurrentWeek {
+    final now = DateTime.now();
+    final startOfCurrentWeek = _getStartOfWeek(now);
+    return _startOfWeek.isAtSameMomentAs(startOfCurrentWeek);
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<DateTime> weekDays =
-        List.generate(
-          7,
-          (index) => _startOfWeek.add(Duration(days: index)),
-        ).where((date) => !date.isAfter(DateTime.now())).toList();
+    List<DateTime> weekDays = List.generate(7, (index) {
+      final date = _startOfWeek.add(Duration(days: index));
+      return date;
+    });
+
+    bool isFutureDate(DateTime date) {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      return date.isAfter(today); // disables dates after today
+    }
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -957,19 +981,27 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
                 ),
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
                     icon: const Icon(Icons.chevron_left),
                     onPressed: _goToPreviousWeek,
                   ),
-                  const SizedBox(width: 8),
                   Text(
                     'Week of ${DateFormat('dd MMM').format(_startOfWeek)}',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black,
                     ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.chevron_right),
+                    onPressed:
+                        _startOfWeek
+                                .add(const Duration(days: 7))
+                                .isAfter(_getStartOfWeek(DateTime.now()))
+                            ? null
+                            : _goToNextWeek,
                   ),
                 ],
               ),
@@ -986,12 +1018,15 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
                   bool isSelected = index == _selectedDayIndex;
 
                   return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedDayIndex = index;
-                      });
-                      widget.onDateSelected(date);
-                    },
+                    onTap:
+                        isFutureDate(date)
+                            ? null // Disable tap if date is in the future
+                            : () {
+                              setState(() {
+                                _selectedDayIndex = index;
+                              });
+                              widget.onDateSelected(date);
+                            },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         vertical: 8,
@@ -1009,14 +1044,25 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
                           Text(
                             DateFormat('d').format(date),
                             style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black,
+                              color:
+                                  isFutureDate(date)
+                                      ? Colors
+                                          .grey // Grey for future date
+                                      : isSelected
+                                      ? Colors.white
+                                      : Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
                             DateFormat('E').format(date),
                             style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black87,
+                              color:
+                                  isFutureDate(date)
+                                      ? Colors.grey
+                                      : isSelected
+                                      ? Colors.white
+                                      : Colors.black87,
                               fontSize: 12,
                             ),
                           ),

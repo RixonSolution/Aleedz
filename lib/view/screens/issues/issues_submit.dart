@@ -592,117 +592,124 @@ class _MyConsumerState extends ConsumerState<IssueSubmitView> {
                                   ),
                                 ),
                                 Expanded(
-                                  child: Row(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: SizedBox(
+                                          width: 190,
+                                          // color: Colors.red,
+                                          child: Text(
+                                            '${viewModel.marketActivityList[index].activityTypeName} - ${viewModel.marketActivityList[index].activityCategoryName}',
+                                            style: TextStyle(
+                                              color: AppColors.blackColor,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: SizedBox(
+                                          width: 190,
+                                          // color: Colors.red,
+                                          child: Text(
+                                            viewModel
+                                                .marketActivityList[index]
+                                                .activityDescription
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: AppColors.greyText,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 15),
+
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: Text(
+                                          'Date: ${viewModel.marketActivityList[index].activityDateTime}}',
+                                          style: TextStyle(
+                                            color: AppColors.blackColor,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 5),
+
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: Text(
+                                          'Quantity: ${viewModel.marketActivityList[index].quantity}',
+                                          style: TextStyle(
+                                            color: AppColors.blackColor,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
                                       Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                            ),
-                                            child: SizedBox(
-                                              width: 190,
-                                              // color: Colors.red,
-                                              child: Text(
-                                                '${viewModel.marketActivityList[index].activityTypeName} - ${viewModel.marketActivityList[index].activityCategoryName}',
-                                                style: TextStyle(
-                                                  color: AppColors.blackColor,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                            ),
-                                            child: SizedBox(
-                                              width: 190,
-                                              // color: Colors.red,
-                                              child: Text(
-                                                viewModel
-                                                    .marketActivityList[index]
-                                                    .activityDescription
-                                                    .toString(),
-                                                style: TextStyle(
-                                                  color: AppColors.greyText,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(height: 15),
+                                          SizedBox(height: 10),
 
                                           Padding(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal: 12,
                                             ),
-                                            child: Text(
-                                              'Date: ${viewModel.marketActivityList[index].activityDateTime}}',
-                                              style: TextStyle(
-                                                color: AppColors.blackColor,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(height: 5),
+                                            child: CachedNetworkImage(
+                                              imageUrl:
+                                                  '${ApiConstants.baseUrl}/${viewModel.marketActivityList[index].imageActivity}',
 
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                            ),
-                                            child: Text(
-                                              'Quantity: ${viewModel.marketActivityList[index].quantity}',
-                                              style: TextStyle(
-                                                color: AppColors.blackColor,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                              ),
+                                              height: 120,
+                                              width:
+                                                  MediaQuery.of(
+                                                    context,
+                                                  ).size.width,
+
+                                              placeholder:
+                                                  (context, url) =>
+                                                      Shimmer.fromColors(
+                                                        baseColor:
+                                                            Colors.grey[300]!,
+                                                        highlightColor:
+                                                            Colors.grey[100]!,
+                                                        child: Container(
+                                                          height: 120,
+                                                          width:
+                                                              MediaQuery.of(
+                                                                context,
+                                                              ).size.width,
+
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                              errorWidget:
+                                                  (context, url, error) => Icon(
+                                                    Icons.error,
+                                                  ), // optional error widget
+                                              fit: BoxFit.cover, // optional fit
                                             ),
                                           ),
                                         ],
                                       ),
                                     ],
                                   ),
-                                ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 12),
-                                      child: CachedNetworkImage(
-                                        //
-                                        imageUrl:
-                                            '${ApiConstants.baseUrl}/${viewModel.marketActivityList[index].imageActivity}',
-                                        // imageUrl:
-                                        //     '${ApiConstants.baseUrl}${viewModel.viewPicture[index].column1 ?? ''}',
-                                        height: 100,
-                                        width: 90,
-
-                                        placeholder:
-                                            (context, url) =>
-                                                Shimmer.fromColors(
-                                                  baseColor: Colors.grey[300]!,
-                                                  highlightColor:
-                                                      Colors.grey[100]!,
-                                                  child: Container(
-                                                    height: 70,
-                                                    width: 80,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                        errorWidget:
-                                            (context, url, error) => Icon(
-                                              Icons.error,
-                                            ), // optional error widget
-                                        fit: BoxFit.cover, // optional fit
-                                      ),
-                                    ),
-                                  ],
                                 ),
                               ],
                             ),

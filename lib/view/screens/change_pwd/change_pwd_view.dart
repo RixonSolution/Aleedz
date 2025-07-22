@@ -1,0 +1,168 @@
+import 'package:aleedz/core/constants/app_colors.dart';
+import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/routes/navigation_services.dart';
+import 'package:flutter/material.dart';
+
+class ChangePassword extends StatefulWidget {
+  const ChangePassword({Key? key}) : super(key: key);
+
+  @override
+  State<ChangePassword> createState() => _ChangePasswordState();
+}
+
+class _ChangePasswordState extends State<ChangePassword> {
+  final _formKey = GlobalKey<FormState>();
+  final _currentPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _handleChangePassword() {
+    if (_formKey.currentState?.validate() ?? false) {
+      // Perform password change logic here
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password Changed Successfully')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColors.whiteColor,
+
+        body: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        NavigationService.goBack();
+                      },
+                      child: Image.asset(
+                        AppIcons.backArrow,
+                        height: 30,
+                        width: 30,
+                      ),
+                    ),
+                    Text(
+                      'Change Password',
+                      style: TextStyle(
+                        color: AppColors.blackColor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Image.asset(
+                      AppIcons.locationIcon,
+                      height: 30,
+                      width: 30,
+                      color: AppColors.whiteColor,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 5),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Divider(color: AppColors.primary, height: 0),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    SizedBox(height: 60),
+                    TextFormField(
+                      controller: _currentPasswordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Current Password',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator:
+                          (value) =>
+                              (value == null || value.isEmpty)
+                                  ? 'Enter current password'
+                                  : null,
+                    ),
+                    const SizedBox(height: 12),
+
+                    // New Password Field
+                    TextFormField(
+                      controller: _newPasswordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'New Password',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter new password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Confirm Password Field
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Confirm Password',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Confirm your new password';
+                        }
+                        if (value != _newPasswordController.text) {
+                          return 'Passwords do not match';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+
+                    ElevatedButton(
+                      onPressed: _handleChangePassword,
+                      child: const Text('Change Password'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            AppColors
+                                .secondary, // Change this to your desired color
+                        foregroundColor: Colors.white, // Text color
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
