@@ -3,6 +3,7 @@ import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/%20login/login_view.dart';
 import 'package:aleedz/view/screens/change_pwd/change_pwd_view.dart';
+import 'package:aleedz/view/screens/home_chart/home_chart.dart';
 import 'package:aleedz/view/screens/pending_deployment/pending_deployment.dart';
 import 'package:aleedz/view/screens/sales/sale_view.dart';
 import 'package:aleedz/view/screens/store_share/store_share_view.dart';
@@ -106,10 +107,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         'title': 'Sellout',
         'icon': Icons.school,
         'onTap': () {
-          // NavigationService.navigateTo(
-          //   IssuesView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
-          // );
-
           NavigationService.navigateTo(
             SaleView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
           );
@@ -123,6 +120,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           NavigationService.navigateTo(
             StoreShareView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
           );
+        },
+        'visible': true,
+      },
+
+      {
+        'title': 'Home Chart',
+        'icon': Icons.school,
+        'onTap': () {
+          NavigationService.navigateTo(HomeChartView());
         },
         'visible': true,
       },
