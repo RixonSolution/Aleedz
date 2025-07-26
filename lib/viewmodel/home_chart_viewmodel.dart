@@ -72,18 +72,19 @@ class HomeChartViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> getMonthlySale({
-    String targetYear = '2025',
-    String targetMonth = '7',
-  }) async {
+  Future<void> getMonthlySale({String? targetYear, String? targetMonth}) async {
     monthlySaleModel = [];
+    final now = DateTime.now();
+    final year = targetYear ?? now.year.toString();
+    final month = targetMonth ?? now.month.toString(); // can pad if needed
+
     notifyListeners();
 
     final response = await _homeChartController.getMonthlySale(
       teamMemberId: user?.teamMemberID ?? 0,
       token: user?.apiToken ?? '',
-      targetYear: targetYear,
-      targetMonth: targetMonth,
+      targetYear: year,
+      targetMonth: month,
     );
 
     if (response != null && response["status"] == 200) {
@@ -97,17 +98,23 @@ class HomeChartViewModel extends ChangeNotifier {
   }
 
   Future<void> getMonthlyTargetValue({
-    String targetYear = '2025',
-    String targetMonth = '7',
+    String? targetYear,
+    String? targetMonth,
   }) async {
+    final now = DateTime.now();
+    final year = targetYear ?? now.year.toString();
+    final month =
+        targetMonth ??
+        now.month.toString().padLeft(2, '0'); // padded for '01', '02', etc.
+
     monthlyTargetValueModel = [];
     notifyListeners();
 
     final response = await _homeChartController.getMonthlyTargetValue(
       teamMemberId: user?.teamMemberID ?? 0,
       token: user?.apiToken ?? '',
-      targetYear: targetYear,
-      targetMonth: targetMonth,
+      targetYear: year,
+      targetMonth: month,
     );
 
     if (response != null && response["status"] == 200) {
@@ -182,8 +189,35 @@ class HomeChartViewModel extends ChangeNotifier {
     }
   }
 
-  String selectedMonth = 'July';
-  String selectedMonthNumber = '07';
+  late String selectedMonth;
+  late String selectedMonthNumber;
+
+  // Month map as a static or top-level constant
+  static const Map<int, String> _monthNameMap = {
+    1: 'January',
+    2: 'February',
+    3: 'March',
+    4: 'April',
+    5: 'May',
+    6: 'June',
+    7: 'July',
+    8: 'August',
+    9: 'September',
+    10: 'October',
+    11: 'November',
+    12: 'December',
+  };
+
+  Future<void> init() async {
+    final now = DateTime.now();
+    selectedMonth = _monthNameMap[now.month]!;
+    selectedMonthNumber = now.month.toString().padLeft(2, '0');
+
+    await getMonthlySale();
+    await getMonthlyTargetValue();
+
+    notifyListeners();
+  }
 
   void updateSelectedMonth(String month) async {
     selectedMonth = month;
@@ -219,6 +253,8 @@ class HomeChartViewModel extends ChangeNotifier {
     loader = true;
     notifyListeners();
     await loadUser();
+    init();
+
     await getCoverageCount(context);
     await getMonthlySale();
     await getMonthlyTargetValue();
