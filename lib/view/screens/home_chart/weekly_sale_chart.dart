@@ -1,69 +1,99 @@
+import 'package:aleedz/viewmodel/home_chart_viewmodel.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class WeeklySalesChart extends StatelessWidget {
-  final List<List<double>> data = [
-    [20, 20, 20, 20, 10], // Day 1
-    [25, 20, 20, 15, 10], // Day 2
-    [30, 25, 15, 10, 5], // Day 3
-    [35, 20, 20, 15, 5], // Day 4
-    [25, 30, 20, 15, 10], // Day 5
-    [30, 25, 20, 10, 5], // Day 6
-    [28, 22, 20, 15, 10], // Day 7
-  ];
+class WeeklySalesChart extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<WeeklySalesChart> createState() => _WeeklySalesChartState();
+}
 
+class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
   final List<Color> colors = [
-    Colors.lightBlue.shade100,
-    Colors.lightBlue.shade200,
-    Colors.lightBlue.shade300,
-    Colors.lightBlue.shade400,
-    Colors.blue.shade700,
+    Color(0xFF0a4369),
+    Color(0xFF0a4369),
+    Color(0xFF0a4369),
+    Color(0xFF0a4369),
+    Color(0xFF0a4369),
   ];
 
   @override
   Widget build(BuildContext context) {
-    return BarChart(
-      BarChartData(
-        barGroups:
-            data.asMap().entries.map((entry) {
-              int dayIndex = entry.key;
-              List<double> values = entry.value;
-              double runningTotal = 0;
+    final viewModel = ref.watch(homeChartMP);
+    final weeklyData = viewModel.getWeeklySaleData();
 
-              return BarChartGroupData(
-                x: dayIndex,
-                barRods: [
-                  BarChartRodData(
-                    fromY: 0,
-                    toY: values.reduce((a, b) => a + b),
-                    rodStackItems: List.generate(values.length, (i) {
-                      final from = runningTotal;
-                      final to = from + values[i];
-                      runningTotal = to;
-                      return BarChartRodStackItem(from, to, colors[i]);
-                    }),
-                    width: 18,
-                  ),
-                ],
-              );
-            }).toList(),
-        borderData: FlBorderData(show: false),
-        titlesData: FlTitlesData(
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget:
-                  (value, meta) => Text(
-                    'Day ${value.toInt() + 1}',
-                    style: TextStyle(fontSize: 10),
-                  ),
+    return AspectRatio(
+      aspectRatio: 1.5,
+      child: BarChart(
+        BarChartData(
+          alignment: BarChartAlignment.spaceAround,
+          maxY: 1000,
+          minY: 0,
+          groupsSpace: 12,
+          barTouchData: BarTouchData(enabled: true),
+          titlesData: FlTitlesData(
+            show: true,
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  return Text('${value.toInt()}');
+                },
+                reservedSize: 35,
+                interval: 50,
+              ),
+            ),
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  return Text('${value.toInt()}');
+                },
+                reservedSize: 35,
+                interval: 100,
+              ),
+            ),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  DateTime date = DateTime.now().subtract(
+                    Duration(days: (7 - value).toInt()),
+                  );
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      '${date.day}/${date.month}',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  );
+                },
+                reservedSize: 40,
+              ),
             ),
           ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: true, reservedSize: 28),
-          ),
+          barGroups: List.generate(7, (index) {
+            return BarChartGroupData(
+              x: index,
+              barRods: [
+                BarChartRodData(
+                  toY:
+                      weeklyData[index] != null
+                          ? double.parse(weeklyData[index].toString())
+                          : 0.0,
+                  gradient: LinearGradient(
+                    colors: colors,
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                  width: 20,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ],
+            );
+          }),
         ),
-        gridData: FlGridData(show: false),
       ),
     );
   }

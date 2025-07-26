@@ -123,4 +123,16 @@ class ApiConstants {
 
   static String get openIssueCount =>
       "$baseUrl/WebService.asmx/GetOpenIssuesCount";
+
+  static String get targetMonthlySale =>
+      "$baseUrl/W_WebSettings.asmx/ViewMonthlyTarget_Qty";
+
+  static String get targetMonthlyTargetValue =>
+      "$baseUrl/W_WebSettings.asmx/ViewMonthlyTarget_Value";
+
+  static String get promoterRecentSale =>
+      "$baseUrl/W_WebSettings.asmx/Promoter_Dashboard_RecentSale";
+
+  static String get promoterMonthlySale =>
+      "$baseUrl/W_WebSettings.asmx/Promoter_Dashboard_MonthlySale";
 }

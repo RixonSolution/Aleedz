@@ -7,7 +7,7 @@ import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:aleedz/view/screens/home_chart/monthly_sale_chart.dart';
 import 'package:aleedz/view/screens/home_chart/weekly_sale_chart.dart';
 import 'package:aleedz/view/screens/open_issues/open_issues_view.dart';
-import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
+import 'package:aleedz/viewmodel/home_chart_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -23,17 +23,17 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      loadUserAndFetchCoverage();
+      loadUserAndFetchHome();
     });
   }
 
-  Future<void> loadUserAndFetchCoverage() async {
-    await ref.read(coverageModelProvider.notifier).loadUser();
+  Future<void> loadUserAndFetchHome() async {
+    await ref.read(homeChartMP.notifier).loadDashboard(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(coverageModelProvider);
+    final viewModel = ref.watch(homeChartMP);
 
     return SafeArea(
       child: Scaffold(
@@ -192,7 +192,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                         SizedBox(
                                           width: 85,
                                           child: Text(
-                                            'May 2025',
+                                            'Jul 2025',
                                             textAlign: TextAlign.center,
                                             style: AppTextStyles.labelStyle,
                                           ),
@@ -205,7 +205,17 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                       style: TextStyle(fontSize: 14),
                                     ),
                                     Text(
-                                      "122",
+                                      (viewModel
+                                                  .monthlyDashboardSaleModel
+                                                  ?.isNotEmpty ??
+                                              false)
+                                          ? (viewModel
+                                                      .monthlyDashboardSaleModel!
+                                                      .first
+                                                      .saleValue ??
+                                                  0.0)
+                                              .toStringAsFixed(0)
+                                          : '0',
                                       style: AppTextStyles.bigTextStyle,
                                     ),
                                   ],
@@ -216,85 +226,315 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                         ],
                       ),
                       SizedBox(height: 5),
-                      GestureDetector(
-                        onTap: () {
-                          NavigationService.navigateTo(OpenIssuesScreen()); //
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Recent Checked In',
-                                    textAlign: TextAlign.center,
-                                    style: AppTextStyles.labelStyle,
-                                  ),
-                                  Text(
-                                    'Store Name abc...address',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    'In: 10:19',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: AppColors.primary,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Check Out',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: AppColors.secondary,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
 
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     NavigationService.navigateTo(OpenIssuesScreen()); //
+                      //   },
+                      //   child: Container(
+                      //     padding: const EdgeInsets.symmetric(
+                      //       horizontal: 5,
+                      //       vertical: 8,
+                      //     ),
+                      //     decoration: BoxDecoration(
+                      //       color: Colors.grey.shade100,
+                      //       borderRadius: BorderRadius.circular(12),
+                      //     ),
+                      //     child: Row(
+                      //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //       children: [
+                      //         Column(
+                      //           crossAxisAlignment: CrossAxisAlignment.start,
+                      //           children: [
+                      //             Text(
+                      //               'Recent Checked In',
+                      //               textAlign: TextAlign.center,
+                      //               style: AppTextStyles.labelStyle,
+                      //             ),
+                      //             Text(
+                      //               'Store Name abc...address',
+                      //               textAlign: TextAlign.center,
+                      //               style: TextStyle(fontSize: 14),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //         Column(
+                      //           crossAxisAlignment: CrossAxisAlignment.end,
+                      //           children: [
+                      //             Text(
+                      //               'In: 10:19',
+                      //               textAlign: TextAlign.center,
+                      //               style: TextStyle(
+                      //                 color: AppColors.primary,
+                      //                 fontSize: 10,
+                      //                 fontWeight: FontWeight.bold,
+                      //               ),
+                      //             ),
+                      //             Text(
+                      //               'Check Out',
+                      //               textAlign: TextAlign.center,
+                      //               style: TextStyle(
+                      //                 color: AppColors.secondary,
+                      //                 fontSize: 14,
+                      //                 fontWeight: FontWeight.bold,
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
                       const SizedBox(height: 5),
                       Expanded(
                         child: ListView(
                           children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    LabelService().getLabel(89),
+                                    style: TextStyle(
+                                      color: AppColors.blackColor,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    Row(
+                                      children: [
+                                        InkWell(
+                                          onTap:
+                                              () => ref
+                                                  .read(homeChartMP.notifier)
+                                                  .setShowQty(true),
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 5,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  viewModel.showQty
+                                                      ? AppColors.secondary
+                                                      : Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: AppColors.secondary,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              "QTY",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    viewModel.showQty
+                                                        ? Colors.white
+                                                        : AppColors.secondary,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 8),
+                                        InkWell(
+                                          onTap:
+                                              () => ref
+                                                  .read(homeChartMP.notifier)
+                                                  .setShowQty(false),
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 5,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  !viewModel.showQty
+                                                      ? AppColors.secondary
+                                                      : Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: AppColors.secondary,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              "Value",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    !viewModel.showQty
+                                                        ? Colors.white
+                                                        : AppColors.secondary,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: AppColors.secondary,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: DropdownButton<String>(
+                                    value: viewModel.selectedMonth,
+                                    underline: SizedBox(),
+                                    items:
+                                        [
+                                          'January',
+                                          'February',
+                                          'March',
+                                          'April',
+                                          'May',
+                                          'June',
+                                          'July',
+                                          'August',
+                                          'September',
+                                          'October',
+                                          'November',
+                                          'December',
+                                        ].map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(
+                                              value,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                    onChanged: (newValue) {
+                                      ref
+                                          .read(homeChartMP.notifier)
+                                          .updateSelectedMonth(newValue!);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            viewModel.showQty
+                                ? SizedBox(
+                                  height: 200,
+                                  child: MonthlySalesChart(
+                                    achieved:
+                                        viewModel
+                                                    .monthlySaleModel
+                                                    ?.isNotEmpty ==
+                                                true
+                                            ? viewModel
+                                                    .monthlySaleModel
+                                                    ?.first
+                                                    .targetQty ??
+                                                0.0
+                                            : 0.0,
+                                    target:
+                                        viewModel
+                                                    .monthlySaleModel
+                                                    ?.isNotEmpty ==
+                                                true
+                                            ? viewModel
+                                                    .monthlySaleModel
+                                                    ?.first
+                                                    .saleQty ??
+                                                0.0
+                                            : 0.0,
+                                  ),
+                                )
+                                : SizedBox(
+                                  height: 200,
+                                  child: MonthlySalesChart(
+                                    achieved:
+                                        viewModel
+                                                    .monthlyTargetValueModel
+                                                    ?.isNotEmpty ==
+                                                true
+                                            ? viewModel
+                                                    .monthlyTargetValueModel
+                                                    ?.first
+                                                    .saleValue ??
+                                                0.0
+                                            : 0.0,
+                                    target:
+                                        viewModel
+                                                    .monthlyTargetValueModel
+                                                    ?.isNotEmpty ==
+                                                true
+                                            ? viewModel
+                                                    .monthlyTargetValueModel
+                                                    ?.first
+                                                    .targetValue ??
+                                                0.0
+                                            : 0.0,
+                                  ),
+                                ),
+
+                            viewModel.showQty
+                                ? Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
                                     Text(
-                                      "Monthly Sales Target",
+                                      "${LabelService().getLabel(90)}\n${(viewModel.monthlySaleModel?.isNotEmpty ?? false) ? viewModel.monthlySaleModel!.first.saleQty ?? 0.0 : 0.0}",
+                                      textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        color: AppColors.blackColor,
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     Text(
-                                      "QTY | Value",
+                                      "${LabelService().getLabel(91)}\n${(viewModel.monthlySaleModel?.isNotEmpty ?? false) ? viewModel.monthlySaleModel!.first.targetQty ?? 0.0 : 0.0}",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                                : Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "${LabelService().getLabel(90)}\n${(viewModel.monthlyTargetValueModel?.isNotEmpty ?? false) ? viewModel.monthlyTargetValueModel!.first.saleValue ?? 0.0 : 0.0}",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      "${LabelService().getLabel(91)}\n${(viewModel.monthlyTargetValueModel?.isNotEmpty ?? false) ? viewModel.monthlyTargetValueModel!.first.targetValue ?? 0.0 : 0.0}",
+                                      textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -302,50 +542,25 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                     ),
                                   ],
                                 ),
-                                Text(
-                                  "Jul, 2025",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
 
-                            SizedBox(height: 200, child: MonthlySalesChart()),
+                            Divider(color: AppColors.secondary),
+                            SizedBox(height: 10),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Target\n1000",
-                                  textAlign: TextAlign.center,
+                                  LabelService().getLabel(93),
                                   style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  "Achieved\n800",
-                                  textAlign: TextAlign.center,
-
-                                  style: TextStyle(
+                                    color: AppColors.blackColor,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
                             ),
-
-                            SizedBox(height: 32),
-                            Text(
-                              "Last 7 Days Sales",
-                              style: TextStyle(
-                                color: AppColors.blackColor,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 250, child: WeeklySalesChart()),
+                            SizedBox(height: 10),
+                            SizedBox(height: 800, child: WeeklySalesChart()),
+                            SizedBox(height: 10),
                           ],
                         ),
                       ),
