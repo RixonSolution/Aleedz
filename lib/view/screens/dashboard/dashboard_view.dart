@@ -4,6 +4,8 @@ import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/view/screens/account/account_view.dart';
 import 'package:aleedz/view/screens/coverage_details/coverage_view.dart';
 import 'package:aleedz/view/screens/home/home_view.dart';
+import 'package:aleedz/view/screens/home_chart/home_chart.dart';
+import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,18 +21,39 @@ class DashboardView extends ConsumerStatefulWidget {
 class _DashboardViewState extends ConsumerState<DashboardView> {
   late int _selectedIndex;
   bool _showProfileDrawer = false;
+  List<Widget> _screens = [SizedBox(), SizedBox(), SizedBox(), SizedBox()];
 
-  final List<Widget> _screens = [
-    HomeView(),
-    CoverageView(),
-    HomeView(),
-    SizedBox(), // Placeholder for drawer
-  ];
+  // final List<Widget> _screens = [
+  //   HomeView(),
+  //   CoverageView(),
+  //   HomeView(),
+  //   SizedBox(), // Placeholder for drawer
+  // ];
 
   @override
   void initState() {
-    _selectedIndex = widget.initialIndex;
     super.initState();
+    _selectedIndex = widget.initialIndex;
+
+    Future.microtask(() {
+      loadUserAndFetchCoverage();
+    });
+  }
+
+  Future<void> loadUserAndFetchCoverage() async {
+    final coverageVM = ref.read(coverageModelProvider.notifier);
+    await coverageVM.loadUser();
+    final user = coverageVM.user;
+
+    setState(() {
+      _screens = [
+        user?.teamMemberID == 9 ? HomeChartView() : HomeView(),
+        CoverageView(),
+        user?.teamMemberID == 9 ? HomeChartView() : HomeView(),
+
+        SizedBox(), // Drawer placeholder
+      ];
+    });
   }
 
   void _onItemTapped(int index) {
@@ -56,6 +79,8 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = ref.watch(coverageModelProvider);
+
     return WillPopScope(
       onWillPop: () async => false,
       child: SafeArea(

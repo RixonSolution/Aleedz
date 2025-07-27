@@ -27,7 +27,7 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: 1000,
+          maxY: 2000,
           minY: 0,
           groupsSpace: 12,
           barTouchData: BarTouchData(enabled: true),
@@ -39,8 +39,8 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
                 getTitlesWidget: (value, meta) {
                   return Text('${value.toInt()}');
                 },
-                reservedSize: 35,
-                interval: 50,
+                reservedSize: 40,
+                interval: 200,
               ),
             ),
             rightTitles: AxisTitles(
@@ -49,8 +49,8 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
                 getTitlesWidget: (value, meta) {
                   return Text('${value.toInt()}');
                 },
-                reservedSize: 35,
-                interval: 100,
+                reservedSize: 40,
+                interval: 200,
               ),
             ),
             topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),

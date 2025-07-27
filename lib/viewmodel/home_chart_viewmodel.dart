@@ -251,9 +251,10 @@ class HomeChartViewModel extends ChangeNotifier {
 
   Future loadDashboard(context) async {
     loader = true;
+    init();
+
     notifyListeners();
     await loadUser();
-    init();
 
     await getCoverageCount(context);
     await getMonthlySale();

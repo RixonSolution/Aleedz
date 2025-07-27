@@ -10,6 +10,7 @@ import 'package:aleedz/view/screens/delployement/deployment_view.dart';
 import 'package:aleedz/view/screens/issues/issues_list.dart';
 import 'package:aleedz/view/screens/price/price_view.dart';
 import 'package:aleedz/view/screens/sales/sale_view.dart';
+import 'package:aleedz/view/screens/stock/stock_summary_view.dart';
 import 'package:aleedz/view/screens/store/display_audit_check_summary.dart';
 import 'package:aleedz/view/screens/store/display_picture.dart';
 import 'package:aleedz/view/screens/training/training_list_view.dart';
@@ -243,6 +244,16 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
             storeName: widget.storeName,
             checkInTime: widget.checkInTime,
             storeId: widget.storeId,
+          ),
+        );
+        break;
+      case 39:
+        NavigationService.navigateTo(
+          StockSummaryView(
+            storeName: widget.storeName,
+            checkInTime: widget.checkInTime,
+            storeId: widget.storeId,
+            visitId: viewModel.visitId,
           ),
         );
         break;

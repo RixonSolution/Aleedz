@@ -13,6 +13,7 @@ import 'package:aleedz/models/product_selection_model.dart';
 import 'package:aleedz/models/ros_label.dart';
 import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/models/user_model.dart';
+import 'package:aleedz/viewmodel/stock_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -31,6 +32,7 @@ class StoreViewModel extends ChangeNotifier {
   UserPermission? permission;
 
   List<PictureViewModel> viewPicture = [];
+
   List<DashboardModel> dashBoardList = [];
   int visitId = 0;
 
