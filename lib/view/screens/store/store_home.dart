@@ -13,6 +13,7 @@ import 'package:aleedz/view/screens/sales/sale_view.dart';
 import 'package:aleedz/view/screens/stock/stock_summary_view.dart';
 import 'package:aleedz/view/screens/store/display_audit_check_summary.dart';
 import 'package:aleedz/view/screens/store/display_picture.dart';
+import 'package:aleedz/view/screens/store_share/store_share_view.dart';
 import 'package:aleedz/view/screens/training/training_list_view.dart';
 import 'package:aleedz/view/screens/transfer/transfer_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
@@ -247,6 +248,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
           ),
         );
         break;
+
       case 39:
         NavigationService.navigateTo(
           StockSummaryView(
@@ -254,6 +256,15 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
             checkInTime: widget.checkInTime,
             storeId: widget.storeId,
             visitId: viewModel.visitId,
+          ),
+        );
+        break;
+      case 40:
+        NavigationService.navigateTo(
+          StoreShareView(
+            storeName: widget.storeName,
+            checkInTime: widget.checkInTime,
+            storeId: widget.storeId,
           ),
         );
         break;

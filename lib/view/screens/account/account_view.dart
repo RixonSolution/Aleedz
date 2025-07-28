@@ -113,17 +113,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         },
         'visible': true,
       },
-      {
-        'title': 'Store Share',
-        'icon': Icons.school,
-        'onTap': () {
-          NavigationService.navigateTo(
-            StoreShareView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
-          );
-        },
-        'visible': true,
-      },
 
+      // {
+      //   'title': 'Store Share',
+      //   'icon': Icons.school,
+      //   'onTap': () {
+      //     NavigationService.navigateTo(
+      //       StoreShareView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
+      //     );
+      //   },
+      //   'visible': true,
+      // },
       {
         'title': 'Home Chart',
         'icon': Icons.school,

@@ -160,9 +160,9 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                NavigationService.navigateTo(
-                                  OpenIssuesScreen(),
-                                ); //
+                                // NavigationService.navigateTo(
+                                //   OpenIssuesScreen(),
+                                // ); //
                               },
                               child: Container(
                                 height: 110,

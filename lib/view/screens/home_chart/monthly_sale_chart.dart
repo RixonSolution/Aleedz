@@ -1,3 +1,4 @@
+import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class _MonthlySalesChartState extends State<MonthlySalesChart> {
             centerSpaceRadius: 60,
             sections: [
               PieChartSectionData(
-                color: Colors.blue,
+                color: AppColors.secondary,
                 value: percent * 100,
                 radius: 40,
                 showTitle: false,

@@ -20,14 +20,25 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(homeChartMP);
-    final weeklyData = viewModel.getWeeklySaleData();
+    final weeklyDataMap = viewModel.getWeeklySaleData();
+
+    // Extract values and calculate max value
+    final values = weeklyDataMap.values;
+    final maxValue =
+        values.isNotEmpty ? values.reduce((a, b) => a > b ? a : b) : 0.0;
+
+    // Add 10% buffer
+    final adjustedMax = maxValue + (maxValue * 0.1);
+
+    // Calculate interval
+    final interval = adjustedMax > 0 ? adjustedMax / 4 : 1000;
 
     return AspectRatio(
       aspectRatio: 1.5,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: 2000,
+          maxY: adjustedMax,
           minY: 0,
           groupsSpace: 12,
           barTouchData: BarTouchData(enabled: true),
@@ -40,7 +51,7 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
                   return Text('${value.toInt()}');
                 },
                 reservedSize: 40,
-                interval: 200,
+                interval: double.parse(interval.toString()),
               ),
             ),
             rightTitles: AxisTitles(
@@ -50,7 +61,7 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
                   return Text('${value.toInt()}');
                 },
                 reservedSize: 40,
-                interval: 200,
+                interval: double.parse(interval.toString()),
               ),
             ),
             topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -58,30 +69,30 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
-                  DateTime date = DateTime.now().subtract(
-                    Duration(days: (7 - value).toInt()),
+                  final weekdayIndex = value.toInt() + 1;
+                  final today = DateTime.now();
+                  final weekdayDate = today.subtract(
+                    Duration(days: today.weekday - weekdayIndex),
                   );
                   return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      '${date.day}/${date.month}',
-                      style: TextStyle(fontSize: 14),
-                    ),
+                    padding: const EdgeInsets.all(4.0),
+                    child: Text('${weekdayDate.day}/${weekdayDate.month}'),
                   );
                 },
-                reservedSize: 40,
+                reservedSize: 32,
               ),
             ),
           ),
           barGroups: List.generate(7, (index) {
+            // Weekday keys in map are 1 (Monday) to 7 (Sunday)
+            final weekday = index + 1;
+            final value = weeklyDataMap[weekday] ?? 0.0;
+
             return BarChartGroupData(
               x: index,
               barRods: [
                 BarChartRodData(
-                  toY:
-                      weeklyData[index] != null
-                          ? double.parse(weeklyData[index].toString())
-                          : 0.0,
+                  toY: value,
                   gradient: LinearGradient(
                     colors: colors,
                     begin: Alignment.bottomCenter,

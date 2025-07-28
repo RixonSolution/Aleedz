@@ -212,7 +212,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<StockSummaryView> {
                                     lastUpdate: item.lastUpdate,
                                     brandName: brand.brandName,
                                     productName: item.productCategoryName,
-                                    productCategoryId: 3,
+                                    productCategoryId: item.productCategoryId,
                                     brandId: brand.brandId,
                                     inputTypeId: 0,
                                   ),

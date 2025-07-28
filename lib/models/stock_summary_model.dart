@@ -22,13 +22,13 @@ class Brand {
 
 class ProductCategory {
   final String productCategoryName;
-  final String productCategoryName1;
+  final int productCategoryId;
   final String lastUpdate;
   final int noOfProducts;
 
   ProductCategory({
     required this.productCategoryName,
-    required this.productCategoryName1,
+    required this.productCategoryId,
     required this.lastUpdate,
     required this.noOfProducts,
   });
@@ -36,7 +36,7 @@ class ProductCategory {
   factory ProductCategory.fromJson(Map<String, dynamic> json) {
     return ProductCategory(
       productCategoryName: json['ProductCategoryName'] ?? '',
-      productCategoryName1: json['ProductCategoryName1'] ?? '',
+      productCategoryId: json['ProductCategoryID'] ?? '',
       lastUpdate: json['LastUpdate'] ?? '',
       noOfProducts: json['NoOfProducts'] ?? 0,
     );

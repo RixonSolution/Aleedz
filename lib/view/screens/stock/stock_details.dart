@@ -113,30 +113,36 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(12.0), // Optional padding
-          child: InkWell(
-            onTap: () {
-              submitStockList();
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(color: AppColors.secondary),
-              width: double.infinity,
-              height: 50,
-              child: Center(
-                child: Text(
-                  'Submit',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+        bottomNavigationBar:
+            viewModel.stockViewList.isNotEmpty &&
+                    viewModel.stockViewList.first.inputType == 0
+                ? const SizedBox(height: 0.0, width: 0.0)
+                : Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: InkWell(
+                    onTap: () {
+                      submitStockList();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: const BoxDecoration(
+                        color: AppColors.secondary,
+                      ),
+                      width: double.infinity,
+                      height: 50,
+                      child: const Center(
+                        child: Text(
+                          'Submit',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
-        ),
 
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,6 +299,20 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
                                             ? Colors.black
                                             : Colors.grey, // change as needed
                                     size: 28,
+                                  ),
+                                )
+                                : item.inputType == 0
+                                ? Container(
+                                  margin: EdgeInsets.only(right: 8, left: 8),
+                                  // width: 60,
+                                  height: 36,
+                                  child: Text(
+                                    item.stock.toString(),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 )
                                 : SizedBox(
