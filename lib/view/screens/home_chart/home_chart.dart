@@ -328,8 +328,8 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                                   .setShowQty(true),
                                           child: Container(
                                             padding: EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 5,
+                                              horizontal: 20,
+                                              vertical: 10,
                                             ),
                                             decoration: BoxDecoration(
                                               color:
@@ -363,8 +363,8 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                                   .setShowQty(false),
                                           child: Container(
                                             padding: EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 5,
+                                              horizontal: 20,
+                                              vertical: 10,
                                             ),
                                             decoration: BoxDecoration(
                                               color:
@@ -395,7 +395,11 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                   ],
                                 ),
                                 Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  padding: EdgeInsets.only(
+                                    left: 5,
+                                    bottom: 10,
+                                    top: 10,
+                                  ),
                                   decoration: BoxDecoration(
                                     border: Border.all(
                                       color: AppColors.secondary,
@@ -403,6 +407,8 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: DropdownButton<String>(
+                                    isDense: true,
+                                    padding: EdgeInsets.zero,
                                     value: viewModel.selectedMonth,
                                     underline: SizedBox(),
                                     items:
@@ -443,7 +449,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
 
                             viewModel.showQty
                                 ? SizedBox(
-                                  height: 200,
+                                  height: 150,
                                   child: MonthlySalesChart(
                                     achieved:
                                         viewModel
@@ -470,7 +476,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                   ),
                                 )
                                 : SizedBox(
-                                  height: 200,
+                                  height: 150,
                                   child: MonthlySalesChart(
                                     achieved:
                                         viewModel
@@ -559,7 +565,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                               ],
                             ),
                             SizedBox(height: 10),
-                            SizedBox(height: 800, child: WeeklySalesChart()),
+                            SizedBox(height: 250, child: WeeklySalesChart()),
                             SizedBox(height: 10),
                           ],
                         ),

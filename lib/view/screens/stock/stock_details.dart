@@ -107,9 +107,19 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
     );
   }
 
+  final TextEditingController searchController = TextEditingController();
+  String searchTerm = '';
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(stockModelProvider);
+    final filteredList =
+        viewModel.stockViewList.where((item) {
+          final code = item.productModelCode?.toLowerCase() ?? '';
+          final name = item.productModelName?.toLowerCase() ?? '';
+          return code.contains(searchTerm) || name.contains(searchTerm);
+        }).toList();
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
@@ -208,6 +218,26 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
               ),
             ),
             SizedBox(height: 20),
+            TextField(
+              controller: searchController,
+              decoration: const InputDecoration(
+                hintText: 'Search by code or name',
+                prefixIcon: Icon(Icons.search),
+                border: UnderlineInputBorder(), // Only bottom line
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black, width: 2),
+                ),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  searchTerm = value.toLowerCase().trim();
+                });
+              },
+            ),
+            SizedBox(height: 20),
 
             /// Header
             Padding(
@@ -257,11 +287,10 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
                 : Expanded(
                   child: ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    itemCount: viewModel.stockViewList.length,
+                    itemCount: filteredList.length,
                     separatorBuilder: (_, __) => const Divider(),
                     itemBuilder: (context, index) {
-                      final item = viewModel.stockViewList[index];
-
+                      final item = filteredList[index];
                       // Get if this item is already in the stockProducts list
                       final currentItemIndex = stockProducts.indexWhere(
                         (e) => e.productId == item.productID,
@@ -319,11 +348,16 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
                                   width: 60,
                                   height: 36,
                                   child: TextFormField(
+                                    maxLength: 5,
                                     initialValue:
                                         currentStock == 0
                                             ? ''
                                             : currentStock.toString(),
+
                                     decoration: const InputDecoration(
+                                      counterText:
+                                          '', // Hides the character count
+
                                       hintText: 'Qty',
                                       contentPadding: EdgeInsets.symmetric(
                                         horizontal: 8,

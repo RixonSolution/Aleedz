@@ -124,14 +124,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       //   },
       //   'visible': true,
       // },
-      // {
-      //   'title': 'Home Chart',
-      //   'icon': Icons.school,
-      //   'onTap': () {
-      //     NavigationService.navigateTo(HomeChartView());
-      //   },
-      //   'visible': true,
-      // },
+      {
+        'title': 'Home Chart',
+        'icon': Icons.school,
+        'onTap': () {
+          NavigationService.navigateTo(HomeChartView());
+        },
+        'visible': true,
+      },
       {
         'title': LabelService().getLabel(85),
         'icon': Icons.logout,
