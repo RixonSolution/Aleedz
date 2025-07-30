@@ -77,7 +77,6 @@ class LoginViewModel extends ChangeNotifier {
           await chooseLanguage('1', language: false);
           debugPrint("Login Success: Token: ${userData.apiToken}");
           AppSnackBar.showSuccess(context, 'Login successful!');
-          NavigationService.navigateTo(DashboardView());
           loader = false;
           notifyListeners();
 

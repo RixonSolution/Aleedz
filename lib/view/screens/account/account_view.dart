@@ -1,12 +1,12 @@
+import 'dart:io';
+
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/%20login/login_view.dart';
 import 'package:aleedz/view/screens/change_pwd/change_pwd_view.dart';
-import 'package:aleedz/view/screens/home_chart/home_chart.dart';
+import 'package:aleedz/view/screens/issues/issues.view.dart';
 import 'package:aleedz/view/screens/pending_deployment/pending_deployment.dart';
-import 'package:aleedz/view/screens/sales/sale_view.dart';
-import 'package:aleedz/view/screens/store_share/store_share_view.dart';
 import 'package:aleedz/view/screens/user_profile/user_profile_view.dart';
 import 'package:aleedz/view/screens/user_training/user_training_list_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
@@ -70,12 +70,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       {
         'title': LabelService().getLabel(83),
         'icon': Icons.person,
-        'onTap': () {
+        'onTap': () async {
+          if (widget.onClose != null) widget.onClose!(); // Hide drawer
+          await Future.delayed(
+            Duration(milliseconds: 300),
+          ); // Wait for animation
           NavigationService.navigateTo(
             UserProfile(
               userName: notifier.user?.teamMemberName.toString() ?? '',
               userEmail: notifier.user?.email.toString() ?? '',
-              profileImageUrl: "https://example.com/profile.jpg", // or null
             ),
           );
         },
@@ -83,14 +86,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       {
         'title': LabelService().getLabel(84),
         'icon': Icons.lock,
-        'onTap': () {
+        'onTap': () async {
+          if (widget.onClose != null) widget.onClose!(); // Hide drawer
+          await Future.delayed(
+            Duration(milliseconds: 300),
+          ); // Wait for animation
           NavigationService.navigateTo(ChangePassword());
         },
       },
       {
         'title': LabelService().getLabel(81),
         'icon': Icons.school,
-        'onTap': () {
+        'onTap': () async {
+          if (widget.onClose != null) widget.onClose!(); // Hide drawer
+          await Future.delayed(
+            Duration(milliseconds: 300),
+          ); // Wait for animation
           NavigationService.navigateTo(UserTrainingListView());
         },
         'visible': true,
@@ -98,7 +109,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       {
         'title': LabelService().getLabel(82),
         'icon': Icons.school,
-        'onTap': () {
+        'onTap': () async {
+          if (widget.onClose != null) widget.onClose!(); // Hide drawer
+          await Future.delayed(
+            Duration(milliseconds: 300),
+          ); // Wait for animation
           NavigationService.navigateTo(PendingDeplomentView());
         },
         'visible': true,
@@ -106,9 +121,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       {
         'title': 'Sellout',
         'icon': Icons.school,
-        'onTap': () {
+        'onTap': () async {
+          if (widget.onClose != null) widget.onClose!(); // Hide drawer
+          await Future.delayed(
+            Duration(milliseconds: 300),
+          ); // Wait for animation
           NavigationService.navigateTo(
-            SaleView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
+            IssuesView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
           );
         },
         'visible': true,
@@ -124,14 +143,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       //   },
       //   'visible': true,
       // },
-      {
-        'title': 'Home Chart',
-        'icon': Icons.school,
-        'onTap': () {
-          NavigationService.navigateTo(HomeChartView());
-        },
-        'visible': true,
-      },
+      // {
+      //   'title': 'Home Chart',
+      //   'icon': Icons.school,
+      //   'onTap': () {
+      //     NavigationService.navigateTo(HomeChartView());
+      //   },
+      //   'visible': true,
+      // },
       {
         'title': LabelService().getLabel(85),
         'icon': Icons.logout,
@@ -142,11 +161,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     ];
   }
 
+  File? _imageFile;
+
+  Future<void> _loadProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final imagePath = prefs.getString('profile_image');
+    if (imagePath != null && File(imagePath).existsSync()) {
+      setState(() {
+        _imageFile = File(imagePath);
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // _initializeData();
+      _loadProfileImage();
     });
   }
 
@@ -183,8 +214,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     // Profile Circle Avatar
                     CircleAvatar(
                       radius: 20,
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.person, color: AppColors.secondary),
+                      backgroundColor: Colors.grey[300],
+                      backgroundImage:
+                          _imageFile != null ? FileImage(_imageFile!) : null,
+                      child:
+                          _imageFile == null
+                              ? const Icon(
+                                Icons.person,
+                                size: 20,
+                                color: AppColors.secondary,
+                              )
+                              : null,
                     ),
                     SizedBox(width: 10),
                     Column(

@@ -3,8 +3,10 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_constants.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/view/screens/%20login/auth_helper.dart';
 import 'package:aleedz/view/screens/%20login/login_provider.dart';
 import 'package:aleedz/view/screens/choose_language/choose_language_view.dart';
+import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +22,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
   @override
   void initState() {
     _loadLabels();
+    checkFingerprintAvailability();
+
     super.initState();
   }
 
@@ -27,6 +31,15 @@ class _LoginViewState extends ConsumerState<LoginView> {
     await LabelService().loadLabels();
 
     setState(() {}); // Trigger a rebuild after labels are loaded
+  }
+
+  bool showFingerprint = false;
+
+  void checkFingerprintAvailability() async {
+    final creds = await AuthHelper.getCredentials();
+    setState(() {
+      showFingerprint = creds['email'] != null && creds['password'] != null;
+    });
   }
 
   @override
@@ -182,6 +195,49 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                       await viewModel.onLogin(context);
 
                                       await storeViewModel.getROSLabels();
+                                      final enableFingerprint = await showDialog<
+                                        bool
+                                      >(
+                                        context: context,
+                                        builder:
+                                            (context) => AlertDialog(
+                                              title: const Text(
+                                                'Enable Fingerprint Login?',
+                                              ),
+                                              content: const Text(
+                                                'Would you like to enable fingerprint login for future logins?',
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                      context,
+                                                      false,
+                                                    ); // Return false
+                                                  },
+                                                  child: const Text('No'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                      context,
+                                                      true,
+                                                    ); // Return true
+                                                  },
+                                                  child: const Text('Yes'),
+                                                ),
+                                              ],
+                                            ),
+                                      );
+                                      if (enableFingerprint == true) {
+                                        await AuthHelper.saveCredentials(
+                                          viewModel.usernameController.text,
+                                          viewModel.passwordController.text,
+                                        );
+                                      }
+                                      NavigationService.navigateTo(
+                                        DashboardView(),
+                                      );
                                     },
                                     child: Container(
                                       padding: EdgeInsets.symmetric(
@@ -220,6 +276,30 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                 ),
                               ),
                             ),
+                            SizedBox(height: 10),
+
+                            if (showFingerprint)
+                              IconButton(
+                                icon: Icon(Icons.fingerprint, size: 40),
+                                onPressed: () async {
+                                  bool authSuccess =
+                                      await AuthHelper.authenticateWithBiometrics();
+                                  if (authSuccess) {
+                                    final creds =
+                                        await AuthHelper.getCredentials();
+                                    viewModel.usernameController.text =
+                                        creds['email'] ?? '';
+                                    viewModel.passwordController.text =
+                                        creds['password'] ?? '';
+                                    await viewModel.onLogin(
+                                      context,
+                                    ); // auto-login
+                                    NavigationService.navigateTo(
+                                      DashboardView(),
+                                    );
+                                  }
+                                },
+                              ),
                             SizedBox(height: 10),
                             GestureDetector(
                               onTap: () {

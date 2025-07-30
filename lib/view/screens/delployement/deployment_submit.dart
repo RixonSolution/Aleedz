@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 class DeployementSubmitView extends ConsumerStatefulWidget {
   String checkInTime, storeName, activityCategoryName;
@@ -768,6 +770,19 @@ class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
     });
   }
 
+  void _openQRScanner() async {
+    final scannedCode = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(builder: (_) => const QRScannerScreen()),
+    );
+
+    if (scannedCode != null && scannedCode.trim().isNotEmpty) {
+      setState(() {
+        scannedCodes.add(scannedCode.trim());
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -791,16 +806,32 @@ class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
               ),
             ),
             const SizedBox(width: 10),
-            GestureDetector(
-              onTap: _addCode,
-              child: Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  shape: BoxShape.circle,
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: _addCode,
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.add, color: Colors.white),
+                  ),
                 ),
-                child: Icon(Icons.add, color: Colors.white),
-              ),
+                const SizedBox(width: 10),
+                GestureDetector(
+                  onTap: _openQRScanner,
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.qr_code_scanner, color: Colors.white),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -891,6 +922,28 @@ class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class QRScannerScreen extends StatelessWidget {
+  const QRScannerScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Scan QR Code')),
+      body: MobileScanner(
+        onDetect: (BarcodeCapture capture) {
+          final List<Barcode> barcodes = capture.barcodes;
+          if (barcodes.isNotEmpty) {
+            final String? code = barcodes.first.rawValue;
+            if (code != null) {
+              Navigator.pop(context, code);
+            }
+          }
+        },
+      ),
     );
   }
 }
