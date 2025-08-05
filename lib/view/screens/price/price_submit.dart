@@ -4,7 +4,6 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
-import 'package:aleedz/models/product_price_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/price_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -40,15 +39,15 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
         return AlertDialog(
           backgroundColor: AppColors.secondary,
           title: Text(
-            'Pick an image',
+            LabelService().getLabel(111),
             style: TextStyle(color: AppColors.whiteColor),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: const Text(
-                  'From Camera',
+                title: Text(
+                  LabelService().getLabel(112),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () async {
@@ -60,8 +59,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                 },
               ),
               ListTile(
-                title: const Text(
-                  'From Gallery',
+                title: Text(
+                  LabelService().getLabel(113),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () async {
@@ -262,7 +261,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                       ),
                       Center(
                         child: Text(
-                          'Checked In ${widget.checkInTime}',
+                          '${LabelService().getLabel(14)} ${widget.checkInTime}',
                           style: TextStyle(
                             color: AppColors.blackColor,
                             fontSize: 16,

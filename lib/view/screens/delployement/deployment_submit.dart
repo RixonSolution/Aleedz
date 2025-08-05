@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class DeployementSubmitView extends ConsumerStatefulWidget {
@@ -41,15 +40,15 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
         return AlertDialog(
           backgroundColor: AppColors.secondary,
           title: Text(
-            'Pick an image',
+            LabelService().getLabel(111),
             style: TextStyle(color: AppColors.whiteColor),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: const Text(
-                  'From Camera',
+                title: Text(
+                  LabelService().getLabel(112),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () async {
@@ -72,8 +71,8 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                 },
               ),
               ListTile(
-                title: const Text(
-                  'From Gallery',
+                title: Text(
+                  LabelService().getLabel(113),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () async {
@@ -135,26 +134,26 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
       builder:
           (context) => AlertDialog(
             backgroundColor: AppColors.secondary,
-            title: const Text(
-              'Delete',
+            title: Text(
+              LabelService().getLabel(100),
               style: TextStyle(color: AppColors.whiteColor),
             ),
-            content: const Text(
-              'Are you sure you want to delete?',
+            content: Text(
+              LabelService().getLabel(99),
               style: TextStyle(color: AppColors.whiteColor),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(), // Close dialog
-                child: const Text(
-                  'No',
+                child: Text(
+                  LabelService().getLabel(94),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
               TextButton(
                 onPressed: onPressed,
-                child: const Text(
-                  'Yes',
+                child: Text(
+                  LabelService().getLabel(95),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
@@ -192,7 +191,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                     ),
                   ),
                   Text(
-                    'Deployment',
+                    LabelService().getLabel(121),
                     style: TextStyle(
                       color: AppColors.blackColor,
                       fontSize: 20,
@@ -226,7 +225,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
             ),
             Center(
               child: Text(
-                'Checked In ${widget.checkInTime}',
+                '${LabelService().getLabel(14)} ${widget.checkInTime}',
                 style: TextStyle(
                   color: AppColors.blackColor,
                   fontSize: 16,
@@ -292,9 +291,9 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                   controller: descriptionController,
                                   maxLines: 3,
                                   minLines: 2,
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: 'Describe issue details',
+                                    hintText: LabelService().getLabel(118),
                                     contentPadding: EdgeInsets.symmetric(
                                       vertical: 12,
                                     ),
@@ -320,9 +319,9 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
-                                              const SnackBar(
+                                              SnackBar(
                                                 content: Text(
-                                                  "Maximum 4 images allowed.",
+                                                  LabelService().getLabel(114),
                                                 ),
                                               ),
                                             );
@@ -439,14 +438,14 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                             .isEmpty) {
                                           AppSnackBar.showError(
                                             context,
-                                            'Please add description',
+                                            LabelService().getLabel(157),
                                           );
                                         } else if (viewModel
                                             .beforeActivityImages
                                             .isEmpty) {
                                           AppSnackBar.showError(
                                             context,
-                                            'Please add pictures',
+                                            LabelService().getLabel(115),
                                           );
                                         } else {
                                           await viewModel.marketActivityAdd(
@@ -523,7 +522,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Recent Deployement',
+                            LabelService().getLabel(120),
                             style: TextStyle(
                               color: AppColors.secondary,
                               fontSize: 16,
@@ -645,7 +644,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                           horizontal: 12,
                                         ),
                                         child: Text(
-                                          'Date: ${viewModel.marketActivityList[index].activityDateTime}}',
+                                          '${LabelService().getLabel(159)}: ${viewModel.marketActivityList[index].activityDateTime}}',
                                           style: TextStyle(
                                             color: AppColors.blackColor,
                                             fontWeight: FontWeight.bold,
@@ -660,7 +659,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                           horizontal: 12,
                                         ),
                                         child: Text(
-                                          'Quantity: ${viewModel.marketActivityList[index].quantity}',
+                                          '${LabelService().getLabel(160)}: ${viewModel.marketActivityList[index].quantity}',
                                           style: TextStyle(
                                             color: AppColors.blackColor,
                                             fontWeight: FontWeight.bold,
@@ -845,7 +844,7 @@ class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
           ),
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
           child: Row(
-            children: const [
+            children: [
               Expanded(
                 flex: 1,
                 child: Text('#', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -860,7 +859,7 @@ class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  'Action',
+                  LabelService().getLabel(149),
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),

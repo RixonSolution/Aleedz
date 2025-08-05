@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/training/training_model_view.dart';
 import 'package:aleedz/viewmodel/training_viewmodel.dart';
@@ -115,7 +116,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
               ),
             ),
             child: Text(
-              'Next',
+              LabelService().getLabel(145),
               style: TextStyle(fontSize: 14, color: AppColors.whiteColor),
             ),
           ),
@@ -179,7 +180,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                     ),
                     Center(
                       child: Text(
-                        'Checked In ${widget.checkInTime}',
+                        '${LabelService().getLabel(14)} ${widget.checkInTime}',
                         style: const TextStyle(
                           color: AppColors.blackColor,
                           fontSize: 16,
@@ -332,7 +333,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                             child: Row(
                               children: [
                                 Text(
-                                  'Additional Attendese',
+                                  LabelService().getLabel(146),
                                   style: TextStyle(
                                     color: AppColors.whiteColor,
                                     fontSize: 14,
@@ -358,7 +359,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                   child: TextField(
                                     controller: idController,
                                     decoration: InputDecoration(
-                                      hintText: 'Promoter ID',
+                                      hintText: LabelService().getLabel(147),
                                       border: InputBorder.none,
                                       isDense: true,
                                       contentPadding: EdgeInsets.symmetric(
@@ -382,7 +383,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                   child: TextField(
                                     controller: nameController,
                                     decoration: InputDecoration(
-                                      hintText: 'Promoter Name',
+                                      hintText: LabelService().getLabel(148),
                                       border: InputBorder.none,
                                       isDense: true,
                                       contentPadding: EdgeInsets.symmetric(
@@ -422,7 +423,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                               color: Colors.grey[300],
                             ),
                             child: Row(
-                              children: const [
+                              children: [
                                 Expanded(
                                   flex: 1,
                                   child: Center(
@@ -474,7 +475,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                     child: Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Text(
-                                        'Action',
+                                        LabelService().getLabel(149),
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,

@@ -1,3 +1,4 @@
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,8 +39,8 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
         markerId: MarkerId('your_location'),
         position: LatLng(widget.myLat, widget.myLang),
         infoWindow: InfoWindow(
-          title: 'Your Location',
-          snippet: 'This is your location.',
+          title: LabelService().getLabel(107),
+          snippet: LabelService().getLabel(108),
         ),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
       ),
@@ -54,8 +55,8 @@ class _GoogleMapScreenState extends ConsumerState<GoogleMapScreen> {
           widget.otherLang,
         ), // San Jose coordinates (change as needed)
         infoWindow: InfoWindow(
-          title: 'Other Location',
-          snippet: 'This is another location.',
+          title: LabelService().getLabel(110),
+          snippet: LabelService().getLabel(109),
         ),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       ),

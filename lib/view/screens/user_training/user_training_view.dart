@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/models/user_training_type.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/user_training/user_training_stores.dart';
@@ -116,8 +117,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingView> {
                       child: TextField(
                         controller: searchController,
                         style: const TextStyle(color: AppColors.blackColor),
-                        decoration: const InputDecoration(
-                          hintText: 'Search',
+                        decoration: InputDecoration(
+                          hintText: LabelService().getLabel(135),
                           hintStyle: TextStyle(color: AppColors.greyText),
                           border: UnderlineInputBorder(),
                           enabledBorder: UnderlineInputBorder(

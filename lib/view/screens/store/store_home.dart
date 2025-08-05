@@ -170,10 +170,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
         break;
       case 32:
         if (!isChecked) {
-          AppSnackBar.showError(
-            context,
-            'Select the checkbox if you updated the store stock.',
-          );
+          AppSnackBar.showError(context, LabelService().getLabel(190));
         } else {
           NavigationService.navigateTo(
             DisplayAuditCheckSummary(
@@ -334,7 +331,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
             ),
             Center(
               child: Text(
-                'Checked In ${widget.checkInTime}',
+                '${LabelService().getLabel(14)} ${widget.checkInTime}',
                 style: TextStyle(
                   color: AppColors.blackColor,
                   fontSize: 16,

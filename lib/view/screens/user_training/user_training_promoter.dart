@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/user_training/user_training_model_view.dart';
 import 'package:aleedz/viewmodel/user_training_viewmodel.dart';
@@ -110,7 +111,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
               ),
             ),
             child: Text(
-              'Next',
+              LabelService().getLabel(145),
               style: TextStyle(fontSize: 14, color: AppColors.whiteColor),
             ),
           ),
@@ -326,7 +327,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
                             child: Row(
                               children: [
                                 Text(
-                                  'Additional Attendese',
+                                  LabelService().getLabel(146),
                                   style: TextStyle(
                                     color: AppColors.whiteColor,
                                     fontSize: 14,
@@ -352,7 +353,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
                                   child: TextField(
                                     controller: idController,
                                     decoration: InputDecoration(
-                                      hintText: 'Promoter ID',
+                                      hintText: LabelService().getLabel(147),
                                       border: InputBorder.none,
                                       isDense: true,
                                       contentPadding: EdgeInsets.symmetric(
@@ -376,7 +377,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
                                   child: TextField(
                                     controller: nameController,
                                     decoration: InputDecoration(
-                                      hintText: 'Promoter Name',
+                                      hintText: LabelService().getLabel(148),
                                       border: InputBorder.none,
                                       isDense: true,
                                       contentPadding: EdgeInsets.symmetric(
@@ -416,7 +417,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
                               color: Colors.grey[300],
                             ),
                             child: Row(
-                              children: const [
+                              children: [
                                 Expanded(
                                   flex: 1,
                                   child: Center(
@@ -438,7 +439,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
                                     child: Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Text(
-                                        'ID',
+                                        LabelService().getLabel(151),
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
@@ -453,7 +454,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
                                     child: Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Text(
-                                        ' Name',
+                                        LabelService().getLabel(150),
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
@@ -468,7 +469,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
                                     child: Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Text(
-                                        'Action',
+                                        LabelService().getLabel(149),
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,

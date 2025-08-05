@@ -1,8 +1,8 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/models/activity_category_Id_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/activity/activity_category_view.dart';
 import 'package:aleedz/view/screens/delployement/deployment_submit.dart';
 import 'package:aleedz/viewmodel/deployement_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -89,8 +89,8 @@ class _MyConsumerState extends ConsumerState<DeploymentView> {
                               width: 30,
                             ),
                           ),
-                          const Text(
-                            'Deployment',
+                          Text(
+                            LabelService().getLabel(121),
                             style: TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 20,
@@ -124,7 +124,7 @@ class _MyConsumerState extends ConsumerState<DeploymentView> {
                     ),
                     Center(
                       child: Text(
-                        'Checked In ${widget.checkInTime}',
+                        '${LabelService().getLabel(14)} ${widget.checkInTime}',
                         style: const TextStyle(
                           color: AppColors.blackColor,
                           fontSize: 16,
@@ -137,8 +137,8 @@ class _MyConsumerState extends ConsumerState<DeploymentView> {
                       child: TextField(
                         controller: searchController,
                         style: const TextStyle(color: AppColors.blackColor),
-                        decoration: const InputDecoration(
-                          hintText: 'Search',
+                        decoration: InputDecoration(
+                          hintText: LabelService().getLabel(135),
                           hintStyle: TextStyle(color: AppColors.greyText),
                           border: UnderlineInputBorder(),
                           enabledBorder: UnderlineInputBorder(
@@ -152,8 +152,10 @@ class _MyConsumerState extends ConsumerState<DeploymentView> {
                     ),
                     const SizedBox(height: 20),
                     if (filteredDeploymentList.isEmpty)
-                      const Expanded(
-                        child: Center(child: Text('No results found')),
+                      Expanded(
+                        child: Center(
+                          child: Text(LabelService().getLabel(134)),
+                        ),
                       )
                     else
                       Expanded(

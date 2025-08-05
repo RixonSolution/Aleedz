@@ -209,7 +209,7 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
             ),
             Center(
               child: Text(
-                'Checked In ${widget.checkInTime}',
+                '${LabelService().getLabel(14)} ${widget.checkInTime}',
                 style: TextStyle(
                   color: AppColors.blackColor,
                   fontSize: 16,
@@ -220,8 +220,8 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
             SizedBox(height: 20),
             TextField(
               controller: searchController,
-              decoration: const InputDecoration(
-                hintText: 'Search by code or name',
+              decoration: InputDecoration(
+                hintText: LabelService().getLabel(181),
                 prefixIcon: Icon(Icons.search),
                 border: UnderlineInputBorder(), // Only bottom line
                 enabledBorder: UnderlineInputBorder(
@@ -354,11 +354,11 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
                                             ? ''
                                             : currentStock.toString(),
 
-                                    decoration: const InputDecoration(
+                                    decoration: InputDecoration(
                                       counterText:
                                           '', // Hides the character count
 
-                                      hintText: 'Qty',
+                                      hintText: LabelService().getLabel(162),
                                       contentPadding: EdgeInsets.symmetric(
                                         horizontal: 8,
                                         vertical: 6,

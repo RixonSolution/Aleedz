@@ -152,7 +152,7 @@ class _OpenIssuesScreenState extends ConsumerState<OpenIssuesScreen> {
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  'Issue Reported: ${viewModel.openIssueList[index].activityDateTime}',
+                                  '${LabelService().getLabel(125)}: ${viewModel.openIssueList[index].activityDateTime}',
                                 ),
                                 SizedBox(height: 8),
                                 Text(
@@ -195,7 +195,7 @@ class _OpenIssuesScreenState extends ConsumerState<OpenIssuesScreen> {
                                 SizedBox(height: 8),
                                 Center(
                                   child: Text(
-                                    'Close Issue',
+                                    LabelService().getLabel(126),
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,

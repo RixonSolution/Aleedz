@@ -3,9 +3,7 @@ import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/models/transfer_check_brand.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/store/display_audit_check.dart';
 import 'package:aleedz/view/screens/transfer/transfer_submit.dart';
-import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:aleedz/viewmodel/transfer_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -118,7 +116,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
             ),
             Center(
               child: Text(
-                'Checked In ${widget.checkInTime}',
+                '${LabelService().getLabel(14)} ${widget.checkInTime}',
                 style: TextStyle(
                   color: AppColors.blackColor,
                   fontSize: 16,

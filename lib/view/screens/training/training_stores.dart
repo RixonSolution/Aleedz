@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/checklist/checklist_submit.dart';
 import 'package:aleedz/view/screens/training/training_promoter.dart';
@@ -62,7 +63,7 @@ class _MyConsumerState extends ConsumerState<TrainingStores> {
               ),
             ),
             child: Text(
-              'Next',
+              LabelService().getLabel(145),
               style: TextStyle(fontSize: 14, color: AppColors.whiteColor),
             ),
           ),
@@ -126,7 +127,7 @@ class _MyConsumerState extends ConsumerState<TrainingStores> {
                     ),
                     Center(
                       child: Text(
-                        'Checked In ${widget.checkInTime}',
+                        '${LabelService().getLabel(14)} ${widget.checkInTime}',
                         style: const TextStyle(
                           color: AppColors.blackColor,
                           fontSize: 16,
@@ -170,8 +171,8 @@ class _MyConsumerState extends ConsumerState<TrainingStores> {
                               style: const TextStyle(
                                 color: AppColors.blackColor,
                               ),
-                              decoration: const InputDecoration(
-                                hintText: 'Search',
+                              decoration: InputDecoration(
+                                hintText: LabelService().getLabel(135),
                                 hintStyle: TextStyle(color: AppColors.greyText),
                                 border: InputBorder.none, // 🔴 Remove underline
                                 isDense: true,

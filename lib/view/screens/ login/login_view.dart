@@ -136,7 +136,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                 validator:
                                     (value) =>
                                         value == null || value.isEmpty
-                                            ? 'Username is required'
+                                            ? LabelService().getLabel(3)
                                             : null,
                               ),
                             ),
@@ -173,7 +173,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                 validator:
                                     (value) =>
                                         value == null || value.isEmpty
-                                            ? 'Password is required'
+                                            ? LabelService().getLabel(4)
                                             : null,
                               ),
                             ),
@@ -195,40 +195,47 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                       await viewModel.onLogin(context);
 
                                       await storeViewModel.getROSLabels();
-                                      final enableFingerprint = await showDialog<
-                                        bool
-                                      >(
-                                        context: context,
-                                        builder:
-                                            (context) => AlertDialog(
-                                              title: const Text(
-                                                'Enable Fingerprint Login?',
-                                              ),
-                                              content: const Text(
-                                                'Would you like to enable fingerprint login for future logins?',
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(
-                                                      context,
-                                                      false,
-                                                    ); // Return false
-                                                  },
-                                                  child: const Text('No'),
+                                      final enableFingerprint =
+                                          await showDialog<bool>(
+                                            context: context,
+                                            builder:
+                                                (context) => AlertDialog(
+                                                  title: Text(
+                                                    LabelService().getLabel(96),
+                                                  ),
+                                                  content: Text(
+                                                    LabelService().getLabel(97),
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(
+                                                          context,
+                                                          false,
+                                                        ); // Return false
+                                                      },
+                                                      child: Text(
+                                                        LabelService().getLabel(
+                                                          94,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(
+                                                          context,
+                                                          true,
+                                                        ); // Return true
+                                                      },
+                                                      child: Text(
+                                                        LabelService().getLabel(
+                                                          95,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                TextButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(
-                                                      context,
-                                                      true,
-                                                    ); // Return true
-                                                  },
-                                                  child: const Text('Yes'),
-                                                ),
-                                              ],
-                                            ),
-                                      );
+                                          );
                                       if (enableFingerprint == true) {
                                         await AuthHelper.saveCredentials(
                                           viewModel.usernameController.text,

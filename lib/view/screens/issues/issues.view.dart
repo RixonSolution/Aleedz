@@ -3,7 +3,6 @@ import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/viewmodel/issues_veiwmodel.dart';
 import 'package:aleedz/viewmodel/sale_viewmodel.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
@@ -102,26 +101,26 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
       builder:
           (context) => AlertDialog(
             backgroundColor: AppColors.secondary,
-            title: const Text(
-              'Delete',
+            title: Text(
+              LabelService().getLabel(100),
               style: TextStyle(color: AppColors.whiteColor),
             ),
-            content: const Text(
-              'Are you sure you want to delete?',
+            content: Text(
+              LabelService().getLabel(99),
               style: TextStyle(color: AppColors.whiteColor),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(), // Close dialog
-                child: const Text(
-                  'No',
+                child: Text(
+                  LabelService().getLabel(94),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
               TextButton(
                 onPressed: onPressed,
-                child: const Text(
-                  'Yes',
+                child: Text(
+                  LabelService().getLabel(95),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
@@ -324,8 +323,8 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                     ),
                                     child: DropdownButtonFormField<int>(
                                       value: viewModel.selectedBrand?.brandId,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Brand',
+                                      decoration: InputDecoration(
+                                        hintText: LabelService().getLabel(164),
                                         border:
                                             InputBorder
                                                 .none, // Removes underline
@@ -378,8 +377,10 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                                 ?.productCategoryID,
                                         isExpanded:
                                             true, // Optional: makes it full-width
-                                        decoration: const InputDecoration(
-                                          hintText: 'Product Category',
+                                        decoration: InputDecoration(
+                                          hintText: LabelService().getLabel(
+                                            165,
+                                          ),
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.symmetric(
                                             horizontal: 0,
@@ -415,8 +416,8 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                           }
                                         },
                                         // This makes sure a hint is shown when no value is selected
-                                        hint: const Text(
-                                          'Select Product Category',
+                                        hint: Text(
+                                          LabelService().getLabel(167),
                                         ),
                                       ),
                                     ),
@@ -467,11 +468,13 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                                         ),
                                                   ),
                                             ),
-                                        popupProps: const PopupProps.menu(
+                                        popupProps: PopupProps.menu(
                                           showSearchBox: true,
                                           searchFieldProps: TextFieldProps(
                                             decoration: InputDecoration(
-                                              hintText: "Search model name...",
+                                              hintText: LabelService().getLabel(
+                                                168,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -534,12 +537,12 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                     if (quantityController.text.isEmpty) {
                                       AppSnackBar.showError(
                                         context,
-                                        'Please add quantity',
+                                        LabelService().getLabel(158),
                                       );
                                     } else if (priceController.text.isEmpty) {
                                       AppSnackBar.showError(
                                         context,
-                                        'Please add price',
+                                        LabelService().getLabel(169),
                                       );
                                     } else {
                                       FocusScope.of(
@@ -579,7 +582,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                       padding: const EdgeInsets.all(12.0),
                                       child: Center(
                                         child: Text(
-                                          'Add Product',
+                                          LabelService().getLabel(170),
                                           style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 14,
@@ -624,7 +627,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                             ),
                                       ),
                                       child: Row(
-                                        children: const [
+                                        children: [
                                           Expanded(
                                             flex: 1,
                                             child: Text(
@@ -648,7 +651,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                           Expanded(
                                             flex: 1,
                                             child: Text(
-                                              'Qty',
+                                              LabelService().getLabel(162),
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 12,
@@ -658,7 +661,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                           Expanded(
                                             flex: 2,
                                             child: Text(
-                                              'Price',
+                                              LabelService().getLabel(171),
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 12,
@@ -777,8 +780,10 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                           // calculateTotal();
                                         },
                                         textAlign: TextAlign.center,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Customer Number',
+                                        decoration: InputDecoration(
+                                          hintText: LabelService().getLabel(
+                                            172,
+                                          ),
                                           hintStyle: TextStyle(fontSize: 12),
                                           border: InputBorder.none,
                                           enabledBorder: InputBorder.none,
@@ -810,8 +815,10 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                         keyboardType: TextInputType.text,
                                         onChanged: (value) {},
                                         textAlign: TextAlign.center,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Customer Name',
+                                        decoration: InputDecoration(
+                                          hintText: LabelService().getLabel(
+                                            173,
+                                          ),
                                           hintStyle: TextStyle(fontSize: 12),
                                           border: InputBorder.none,
                                           enabledBorder: InputBorder.none,
@@ -857,8 +864,10 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                           // calculateTotal();
                                         },
                                         textAlign: TextAlign.center,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Customer Email',
+                                        decoration: InputDecoration(
+                                          hintText: LabelService().getLabel(
+                                            174,
+                                          ),
                                           hintStyle: TextStyle(fontSize: 12),
                                           border: InputBorder.none,
                                           enabledBorder: InputBorder.none,
@@ -890,8 +899,10 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                         keyboardType: TextInputType.number,
                                         onChanged: (value) {},
                                         textAlign: TextAlign.center,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Invoice Number',
+                                        decoration: InputDecoration(
+                                          hintText: LabelService().getLabel(
+                                            175,
+                                          ),
                                           hintStyle: TextStyle(fontSize: 12),
                                           border: InputBorder.none,
                                           enabledBorder: InputBorder.none,
@@ -914,7 +925,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                 padding: const EdgeInsets.all(12.0),
                                 child: Center(
                                   child: Text(
-                                    'Upload attachment',
+                                    LabelService().getLabel(176),
                                     style: TextStyle(
                                       color: Colors.lightBlue,
                                       fontSize: 14,

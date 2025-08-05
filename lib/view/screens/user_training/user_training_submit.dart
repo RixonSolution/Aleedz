@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/user_training_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -105,7 +106,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingSubmit> {
                         children: [
                           Center(
                             child: Text(
-                              'Training ID : 3030',
+                              '${LabelService().getLabel(140)} : 3030',
                               style: TextStyle(
                                 color: AppColors.whiteColor,
                                 fontSize: 14,
@@ -146,7 +147,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingSubmit> {
                                 ),
                               ),
                               Text(
-                                'Attendese Details',
+                                LabelService().getLabel(146),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14,
@@ -156,7 +157,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingSubmit> {
                             ],
                           ),
                           Text(
-                            'Score %',
+                            LabelService().getLabel(152),
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 14,

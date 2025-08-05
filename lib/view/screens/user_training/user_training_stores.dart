@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/models/store_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/user_training/user_training_promoter.dart';
@@ -101,7 +102,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
               ),
             ),
             child: Text(
-              'Next',
+              LabelService().getLabel(145),
               style: TextStyle(fontSize: 14, color: AppColors.whiteColor),
             ),
           ),
@@ -188,8 +189,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
                               style: const TextStyle(
                                 color: AppColors.blackColor,
                               ),
-                              decoration: const InputDecoration(
-                                hintText: 'Search',
+                              decoration: InputDecoration(
+                                hintText: LabelService().getLabel(135),
                                 hintStyle: TextStyle(color: AppColors.greyText),
                                 border: InputBorder.none,
                                 isDense: true,

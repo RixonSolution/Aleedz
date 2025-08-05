@@ -8,7 +8,6 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class SaleView extends ConsumerStatefulWidget {
   String storeName, checkInTime;
@@ -90,26 +89,27 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
       builder:
           (context) => AlertDialog(
             backgroundColor: AppColors.secondary,
-            title: const Text(
-              'Delete',
+            title: Text(
+              LabelService().getLabel(100),
               style: TextStyle(color: AppColors.whiteColor),
             ),
-            content: const Text(
-              'Are you sure you want to delete?',
+            content: Text(
+              LabelService().getLabel(99),
               style: TextStyle(color: AppColors.whiteColor),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(), // Close dialog
-                child: const Text(
-                  'No',
+                child: Text(
+                  LabelService().getLabel(94),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
               TextButton(
                 onPressed: onPressed,
-                child: const Text(
-                  'Yes',
+                child: Text(
+                  LabelService().getLabel(95),
+
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
@@ -257,7 +257,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                       ),
                     ),
                     Text(
-                      'Daily Sales',
+                      LabelService().getLabel(179),
                       style: TextStyle(
                         color: AppColors.blackColor,
                         fontSize: 20,
@@ -292,7 +292,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
               ),
               Center(
                 child: Text(
-                  'Checked In ${widget.checkInTime}',
+                  '${LabelService().getLabel(14)} ${widget.checkInTime}',
                   style: TextStyle(
                     color: AppColors.blackColor,
                     fontSize: 16,
@@ -348,8 +348,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                               ),
                               child: DropdownButtonFormField<int>(
                                 value: viewModel.selectedBrand?.brandId,
-                                decoration: const InputDecoration(
-                                  hintText: 'Brand',
+                                decoration: InputDecoration(
+                                  hintText: LabelService().getLabel(164),
                                   border: InputBorder.none, // Removes underline
                                   contentPadding: EdgeInsets.symmetric(
                                     horizontal: 0,
@@ -400,8 +400,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                           ?.productCategoryID,
                                   isExpanded:
                                       true, // Optional: makes it full-width
-                                  decoration: const InputDecoration(
-                                    hintText: 'Product Category',
+                                  decoration: InputDecoration(
+                                    hintText: LabelService().getLabel(165),
                                     border: InputBorder.none,
                                     contentPadding: EdgeInsets.symmetric(
                                       horizontal: 0,
@@ -432,7 +432,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                     }
                                   },
                                   // This makes sure a hint is shown when no value is selected
-                                  hint: const Text('Select Product Category'),
+                                  hint: Text(LabelService().getLabel(167)),
                                 ),
                               ),
                             ),
@@ -477,11 +477,11 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                                   ),
                                             ),
                                       ),
-                                  popupProps: const PopupProps.menu(
+                                  popupProps: PopupProps.menu(
                                     showSearchBox: true,
                                     searchFieldProps: TextFieldProps(
                                       decoration: InputDecoration(
-                                        hintText: "Search model name...",
+                                        hintText: LabelService().getLabel(168),
                                       ),
                                     ),
                                   ),
@@ -544,14 +544,14 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                                 .isEmpty) {
                                               AppSnackBar.showError(
                                                 context,
-                                                'Please add quantity',
+                                                LabelService().getLabel(158),
                                               );
                                             } else if (priceController
                                                 .text
                                                 .isEmpty) {
                                               AppSnackBar.showError(
                                                 context,
-                                                'Please add price',
+                                                LabelService().getLabel(169),
                                               );
                                             } else {
                                               FocusScope.of(

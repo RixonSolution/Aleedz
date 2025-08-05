@@ -311,7 +311,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                             ),
                             child: Center(
                               child: Text(
-                                'Cancel',
+                                LabelService().getLabel(102),
                                 style: TextStyle(
                                   color: AppColors.whiteColor,
                                   fontSize: 16,
@@ -367,7 +367,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         controller: _controller,
                         style: TextStyle(color: AppColors.whiteColor),
                         decoration: InputDecoration(
-                          hintText: 'Cancel Remarks',
+                          hintText: LabelService().getLabel(103),
                           hintStyle: TextStyle(color: AppColors.whiteColor),
                           border: UnderlineInputBorder(),
                           enabledBorder: UnderlineInputBorder(
@@ -394,7 +394,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               decoration: BoxDecoration(),
                               child: Center(
                                 child: Text(
-                                  'No',
+                                  LabelService().getLabel(94),
                                   style: TextStyle(
                                     color: AppColors.whiteColor,
                                     fontSize: 14,
@@ -410,7 +410,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               if (_controller.text.isEmpty) {
                                 AppSnackBar.showError(
                                   context,
-                                  "Please enter your cancel remarks.",
+                                  LabelService().getLabel(103),
                                 );
                               } else {
                                 Navigator.pop(context);
@@ -422,7 +422,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               decoration: BoxDecoration(),
                               child: Center(
                                 child: Text(
-                                  'Yes',
+                                  LabelService().getLabel(95),
                                   style: TextStyle(
                                     color: AppColors.whiteColor,
                                     fontSize: 14,
@@ -905,7 +905,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           if (viewModel.dashBoardList.isEmpty) {
                             AppSnackBar.showError(
                               context,
-                              "No journeys are planned for today.",
+                              LabelService().getLabel(122),
                             );
                           } else {
                             NavigationService.navigateTo(TodayPlanView());
@@ -956,7 +956,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               bottom: 5,
                             ),
                             child: Text(
-                              'Long press on the row to cancel the check-in record.',
+                              LabelService().getLabel(123),
                               style: TextStyle(
                                 color: AppColors.greyText,
                                 fontSize: 12,
@@ -1055,7 +1055,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                       : LabelService().getLabel(
                                                         15,
                                                       ),
-                                              checkStatus1: 'Cancel',
+                                              checkStatus1: LabelService()
+                                                  .getLabel(102),
                                               checkRemarks:
                                                   viewModel
                                                               .dashBoardList[index]
@@ -1152,7 +1153,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                       : LabelService().getLabel(
                                                         15,
                                                       ),
-                                              checkStatus1: 'Cancel',
+                                              checkStatus1: LabelService()
+                                                  .getLabel(102),
                                               checkRemarks:
                                                   viewModel
                                                               .dashBoardList[index]
@@ -1234,7 +1236,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                             myLng: myLng,
                                             otherLat: otherLat,
                                             otherLng: otherLng,
-                                            checkStatus1: 'Cancel',
+                                            checkStatus1: LabelService()
+                                                .getLabel(102),
                                             cancel: (value) async {
                                               viewModel.cancelVisite(
                                                 context,
@@ -1433,7 +1436,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                             myLng: myLng,
                                             otherLat: otherLat,
                                             otherLng: otherLng,
-                                            checkStatus1: 'Cancel',
+                                            checkStatus1: LabelService()
+                                                .getLabel(102),
                                             cancel: (value) async {
                                               viewModel.cancelVisite(
                                                 context,
@@ -1697,7 +1701,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                             1) {
                                                       AppSnackBar.showError(
                                                         context,
-                                                        "You must check in before entering the store.",
+                                                        LabelService().getLabel(
+                                                          105,
+                                                        ),
                                                       );
                                                       return;
                                                     }
@@ -1743,7 +1749,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                                     if (isAlreadyCheckedIn) {
                                                       AppSnackBar.showError(
                                                         context,
-                                                        "You are already checked in to another store. Multiple check-ins are not allowed.",
+                                                        LabelService().getLabel(
+                                                          106,
+                                                        ),
                                                       );
                                                       return;
                                                     }

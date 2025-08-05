@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/models/category_store_share_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/store_share_viewmodel.dart';
@@ -317,8 +318,8 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
                               width: 30,
                             ),
                           ),
-                          const Text(
-                            'Store Share',
+                          Text(
+                            LabelService().getLabel(184),
                             style: TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 20,
@@ -352,7 +353,7 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
                     ),
                     Center(
                       child: Text(
-                        'Checked In ${widget.checkInTime}',
+                        '${LabelService().getLabel(14)} ${widget.checkInTime}',
                         style: const TextStyle(
                           color: AppColors.blackColor,
                           fontSize: 16,

@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/user_training/user_training_promoter.dart';
 import 'package:aleedz/viewmodel/user_training_viewmodel.dart';
@@ -42,15 +43,15 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
         return AlertDialog(
           backgroundColor: AppColors.secondary,
           title: Text(
-            'Pick an image',
+            LabelService().getLabel(111),
             style: TextStyle(color: AppColors.whiteColor),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: const Text(
-                  'From Camera',
+                title: Text(
+                  LabelService().getLabel(112),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () {
@@ -61,8 +62,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                 },
               ),
               ListTile(
-                title: const Text(
-                  'From Gallery',
+                title: Text(
+                  LabelService().getLabel(113),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () {
@@ -312,7 +313,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                                 ),
                                 decoration: InputDecoration(
                                   hintText:
-                                      '${widget.promoterList.length + widget.promoterNames1.length}  Promoters Selected',
+                                      '${widget.promoterList.length + widget.promoterNames1.length}  ${LabelService().getLabel(141)}',
 
                                   hintStyle: TextStyle(
                                     color: AppColors.greyText,
@@ -478,8 +479,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                                     style: const TextStyle(
                                       color: AppColors.blackColor,
                                     ),
-                                    decoration: const InputDecoration(
-                                      hintText: 'Title',
+                                    decoration: InputDecoration(
+                                      hintText: LabelService().getLabel(142),
                                       hintStyle: TextStyle(
                                         color: AppColors.greyText,
                                       ),
@@ -515,8 +516,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                                     style: const TextStyle(
                                       color: AppColors.blackColor,
                                     ),
-                                    decoration: const InputDecoration(
-                                      hintText: 'Description',
+                                    decoration: InputDecoration(
+                                      hintText: LabelService().getLabel(155),
                                       hintStyle: TextStyle(
                                         color: AppColors.greyText,
                                       ),
@@ -546,8 +547,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'Start Time',
+                                    Text(
+                                      LabelService().getLabel(143),
                                       style: TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 12,
@@ -584,8 +585,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'End Time',
+                                    Text(
+                                      LabelService().getLabel(144),
                                       style: TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 12,

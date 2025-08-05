@@ -119,7 +119,8 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                       ),
                     ),
                     Text(
-                      'Display Audit',
+                      LabelService().getLabel(130),
+
                       style: TextStyle(
                         color: AppColors.blackColor,
                         fontSize: 20,
@@ -154,7 +155,7 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
               ),
               Center(
                 child: Text(
-                  'Checked In ${widget.checkInTime}',
+                  '${LabelService().getLabel(14)} ${widget.checkInTime}',
                   style: TextStyle(
                     color: AppColors.blackColor,
                     fontSize: 16,
@@ -547,9 +548,10 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                     ScaffoldMessenger.of(
                                                       context,
                                                     ).showSnackBar(
-                                                      const SnackBar(
+                                                      SnackBar(
                                                         content: Text(
-                                                          "Please mark this product as available first.",
+                                                          LabelService()
+                                                              .getLabel(189),
                                                         ),
                                                         backgroundColor:
                                                             Colors.red,
@@ -632,9 +634,12 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                             ScaffoldMessenger.of(
                                                               context,
                                                             ).showSnackBar(
-                                                              const SnackBar(
+                                                              SnackBar(
                                                                 content: Text(
-                                                                  "Please mark this product as available first.",
+                                                                  LabelService()
+                                                                      .getLabel(
+                                                                        189,
+                                                                      ),
                                                                 ),
                                                                 backgroundColor:
                                                                     Colors.red,

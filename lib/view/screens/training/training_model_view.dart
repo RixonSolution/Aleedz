@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/training/training_promoter.dart';
 import 'package:aleedz/viewmodel/training_viewmodel.dart';
@@ -41,15 +42,15 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
         return AlertDialog(
           backgroundColor: AppColors.secondary,
           title: Text(
-            'Pick an image',
+            LabelService().getLabel(111),
             style: TextStyle(color: AppColors.whiteColor),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: const Text(
-                  'From Camera',
+                title: Text(
+                  LabelService().getLabel(112),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () {
@@ -60,8 +61,8 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                 },
               ),
               ListTile(
-                title: const Text(
-                  'From Gallery',
+                title: Text(
+                  LabelService().getLabel(113),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () {
@@ -247,7 +248,7 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                     ),
                     Center(
                       child: Text(
-                        'Checked In ${widget.checkInTime}',
+                        '${LabelService().getLabel(14)} ${widget.checkInTime}',
                         style: const TextStyle(
                           color: AppColors.blackColor,
                           fontSize: 16,
@@ -279,7 +280,7 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                 ),
                                 decoration: InputDecoration(
                                   hintText:
-                                      '${widget.promoterList.length + widget.promoterNames1.length}  Promoters Selected',
+                                      '${widget.promoterList.length + widget.promoterNames1.length}  ${LabelService().getLabel(141)}',
 
                                   hintStyle: TextStyle(
                                     color: AppColors.greyText,
@@ -445,8 +446,8 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                     style: const TextStyle(
                                       color: AppColors.blackColor,
                                     ),
-                                    decoration: const InputDecoration(
-                                      hintText: 'Title',
+                                    decoration: InputDecoration(
+                                      hintText: LabelService().getLabel(142),
                                       hintStyle: TextStyle(
                                         color: AppColors.greyText,
                                       ),
@@ -482,8 +483,8 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                     style: const TextStyle(
                                       color: AppColors.blackColor,
                                     ),
-                                    decoration: const InputDecoration(
-                                      hintText: 'Description',
+                                    decoration: InputDecoration(
+                                      hintText: LabelService().getLabel(155),
                                       hintStyle: TextStyle(
                                         color: AppColors.greyText,
                                       ),
@@ -513,8 +514,8 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'Start Time',
+                                    Text(
+                                      LabelService().getLabel(143),
                                       style: TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 12,
@@ -551,8 +552,8 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'End Time',
+                                    Text(
+                                      LabelService().getLabel(144),
                                       style: TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 12,
@@ -597,9 +598,9 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                     _showImagePickerDialog('right');
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
+                                      SnackBar(
                                         content: Text(
-                                          'Maximum 4 images allowed.',
+                                          LabelService().getLabel(114),
                                         ),
                                       ),
                                     );

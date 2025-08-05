@@ -1,12 +1,9 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/training/training_submit.dart';
-import 'package:aleedz/view/screens/user_training/user_training_promoter.dart';
-import 'package:aleedz/view/screens/user_training/user_training_stores.dart';
 import 'package:aleedz/view/screens/user_training/user_training_submit.dart';
 import 'package:aleedz/view/screens/user_training/user_training_view.dart';
-import 'package:aleedz/viewmodel/training_viewmodel.dart';
 import 'package:aleedz/viewmodel/user_training_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,7 +51,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingListView> {
               ),
             ),
             child: Text(
-              "New Training",
+              LabelService().getLabel(136),
               style: TextStyle(fontSize: 14, color: AppColors.whiteColor),
             ),
           ),
@@ -108,7 +105,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingListView> {
                     SizedBox(height: 10),
                     Center(
                       child: Text(
-                        'Recent Trainings',
+                        LabelService().getLabel(137),
                         style: const TextStyle(
                           color: AppColors.blackColor,
                           fontSize: 16,
@@ -136,7 +133,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingListView> {
                                   ),
                                 ),
                                 Text(
-                                  'Training Details',
+                                  LabelService().getLabel(138),
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -148,7 +145,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingListView> {
                           Expanded(
                             flex: 1,
                             child: Text(
-                              'Attendee',
+                              LabelService().getLabel(139),
                               textAlign: TextAlign.end,
                               style: TextStyle(
                                 color: Colors.white,
@@ -195,13 +192,13 @@ class _MyConsumerState extends ConsumerState<UserTrainingListView> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Training ID: ${viewModel.trainingList[index].trainingID}',
+                                          '${LabelService().getLabel(140)}: ${viewModel.trainingList[index].trainingID}',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          'Product Category',
+                                          LabelService().getLabel(165),
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),

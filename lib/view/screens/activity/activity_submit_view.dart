@@ -41,15 +41,15 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
         return AlertDialog(
           backgroundColor: AppColors.secondary,
           title: Text(
-            'Pick an image',
+            LabelService().getLabel(111),
             style: TextStyle(color: AppColors.whiteColor),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: const Text(
-                  'From Camera',
+                title: Text(
+                  LabelService().getLabel(112),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () async {
@@ -72,8 +72,8 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                 },
               ),
               ListTile(
-                title: const Text(
-                  'From Gallery',
+                title: Text(
+                  LabelService().getLabel(113),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () async {
@@ -135,26 +135,26 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
       builder:
           (context) => AlertDialog(
             backgroundColor: AppColors.secondary,
-            title: const Text(
-              'Delete',
+            title: Text(
+              LabelService().getLabel(100),
               style: TextStyle(color: AppColors.whiteColor),
             ),
-            content: const Text(
-              'Are you sure you want to delete?',
+            content: Text(
+              LabelService().getLabel(99),
               style: TextStyle(color: AppColors.whiteColor),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(), // Close dialog
-                child: const Text(
-                  'No',
+                child: Text(
+                  LabelService().getLabel(94),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
               TextButton(
                 onPressed: onPressed,
-                child: const Text(
-                  'Yes',
+                child: Text(
+                  LabelService().getLabel(95),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
@@ -194,7 +194,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                     ),
                   ),
                   Text(
-                    'Activity Category',
+                    LabelService().getLabel(117),
                     style: TextStyle(
                       color: AppColors.blackColor,
                       fontSize: 20,
@@ -228,7 +228,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
             ),
             Center(
               child: Text(
-                'Checked In ${widget.checkInTime}',
+                '${LabelService().getLabel(14)} ${widget.checkInTime}',
                 style: TextStyle(
                   color: AppColors.blackColor,
                   fontSize: 16,
@@ -304,9 +304,9 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                   controller: descriptionController,
                                   maxLines: 3,
                                   minLines: 2,
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: 'Description',
+                                    hintText: LabelService().getLabel(155),
                                     contentPadding: EdgeInsets.symmetric(
                                       vertical: 12,
                                     ),
@@ -327,9 +327,9 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                   controller: quantityController,
                                   maxLines: 3,
                                   minLines: 2,
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: 'Quantity (if any)',
+                                    hintText: LabelService().getLabel(156),
                                     contentPadding: EdgeInsets.symmetric(
                                       vertical: 12,
                                     ),
@@ -353,9 +353,9 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
-                                              const SnackBar(
+                                              SnackBar(
                                                 content: Text(
-                                                  "Maximum 4 images allowed.",
+                                                  LabelService().getLabel(114),
                                                 ),
                                               ),
                                             );
@@ -473,21 +473,21 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                             .isEmpty) {
                                           AppSnackBar.showError(
                                             context,
-                                            'Please add description',
+                                            LabelService().getLabel(157),
                                           );
                                         } else if (quantityController
                                             .text
                                             .isEmpty) {
                                           AppSnackBar.showError(
                                             context,
-                                            'Please add quantity',
+                                            LabelService().getLabel(158),
                                           );
                                         } else if (viewModel
                                             .beforeActivityImages
                                             .isEmpty) {
                                           AppSnackBar.showError(
                                             context,
-                                            'Please add pictures',
+                                            LabelService().getLabel(115),
                                           );
                                         } else {
                                           await viewModel.marketActivityAdd(
@@ -559,7 +559,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Recent Activity',
+                            LabelService().getLabel(119),
                             style: TextStyle(
                               color: AppColors.secondary,
                               fontSize: 16,
@@ -681,7 +681,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                           horizontal: 12,
                                         ),
                                         child: Text(
-                                          'Date: ${viewModel.marketActivityList[index].activityDateTime}}',
+                                          '${LabelService().getLabel(159)}: ${viewModel.marketActivityList[index].activityDateTime}}',
                                           style: TextStyle(
                                             color: AppColors.blackColor,
                                             fontWeight: FontWeight.bold,
@@ -696,7 +696,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                           horizontal: 12,
                                         ),
                                         child: Text(
-                                          'Quantity: ${viewModel.marketActivityList[index].quantity}',
+                                          '${LabelService().getLabel(160)}: ${viewModel.marketActivityList[index].quantity}',
                                           style: TextStyle(
                                             color: AppColors.blackColor,
                                             fontWeight: FontWeight.bold,

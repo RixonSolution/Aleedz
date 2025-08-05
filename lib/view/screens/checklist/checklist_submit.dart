@@ -39,15 +39,15 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
         return AlertDialog(
           backgroundColor: AppColors.secondary,
           title: Text(
-            'Pick an image',
+            LabelService().getLabel(111),
             style: TextStyle(color: AppColors.whiteColor),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: const Text(
-                  'From Camera',
+                title: Text(
+                  LabelService().getLabel(112),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () async {
@@ -59,8 +59,8 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                 },
               ),
               ListTile(
-                title: const Text(
-                  'From Gallery',
+                title: Text(
+                  LabelService().getLabel(113),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () async {
@@ -266,7 +266,7 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                     ),
                     Center(
                       child: Text(
-                        'Checked In ${widget.checkInTime}',
+                        '${LabelService().getLabel(14)} ${widget.checkInTime}',
                         style: const TextStyle(
                           color: AppColors.blackColor,
                           fontSize: 16,
@@ -655,7 +655,7 @@ class ToggleYesNo extends ConsumerStatefulWidget {
 }
 
 class _ToggleYesNoState extends ConsumerState<ToggleYesNo> {
-  String selected = 'Yes';
+  String selected = LabelService().getLabel(95);
 
   @override
   void initState() {
@@ -669,20 +669,20 @@ class _ToggleYesNoState extends ConsumerState<ToggleYesNo> {
       children: [
         Row(
           children: [
-            _buildOption('Yes', widget.index),
+            _buildOption(LabelService().getLabel(95), widget.index),
             SizedBox(width: 12),
-            _buildOption('No', widget.index),
+            _buildOption(LabelService().getLabel(94), widget.index),
           ],
         ),
         Row(
           children: [
             Padding(
               padding: const EdgeInsets.only(right: 10, top: 5),
-              child: Text('Yes'),
+              child: Text(LabelService().getLabel(95)),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 10, top: 5),
-              child: Text('No'),
+              child: Text(LabelService().getLabel(94)),
             ),
           ],
         ),

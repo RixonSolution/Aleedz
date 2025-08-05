@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/activity/activity_submit_view.dart';
 import 'package:aleedz/viewmodel/activity_viewmodel.dart';
@@ -98,7 +99,7 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
                             ),
                           ),
                           Text(
-                            'Activity Category',
+                            LabelService().getLabel(117),
                             style: TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 20,
@@ -132,7 +133,7 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
                     ),
                     Center(
                       child: Text(
-                        'Checked In ${widget.checkInTime}',
+                        '${LabelService().getLabel(14)} ${widget.checkInTime}',
                         style: TextStyle(
                           color: AppColors.blackColor,
                           fontSize: 16,
@@ -166,7 +167,7 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
                         controller: searchController,
                         style: TextStyle(color: AppColors.blackColor),
                         decoration: InputDecoration(
-                          hintText: 'Search',
+                          hintText: LabelService().getLabel(135),
                           hintStyle: TextStyle(color: AppColors.greyText),
                           border: UnderlineInputBorder(),
                           enabledBorder: UnderlineInputBorder(

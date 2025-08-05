@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/pending_deployment_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -56,8 +57,8 @@ class _MyConsumerState extends ConsumerState<PendingDeplomentView> {
                               width: 30,
                             ),
                           ),
-                          const Text(
-                            'Pending Deployment',
+                          Text(
+                            LabelService().getLabel(121),
                             style: TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 20,
@@ -88,7 +89,7 @@ class _MyConsumerState extends ConsumerState<PendingDeplomentView> {
                               .filterPendingList(value);
                         },
                         decoration: InputDecoration(
-                          hintText: 'Search',
+                          hintText: LabelService().getLabel(135),
                           border: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.grey),
                           ),
@@ -112,7 +113,7 @@ class _MyConsumerState extends ConsumerState<PendingDeplomentView> {
                       child: DropdownButtonFormField<String>(
                         value: null,
                         decoration: InputDecoration(
-                          hintText: 'Select Activity Category',
+                          hintText: 'Select ${LabelService().getLabel(117)}',
                           border: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.grey),
                           ),

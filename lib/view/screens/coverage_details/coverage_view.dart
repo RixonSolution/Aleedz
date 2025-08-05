@@ -504,7 +504,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
               store.visitStatusId == 0
                   ? LabelService().getLabel(14)
                   : LabelService().getLabel(15),
-          checkStatus1: 'Cancel',
+          checkStatus1: LabelService().getLabel(102),
           checkRemarks:
               store.visitStatusId == 0
                   ? LabelService().getLabel(21)
@@ -797,7 +797,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                           selectedStore.visitStatusId == 0) {
                                         AppSnackBar.showError(
                                           context,
-                                          "You must check in before entering the store.",
+                                          LabelService().getLabel(105),
                                         );
                                         return;
                                       }
@@ -830,7 +830,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                       if (isAlreadyCheckedIn) {
                                         AppSnackBar.showError(
                                           context,
-                                          "You are already checked in to another store. Multiple check-ins are not allowed.",
+                                          LabelService().getLabel(106),
                                         );
                                         return;
                                       }

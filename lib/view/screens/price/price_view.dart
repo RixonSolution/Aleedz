@@ -95,7 +95,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
             ),
             Center(
               child: Text(
-                'Checked In ${widget.checkInTime}',
+                '${LabelService().getLabel(14)} ${widget.checkInTime}',
                 style: TextStyle(
                   color: AppColors.blackColor,
                   fontSize: 16,

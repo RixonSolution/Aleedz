@@ -63,7 +63,7 @@ class _DisplayAuditCheckSummaryState
                     ),
                   ),
                   Text(
-                    'Display Audit',
+                    LabelService().getLabel(130),
                     style: TextStyle(
                       color: AppColors.blackColor,
                       fontSize: 20,
@@ -98,7 +98,7 @@ class _DisplayAuditCheckSummaryState
             ),
             Center(
               child: Text(
-                'Checked In ${widget.checkInTime}',
+                '${LabelService().getLabel(14)} ${widget.checkInTime}',
                 style: TextStyle(
                   color: AppColors.blackColor,
                   fontSize: 16,

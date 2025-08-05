@@ -72,8 +72,8 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: const Text(
-                  'From Camera',
+                title: Text(
+                  LabelService().getLabel(112),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () {
@@ -84,8 +84,8 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                 },
               ),
               ListTile(
-                title: const Text(
-                  'From Gallery',
+                title: Text(
+                  LabelService().getLabel(113),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () {
@@ -162,7 +162,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                         } else {
                           AppSnackBar.showError(
                             context,
-                            "Please select the brand and competition picture.",
+                            LabelService().getLabel(186),
                           );
                         }
                       },
@@ -206,7 +206,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                       ),
                     ),
                     Text(
-                      'Display Audit',
+                      LabelService().getLabel(130),
                       style: TextStyle(
                         color: AppColors.blackColor,
                         fontSize: 20,
@@ -241,7 +241,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
               ),
               Center(
                 child: Text(
-                  'Checked In ${widget.checkInTime}',
+                  '${LabelService().getLabel(14)} ${widget.checkInTime}',
                   style: TextStyle(
                     color: AppColors.blackColor,
                     fontSize: 16,
@@ -330,11 +330,11 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                             ),
                                           ),
                                           Row(
-                                            children: const [
+                                            children: [
                                               SizedBox(
                                                 width: 60,
                                                 child: Text(
-                                                  "Available",
+                                                  LabelService().getLabel(187),
                                                   textAlign: TextAlign.center,
                                                   style: TextStyle(
                                                     fontSize: 14,
@@ -346,7 +346,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                               SizedBox(
                                                 width: 60,
                                                 child: Text(
-                                                  "Less than 2?",
+                                                  LabelService().getLabel(188),
                                                   textAlign: TextAlign.center,
                                                   style: TextStyle(
                                                     fontSize: 14,
@@ -544,9 +544,10 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                     ScaffoldMessenger.of(
                                                       context,
                                                     ).showSnackBar(
-                                                      const SnackBar(
+                                                      SnackBar(
                                                         content: Text(
-                                                          "Please mark this product as available first.",
+                                                          LabelService()
+                                                              .getLabel(189),
                                                         ),
                                                         backgroundColor:
                                                             Colors.red,
@@ -675,9 +676,10 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                       ScaffoldMessenger.of(
                                                         context,
                                                       ).showSnackBar(
-                                                        const SnackBar(
+                                                        SnackBar(
                                                           content: Text(
-                                                            'Maximum 4 images allowed.',
+                                                            LabelService()
+                                                                .getLabel(114),
                                                           ),
                                                         ),
                                                       );
@@ -829,9 +831,10 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                       ScaffoldMessenger.of(
                                                         context,
                                                       ).showSnackBar(
-                                                        const SnackBar(
+                                                        SnackBar(
                                                           content: Text(
-                                                            'Maximum 4 images allowed.',
+                                                            LabelService()
+                                                                .getLabel(114),
                                                           ),
                                                         ),
                                                       );

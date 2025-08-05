@@ -1,3 +1,4 @@
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/viewmodel/check_in_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,16 +19,16 @@ class CheckInView extends ConsumerWidget {
           children: [
             Text(
               state.isCheckedIn
-                  ? 'Checked In at: ${state.checkInTime}'
-                  : 'Not Checked In',
+                  ? '${LabelService().getLabel(14)} at: ${state.checkInTime}'
+                  : 'Not ${LabelService().getLabel(14)}',
             ),
             ElevatedButton(
               onPressed: state.isCheckedIn ? null : viewModel.checkIn,
-              child: const Text('Check In'),
+              child: Text(LabelService().getLabel(14)),
             ),
             ElevatedButton(
               onPressed: !state.isCheckedIn ? null : viewModel.checkOut,
-              child: const Text('Check Out'),
+              child: Text(LabelService().getLabel(15)),
             ),
           ],
         ),

@@ -62,7 +62,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<StockSummaryView> {
                     ),
                   ),
                   Text(
-                    'Stock',
+                    LabelService().getLabel(180),
                     style: TextStyle(
                       color: AppColors.blackColor,
                       fontSize: 20,
@@ -97,7 +97,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<StockSummaryView> {
             ),
             Center(
               child: Text(
-                'Checked In ${widget.checkInTime}',
+                '${LabelService().getLabel(14)} ${widget.checkInTime}',
                 style: TextStyle(
                   color: AppColors.blackColor,
                   fontSize: 16,

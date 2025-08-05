@@ -6,7 +6,6 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:aleedz/view/screens/home_chart/monthly_sale_chart.dart';
 import 'package:aleedz/view/screens/home_chart/weekly_sale_chart.dart';
-import 'package:aleedz/view/screens/open_issues/open_issues_view.dart';
 import 'package:aleedz/viewmodel/home_chart_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -200,7 +199,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                       ],
                                     ),
                                     Text(
-                                      'Sale Achieved',
+                                      LabelService().getLabel(161),
                                       textAlign: TextAlign.center,
                                       style: TextStyle(fontSize: 14),
                                     ),
@@ -343,7 +342,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                               ),
                                             ),
                                             child: Text(
-                                              "QTY",
+                                              LabelService().getLabel(162),
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,

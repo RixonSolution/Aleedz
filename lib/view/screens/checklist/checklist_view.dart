@@ -1,5 +1,6 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/models/checklist_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/checklist/checklist_submit.dart';
@@ -124,7 +125,7 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
                     ),
                     Center(
                       child: Text(
-                        'Checked In ${widget.checkInTime}',
+                        '${LabelService().getLabel(14)} ${widget.checkInTime}',
                         style: const TextStyle(
                           color: AppColors.blackColor,
                           fontSize: 16,
@@ -137,8 +138,8 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
                       child: TextField(
                         controller: searchController,
                         style: const TextStyle(color: AppColors.blackColor),
-                        decoration: const InputDecoration(
-                          hintText: 'Search',
+                        decoration: InputDecoration(
+                          hintText: LabelService().getLabel(135),
                           hintStyle: TextStyle(color: AppColors.greyText),
                           border: UnderlineInputBorder(),
                           enabledBorder: UnderlineInputBorder(
@@ -153,8 +154,10 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
 
                     const SizedBox(height: 20),
                     if (filteredActivityType.isEmpty)
-                      const Expanded(
-                        child: Center(child: Text('No results found')),
+                      Expanded(
+                        child: Center(
+                          child: Text(LabelService().getLabel(134)),
+                        ),
                       )
                     else
                       Expanded(

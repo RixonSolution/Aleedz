@@ -31,19 +31,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       builder:
           (context) => AlertDialog(
             backgroundColor: AppColors.secondary,
-            title: const Text(
-              'Logout',
+            title: Text(
+              LabelService().getLabel(85),
               style: TextStyle(color: AppColors.whiteColor),
             ),
-            content: const Text(
-              'Are you sure you want to logout?',
+            content: Text(
+              LabelService().getLabel(99),
               style: TextStyle(color: AppColors.whiteColor),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text(
-                  'No',
+                child: Text(
+                  LabelService().getLabel(94),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
@@ -53,8 +53,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   await prefs.clear();
                   NavigationService.resetTo(LoginView());
                 },
-                child: const Text(
-                  'Yes',
+                child: Text(
+                  LabelService().getLabel(95),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
@@ -133,24 +133,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         'visible': true,
       },
 
-      // {
-      //   'title': 'Store Share',
-      //   'icon': Icons.school,
-      //   'onTap': () {
-      //     NavigationService.navigateTo(
-      //       StoreShareView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
-      //     );
-      //   },
-      //   'visible': true,
-      // },
-      // {
-      //   'title': 'Home Chart',
-      //   'icon': Icons.school,
-      //   'onTap': () {
-      //     NavigationService.navigateTo(HomeChartView());
-      //   },
-      //   'visible': true,
-      // },
       {
         'title': LabelService().getLabel(85),
         'icon': Icons.logout,
@@ -178,6 +160,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadProfileImage();
+      _initializeData();
     });
   }
 
@@ -272,7 +255,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       .map(
                         (item) => ListTile(
                           leading: Icon(item['icon'], color: Colors.blue),
-                          title: Text(item['title']),
+                          title: Text(item['title'] ?? ''),
                           trailing: const Icon(
                             Icons.arrow_forward_ios,
                             size: 16,

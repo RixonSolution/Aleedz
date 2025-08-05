@@ -34,10 +34,17 @@ dependencies:
   local_auth: ^2.3.0
   flutter_secure_storage: ^9.2.4
   mobile_scanner: ^7.0.1
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  image_path: "assets/images/logo.png" # your base icon file
+  android: true
+  ios: true
+  remove_alpha_ios: true
 
 
   flutter_lints: ^5.0.0

@@ -52,15 +52,15 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
         return AlertDialog(
           backgroundColor: AppColors.secondary,
           title: Text(
-            'Pick an image',
+            LabelService().getLabel(111),
             style: TextStyle(color: AppColors.whiteColor),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: const Text(
-                  'From Camera',
+                title: Text(
+                  LabelService().getLabel(112),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
                 onTap: () {
@@ -76,8 +76,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                 },
               ),
               ListTile(
-                title: const Text(
-                  'From Gallery',
+                title: Text(
+                  LabelService().getLabel(113),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
 
@@ -113,26 +113,26 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
       builder:
           (context) => AlertDialog(
             backgroundColor: AppColors.secondary,
-            title: const Text(
-              'Delete',
+            title: Text(
+              LabelService().getLabel(100),
               style: TextStyle(color: AppColors.whiteColor),
             ),
-            content: const Text(
-              'Are you sure you want to delete?',
+            content: Text(
+              LabelService().getLabel(99),
               style: TextStyle(color: AppColors.whiteColor),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(), // Close dialog
-                child: const Text(
-                  'No',
+                child: Text(
+                  LabelService().getLabel(94),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
               TextButton(
                 onPressed: onPressed,
-                child: const Text(
-                  'Yes',
+                child: Text(
+                  LabelService().getLabel(95),
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
@@ -172,7 +172,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                       ),
                     ),
                     Text(
-                      'Display Pictures',
+                      LabelService().getLabel(131),
                       style: TextStyle(
                         color: AppColors.blackColor,
                         fontSize: 20,
@@ -207,7 +207,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
               ),
               Center(
                 child: Text(
-                  'Checked In ${widget.checkInTime}',
+                  '${LabelService().getLabel(14)} ${widget.checkInTime}',
                   style: TextStyle(
                     color: AppColors.blackColor,
                     fontSize: 16,
@@ -294,8 +294,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                     viewModel
                                         .selectedPictureModel
                                         ?.pictureElementId,
-                                decoration: const InputDecoration(
-                                  hintText: 'Select Display Type',
+                                decoration: InputDecoration(
+                                  hintText: LabelService().getLabel(132),
                                   border: InputBorder.none, // Removes underline
                                   contentPadding: EdgeInsets.symmetric(
                                     horizontal: 0,
@@ -342,8 +342,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                               child: DropdownButtonFormField<int>(
                                 value:
                                     viewModel.selectedIssueCategory?.categoryId,
-                                decoration: const InputDecoration(
-                                  hintText: 'Select Issue Category',
+                                decoration: InputDecoration(
+                                  hintText: LabelService().getLabel(128),
                                   border: InputBorder.none, // Removes underline
                                   contentPadding: EdgeInsets.symmetric(
                                     horizontal: 0,
@@ -492,27 +492,27 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                               null) {
                                             AppSnackBar.showError(
                                               context,
-                                              'Please select display type',
+                                              LabelService().getLabel(132),
                                             );
                                           } else if (viewModel
                                                   .selectedIssueCategory ==
                                               null) {
                                             AppSnackBar.showError(
                                               context,
-                                              'Please select Issue category',
+                                              LabelService().getLabel(128),
                                             );
                                           } else if (remarksControll
                                               .text
                                               .isEmpty) {
                                             AppSnackBar.showError(
                                               context,
-                                              'Please add remarks',
+                                              LabelService().getLabel(129),
                                             );
                                           } else if (viewModel.leftImage ==
                                               null) {
                                             AppSnackBar.showError(
                                               context,
-                                              'Please add image',
+                                              LabelService().getLabel(116),
                                             );
                                           } else {
                                             FocusScope.of(
