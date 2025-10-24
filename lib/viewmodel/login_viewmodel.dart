@@ -42,17 +42,15 @@ class LoginViewModel extends ChangeNotifier {
 
   bool loader = false;
 
-  Future<void> onLogin(BuildContext context) async {
+  Future<bool> onLogin(BuildContext context) async {
     if (formKey.currentState?.validate() ?? false) {
       loader = true;
       notifyListeners();
 
-      const String deviceIMEIID = ""; // Replace with real IMEI logic
-
       final response = await _authController.loginUser(
         username: usernameController.text.trim(),
         password: passwordController.text.trim(),
-        deviceIMEIID: deviceIMEIID,
+        deviceIMEIID: "",
       );
 
       loader = false;
@@ -60,12 +58,9 @@ class LoginViewModel extends ChangeNotifier {
 
       if (response != null && response["status"] == 200) {
         final store = StoreLocalData();
-
         final dataList = response["data"]["data"];
+
         if (dataList != null && dataList.isNotEmpty) {
-          // final userData = dataList[0];
-          // final token = userData["api_token"];
-          // debugPrint("Login Success: Token: $token");
           final userData = UserModel.fromJson(dataList[0]);
           await store.saveUserToPrefs(userData);
 
@@ -75,20 +70,15 @@ class LoginViewModel extends ChangeNotifier {
             userData.teamMemberID!,
           );
           await chooseLanguage('1', language: false);
-          debugPrint("Login Success: Token: ${userData.apiToken}");
           AppSnackBar.showSuccess(context, 'Login successful!');
-          loader = false;
-          notifyListeners();
-
-          // You can store token using SharedPreferences, GetStorage, etc.
-        } else {
-          AppSnackBar.showError(context, 'Login failed. Please try again.');
-          debugPrint("Login Failed: Invalid credentials or response data");
+          return true; // ✅ SUCCESS
         }
-      } else {
-        debugPrint("Login Error: ${response?['data']}");
       }
+
+      AppSnackBar.showError(context, 'Login failed. Please try again.');
+      return false; // ❌ FAILURE
     }
+    return false;
   }
 
   Future<UserPermission?> loadStoredPermissions() async {

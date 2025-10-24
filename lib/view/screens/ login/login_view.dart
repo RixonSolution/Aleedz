@@ -192,9 +192,15 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                   ),
                                   child: InkWell(
                                     onTap: () async {
-                                      await viewModel.onLogin(context);
+                                      final success = await viewModel.onLogin(
+                                        context,
+                                      );
+
+                                      if (!success)
+                                        return; // ❌ Stop here on invalid credentials
 
                                       await storeViewModel.getROSLabels();
+
                                       final enableFingerprint =
                                           await showDialog<bool>(
                                             context: context,
@@ -208,12 +214,11 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                                   ),
                                                   actions: [
                                                     TextButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(
-                                                          context,
-                                                          false,
-                                                        ); // Return false
-                                                      },
+                                                      onPressed:
+                                                          () => Navigator.pop(
+                                                            context,
+                                                            false,
+                                                          ),
                                                       child: Text(
                                                         LabelService().getLabel(
                                                           94,
@@ -221,12 +226,11 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                                       ),
                                                     ),
                                                     TextButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(
-                                                          context,
-                                                          true,
-                                                        ); // Return true
-                                                      },
+                                                      onPressed:
+                                                          () => Navigator.pop(
+                                                            context,
+                                                            true,
+                                                          ),
                                                       child: Text(
                                                         LabelService().getLabel(
                                                           95,
@@ -236,16 +240,19 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                                   ],
                                                 ),
                                           );
+
                                       if (enableFingerprint == true) {
                                         await AuthHelper.saveCredentials(
                                           viewModel.usernameController.text,
                                           viewModel.passwordController.text,
                                         );
                                       }
+
                                       NavigationService.navigateTo(
                                         DashboardView(),
                                       );
                                     },
+
                                     child: Container(
                                       padding: EdgeInsets.symmetric(
                                         vertical: 15,
