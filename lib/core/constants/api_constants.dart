@@ -135,6 +135,10 @@ class ApiConstants {
 
   static String get promoterMonthlySale =>
       "$baseUrl/W_WebSettings.asmx/Promoter_Dashboard_MonthlySale";
+  static String get targetAchievementValue =>
+      "$baseUrl/WebService.asmx/TargetAchievement_All_Value";
+  static String get targetAchievementQty =>
+      "$baseUrl/WebService.asmx/TargetAchievement_All_Qty";
 
   static String get stockSummary => "$baseUrl/Stock.asmx/StockSummary";
   static String get stockView => "$baseUrl/Stock.asmx/DailyStock_View";

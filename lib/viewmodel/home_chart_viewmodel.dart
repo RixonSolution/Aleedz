@@ -4,6 +4,7 @@ import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/monthly_dashboard_sale.dart';
 import 'package:aleedz/models/monthly_recent_sale_model.dart';
 import 'package:aleedz/models/monthly_sale_model.dart';
+import 'package:aleedz/models/target_achievement_model.dart';
 import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:aleedz/viewmodel/monthly_target_value_model.dart';
@@ -23,6 +24,8 @@ class HomeChartViewModel extends ChangeNotifier {
   List<MonthlyTargetValueModel>? monthlyTargetValueModel = [];
   List<MonthlyRecentSaleModel>? monthlyRecentSaleModel = [];
   List<MonthlyDashboardSaleModel>? monthlyDashboardSaleModel = [];
+  List<TargetAchievementModel> targetAchievementValue = [];
+  List<TargetAchievementModel> targetAchievementQty = [];
 
   String? storeCount = '0';
 
@@ -208,13 +211,17 @@ class HomeChartViewModel extends ChangeNotifier {
     12: 'December',
   };
 
+  late String selectedYear;
+
   Future<void> init() async {
     final now = DateTime.now();
     selectedMonth = _monthNameMap[now.month]!;
     selectedMonthNumber = now.month.toString().padLeft(2, '0');
+    selectedYear = now.year.toString();
 
     await getMonthlySale();
     await getMonthlyTargetValue();
+    await fetchTargetAchievements();
 
     notifyListeners();
   }
@@ -224,6 +231,7 @@ class HomeChartViewModel extends ChangeNotifier {
     selectedMonthNumber = _monthMap[month] ?? '01';
     await getMonthlyTargetValue(targetMonth: selectedMonthNumber);
     await getMonthlySale(targetMonth: selectedMonthNumber);
+    await fetchTargetAchievements(month: selectedMonthNumber);
     notifyListeners();
   }
 
@@ -249,20 +257,126 @@ class HomeChartViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<TargetAchievementModel> get activeTargetAchievements {
+    final list = showQty ? targetAchievementQty : targetAchievementValue;
+    if (user?.teamMemberID != null && user!.teamMemberID != 0) {
+      return list
+          .where((entry) => entry.teamMemberId == user!.teamMemberID)
+          .toList();
+    }
+    return list;
+  }
+
+  List<TargetAchievementSummary> get activeTargetAchievementSummaries {
+    final entries = activeTargetAchievements;
+    final Map<int, TargetAchievementSummary> summaryMap = {};
+
+    for (final entry in entries) {
+      final summary = summaryMap.putIfAbsent(
+        entry.brandId,
+        () => TargetAchievementSummary(
+          brandId: entry.brandId,
+          brandName: entry.brandName,
+        ),
+      );
+
+      summary.target += entry.target;
+      summary.achieved += entry.achieved;
+    }
+
+    final summaries = summaryMap.values.toList();
+    summaries.sort((a, b) => a.brandName.compareTo(b.brandName));
+    return summaries;
+  }
+
+  Future<void> fetchTargetAchievements({String? month, String? year}) async {
+    if (user == null) return;
+
+    final currentMonth = month ?? selectedMonthNumber;
+    final currentYear = year ?? selectedYear;
+    final brandId = 0; // Default: All brands
+
+    final valueResponse =
+        await _homeChartController.getTargetAchievementValue(
+      brandId: brandId,
+      month: currentMonth,
+      year: currentYear,
+      teamMemberId: user?.teamMemberID ?? 0,
+      token: user?.apiToken ?? '',
+    );
+
+    if (valueResponse != null && valueResponse["status"] == 200) {
+      final data = valueResponse["data"]['data'] as List?;
+      targetAchievementValue =
+          data
+                  ?.map(
+                    (item) =>
+                        TargetAchievementModel.fromJson(item as Map<String, dynamic>),
+                  )
+                  .toList() ??
+              [];
+    } else {
+      targetAchievementValue = [];
+      debugPrint("Target Achievement Value Error: ${valueResponse?['data']}");
+    }
+
+    final qtyResponse = await _homeChartController.getTargetAchievementQty(
+      brandId: brandId,
+      month: currentMonth,
+      year: currentYear,
+      teamMemberId: user?.teamMemberID ?? 0,
+      token: user?.apiToken ?? '',
+    );
+
+    if (qtyResponse != null && qtyResponse["status"] == 200) {
+      final data = qtyResponse["data"]['data'] as List?;
+      targetAchievementQty =
+          data
+                  ?.map(
+                    (item) =>
+                        TargetAchievementModel.fromJson(item as Map<String, dynamic>),
+                  )
+                  .toList() ??
+              [];
+    } else {
+      targetAchievementQty = [];
+      debugPrint("Target Achievement Qty Error: ${qtyResponse?['data']}");
+    }
+
+    notifyListeners();
+  }
+
   Future loadDashboard(context) async {
     loader = true;
-    init();
-
     notifyListeners();
     await loadUser();
 
+    await init();
     await getCoverageCount(context);
-    await getMonthlySale();
-    await getMonthlyTargetValue();
     await getMonthRecentSale();
     await getMonthlyDashboardSale();
 
     loader = false;
     notifyListeners();
+  }
+}
+
+class TargetAchievementSummary {
+  TargetAchievementSummary({
+    required this.brandId,
+    required this.brandName,
+    double initialTarget = 0,
+    double initialAchieved = 0,
+  })  : target = initialTarget,
+        achieved = initialAchieved;
+
+  final int brandId;
+  final String brandName;
+  double target;
+  double achieved;
+
+  double get percentage {
+    if (target <= 0) return 0;
+    return (achieved / target) * 100;
   }
 }

@@ -135,4 +135,66 @@ class HomeChartServices {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>?> getTargetAchievementValue({
+    required int brandId,
+    required String month,
+    required String year,
+    required int teamMemberId,
+    required String token,
+  }) async {
+    final encodedBrandId = Uri.encodeComponent(brandId.toString());
+    final encodedMonth = Uri.encodeComponent(month);
+    final encodedYear = Uri.encodeComponent(year);
+    final encodedTeamId = Uri.encodeComponent(teamMemberId.toString());
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse(
+      '${ApiConstants.targetAchievementValue}?BrandID=$encodedBrandId&Month=$encodedMonth&Year=$encodedYear&TeamMemberID=$encodedTeamId&_token=$encodedToken',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getTargetAchievementQty({
+    required int brandId,
+    required String month,
+    required String year,
+    required int teamMemberId,
+    required String token,
+  }) async {
+    final encodedBrandId = Uri.encodeComponent(brandId.toString());
+    final encodedMonth = Uri.encodeComponent(month);
+    final encodedYear = Uri.encodeComponent(year);
+    final encodedTeamId = Uri.encodeComponent(teamMemberId.toString());
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse(
+      '${ApiConstants.targetAchievementQty}?BrandID=$encodedBrandId&Month=$encodedMonth&Year=$encodedYear&TeamMemberID=$encodedTeamId&_token=$encodedToken',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
 }

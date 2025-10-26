@@ -3,27 +3,24 @@ import 'package:aleedz/core/services/label_services.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class MonthlySalesChart extends StatefulWidget {
-  dynamic achieved, target;
+class MonthlySalesChart extends StatelessWidget {
+  final double achieved;
+  final double target;
 
-  MonthlySalesChart({super.key, required this.achieved, required this.target});
-
-  @override
-  State<MonthlySalesChart> createState() => _MonthlySalesChartState();
-}
-
-class _MonthlySalesChartState extends State<MonthlySalesChart> {
-  double percent = 0.0;
-
-  @override
-  void initState() {
-    percent = widget.achieved / widget.target;
-
-    super.initState();
-  }
+  const MonthlySalesChart({
+    super.key,
+    required this.achieved,
+    required this.target,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final double ratio =
+        target <= 0 ? 0 : (target == 0 ? 0 : achieved / target);
+    final bool hasValidRatio = ratio.isFinite && !ratio.isNaN;
+    final double fillRatio = hasValidRatio ? ratio.clamp(0.0, 1.0) : 0.0;
+    final double remaining = (1 - fillRatio).clamp(0.0, 1.0);
+
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -35,13 +32,13 @@ class _MonthlySalesChartState extends State<MonthlySalesChart> {
             sections: [
               PieChartSectionData(
                 color: AppColors.secondary,
-                value: percent * 100,
+                value: fillRatio * 100,
                 radius: 40,
                 showTitle: false,
               ),
               PieChartSectionData(
                 color: Colors.grey.shade300,
-                value: (1 - percent) * 100,
+                value: remaining * 100,
                 radius: 40,
                 showTitle: false,
               ),
@@ -52,12 +49,15 @@ class _MonthlySalesChartState extends State<MonthlySalesChart> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              _getPercentageText(percent),
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              _getPercentageText(ratio),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             Text(
-              "${LabelService().getLabel(91)}",
-              style: TextStyle(fontSize: 14),
+              LabelService().getLabel(91),
+              style: const TextStyle(fontSize: 14),
             ),
           ],
         ),
@@ -65,10 +65,15 @@ class _MonthlySalesChartState extends State<MonthlySalesChart> {
     );
   }
 
-  String _getPercentageText(double? percent) {
-    if (percent == null || percent.isNaN || percent.isInfinite) {
+  String _getPercentageText(double ratio) {
+    if (ratio.isNaN || !ratio.isFinite) {
       return "0%";
     }
-    return "${(percent * 100).toInt()}%";
+    final double scaled = ratio * 100;
+    if (scaled.isNaN || !scaled.isFinite) {
+      return "0%";
+    }
+    final int rounded = scaled.round();
+    return "${rounded < 0 ? 0 : rounded}%";
   }
 }

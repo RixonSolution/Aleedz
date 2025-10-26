@@ -17,6 +17,49 @@ class HomeChartView extends ConsumerStatefulWidget {
   ConsumerState<HomeChartView> createState() => _HomeViewState();
 }
 
+class _TableHeaderCell extends StatelessWidget {
+  const _TableHeaderCell({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      alignment: Alignment.center,
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+      ),
+    );
+  }
+}
+
+class _TableBodyCell extends StatelessWidget {
+  const _TableBodyCell({
+    required this.text,
+    this.alignment = Alignment.center,
+  });
+
+  final String text;
+  final Alignment alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      alignment: alignment,
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 13),
+      ),
+    );
+  }
+}
+
 class _HomeViewState extends ConsumerState<HomeChartView> {
   @override
   void initState() {
@@ -33,6 +76,12 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(homeChartMP);
+    double _toDouble(dynamic value) {
+      if (value == null) return 0.0;
+      if (value is num) return value.toDouble();
+      return double.tryParse(value.toString()) ?? 0.0;
+    }
+    final summaries = viewModel.activeTargetAchievementSummaries;
 
     return SafeArea(
       child: Scaffold(
@@ -446,6 +495,89 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                               ],
                             ),
 
+                            const SizedBox(height: 12),
+                            summaries.isNotEmpty
+                                ? Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: AppColors.blackColor,
+                                    ),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Table(
+                                      columnWidths: const {
+                                        0: FlexColumnWidth(2),
+                                        1: FlexColumnWidth(),
+                                        2: FlexColumnWidth(),
+                                        3: FlexColumnWidth(),
+                                      },
+                                      border: TableBorder.symmetric(
+                                        inside: BorderSide(
+                                          color: AppColors.blackColor,
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                      children: [
+                                        TableRow(
+                                          decoration: BoxDecoration(
+                                            color: AppColors.lightGreyBackground,
+                                          ),
+                                          children: const [
+                                            _TableHeaderCell(text: 'Brand'),
+                                            _TableHeaderCell(text: 'Target'),
+                                            _TableHeaderCell(text: 'Achieved'),
+                                            _TableHeaderCell(text: '%'),
+                                          ],
+                                        ),
+                                        ...summaries.map((summary) {
+                                          return TableRow(
+                                            children: [
+                                              _TableBodyCell(
+                                                alignment:
+                                                    Alignment.centerLeft,
+                                                text: summary.brandName,
+                                              ),
+                                              _TableBodyCell(
+                                                text: summary.target
+                                                    .toStringAsFixed(0),
+                                              ),
+                                              _TableBodyCell(
+                                                text: summary.achieved
+                                                    .toStringAsFixed(0),
+                                              ),
+                                              _TableBodyCell(
+                                                text:
+                                                    '${summary.percentage.toStringAsFixed(0)}%',
+                                              ),
+                                            ],
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                                : Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: AppColors.lightGreyBackground,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'No target achievement data available.',
+                                    style: TextStyle(
+                                      color: AppColors.blackColor,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                            const SizedBox(height: 16),
+
                             viewModel.showQty
                                 ? SizedBox(
                                   height: 150,
@@ -455,22 +587,24 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                                     .monthlySaleModel
                                                     ?.isNotEmpty ==
                                                 true
-                                            ? viewModel
-                                                    .monthlySaleModel
-                                                    ?.first
-                                                    .targetQty ??
-                                                0.0
+                                            ? _toDouble(
+                                                viewModel
+                                                    .monthlySaleModel!
+                                                    .first
+                                                    .saleQty,
+                                              )
                                             : 0.0,
                                     target:
                                         viewModel
                                                     .monthlySaleModel
                                                     ?.isNotEmpty ==
                                                 true
-                                            ? viewModel
-                                                    .monthlySaleModel
-                                                    ?.first
-                                                    .saleQty ??
-                                                0.0
+                                            ? _toDouble(
+                                                viewModel
+                                                    .monthlySaleModel!
+                                                    .first
+                                                    .targetQty,
+                                              )
                                             : 0.0,
                                   ),
                                 )
@@ -482,22 +616,24 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                                     .monthlyTargetValueModel
                                                     ?.isNotEmpty ==
                                                 true
-                                            ? viewModel
-                                                    .monthlyTargetValueModel
-                                                    ?.first
-                                                    .saleValue ??
-                                                0.0
+                                            ? _toDouble(
+                                                viewModel
+                                                    .monthlyTargetValueModel!
+                                                    .first
+                                                    .saleValue,
+                                              )
                                             : 0.0,
                                     target:
                                         viewModel
                                                     .monthlyTargetValueModel
                                                     ?.isNotEmpty ==
                                                 true
-                                            ? viewModel
-                                                    .monthlyTargetValueModel
-                                                    ?.first
-                                                    .targetValue ??
-                                                0.0
+                                            ? _toDouble(
+                                                viewModel
+                                                    .monthlyTargetValueModel!
+                                                    .first
+                                                    .targetValue,
+                                              )
                                             : 0.0,
                                   ),
                                 ),

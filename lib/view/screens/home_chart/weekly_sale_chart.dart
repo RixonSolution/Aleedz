@@ -30,9 +30,6 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
     // Add 10% buffer
     final adjustedMax = maxValue + (maxValue * 0.1);
 
-    // Calculate interval
-    final interval = adjustedMax > 0 ? adjustedMax / 4 : 1000;
-
     return AspectRatio(
       aspectRatio: 1.5,
       child: BarChart(
@@ -63,7 +60,31 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
             rightTitles: AxisTitles(
               sideTitles: SideTitles(showTitles: false), // Hides right values
             ),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 32,
+                getTitlesWidget: (value, meta) {
+                  final index = value.toInt();
+                  if (index < 0 || index > 6) {
+                    return const SizedBox.shrink();
+                  }
+                  final weekday = index + 1;
+                  final amount = weeklyDataMap[weekday] ?? 0;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      amount.round().toString(),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
