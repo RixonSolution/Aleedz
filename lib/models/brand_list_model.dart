@@ -1,13 +1,25 @@
 class BrandListModel {
   final int brandId;
   final String brandName;
+  final String planogramPicture1;
+  final String planogramPicture2;
+  final String planogramPicture3;
 
-  BrandListModel({required this.brandId, required this.brandName});
+  BrandListModel({
+    required this.brandId,
+    required this.brandName,
+    this.planogramPicture1 = '',
+    this.planogramPicture2 = '',
+    this.planogramPicture3 = '',
+  });
 
   factory BrandListModel.fromJson(Map<String, dynamic> json) {
     return BrandListModel(
       brandId: json['BrandID'] ?? 0,
       brandName: json['BrandName'] ?? '',
+      planogramPicture1: (json['Planogram_Picture1'] ?? '').toString(),
+      planogramPicture2: (json['Planogram_Picture2'] ?? '').toString(),
+      planogramPicture3: (json['Planogram_Picture3'] ?? '').toString(),
     );
   }
 

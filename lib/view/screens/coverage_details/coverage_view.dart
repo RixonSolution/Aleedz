@@ -449,7 +449,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
           NavigationService.navigateTo(
             StoreHome(
               storeName: store.storeName,
-              checkInTime: store.checkInTime,
+              checkInTime: viewModel.stores[index].checkInTime,
               grade: store.gradeName,
               address: store.address,
               storeId: store.storeId,
@@ -521,7 +521,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
               NavigationService.navigateTo(
                 StoreHome(
                   storeName: store.storeName,
-                  checkInTime: store.checkInTime,
+                  checkInTime: viewModel.stores[index].checkInTime,
                   grade: store.gradeName,
                   address: store.address,
                   storeId: store.storeId,

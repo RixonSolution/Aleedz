@@ -36,25 +36,24 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref
-          .read(storeModelProvider.notifier)
-          .getDisplayCheckMaster(
-            storeId: widget.storeId.toString(),
-            categoryId: widget.categoryId.toString(),
-            brandId: widget.brandId,
-          );
-      ref
-          .read(storeModelProvider.notifier)
-          .checkAudit(
-            widget.storeId,
-            widget.categoryId,
-            widget.brandId,
-            widget.visitId,
-          );
-      ref.read(storeModelProvider.notifier).loadUser();
+    Future.microtask(() async {
+      final storeNotifier = ref.read(storeModelProvider.notifier);
 
-      ref.read(storeModelProvider.notifier).clearData();
+      await storeNotifier.loadUser();
+      await storeNotifier.getBrandDropDown();
+
+      storeNotifier.getDisplayCheckMaster(
+        storeId: widget.storeId.toString(),
+        categoryId: widget.categoryId.toString(),
+        brandId: widget.brandId,
+      );
+      storeNotifier.checkAudit(
+        widget.storeId,
+        widget.categoryId,
+        widget.brandId,
+        widget.visitId,
+      );
+      storeNotifier.clearData();
     });
   }
 
@@ -97,6 +96,99 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  void _showBrandPlanogramImages(String brandName) {
+    final storeViewModel = ref.read(storeModelProvider);
+    final matchedBrand = storeViewModel.brandList.firstWhereOrNull(
+      (brand) => brand.brandName.toLowerCase() == brandName.toLowerCase(),
+    );
+
+    if (matchedBrand == null) {
+      AppSnackBar.showError(
+        context,
+        'No planogram images found for $brandName.',
+      );
+      return;
+    }
+
+    bool hasValidImage(String url) {
+      final trimmed = url.trim();
+      if (trimmed.isEmpty) return false;
+      if (trimmed.endsWith('/')) return false;
+      return !trimmed.toLowerCase().endsWith('noimage.jpg');
+    }
+
+    final planogramImages = [
+      matchedBrand.planogramPicture1,
+      matchedBrand.planogramPicture2,
+      matchedBrand.planogramPicture3,
+    ].where(hasValidImage).toList();
+
+    if (planogramImages.isEmpty) {
+      AppSnackBar.showError(
+        context,
+        'No planogram images found for $brandName.',
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppColors.whiteColor,
+          title: Text(
+            '$brandName Images',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: planogramImages.map((url) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        url,
+                        height: 180,
+                        width: 160,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) {
+                          return Container(
+                            height: 180,
+                            width: 160,
+                            color: AppColors.lightGreyBackground,
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.broken_image,
+                              size: 32,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Close'),
+            ),
+          ],
         );
       },
     );
@@ -291,14 +383,57 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
-                                        Text(
-                                          brandName,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  brandName,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              TextButton(
+                                                onPressed: () =>
+                                                    _showBrandPlanogramImages(
+                                                      brandName,
+                                                    ),
+                                                style: TextButton.styleFrom(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 6,
+                                                      ),
+                                                  minimumSize: Size.zero,
+                                                  tapTargetSize:
+                                                      MaterialTapTargetSize
+                                                          .shrinkWrap,
+                                                  foregroundColor:
+                                                      AppColors.primary,
+                                                  backgroundColor:
+                                                      AppColors.primary
+                                                          .withValues(
+                                                    alpha: 0.12,
+                                                  ),
+                                                ),
+                                                child: const Text(
+                                                  'Images',
+                                                  style: TextStyle(fontSize: 12),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
+                                        const SizedBox(width: 12),
                                         Text(
                                           widget.lastUpdate,
                                           style: TextStyle(

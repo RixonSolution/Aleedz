@@ -290,9 +290,9 @@ class CoverageViewModel extends ChangeNotifier {
       checkInImgFile: checkInImgFile, // ✅ Pass image as File
       token: user?.apiToken ?? '',
     );
+    await getCoverageList(context, forceRefresh: true);
 
     if (response != null && response["status"] == 200) {
-      await getCoverageList(context, forceRefresh: true);
       loader = false;
       notifyListeners();
     } else {
