@@ -166,7 +166,9 @@ class HomeChartViewModel extends ChangeNotifier {
 
     for (final sale in monthlyRecentSaleModel ?? []) {
       int weekday = sale.creationDateTime.weekday;
-      weeklyData[weekday] = (weeklyData[weekday] ?? 0) + sale.saleValue;
+      final double amount =
+          showQty ? sale.quantity.toDouble() : sale.saleValue;
+      weeklyData[weekday] = (weeklyData[weekday] ?? 0) + amount;
     }
 
     return weeklyData;

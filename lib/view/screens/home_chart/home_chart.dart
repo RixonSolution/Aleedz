@@ -4,7 +4,6 @@ import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
-import 'package:aleedz/view/screens/home_chart/monthly_sale_chart.dart';
 import 'package:aleedz/view/screens/home_chart/weekly_sale_chart.dart';
 import 'package:aleedz/viewmodel/home_chart_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -82,6 +81,25 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
       return double.tryParse(value.toString()) ?? 0.0;
     }
     final summaries = viewModel.activeTargetAchievementSummaries;
+    const monthAbbreviations = {
+      'January': 'Jan',
+      'February': 'Feb',
+      'March': 'Mar',
+      'April': 'Apr',
+      'May': 'May',
+      'June': 'Jun',
+      'July': 'Jul',
+      'August': 'Aug',
+      'September': 'Sep',
+      'October': 'Oct',
+      'November': 'Nov',
+      'December': 'Dec',
+    };
+    String formatMonthLabel(String month) {
+      final abbrev = monthAbbreviations[month] ?? month;
+      final year = viewModel.selectedYear;
+      return '$abbrev,$year';
+    }
 
     return SafeArea(
       child: Scaffold(
@@ -477,8 +495,8 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                           return DropdownMenuItem<String>(
                                             value: value,
                                             child: Text(
-                                              value,
-                                              style: TextStyle(
+                                              formatMonthLabel(value),
+                                              style: const TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,
                                               ),
@@ -576,68 +594,6 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                     ),
                                   ),
                                 ),
-                            const SizedBox(height: 16),
-
-                            viewModel.showQty
-                                ? SizedBox(
-                                  height: 150,
-                                  child: MonthlySalesChart(
-                                    achieved:
-                                        viewModel
-                                                    .monthlySaleModel
-                                                    ?.isNotEmpty ==
-                                                true
-                                            ? _toDouble(
-                                                viewModel
-                                                    .monthlySaleModel!
-                                                    .first
-                                                    .saleQty,
-                                              )
-                                            : 0.0,
-                                    target:
-                                        viewModel
-                                                    .monthlySaleModel
-                                                    ?.isNotEmpty ==
-                                                true
-                                            ? _toDouble(
-                                                viewModel
-                                                    .monthlySaleModel!
-                                                    .first
-                                                    .targetQty,
-                                              )
-                                            : 0.0,
-                                  ),
-                                )
-                                : SizedBox(
-                                  height: 150,
-                                  child: MonthlySalesChart(
-                                    achieved:
-                                        viewModel
-                                                    .monthlyTargetValueModel
-                                                    ?.isNotEmpty ==
-                                                true
-                                            ? _toDouble(
-                                                viewModel
-                                                    .monthlyTargetValueModel!
-                                                    .first
-                                                    .saleValue,
-                                              )
-                                            : 0.0,
-                                    target:
-                                        viewModel
-                                                    .monthlyTargetValueModel
-                                                    ?.isNotEmpty ==
-                                                true
-                                            ? _toDouble(
-                                                viewModel
-                                                    .monthlyTargetValueModel!
-                                                    .first
-                                                    .targetValue,
-                                              )
-                                            : 0.0,
-                                  ),
-                                ),
-
                             viewModel.showQty
                                 ? Row(
                                   mainAxisAlignment:

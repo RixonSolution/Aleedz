@@ -63,8 +63,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  List<Map<String, dynamic>> getMenuItems(BuildContext context) {
+  List<Map<String, dynamic>> getMenuItems(
+    BuildContext context,
+    StoreViewModel viewModel,
+  ) {
     final notifier = ref.read(storeModelProvider.notifier);
+    bool hasRosLabel(int id) =>
+        viewModel.rosLabels.any((label) => label.rosLabelID == id);
 
     return [
       {
@@ -104,7 +109,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ); // Wait for animation
           NavigationService.navigateTo(UserTrainingListView());
         },
-        'visible': true,
+        'visible': hasRosLabel(30),
       },
       {
         'title': LabelService().getLabel(82),
@@ -116,7 +121,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ); // Wait for animation
           NavigationService.navigateTo(PendingDeplomentView());
         },
-        'visible': true,
+        'visible': hasRosLabel(34),
       },
       {
         'title': 'Sellout',
@@ -130,7 +135,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             IssuesView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
           );
         },
-        'visible': true,
+        'visible': hasRosLabel(38),
       },
 
       {
@@ -172,7 +177,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(storeModelProvider);
-    final menuItems = getMenuItems(context);
+    final menuItems = getMenuItems(context, viewModel);
 
     return Container(
       decoration: BoxDecoration(
