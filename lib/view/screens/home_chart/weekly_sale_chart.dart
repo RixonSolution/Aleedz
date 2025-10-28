@@ -2,7 +2,6 @@ import 'package:aleedz/viewmodel/home_chart_viewmodel.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 class WeeklySalesChart extends ConsumerStatefulWidget {
   @override
@@ -23,11 +22,12 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
     final viewModel = ref.watch(homeChartMP);
     final weeklyEntries = viewModel.getWeeklySaleData();
 
-    final maxValue = weeklyEntries.isNotEmpty
-        ? weeklyEntries
-            .map((entry) => entry.value)
-            .reduce((a, b) => a > b ? a : b)
-        : 0.0;
+    final maxValue =
+        weeklyEntries.isNotEmpty
+            ? weeklyEntries
+                .map((entry) => entry.value)
+                .reduce((a, b) => a > b ? a : b)
+            : 0.0;
 
     // Add 10% buffer
     final adjustedMax = maxValue + (maxValue * 0.1);
@@ -95,10 +95,9 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
                     return const SizedBox.shrink();
                   }
                   final date = weeklyEntries[index].date;
-                  final label = DateFormat('dd/MM').format(date);
                   return Padding(
                     padding: const EdgeInsets.all(4.0),
-                    child: Text(label),
+                    child: Text('${date.day}/${date.month}'),
                   );
                 },
                 reservedSize: 32,

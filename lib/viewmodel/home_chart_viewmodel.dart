@@ -299,8 +299,7 @@ class HomeChartViewModel extends ChangeNotifier {
     final currentYear = year ?? selectedYear;
     final brandId = 0; // Default: All brands
 
-    final valueResponse =
-        await _homeChartController.getTargetAchievementValue(
+    final valueResponse = await _homeChartController.getTargetAchievementValue(
       brandId: brandId,
       month: currentMonth,
       year: currentYear,
@@ -312,12 +311,13 @@ class HomeChartViewModel extends ChangeNotifier {
       final data = valueResponse["data"]['data'] as List?;
       targetAchievementValue =
           data
-                  ?.map(
-                    (item) =>
-                        TargetAchievementModel.fromJson(item as Map<String, dynamic>),
-                  )
-                  .toList() ??
-              [];
+              ?.map(
+                (item) => TargetAchievementModel.fromJson(
+                  item as Map<String, dynamic>,
+                ),
+              )
+              .toList() ??
+          [];
     } else {
       targetAchievementValue = [];
       debugPrint("Target Achievement Value Error: ${valueResponse?['data']}");
@@ -335,12 +335,13 @@ class HomeChartViewModel extends ChangeNotifier {
       final data = qtyResponse["data"]['data'] as List?;
       targetAchievementQty =
           data
-                  ?.map(
-                    (item) =>
-                        TargetAchievementModel.fromJson(item as Map<String, dynamic>),
-                  )
-                  .toList() ??
-              [];
+              ?.map(
+                (item) => TargetAchievementModel.fromJson(
+                  item as Map<String, dynamic>,
+                ),
+              )
+              .toList() ??
+          [];
     } else {
       targetAchievementQty = [];
       debugPrint("Target Achievement Qty Error: ${qtyResponse?['data']}");
@@ -377,8 +378,8 @@ class TargetAchievementSummary {
     required this.brandName,
     double initialTarget = 0,
     double initialAchieved = 0,
-  })  : target = initialTarget,
-        achieved = initialAchieved;
+  }) : target = initialTarget,
+       achieved = initialAchieved;
 
   final int brandId;
   final String brandName;
