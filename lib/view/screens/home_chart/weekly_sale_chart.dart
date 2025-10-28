@@ -2,6 +2,7 @@ import 'package:aleedz/viewmodel/home_chart_viewmodel.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class WeeklySalesChart extends ConsumerStatefulWidget {
   @override
@@ -20,12 +21,13 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(homeChartMP);
-    final weeklyDataMap = viewModel.getWeeklySaleData();
+    final weeklyEntries = viewModel.getWeeklySaleData();
 
-    // Extract values and calculate max value
-    final values = weeklyDataMap.values;
-    final maxValue =
-        values.isNotEmpty ? values.reduce((a, b) => a > b ? a : b) : 0.0;
+    final maxValue = weeklyEntries.isNotEmpty
+        ? weeklyEntries
+            .map((entry) => entry.value)
+            .reduce((a, b) => a > b ? a : b)
+        : 0.0;
 
     // Add 10% buffer
     final adjustedMax = maxValue + (maxValue * 0.1);
@@ -66,11 +68,10 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
                 reservedSize: 32,
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
-                  if (index < 0 || index > 6) {
+                  if (index < 0 || index >= weeklyEntries.length) {
                     return const SizedBox.shrink();
                   }
-                  final weekday = index + 1;
-                  final amount = weeklyDataMap[weekday] ?? 0;
+                  final amount = weeklyEntries[index].value;
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
@@ -89,23 +90,24 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
-                  final weekdayIndex = value.toInt() + 1;
-                  final today = DateTime.now();
-                  final weekdayDate = today.subtract(
-                    Duration(days: today.weekday - weekdayIndex),
-                  );
+                  final index = value.toInt();
+                  if (index < 0 || index >= weeklyEntries.length) {
+                    return const SizedBox.shrink();
+                  }
+                  final date = weeklyEntries[index].date;
+                  final label = DateFormat('dd/MM').format(date);
                   return Padding(
                     padding: const EdgeInsets.all(4.0),
-                    child: Text('${weekdayDate.day}/${weekdayDate.month}'),
+                    child: Text(label),
                   );
                 },
                 reservedSize: 32,
               ),
             ),
           ),
-          barGroups: List.generate(7, (index) {
-            final weekday = index + 1;
-            final value = weeklyDataMap[weekday] ?? 0.0;
+          barGroups: List.generate(weeklyEntries.length, (index) {
+            final entry = weeklyEntries[index];
+            final value = entry.value;
 
             return BarChartGroupData(
               x: index,

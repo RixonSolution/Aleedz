@@ -6,7 +6,6 @@ import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/view/screens/%20login/login_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ChooseLanguageView extends ConsumerStatefulWidget {
   @override
@@ -25,6 +24,7 @@ class _ChooseLanguageViewState extends ConsumerState<ChooseLanguageView> {
   void initState() {
     super.initState();
     selectedLanguageId = 1; // Default language ID
+    _bootstrapStoredValues();
   }
 
   // Fetch the app labels using the language ID
@@ -36,10 +36,17 @@ class _ChooseLanguageViewState extends ConsumerState<ChooseLanguageView> {
     });
   }
 
+  Future<void> _bootstrapStoredValues() async {
+    await ApiConstants.initialize();
+    final savedUrl = ApiConstants.persistedBaseUrl;
+    if (!mounted) return;
+    if (savedUrl != null && savedUrl.isNotEmpty) {
+      controller.text = savedUrl;
+    }
+  }
+
   Future<void> saveBaseUrl(String url) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('baseUrl', url);
-    ApiConstants.setBaseUrl(url); // set immediately too
+    await ApiConstants.updateBaseUrl(url);
   }
 
   @override

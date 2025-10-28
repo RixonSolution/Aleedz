@@ -24,11 +24,7 @@ class LabelService {
   }
 
   Future<void> loadBaseUrl() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedUrl = prefs.getString('baseUrl');
-    if (savedUrl != null && savedUrl.isNotEmpty) {
-      ApiConstants.setBaseUrl(savedUrl);
-    }
+    await ApiConstants.initialize();
   }
 
   String getLabel(int id) {

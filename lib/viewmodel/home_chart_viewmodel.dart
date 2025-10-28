@@ -144,34 +144,35 @@ class HomeChartViewModel extends ChangeNotifier {
       final data = response["data"]['data'] as List;
       monthlyRecentSaleModel =
           data.map((e) => MonthlyRecentSaleModel.fromJson(e)).toList();
-      getWeeklySaleData();
-
       notifyListeners();
     } else {
       debugPrint("Monthly Target Value Error: ${response?['data']}");
     }
   }
 
-  Map<int, double> getWeeklySaleData() {
-    // Map<weekday, totalSaleValue>
-    final Map<int, double> weeklyData = {
-      1: 0, // Monday
-      2: 0,
-      3: 0,
-      4: 0,
-      5: 0,
-      6: 0,
-      7: 0, // Sunday
-    };
+  List<WeeklySaleEntry> getWeeklySaleData() {
+    final List<MonthlyRecentSaleModel> sales = monthlyRecentSaleModel ?? [];
+    if (sales.isEmpty) return [];
 
-    for (final sale in monthlyRecentSaleModel ?? []) {
-      int weekday = sale.creationDateTime.weekday;
-      final double amount =
-          showQty ? sale.quantity.toDouble() : sale.saleValue;
-      weeklyData[weekday] = (weeklyData[weekday] ?? 0) + amount;
+    final Map<DateTime, double> totalsByDay = {};
+
+    for (final sale in sales) {
+      final date = DateTime(
+        sale.creationDateTime.year,
+        sale.creationDateTime.month,
+        sale.creationDateTime.day,
+      );
+      final value = showQty ? sale.quantity.toDouble() : sale.saleValue;
+      totalsByDay.update(
+        date,
+        (existing) => existing + value,
+        ifAbsent: () => value,
+      );
     }
 
-    return weeklyData;
+    return totalsByDay.entries
+        .map((entry) => WeeklySaleEntry(date: entry.key, value: entry.value))
+        .toList();
   }
 
   Future<void> getMonthlyDashboardSale() async {
@@ -361,6 +362,13 @@ class HomeChartViewModel extends ChangeNotifier {
     loader = false;
     notifyListeners();
   }
+}
+
+class WeeklySaleEntry {
+  WeeklySaleEntry({required this.date, required this.value});
+
+  final DateTime date;
+  final double value;
 }
 
 class TargetAchievementSummary {

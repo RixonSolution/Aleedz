@@ -28,20 +28,14 @@ class _TableHeaderCell extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         text,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 13,
-        ),
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
       ),
     );
   }
 }
 
 class _TableBodyCell extends StatelessWidget {
-  const _TableBodyCell({
-    required this.text,
-    this.alignment = Alignment.center,
-  });
+  const _TableBodyCell({required this.text, this.alignment = Alignment.center});
 
   final String text;
   final Alignment alignment;
@@ -51,10 +45,7 @@ class _TableBodyCell extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       alignment: alignment,
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 13),
-      ),
+      child: Text(text, style: const TextStyle(fontSize: 13)),
     );
   }
 }
@@ -80,6 +71,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
       if (value is num) return value.toDouble();
       return double.tryParse(value.toString()) ?? 0.0;
     }
+
     final summaries = viewModel.activeTargetAchievementSummaries;
     const monthAbbreviations = {
       'January': 'Jan',
@@ -541,7 +533,8 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                       children: [
                                         TableRow(
                                           decoration: BoxDecoration(
-                                            color: AppColors.lightGreyBackground,
+                                            color:
+                                                AppColors.lightGreyBackground,
                                           ),
                                           children: const [
                                             _TableHeaderCell(text: 'Brand'),
@@ -554,8 +547,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                           return TableRow(
                                             children: [
                                               _TableBodyCell(
-                                                alignment:
-                                                    Alignment.centerLeft,
+                                                alignment: Alignment.centerLeft,
                                                 text: summary.brandName,
                                               ),
                                               _TableBodyCell(
@@ -593,51 +585,6 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                       fontSize: 14,
                                     ),
                                   ),
-                                ),
-                            viewModel.showQty
-                                ? Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "${LabelService().getLabel(90)}\n${(viewModel.monthlySaleModel?.isNotEmpty ?? false) ? viewModel.monthlySaleModel!.first.saleQty ?? 0.0 : 0.0}",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      "${LabelService().getLabel(91)}\n${(viewModel.monthlySaleModel?.isNotEmpty ?? false) ? viewModel.monthlySaleModel!.first.targetQty ?? 0.0 : 0.0}",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                                : Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "${LabelService().getLabel(90)}\n${(viewModel.monthlyTargetValueModel?.isNotEmpty ?? false) ? viewModel.monthlyTargetValueModel!.first.saleValue ?? 0.0 : 0.0}",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      "${LabelService().getLabel(91)}\n${(viewModel.monthlyTargetValueModel?.isNotEmpty ?? false) ? viewModel.monthlyTargetValueModel!.first.targetValue ?? 0.0 : 0.0}",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
                                 ),
 
                             Divider(color: AppColors.secondary),

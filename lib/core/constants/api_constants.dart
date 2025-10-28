@@ -1,11 +1,42 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 class ApiConstants {
+  static const String _baseUrlKey = 'baseUrl';
+
   static String? _baseUrl;
 
-  static void setBaseUrl(String url) {
-    _baseUrl = url;
+  /// Loads the persisted base URL once during app start.
+  static Future<void> initialize() async {
+    if (_baseUrl != null) return;
+    final prefs = await SharedPreferences.getInstance();
+    final persistedUrl = prefs.getString(_baseUrlKey);
+    if (persistedUrl != null && persistedUrl.isNotEmpty) {
+      _baseUrl = persistedUrl;
+    }
   }
 
-  static String get baseUrl => _baseUrl ?? "https://ffm.aleedz.com";
+  /// Persists the provided base URL and updates the in-memory value.
+  static Future<void> updateBaseUrl(String url) async {
+    final normalized = url.trim();
+    if (normalized.isEmpty) {
+      throw ArgumentError('Base URL cannot be empty');
+    }
+    _baseUrl = normalized;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_baseUrlKey, normalized);
+  }
+
+  static String get baseUrl {
+    final value = _baseUrl;
+    if (value == null || value.isEmpty) {
+      throw StateError('Base URL not configured');
+    }
+    return value;
+  }
+
+  static String? get persistedBaseUrl => _baseUrl;
+
+  static String get baseUrlPreferenceKey => _baseUrlKey;
 
   static String get login => "$baseUrl/WebService.asmx/ROSAppUserLogin";
   static String get language => "$baseUrl/WebService.asmx/AppSettings";
