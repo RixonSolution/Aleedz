@@ -602,6 +602,238 @@ class _HomeViewState extends ConsumerState<HomeView> {
     );
   }
 
+  Widget _statusChip({
+    required String label,
+    required Color bgColor,
+    required Color textColor,
+    VoidCallback? onTap,
+  }) {
+    final chip = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+    if (onTap == null) return chip;
+    return InkWell(onTap: onTap, child: chip);
+  }
+
+  Future<void> _handleCheckIn(
+    BuildContext context,
+    CoverageViewModel viewModel,
+    int index,
+    String distancePermission,
+    String checkInCamera,
+  ) async {
+    if (checkInCamera == 'Y') {
+      final myLat = viewModel.latitude;
+      final myLng = viewModel.longitude;
+
+      final otherLat = double.parse(viewModel.dashBoardList[index].latitude);
+      final otherLng = double.parse(viewModel.dashBoardList[index].longitude);
+
+      final isOtherLocationEmpty = otherLat == 0.0 && otherLng == 0.0;
+      final distance = viewModel.calculateDistanceInMeters(
+        myLat,
+        myLng,
+        otherLat,
+        otherLng,
+      );
+
+      if (isOtherLocationEmpty || distance < double.parse(distancePermission)) {
+        final picker = ImagePicker();
+        final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+        if (pickedFile != null) {
+          final imageFile = File(pickedFile.path);
+
+          showImagePopup(
+            context: context,
+            title: viewModel.dashBoardList[index].storeName,
+            checkStatus:
+                viewModel.dashBoardList[index].visitStatusId == 1
+                    ? LabelService().getLabel(14)
+                    : LabelService().getLabel(15),
+            checkStatus1: LabelService().getLabel(102),
+            checkRemarks:
+                viewModel.dashBoardList[index].visitStatusId == 1
+                    ? LabelService().getLabel(21)
+                    : LabelService().getLabel(22),
+            onSubmit: (value) async {
+              await viewModel.dashboardCheckIn(
+                context,
+                viewModel.dashBoardList[index].visitId,
+                remarks: value,
+                checkInImgFile: imageFile,
+              );
+              NavigationService.navigateTo(
+                StoreHome(
+                  storeName: viewModel.dashBoardList[index].storeName,
+                  checkInTime: viewModel.dashBoardList[index].checkInTime,
+                  grade: viewModel.dashBoardList[index].gradeName,
+                  address: viewModel.dashBoardList[index].address,
+                  storeId: viewModel.dashBoardList[index].storeId,
+                ),
+              );
+            },
+            cancel: (value) async {
+              viewModel.cancelVisite(
+                context,
+                viewModel.dashBoardList[index].storeId,
+                viewModel.dashBoardList[index].visitId,
+                remarks: value,
+              );
+            },
+            imageFile: imageFile,
+          );
+        }
+      } else if (distance > double.parse(distancePermission)) {
+        showLocationPopup(
+          context: context,
+          title: viewModel.dashBoardList[index].storeName,
+          checkStatus: LabelService().getLabel(14),
+          meter: distance.toStringAsFixed(2),
+          myLat: myLat,
+          myLng: myLng,
+          otherLat: otherLat,
+          otherLng: otherLng,
+          checkStatus1: LabelService().getLabel(102),
+          cancel: (value) async {
+            viewModel.cancelVisite(
+              context,
+              viewModel.dashBoardList[index].storeId,
+              viewModel.dashBoardList[index].visitId,
+              remarks: value,
+            );
+          },
+        );
+      }
+    } else {
+      await viewModel.dashboardCheckIn(
+        context,
+        viewModel.dashBoardList[index].visitId,
+        remarks: '',
+      );
+      NavigationService.navigateTo(
+        StoreHome(
+          storeName: viewModel.dashBoardList[index].storeName,
+          checkInTime: viewModel.dashBoardList[index].checkInTime,
+          grade: viewModel.dashBoardList[index].gradeName,
+          address: viewModel.dashBoardList[index].address,
+          storeId: viewModel.dashBoardList[index].storeId,
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleCheckOut(
+    BuildContext context,
+    CoverageViewModel viewModel,
+    int index,
+    String distancePermission,
+    String checkoutCamera,
+  ) async {
+    if (checkoutCamera == 'Y') {
+      final myLat = viewModel.latitude;
+      final myLng = viewModel.longitude;
+
+      final otherLat = double.parse(viewModel.dashBoardList[index].latitude);
+      final otherLng = double.parse(viewModel.dashBoardList[index].longitude);
+
+      final isOtherLocationEmpty = otherLat == 0.0 && otherLng == 0.0;
+      final distance = viewModel.calculateDistanceInMeters(
+        myLat,
+        myLng,
+        otherLat,
+        otherLng,
+      );
+
+      if (isOtherLocationEmpty || distance < double.parse(distancePermission)) {
+        final picker = ImagePicker();
+        final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+        if (pickedFile != null) {
+          final imageFile = File(pickedFile.path);
+
+          showImagePopup(
+            context: context,
+            title: viewModel.dashBoardList[index].storeName,
+            checkStatus:
+                viewModel.dashBoardList[index].visitStatusId == 1
+                    ? LabelService().getLabel(14)
+                    : LabelService().getLabel(15),
+            checkStatus1: '',
+            checkRemarks:
+                viewModel.dashBoardList[index].visitStatusId == 1
+                    ? LabelService().getLabel(21)
+                    : LabelService().getLabel(22),
+            onSubmit: (value) {
+              viewModel.coverageCheckout(
+                context,
+                viewModel.dashBoardList[index].visitId,
+                remarks: value,
+                checkOutImgFile: imageFile,
+              );
+            },
+            cancel: (value) async {
+              viewModel.cancelVisite(
+                context,
+                viewModel.dashBoardList[index].storeId,
+                viewModel.dashBoardList[index].visitId,
+                remarks: value,
+              );
+            },
+            imageFile: imageFile,
+          );
+        }
+      } else if (distance > double.parse(distancePermission)) {
+        showLocationPopup(
+          context: context,
+          title: viewModel.dashBoardList[index].storeName,
+          checkStatus: LabelService().getLabel(15),
+          meter: distance.toStringAsFixed(2),
+          myLat: myLat,
+          myLng: myLng,
+          otherLat: otherLat,
+          otherLng: otherLng,
+          checkStatus1: LabelService().getLabel(102),
+          cancel: (value) async {
+            viewModel.cancelVisite(
+              context,
+              viewModel.dashBoardList[index].storeId,
+              viewModel.dashBoardList[index].visitId,
+              remarks: value,
+            );
+          },
+        );
+      }
+    } else {
+      viewModel.coverageCheckout(
+        context,
+        viewModel.dashBoardList[index].visitId,
+        remarks: '',
+      );
+    }
+  }
+
+  String _initialsFromName(String name) {
+    if (name.trim().isEmpty) return 'NA';
+    final parts = name.trim().split(' ');
+    if (parts.length == 1) {
+      return parts.first.substring(0, 1).toUpperCase();
+    }
+    return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(coverageModelProvider);
@@ -631,340 +863,368 @@ class _HomeViewState extends ConsumerState<HomeView> {
             viewModel.loader
                 ? Center(child: CircularProgressIndicator())
                 : Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  padding: EdgeInsets.zero,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Profile
-                      Row(
-                        children: [
-                          Container(
-                            margin: EdgeInsets.symmetric(vertical: 5),
-                            padding: EdgeInsets.all(8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.fromLTRB(16, 24, 16, 20),
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF1f2937), Color(0xFF0f172a)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(24),
+                            bottomRight: Radius.circular(24),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  height: 56,
+                                  width: 56,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      _initialsFromName(
+                                        viewModel.user?.teamMemberName ?? '',
+                                      ),
+                                      style: const TextStyle(
+                                        color: AppColors.whiteColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${viewModel.user?.teamMemberName ?? ""}',
+                                        style: const TextStyle(
+                                          color: AppColors.whiteColor,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '${viewModel.user?.teamTypeName ?? ""}',
+                                        style: const TextStyle(
+                                          color: Color(0xFFd1d5db),
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '${viewModel.user?.divisionName ?? ""}',
+                                        style: const TextStyle(
+                                          color: Color(0xFF9ca3af),
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      NavigationService.navigateTo(
+                                        DashboardView(initialIndex: 1),
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.08),
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.12),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.public,
+                                                color: AppColors.primary,
+                                                size: 18,
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                LabelService().getLabel(11),
+                                                style: const TextStyle(
+                                                  color: Color(0xFFfbbf24),
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            "${viewModel.storeCount ?? 0}",
+                                            style: const TextStyle(
+                                              color: AppColors.whiteColor,
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          const Text(
+                                            "Total Stores",
+                                            style: TextStyle(
+                                              color: Color(0xFF9ca3af),
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      NavigationService.navigateTo(
+                                        TodayPlanView(),
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.08),
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.12),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.event_note,
+                                                color: Color(0xFF60a5fa),
+                                                size: 18,
+                                              ),
+                                              const SizedBox(width: 6),
+                                              const Text(
+                                                "Today's Plan",
+                                                style: TextStyle(
+                                                  color: Color(0xFF60a5fa),
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            "${viewModel.userVisited}/${viewModel.userPlan}",
+                                            style: const TextStyle(
+                                              color: AppColors.whiteColor,
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          const Text(
+                                            "Visits Completed",
+                                            style: TextStyle(
+                                              color: Color(0xFF9ca3af),
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Transform.translate(
+                          offset: const Offset(0, -18),
+                          child: Container(
                             decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppColors.blackColor,
-                                width: 1,
-                              ),
+                              color: AppColors.whiteColor,
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(color: Colors.grey.shade200),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
                             ),
-                            child: const Icon(
-                              Icons.person,
-                              size: 70,
-                              color: AppColors.blackColor,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${viewModel.user?.teamMemberName ?? ""}',
-                                style: const TextStyle(
-                                  color: AppColors.blackColor,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                '${viewModel.user?.teamTypeName ?? ""}',
-                                style: const TextStyle(
-                                  color: AppColors.blackColor,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                '${viewModel.user?.divisionName ?? ""}',
-                                style: const TextStyle(
-                                  color: AppColors.blackColor,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-
-                      const Divider(color: AppColors.primary, height: 5),
-                      const SizedBox(height: 5),
-
-                      // Stats
-                      Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                NavigationService.navigateTo(
-                                  DashboardView(initialIndex: 1),
-                                ); //
-                              },
-                              child: Container(
-                                height: 110,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Image.asset(
-                                          AppIcons.coverageNetwork,
-                                          height: 20,
-                                          width: 20,
-                                        ),
-                                        SizedBox(
-                                          width: 85,
-                                          child: Text(
-                                            LabelService().getLabel(11),
-                                            textAlign: TextAlign.center,
-                                            style: AppTextStyles.labelStyle,
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        height: 44,
+                                        width: 44,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFF7ED),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                    Text(
-                                      "${viewModel.storeCount ?? 0}",
-                                      style: AppTextStyles.bigTextStyle,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                NavigationService.navigateTo(
-                                  OpenIssuesScreen(),
-                                ); //
-                              },
-                              child: Container(
-                                height: 110,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Image.asset(
-                                          AppIcons.toddayPlan,
-                                          height: 20,
-                                          width: 20,
+                                        child: const Icon(
+                                          Icons.access_time,
+                                          color: AppColors.primary,
                                         ),
-                                        SizedBox(
-                                          width: 85,
-                                          child: Text(
-                                            LabelService().getLabel(80),
-                                            textAlign: TextAlign.center,
-                                            style: AppTextStyles.labelStyle,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            viewModel.storeTimeSpend.toString(),
+                                            style: const TextStyle(
+                                              color: AppColors.blackColor,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const Text(
+                                            'Time in Store',
+                                            style: TextStyle(
+                                              color: AppColors.greyText,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        height: 44,
+                                        width: 44,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFEEF2FF),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                    Text(
-                                      "${viewModel.openIssueCount ?? 0}",
-                                      style: AppTextStyles.bigTextStyle,
-                                    ),
-                                  ],
+                                        child: const Icon(
+                                          Icons.map_outlined,
+                                          color: Color(0xFF2563EB),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            viewModel.storeTotalTravel
+                                                .toString(),
+                                            style: const TextStyle(
+                                              color: AppColors.blackColor,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const Text(
+                                            'Total Travel',
+                                            style: TextStyle(
+                                              color: AppColors.greyText,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-
-                      GestureDetector(
-                        onTap: () {
-                          //
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Image.network(
-                                    '${ApiConstants.baseUrl}/AppImages/StoreMenu_Icons/45.png',
-                                    height: 30,
-                                    width: 30,
-                                    fit: BoxFit.cover,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    LabelService().getLabel(45),
-                                    style: TextStyle(
-                                      color: AppColors.blackColor,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                viewModel.storeTimeSpend.toString(),
-                                style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
                           ),
                         ),
                       ),
 
-                      const SizedBox(height: 5),
-
-                      GestureDetector(
-                        onTap: () {
-                          //
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Image.network(
-                                    '${ApiConstants.baseUrl}/AppImages/StoreMenu_Icons/46.png',
-                                    height: 30,
-                                    width: 30,
-                                    fit: BoxFit.cover,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    LabelService().getLabel(46),
-                                    style: TextStyle(
-                                      color: AppColors.blackColor,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 6,
                               ),
-                              Text(
-                                viewModel.storeTotalTravel.toString(),
+                              child: Text(
+                                "Today's Journey",
                                 style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-
-                      GestureDetector(
-                        onTap: () {
-                          if (viewModel.dashBoardList.isEmpty) {
-                            AppSnackBar.showError(
-                              context,
-                              LabelService().getLabel(122),
-                            );
-                          } else {
-                            NavigationService.navigateTo(TodayPlanView());
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.darkGreyBackground,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                LabelService().getLabel(51),
-                                style: TextStyle(
-                                  color: AppColors.secondary,
+                                  color: AppColors.blackColor,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(width: 20),
-                              Text(
-                                '(${viewModel.userVisited}/${viewModel.userPlan})',
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                if (viewModel.dashBoardList.isEmpty) {
+                                  AppSnackBar.showError(
+                                    context,
+                                    LabelService().getLabel(122),
+                                  );
+                                } else {
+                                  NavigationService.navigateTo(TodayPlanView());
+                                }
+                              },
+                              child: Text(
+                                'View All',
                                 style: TextStyle(
-                                  color: AppColors.secondary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 5),
-                      const Divider(color: AppColors.primary, height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              right: 8,
-                              top: 5,
-                              bottom: 5,
-                            ),
-                            child: Text(
-                              LabelService().getLabel(123),
-                              style: TextStyle(
-                                color: AppColors.greyText,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      const SizedBox(height: 4),
                       viewModel.loader
                           ? Center(
                             child: CircularProgressIndicator(
@@ -975,888 +1235,270 @@ class _HomeViewState extends ConsumerState<HomeView> {
                             child: ListView.separated(
                               physics: ScrollPhysics(),
                               itemCount: viewModel.dashBoardList.length,
-                              padding: EdgeInsets.zero,
+                              padding: EdgeInsets.only(
+                                bottom: 12,
+                                left: 12,
+                                right: 12,
+                              ),
                               itemBuilder: (context, index) {
-                                final visitStatusId =
-                                    viewModel
-                                        .dashBoardList[index]
-                                        .visitStatusId;
+                                final store = viewModel.dashBoardList[index];
+                                final visitStatusId = store.visitStatusId;
 
-                                Widget statusWidget;
+                                Color cardBg = AppColors.whiteColor;
+                                Color borderColor = Colors.grey.shade200;
+                                double cardOpacity = 1;
+                                Color badgeBg = AppColors.secondary.withOpacity(
+                                  0.08,
+                                );
+                                Color badgeTextColor = AppColors.secondary;
+                                Color numberBg = AppColors.secondary;
+                                Color numberText = AppColors.whiteColor;
+                                String badgeLabel =
+                                    store.visitStatus.isNotEmpty
+                                        ? store.visitStatus
+                                        : 'Plan';
+                                String trailingText =
+                                    'Plan Date: ${store.planDate}';
+                                Color trailingColor = AppColors.greyText;
+                                VoidCallback? statusTap;
 
                                 if (visitStatusId == 1) {
-                                  // Plan (Check-in)
-                                  statusWidget = InkWell(
-                                    onTap: () async {
-                                      // Add check-in logic here
-                                      if (checkInCamera == 'Y') {
-                                        double myLat = viewModel.latitude;
-                                        double myLng = viewModel.longitude;
-
-                                        double otherLat = double.parse(
-                                          viewModel
-                                              .dashBoardList[index]
-                                              .latitude,
-                                        );
-                                        double otherLng = double.parse(
-                                          viewModel
-                                              .dashBoardList[index]
-                                              .longitude,
-                                        );
-
-                                        print('myLat $myLat, myLong $myLng');
-                                        print(
-                                          'otherLat $otherLat, otherLng $otherLng',
-                                        );
-
-                                        bool isOtherLocationEmpty =
-                                            otherLat == 0.0 && otherLng == 0.0;
-
-                                        double distance = viewModel
-                                            .calculateDistanceInMeters(
-                                              myLat,
-                                              myLng,
-                                              otherLat,
-                                              otherLng,
-                                            );
-
-                                        print(
-                                          'Distance is ${distance.toStringAsFixed(2)} meters',
-                                        );
-
-                                        // If otherLat/otherLng are 0.0 — directly proceed to camera
-
-                                        if (isOtherLocationEmpty) {
-                                          final picker = ImagePicker();
-                                          final pickedFile = await picker
-                                              .pickImage(
-                                                source: ImageSource.camera,
-                                              );
-
-                                          if (pickedFile != null) {
-                                            final imageFile = File(
-                                              pickedFile.path,
-                                            );
-
-                                            showImagePopup(
-                                              context: context,
-                                              title:
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .storeName,
-                                              checkStatus:
-                                                  viewModel
-                                                              .dashBoardList[index]
-                                                              .visitStatusId ==
-                                                          1
-                                                      ? LabelService().getLabel(
-                                                        14,
-                                                      )
-                                                      : LabelService().getLabel(
-                                                        15,
-                                                      ),
-                                              checkStatus1: LabelService()
-                                                  .getLabel(102),
-                                              checkRemarks:
-                                                  viewModel
-                                                              .dashBoardList[index]
-                                                              .visitStatusId ==
-                                                          1
-                                                      ? LabelService().getLabel(
-                                                        21,
-                                                      )
-                                                      : LabelService().getLabel(
-                                                        22,
-                                                      ),
-                                              onSubmit: (value) async {
-                                                {
-                                                  await viewModel
-                                                      .dashboardCheckIn(
-                                                        context,
-                                                        viewModel
-                                                            .dashBoardList[index]
-                                                            .visitId,
-                                                        remarks: value,
-                                                        checkInImgFile:
-                                                            imageFile,
-                                                      );
-                                                  NavigationService.navigateTo(
-                                                    StoreHome(
-                                                      storeName:
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .storeName,
-                                                      checkInTime:
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .checkInTime,
-                                                      grade:
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .gradeName,
-
-                                                      address:
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .address,
-                                                      storeId:
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .storeId,
-                                                    ),
-                                                  );
-                                                }
-                                              },
-                                              cancel: (value) async {
-                                                viewModel.cancelVisite(
-                                                  context,
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .storeId,
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .visitId,
-                                                  remarks: value,
-                                                );
-                                              },
-                                              imageFile:
-                                                  imageFile, // 🔹 pass the image to dialog
-                                            );
-                                          }
-                                        } else if (distance <
-                                            double.parse(distancePermission)) {
-                                          final picker = ImagePicker();
-                                          final pickedFile = await picker
-                                              .pickImage(
-                                                source: ImageSource.camera,
-                                              );
-
-                                          if (pickedFile != null) {
-                                            final imageFile = File(
-                                              pickedFile.path,
-                                            );
-
-                                            showImagePopup(
-                                              context: context,
-                                              title:
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .storeName,
-                                              checkStatus:
-                                                  viewModel
-                                                              .dashBoardList[index]
-                                                              .visitStatusId ==
-                                                          1
-                                                      ? LabelService().getLabel(
-                                                        14,
-                                                      )
-                                                      : LabelService().getLabel(
-                                                        15,
-                                                      ),
-                                              checkStatus1: LabelService()
-                                                  .getLabel(102),
-                                              checkRemarks:
-                                                  viewModel
-                                                              .dashBoardList[index]
-                                                              .visitStatusId ==
-                                                          1
-                                                      ? LabelService().getLabel(
-                                                        21,
-                                                      )
-                                                      : LabelService().getLabel(
-                                                        22,
-                                                      ),
-                                              onSubmit: (value) async {
-                                                {
-                                                  await viewModel
-                                                      .dashboardCheckIn(
-                                                        context,
-                                                        viewModel
-                                                            .dashBoardList[index]
-                                                            .visitId,
-                                                        remarks: value,
-                                                        checkInImgFile:
-                                                            imageFile,
-                                                      );
-                                                  NavigationService.navigateTo(
-                                                    StoreHome(
-                                                      storeName:
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .storeName,
-                                                      checkInTime:
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .checkInTime,
-                                                      grade:
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .gradeName,
-                                                      address:
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .address,
-                                                      storeId:
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .storeId,
-                                                    ),
-                                                  );
-                                                }
-                                              },
-                                              cancel: (value) async {
-                                                viewModel.cancelVisite(
-                                                  context,
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .storeId,
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .visitId,
-                                                  remarks: value,
-                                                );
-                                              },
-                                              imageFile:
-                                                  imageFile, // 🔹 pass the image to dialog
-                                            );
-                                          }
-                                        } else if (distance >
-                                            double.parse(distancePermission)) {
-                                          showLocationPopup(
-                                            context: context,
-                                            title:
-                                                viewModel
-                                                    .dashBoardList[index]
-                                                    .storeName,
-                                            checkStatus: LabelService()
-                                                .getLabel(14),
-
-                                            meter: distance.toStringAsFixed(2),
-                                            myLat: myLat,
-                                            myLng: myLng,
-                                            otherLat: otherLat,
-                                            otherLng: otherLng,
-                                            checkStatus1: LabelService()
-                                                .getLabel(102),
-                                            cancel: (value) async {
-                                              viewModel.cancelVisite(
-                                                context,
-                                                viewModel
-                                                    .dashBoardList[index]
-                                                    .storeId,
-                                                viewModel
-                                                    .dashBoardList[index]
-                                                    .visitId,
-                                                remarks: value,
-                                              );
-                                            },
-                                          );
-                                        }
-                                      } else {
-                                        {
-                                          await viewModel.dashboardCheckIn(
-                                            context,
-                                            viewModel
-                                                .dashBoardList[index]
-                                                .visitId,
-                                            remarks: '',
-                                          );
-                                          NavigationService.navigateTo(
-                                            StoreHome(
-                                              storeName:
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .storeName,
-                                              checkInTime:
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .checkInTime,
-                                              grade:
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .gradeName,
-
-                                              address:
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .address,
-                                              storeId:
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .storeId,
-                                            ),
-                                          );
-                                        }
-                                      }
-                                    },
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Check In ',
-                                          style: TextStyle(
-                                            color: AppColors.blackColor,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
+                                  statusTap =
+                                      () => _handleCheckIn(
+                                        context,
+                                        viewModel,
+                                        index,
+                                        distancePermission,
+                                        checkInCamera,
+                                      );
                                 } else if (visitStatusId == 2) {
-                                  // Checkout process
-                                  statusWidget = InkWell(
-                                    onTap: () async {
-                                      // Add checkout logic here
-                                      if (checkoutCamera == 'Y') {
-                                        // await viewModel.getLatLong();
-                                        double myLat = viewModel.latitude;
-                                        double myLng = viewModel.longitude;
+                                  cardBg = AppColors.primary.withOpacity(0.08);
+                                  borderColor = AppColors.primary;
+                                  badgeBg = AppColors.primary;
+                                  badgeTextColor = AppColors.whiteColor;
+                                  badgeLabel = LabelService().getLabel(15);
+                                  numberBg = AppColors.primary;
+                                  numberText = AppColors.whiteColor;
+                                  trailingText =
+                                      'In: ${store.checkInTime.isEmpty ? '--' : store.checkInTime}';
+                                  trailingColor = AppColors.primary;
+                                  statusTap =
+                                      () => _handleCheckOut(
+                                        context,
+                                        viewModel,
+                                        index,
+                                        distancePermission,
+                                        checkoutCamera,
+                                      );
+                                } else if (visitStatusId == 3) {
+                                  badgeBg = AppColors.success.withOpacity(0.12);
+                                  badgeTextColor = AppColors.success;
+                                  badgeLabel =
+                                      store.visitStatus.isNotEmpty
+                                          ? store.visitStatus
+                                          : 'Visited';
+                                  numberBg = AppColors.success;
+                                  numberText = AppColors.whiteColor;
+                                  trailingText =
+                                      'In: ${store.checkInTime} - Out: ${store.checkOutTime}';
+                                } else if (visitStatusId == 4) {
+                                  badgeBg = AppColors.error.withOpacity(0.12);
+                                  badgeTextColor = AppColors.error;
+                                  badgeLabel =
+                                      store.visitStatus.isNotEmpty
+                                          ? store.visitStatus
+                                          : 'Cancelled';
+                                  numberBg = AppColors.error;
+                                  numberText = AppColors.whiteColor;
+                                  cardOpacity = 0.55;
+                                  trailingText = '';
+                                }
 
-                                        double otherLat = double.parse(
-                                          viewModel
-                                              .dashBoardList[index]
-                                              .latitude,
-                                        );
-                                        double otherLng = double.parse(
-                                          viewModel
-                                              .dashBoardList[index]
-                                              .longitude,
-                                        );
+                                final statusBadge = _statusChip(
+                                  label: badgeLabel,
+                                  bgColor: badgeBg,
+                                  textColor: badgeTextColor,
+                                  onTap: statusTap,
+                                );
 
-                                        print('myLat$myLat myLong$myLng');
-                                        print(
-                                          'otherLat$otherLat otherLng$otherLng',
-                                        );
-
-                                        bool isOtherLocationEmpty =
-                                            otherLat == 0.0 && otherLng == 0.0;
-
-                                        double distance = viewModel
-                                            .calculateDistanceInMeters(
-                                              myLat,
-                                              myLng,
-                                              otherLat,
-                                              otherLng,
-                                            );
-
-                                        print(
-                                          'Distance is ${distance.toStringAsFixed(2)} meters',
-                                        );
-
-                                        if (isOtherLocationEmpty) {
-                                          final picker = ImagePicker();
-                                          final pickedFile = await picker
-                                              .pickImage(
-                                                source: ImageSource.camera,
-                                              );
-
-                                          if (pickedFile != null) {
-                                            final imageFile = File(
-                                              pickedFile.path,
-                                            );
-                                            List<int> imageBytes =
-                                                File(
-                                                  pickedFile.path,
-                                                ).readAsBytesSync();
-
-                                            String base64Image = base64Encode(
-                                              imageBytes,
-                                            );
-
-                                            showImagePopup(
-                                              context: context,
-                                              title:
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .storeName,
-                                              checkStatus:
-                                                  viewModel
-                                                              .dashBoardList[index]
-                                                              .visitStatusId ==
-                                                          1
-                                                      ? LabelService().getLabel(
-                                                        14,
-                                                      )
-                                                      : LabelService().getLabel(
-                                                        15,
-                                                      ),
-                                              checkStatus1: '',
-                                              checkRemarks:
-                                                  viewModel
-                                                              .dashBoardList[index]
-                                                              .visitStatusId ==
-                                                          1
-                                                      ? LabelService().getLabel(
-                                                        21,
-                                                      )
-                                                      : LabelService().getLabel(
-                                                        22,
-                                                      ),
-                                              onSubmit: (value) {
-                                                viewModel.coverageCheckout(
-                                                  context,
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .visitId,
-                                                  remarks: value,
-                                                  checkOutImgFile: imageFile,
-                                                );
-                                              },
-                                              cancel: (value) async {
-                                                viewModel.cancelVisite(
-                                                  context,
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .storeId,
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .visitId,
-                                                  remarks: value,
-                                                );
-                                              },
-
-                                              imageFile:
-                                                  imageFile, // 🔹 pass the image to dialog
-                                            );
-                                          }
-                                        } else if (distance >
-                                            double.parse(distancePermission)) {
-                                          showLocationPopup(
-                                            context: context,
-                                            title:
-                                                viewModel
-                                                    .dashBoardList[index]
-                                                    .storeName,
-                                            checkStatus: LabelService()
-                                                .getLabel(15),
-                                            meter: distance.toStringAsFixed(2),
-                                            myLat: myLat,
-                                            myLng: myLng,
-                                            otherLat: otherLat,
-                                            otherLng: otherLng,
-                                            checkStatus1: LabelService()
-                                                .getLabel(102),
-                                            cancel: (value) async {
-                                              viewModel.cancelVisite(
-                                                context,
-                                                viewModel
-                                                    .dashBoardList[index]
-                                                    .storeId,
-                                                viewModel
-                                                    .dashBoardList[index]
-                                                    .visitId,
-                                                remarks: value,
-                                              );
-                                            },
-                                          );
-                                        } else if (distance <
-                                            double.parse(distancePermission)) {
-                                          final picker = ImagePicker();
-                                          final pickedFile = await picker
-                                              .pickImage(
-                                                source: ImageSource.camera,
-                                              );
-
-                                          if (pickedFile != null) {
-                                            final imageFile = File(
-                                              pickedFile.path,
-                                            );
-                                            List<int> imageBytes =
-                                                File(
-                                                  pickedFile.path,
-                                                ).readAsBytesSync();
-
-                                            String base64Image = base64Encode(
-                                              imageBytes,
-                                            );
-
-                                            showImagePopup(
-                                              context: context,
-                                              title:
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .storeName,
-                                              checkStatus:
-                                                  viewModel
-                                                              .dashBoardList[index]
-                                                              .visitStatusId ==
-                                                          1
-                                                      ? LabelService().getLabel(
-                                                        14,
-                                                      )
-                                                      : LabelService().getLabel(
-                                                        15,
-                                                      ),
-                                              checkStatus1: '',
-                                              checkRemarks:
-                                                  viewModel
-                                                              .dashBoardList[index]
-                                                              .visitStatusId ==
-                                                          1
-                                                      ? LabelService().getLabel(
-                                                        21,
-                                                      )
-                                                      : LabelService().getLabel(
-                                                        22,
-                                                      ),
-                                              onSubmit: (value) {
-                                                viewModel.coverageCheckout(
-                                                  context,
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .visitId,
-                                                  remarks: value,
-                                                  checkOutImgFile: imageFile,
-                                                );
-                                              },
-                                              cancel: (value) async {
-                                                viewModel.cancelVisite(
-                                                  context,
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .storeId,
-                                                  viewModel
-                                                      .dashBoardList[index]
-                                                      .visitId,
-                                                  remarks: value,
-                                                );
-                                              },
-
-                                              imageFile:
-                                                  imageFile, // 🔹 pass the image to dialog
-                                            );
-                                          }
-                                        }
-                                      } else {
-                                        viewModel.coverageCheckout(
-                                          context,
-                                          viewModel
-                                              .dashBoardList[index]
-                                              .visitId,
-                                          remarks: '',
-                                        );
-                                        // AppSnackBar.showError(
-                                        //   context,
-                                        //   "You don't have camera permission.",
-                                        // );
-                                      }
-                                    },
-                                    child: Column(
+                                return Opacity(
+                                  opacity: cardOpacity,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: cardBg,
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(color: borderColor),
+                                    ),
+                                    padding: const EdgeInsets.all(12),
+                                    child: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
-                                        Text(
-                                          '${LabelService().getLabel(14)} : ${viewModel.dashBoardList[index].checkInTime}',
-                                          style: TextStyle(
-                                            color: AppColors.primary,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          LabelService().getLabel(15),
-                                          style: TextStyle(
-                                            color: AppColors.secondary,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                } else if (visitStatusId == 3) {
-                                  // Visited
-                                  statusWidget = Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Visited ',
-                                        style: TextStyle(
-                                          color: AppColors.success,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                } else if (visitStatusId == 4) {
-                                  // Cancelled
-                                  statusWidget = Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Cancelled ',
-                                        style: TextStyle(
-                                          color: AppColors.error,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  // Fallback for unknown statuses
-                                  statusWidget = Text('Unknown Status');
-                                }
-
-                                return Column(
-                                  children: [
-                                    Container(
-                                      color:
-                                          viewModel
-                                                      .dashBoardList[index]
-                                                      .visitStatusId ==
-                                                  3
-                                              ? AppColors.darkGreyBackground
-                                              : AppColors.whiteColor,
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 0,
-                                        vertical: 12,
-                                      ),
-                                      margin: EdgeInsets.symmetric(
-                                        horizontal: 0,
-                                      ),
-                                      child: Stack(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 5,
+                                        Container(
+                                          height: 44,
+                                          width: 44,
+                                          decoration: BoxDecoration(
+                                            color: numberBg,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
                                             ),
+                                          ),
+                                          child: Center(
                                             child: Text(
-                                              '${index + 1}.',
+                                              '${index + 1}',
                                               style: TextStyle(
-                                                color: AppColors.blackColor,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
+                                                color: numberText,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                           ),
-                                          Row(
-                                            children: [
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 5,
-                                                    ),
-                                                child: Text(
-                                                  '${index + 1}.',
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onLongPress: () async {
+                                              if (visitStatusId == 1) {
+                                                showCancelPopup(
+                                                  context: context,
+                                                  title: store.storeName,
+                                                  cancel: (value) async {
+                                                    viewModel.cancelVisite(
+                                                      context,
+                                                      store.storeId,
+                                                      store.visitId,
+                                                      remarks: value,
+                                                    );
+                                                  },
+                                                );
+                                              }
+                                            },
+                                            onTap: () async {
+                                              final allowMultiCheckIn =
+                                                  viewModel.permission
+                                                      ?.getPermissionValue(
+                                                        'AllowMultipleCheckIn',
+                                                      );
+                                              final allowStoreInWithoutCheckIn =
+                                                  viewModel.permission
+                                                      ?.getPermissionValue(
+                                                        'Allow_StoreIn_WithoutCheckIn',
+                                                      );
+
+                                              final selectedStore = store;
+
+                                              if (allowStoreInWithoutCheckIn ==
+                                                      'N' &&
+                                                  selectedStore.visitStatusId ==
+                                                      1) {
+                                                AppSnackBar.showError(
+                                                  context,
+                                                  LabelService().getLabel(105),
+                                                );
+                                                return;
+                                              }
+
+                                              if (allowMultiCheckIn == 'Y' &&
+                                                  visitStatusId == 2) {
+                                                NavigationService.navigateTo(
+                                                  StoreHome(
+                                                    storeName:
+                                                        selectedStore.storeName,
+                                                    checkInTime:
+                                                        selectedStore
+                                                            .checkInTime,
+                                                    grade:
+                                                        selectedStore.gradeName,
+                                                    address:
+                                                        selectedStore.address,
+                                                    storeId:
+                                                        selectedStore.storeId,
+                                                  ),
+                                                );
+                                                return;
+                                              }
+
+                                              final isAlreadyCheckedIn =
+                                                  viewModel.stores.any(
+                                                    (storeItem) =>
+                                                        storeItem
+                                                                .visitStatusId !=
+                                                            0 &&
+                                                        storeItem.storeId !=
+                                                            selectedStore
+                                                                .storeId,
+                                                  );
+
+                                              if (isAlreadyCheckedIn) {
+                                                AppSnackBar.showError(
+                                                  context,
+                                                  LabelService().getLabel(106),
+                                                );
+                                                return;
+                                              }
+                                            },
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  store.storeName,
                                                   style: TextStyle(
-                                                    color: Colors.transparent,
+                                                    color: AppColors.blackColor,
                                                     fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  store.address,
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    color: AppColors.greyText,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 6),
+                                                Row(children: [statusBadge]),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            if (trailingText.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  right: 6,
+                                                ),
+                                                child: Text(
+                                                  trailingText,
+                                                  style: TextStyle(
+                                                    color: trailingColor,
+                                                    fontSize: 11,
                                                     fontWeight: FontWeight.w600,
                                                   ),
                                                 ),
                                               ),
-                                              Expanded(
-                                                child: GestureDetector(
-                                                  onLongPress: () async {
-                                                    if (visitStatusId == 1) {
-                                                      showCancelPopup(
-                                                        context: context,
-                                                        title:
-                                                            viewModel
-                                                                .dashBoardList[index]
-                                                                .storeName,
-
-                                                        cancel: (value) async {
-                                                          viewModel.cancelVisite(
-                                                            context,
-                                                            viewModel
-                                                                .dashBoardList[index]
-                                                                .storeId,
-                                                            viewModel
-                                                                .dashBoardList[index]
-                                                                .visitId,
-                                                            remarks: value,
-                                                          );
-                                                        },
-                                                      );
-                                                    }
-                                                  },
-                                                  onTap: () async {
-                                                    final allowMultiCheckIn =
-                                                        viewModel.permission
-                                                            ?.getPermissionValue(
-                                                              'AllowMultipleCheckIn',
-                                                            );
-                                                    final allowStoreInWithoutCheckIn =
-                                                        viewModel.permission
-                                                            ?.getPermissionValue(
-                                                              'Allow_StoreIn_WithoutCheckIn',
-                                                            );
-
-                                                    final selectedStore =
-                                                        viewModel
-                                                            .dashBoardList[index];
-
-                                                    // 1. Check: StoreIn not allowed without check-in
-                                                    if (allowStoreInWithoutCheckIn ==
-                                                            'N' &&
-                                                        selectedStore
-                                                                .visitStatusId ==
-                                                            1) {
-                                                      AppSnackBar.showError(
-                                                        context,
-                                                        LabelService().getLabel(
-                                                          105,
-                                                        ),
-                                                      );
-                                                      return;
-                                                    }
-
-                                                    // 2. If multi-check-in allowed, allow navigation
-                                                    if (allowMultiCheckIn ==
-                                                            'Y' &&
-                                                        visitStatusId == 2) {
-                                                      NavigationService.navigateTo(
-                                                        StoreHome(
-                                                          storeName:
-                                                              selectedStore
-                                                                  .storeName,
-                                                          checkInTime:
-                                                              selectedStore
-                                                                  .checkInTime,
-                                                          grade:
-                                                              viewModel
-                                                                  .dashBoardList[index]
-                                                                  .gradeName,
-                                                          address:
-                                                              selectedStore
-                                                                  .address,
-                                                          storeId:
-                                                              selectedStore
-                                                                  .storeId,
-                                                        ),
-                                                      );
-                                                      return;
-                                                    }
-
-                                                    // 3. If multi-check-in not allowed, check if user is already checked into another store
-                                                    final isAlreadyCheckedIn =
-                                                        viewModel.stores.any(
-                                                          (store) =>
-                                                              store.visitStatusId !=
-                                                                  0 &&
-                                                              store.storeId !=
-                                                                  selectedStore
-                                                                      .storeId,
-                                                        );
-
-                                                    if (isAlreadyCheckedIn) {
-                                                      AppSnackBar.showError(
-                                                        context,
-                                                        LabelService().getLabel(
-                                                          106,
-                                                        ),
-                                                      );
-                                                      return;
-                                                    }
-
-                                                    // ✅ All good, navigate
-                                                    // NavigationService.navigateTo(
-                                                    //   StoreHome(
-                                                    //     storeName:
-                                                    //         selectedStore
-                                                    //             .storeName,
-                                                    //     checkInTime:
-                                                    //         selectedStore
-                                                    //             .checkInTime,
-                                                    //     grade:
-                                                    //         viewModel
-                                                    //             .dashBoardList[index]
-                                                    //             .gradeName,
-                                                    //     address:
-                                                    //         selectedStore
-                                                    //             .address,
-                                                    //     storeId:
-                                                    //         selectedStore
-                                                    //             .storeId,
-                                                    //   ),
-                                                    // );
-                                                  },
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                          right: 5,
-                                                        ),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .storeName,
-                                                          style: TextStyle(
-                                                            color:
-                                                                AppColors
-                                                                    .blackColor,
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                        ),
-                                                        SizedBox(height: 3),
-                                                        Text(
-                                                          viewModel
-                                                              .dashBoardList[index]
-                                                              .address,
-                                                          style: TextStyle(
-                                                            color:
-                                                                AppColors
-                                                                    .blackColor,
-                                                            fontSize: 13,
-                                                          ),
-                                                          overflow:
-                                                              TextOverflow
-                                                                  .ellipsis,
-                                                          maxLines: 2,
-                                                        ),
-                                                        Row(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              '${viewModel.dashBoardList[index].planDate}',
-                                                              style: TextStyle(
-                                                                color:
-                                                                    viewModel.dashBoardList[index].planDate ==
-                                                                            'Pending'
-                                                                        ? AppColors
-                                                                            .primary
-                                                                        : AppColors
-                                                                            .blackColor,
-                                                                fontSize: 13,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              statusWidget,
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                                            Icon(
+                                              Icons.chevron_right,
+                                              color: Colors.grey.shade400,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 );
                               },
                               separatorBuilder:
-                                  (context, index) => Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 5),
-                                    color: Colors.grey,
-                                    height: 1,
-                                  ),
+                                  (context, index) => SizedBox(height: 10),
                             ),
                           ),
                     ],

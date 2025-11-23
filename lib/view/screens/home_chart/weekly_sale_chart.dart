@@ -10,11 +10,11 @@ class WeeklySalesChart extends ConsumerStatefulWidget {
 
 class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
   final List<Color> colors = [
-    Color(0xFF0a4369),
-    Color(0xFF0a4369),
-    Color(0xFF0a4369),
-    Color(0xFF0a4369),
-    Color(0xFF0a4369),
+    Color(0xFF67E8F9),
+    Color(0xFF22D3EE),
+    Color(0xFF06B6D4),
+    Color(0xFF0891B2),
+    Color(0xFFA855F7),
   ];
 
   @override
@@ -114,7 +114,10 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
                 BarChartRodData(
                   toY: value,
                   gradient: LinearGradient(
-                    colors: colors,
+                    colors: const [
+                      Color(0xFF67E8F9),
+                      Color(0xFF06B6D4),
+                    ],
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                   ),
