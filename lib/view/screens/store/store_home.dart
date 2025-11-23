@@ -1,6 +1,5 @@
 import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
@@ -18,6 +17,8 @@ import 'package:aleedz/view/screens/training/training_list_view.dart';
 import 'package:aleedz/view/screens/transfer/transfer_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class StoreHome extends ConsumerStatefulWidget {
@@ -54,85 +55,6 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
   }
 
   bool isChecked = false;
-
-  Widget _buildGridItem(
-    BuildContext context,
-    dynamic ros, {
-    bool isFullWidth = false,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-        padding: EdgeInsets.symmetric(vertical: 15),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.blackColor),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.network(
-              '${ApiConstants.baseUrl}${ros.imageLocation}',
-              height: 60,
-              width: 60,
-              fit: BoxFit.cover,
-            ),
-            SizedBox(height: 3),
-            Text(
-              ros.rosLabelName,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.blackColor,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFullWidthItem(dynamic ros, {required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 12.0),
-        child: Container(
-          width: double.infinity,
-          margin: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-          padding: EdgeInsets.symmetric(vertical: 15),
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColors.blackColor),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.network(
-                '${ApiConstants.baseUrl}${ros.imageLocation}',
-                height: 60,
-                width: 60,
-                fit: BoxFit.cover,
-              ),
-              SizedBox(height: 3),
-              Text(
-                ros.rosLabelName,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.blackColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   void _handleTap(BuildContext context, dynamic ros) {
     final viewModel = ref.watch(storeModelProvider);
@@ -270,6 +192,153 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
     }
   }
 
+  Color _accentColor(int id) {
+    switch (id) {
+      case 29:
+        return Colors.blue;
+      case 32:
+        return Colors.blueGrey;
+      case 31:
+        return Colors.purple;
+      case 33:
+        return Colors.green;
+      case 35:
+        return Colors.amber;
+      case 37:
+        return Colors.red;
+      case 38:
+        return Colors.indigo;
+      case 39:
+        return Colors.teal;
+      case 34:
+        return Colors.pink;
+      case 40:
+        return Colors.orange;
+      case 36:
+        return Colors.red.shade400;
+      case 30:
+        return Colors.cyan;
+      default:
+        return Colors.blueGrey;
+    }
+  }
+
+  String? _assetForRos(int id) {
+    const Map<int, String> assetMap = {
+      29: 'assets/icons/actions/checklist.svg', // Checklist
+      30: 'assets/icons/actions/trainings.svg', // Trainings
+      31: 'assets/icons/actions/store_pictures.svg', // Store Pictures
+      32: 'assets/icons/actions/display_check.svg', // Display Check
+      33: 'assets/icons/actions/transfer.svg', // Transfer
+      34: 'assets/icons/actions/deployment.svg', // Deployment
+      35: 'assets/icons/actions/activity.svg', // Activity
+      36: 'assets/icons/actions/issues.svg', // Issues
+      37: 'assets/icons/actions/price_promo.svg', // Price & Promo
+      38: 'assets/icons/actions/sales.svg', // Sales
+      39: 'assets/icons/actions/stock_track.svg', // Stock Track
+      40: 'assets/icons/actions/investment.svg', // Investment
+    };
+    return assetMap[id];
+  }
+
+  Future<bool> _assetExists(String path) async {
+    try {
+      await rootBundle.load(path);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Widget _buildGridItem(
+    BuildContext context,
+    dynamic ros, {
+    required VoidCallback onTap,
+  }) {
+    final accent = _accentColor(ros.rosLabelID);
+    final assetPath = _assetForRos(ros.rosLabelID);
+
+    Widget iconWidget;
+    if (assetPath != null) {
+      iconWidget = FutureBuilder<bool>(
+        future: _assetExists(assetPath),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              snapshot.data == true) {
+            return SvgPicture.asset(
+              assetPath,
+              width: 26,
+              height: 26,
+              colorFilter: ColorFilter.mode(accent, BlendMode.srcIn),
+            );
+          }
+          if (snapshot.connectionState == ConnectionState.done &&
+              snapshot.data == false) {
+            return Icon(Icons.grid_view_rounded, color: accent, size: 24);
+          }
+          return SizedBox(width: 26, height: 20);
+        },
+      );
+    } else {
+      iconWidget = Image.network(
+        '${ApiConstants.baseUrl}${ros.imageLocation}',
+        width: 28,
+        height: 28,
+        fit: BoxFit.contain,
+        errorBuilder:
+            (_, __, ___) =>
+                Icon(Icons.grid_view_rounded, color: accent, size: 24),
+      );
+    }
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: accent.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Center(child: iconWidget),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              ros.rosLabelName,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.blackColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(storeModelProvider);
@@ -277,259 +346,194 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      NavigationService.goBack();
-                    },
-                    child: Image.asset(
-                      AppIcons.backArrow,
-                      height: 30,
-                      width: 30,
-                    ),
-                  ),
-                  Text(
-                    LabelService().getLabel(26),
-                    style: TextStyle(
-                      color: AppColors.blackColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Image.asset(
-                    AppIcons.locationIcon,
-                    height: 30,
-                    width: 30,
-                    color: AppColors.whiteColor,
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 5),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(color: AppColors.primary, height: 0),
-            ),
-            SizedBox(height: 5),
-            Center(
-              child: Text(
-                widget.storeName,
-                style: TextStyle(
-                  color: AppColors.blackColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Center(
-              child: Text(
-                '${LabelService().getLabel(14)} ${widget.checkInTime}',
-                style: TextStyle(
-                  color: AppColors.blackColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 10),
-              padding: EdgeInsets.only(left: 8, top: 8, bottom: 8),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.blackColor),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          LabelService().getLabel(27),
-                          maxLines: 1,
-                          style: TextStyle(
-                            color: AppColors.blackColor,
-                            fontSize: 13,
-                          ),
+        body:
+            viewModel.loader
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border(
+                          bottom: BorderSide(color: Colors.grey.shade200),
                         ),
                       ),
-                      Expanded(
-                        flex: 5,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10,
-                          ),
-                          margin: EdgeInsets.only(right: 10, left: 10),
-                          decoration: BoxDecoration(
-                            color: AppColors.darkGreyBackground,
-                          ),
-                          child: Text(
-                            widget.grade,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.blackColor,
-                              fontWeight: FontWeight.bold,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 12,
+                      ),
+                      child: Row(
+                        children: [
+                          InkWell(
+                            onTap: () => NavigationService.goBack(),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                // color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                size: 18,
+                                color: Colors.grey.shade600,
+                              ),
                             ),
                           ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Store Actions',
+                            style: const TextStyle(
+                              color: Colors.black87,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 18,
+                      ),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
                       ),
-                    ],
-                  ),
-
-                  SizedBox(height: 5),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          LabelService().getLabel(28),
-                          maxLines: 1,
-                          style: TextStyle(
-                            color: AppColors.blackColor,
-                            fontSize: 13,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.storeName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 5,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10,
-                          ),
-                          margin: EdgeInsets.only(right: 10, left: 10),
-                          decoration: BoxDecoration(
-                            color: AppColors.darkGreyBackground,
-                          ),
-                          child: Text(
+                          const SizedBox(height: 4),
+                          Text(
                             widget.address,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.blackColor,
+                              color: Colors.grey.shade300,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            // use this button as a grid view return
-            SizedBox(height: 10),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  isChecked = !isChecked;
-                });
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        color: isChecked ? Colors.green : Colors.transparent,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.grey,
-                        ), // Optional border when unchecked
-                      ),
-                      child:
-                          isChecked
-                              ? Icon(Icons.check, color: Colors.white, size: 20)
-                              : null,
-                    ),
-                    SizedBox(width: 10),
-
-                    Expanded(
-                      child: Text(
-                        LabelService().getLabel(54),
-                        maxLines: 2,
-                        style: TextStyle(
-                          color: AppColors.blackColor,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-
-            viewModel.loader
-                ? Center(child: CircularProgressIndicator())
-                : Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: ListView.builder(
-                      itemCount: (viewModel.rosLabels.length / 2).ceil(),
-                      itemBuilder: (context, index) {
-                        int first = index * 2;
-                        int second = first + 1;
-
-                        // If it's the last row and only one item left (odd count)
-                        if (second >= viewModel.rosLabels.length) {
-                          final ros = viewModel.rosLabels[first];
-
-                          return _buildFullWidthItem(
-                            viewModel.rosLabels[first],
-                            onTap: () => _handleTap(context, ros),
-                          );
-                        }
-                        // Regular row with two items
-                        return Row(
-                          children: [
-                            Expanded(
-                              child: _buildGridItem(
-                                onTap:
-                                    () => _handleTap(
-                                      context,
-                                      viewModel.rosLabels[first],
-                                    ),
-
-                                context,
-                                viewModel.rosLabels[first],
-                              ),
+                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
                             ),
-                            SizedBox(width: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.check,
+                                  color: Colors.greenAccent,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '${LabelService().getLabel(14)} ${widget.checkInTime}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isChecked = !isChecked;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color:
+                                    isChecked
+                                        ? Colors.green
+                                        : Colors.transparent,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.grey),
+                              ),
+                              child:
+                                  isChecked
+                                      ? const Icon(
+                                        Icons.check,
+                                        color: Colors.white,
+                                        size: 20,
+                                      )
+                                      : null,
+                            ),
+                            const SizedBox(width: 10),
                             Expanded(
-                              child: _buildGridItem(
-                                onTap:
-                                    () => _handleTap(
-                                      context,
-                                      viewModel.rosLabels[second],
-                                    ),
-
-                                context,
-                                viewModel.rosLabels[second],
+                              child: Text(
+                                LabelService().getLabel(54),
+                                maxLines: 2,
+                                style: TextStyle(
+                                  color: AppColors.blackColor,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ],
-                        );
-                      },
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 1,
+                                mainAxisSpacing: 1,
+                                childAspectRatio: 0.8,
+                              ),
+                          itemCount: viewModel.rosLabels.length,
+                          itemBuilder: (context, index) {
+                            final ros = viewModel.rosLabels[index];
+                            return _buildGridItem(
+                              context,
+                              ros,
+                              onTap: () => _handleTap(context, ros),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
                 ),
-
-            SizedBox(height: 20),
-          ],
-        ),
       ),
     );
   }

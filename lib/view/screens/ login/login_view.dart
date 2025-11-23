@@ -50,298 +50,382 @@ class _LoginViewState extends ConsumerState<LoginView> {
 
     return SafeArea(
       child: Scaffold(
-        backgroundColor: AppColors.whiteColor,
-        body: Stack(
-          fit: StackFit.expand, // Makes image fill the screen
+        backgroundColor: Colors.grey.shade100,
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Logo + tagline
+                Column(
+                  children: [
+                    Image.network(
+                      '${ApiConstants.baseUrl}/AppImages/Client_logo.png',
+                      height: 140,
+                      width: 200,
+                      fit: BoxFit.contain,
+                    ),
+                    Text(
+                      AppConstants.retailMarketing,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.blackColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
 
-          children: [
-            // Background Image
-            Image.network(
-              '${ApiConstants.baseUrl}/AppImages/background.png', // Replace with your image path
-              fit: BoxFit.cover,
-            ),
-
-            Center(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Form(
-                        key: viewModel.formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(height: 60),
-                            Container(
-                              // color: Colors.red,
-                              child: Image.network(
-                                '${ApiConstants.baseUrl}/AppImages/Client_logo.png',
-                                height: 150,
-                                width: 200,
-                              ),
+                // Card
+                Container(
+                  width: double.infinity,
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 28,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.whiteColor,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 20,
+                        offset: const Offset(0, 12),
+                      ),
+                    ],
+                  ),
+                  child: Form(
+                    key: viewModel.formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Column(
+                            children: [
+                              // Text(
+                              //   LabelService().getLabel(1),
+                              //   style: TextStyle(
+                              //     color: AppColors.blackColor,
+                              //     fontSize: 22,
+                              //     fontWeight: FontWeight.w800,
+                              //   ),
+                              // ),
+                              // const SizedBox(height: 8),
+                              // Text(
+                              //   LabelService().getLabel(2),
+                              //   style: TextStyle(
+                              //     color: AppColors.blackColor.withOpacity(0.75),
+                              //     fontSize: 15,
+                              //     fontWeight: FontWeight.w600,
+                              //   ),
+                              // ),
+                            ],
+                          ),
+                        ),
+                        // const SizedBox(height: 26),
+                        Text(
+                          // LabelService().getLabel(2),
+                          'Username',
+                          style: TextStyle(
+                            color: AppColors.blackColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        _StyledField(
+                          controller: viewModel.usernameController,
+                          focusNode: viewModel.usernameFocusNode,
+                          hint: 'Enter username',
+                          // hint: LabelService().getLabel(3),
+                          validator:
+                              (value) =>
+                                  value == null || value.isEmpty
+                                      ? LabelService().getLabel(3)
+                                      : null,
+                        ),
+                        const SizedBox(height: 18),
+                        Text(
+                          LabelService().getLabel(4),
+                          style: TextStyle(
+                            color: AppColors.blackColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        _StyledField(
+                          controller: viewModel.passwordController,
+                          focusNode: viewModel.passwordFocusNode,
+                          hint: 'Enter password',
+                          // hint: LabelService().getLabel(4),
+                          obscureText: !viewModel.isPasswordVisible,
+                          validator:
+                              (value) =>
+                                  value == null || value.isEmpty
+                                      ? LabelService().getLabel(4)
+                                      : null,
+                          suffix: IconButton(
+                            icon: Icon(
+                              viewModel.isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: AppColors.blackColor.withOpacity(0.75),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 25),
-                              child: Text(
-                                AppConstants.retailMarketing,
-                                style: TextStyle(
-                                  color: AppColors.blackColor,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            onPressed: () {
+                              viewModel.isPasswordVisible =
+                                  !viewModel.isPasswordVisible;
+                              viewModel.notifyListeners();
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        viewModel.loader
+                            ? Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.secondary,
+                                strokeWidth: 2,
                               ),
-                            ),
-                            SizedBox(height: 40),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  LabelService().getLabel(1),
-                                  style: TextStyle(
-                                    color: AppColors.blackColor,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
+                            )
+                            : SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 15,
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 50),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 25),
-                              child: Text(
-                                LabelService().getLabel(2),
-                                style: TextStyle(
-                                  color: AppColors.blackColor,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 20),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 25,
-                              ),
-                              child: TextFormField(
-                                controller: viewModel.usernameController,
-                                focusNode: viewModel.usernameFocusNode,
-                                decoration: InputDecoration(
-                                  hintText: LabelService().getLabel(3),
-
-                                  hintStyle: TextStyle(
-                                    color: AppColors.blackColor,
-                                    fontSize: 14,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                ),
-                                validator:
-                                    (value) =>
-                                        value == null || value.isEmpty
-                                            ? LabelService().getLabel(3)
-                                            : null,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 25),
-                              child: TextFormField(
-                                controller: viewModel.passwordController,
-                                focusNode: viewModel.passwordFocusNode,
-                                obscureText: !viewModel.isPasswordVisible,
-                                decoration: InputDecoration(
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      viewModel.isPasswordVisible
-                                          ? Icons.visibility
-                                          : Icons.visibility_off,
-                                      color: AppColors.blackColor,
-                                    ),
-                                    onPressed: () {
-                                      viewModel.isPasswordVisible =
-                                          !viewModel.isPasswordVisible;
-                                      viewModel
-                                          .notifyListeners(); // Assuming you're using ChangeNotifier
-                                    },
+                                  elevation: 8,
+                                  shadowColor: AppColors.primary.withOpacity(
+                                    0.3,
                                   ),
-                                  hintText: LabelService().getLabel(4),
-
-                                  hintStyle: TextStyle(
-                                    color: AppColors.blackColor,
-                                    fontSize: 14,
-                                  ),
-                                ),
-
-                                validator:
-                                    (value) =>
-                                        value == null || value.isEmpty
-                                            ? LabelService().getLabel(4)
-                                            : null,
-                              ),
-                            ),
-
-                            SizedBox(height: 20),
-                            viewModel.loader
-                                ? CircularProgressIndicator(
-                                  color: AppColors.secondary,
-                                  strokeWidth: 2,
-                                )
-                                : Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 25,
-                                    right: 25,
-                                    top: 20,
-                                  ),
-                                  child: InkWell(
-                                    onTap: () async {
-                                      final success = await viewModel.onLogin(
-                                        context,
-                                      );
-
-                                      if (!success)
-                                        return; // ❌ Stop here on invalid credentials
-
-                                      await storeViewModel.getROSLabels();
-
-                                      final enableFingerprint =
-                                          await showDialog<bool>(
-                                            context: context,
-                                            builder:
-                                                (context) => AlertDialog(
-                                                  title: Text(
-                                                    LabelService().getLabel(96),
-                                                  ),
-                                                  content: Text(
-                                                    LabelService().getLabel(97),
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed:
-                                                          () => Navigator.pop(
-                                                            context,
-                                                            false,
-                                                          ),
-                                                      child: Text(
-                                                        LabelService().getLabel(
-                                                          94,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    TextButton(
-                                                      onPressed:
-                                                          () => Navigator.pop(
-                                                            context,
-                                                            true,
-                                                          ),
-                                                      child: Text(
-                                                        LabelService().getLabel(
-                                                          95,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
+                                  backgroundColor: AppColors.primary,
+                                ).copyWith(
+                                  backgroundColor:
+                                      MaterialStateProperty.resolveWith((
+                                        states,
+                                      ) {
+                                        if (states.contains(
+                                          MaterialState.pressed,
+                                        )) {
+                                          return AppColors.primary.withOpacity(
+                                            0.9,
                                           );
-
-                                      if (enableFingerprint == true) {
-                                        await AuthHelper.saveCredentials(
-                                          viewModel.usernameController.text,
-                                          viewModel.passwordController.text,
-                                        );
-                                      }
-
-                                      NavigationService.navigateTo(
-                                        DashboardView(),
-                                      );
-                                    },
-
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 15,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.secondary,
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color: AppColors.primary,
-                                            width: 4.0,
-                                          ),
-                                        ),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          LabelService().getLabel(5),
-                                          style: TextStyle(
-                                            color: AppColors.whiteColor,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                        }
+                                        return AppColors.primary;
+                                      }),
                                 ),
-
-                            SizedBox(height: 10),
-                            Center(
-                              child: Text(
-                                LabelService().getLabel(6),
-                                style: TextStyle(
-                                  color: AppColors.blackColor,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-
-                            if (showFingerprint)
-                              IconButton(
-                                icon: Icon(Icons.fingerprint, size: 40),
                                 onPressed: () async {
-                                  bool authSuccess =
-                                      await AuthHelper.authenticateWithBiometrics();
-                                  if (authSuccess) {
-                                    final creds =
-                                        await AuthHelper.getCredentials();
-                                    viewModel.usernameController.text =
-                                        creds['email'] ?? '';
-                                    viewModel.passwordController.text =
-                                        creds['password'] ?? '';
-                                    await viewModel.onLogin(
-                                      context,
-                                    ); // auto-login
-                                    NavigationService.navigateTo(
-                                      DashboardView(),
+                                  final success = await viewModel.onLogin(
+                                    context,
+                                  );
+
+                                  if (!success) return;
+
+                                  await storeViewModel.getROSLabels();
+
+                                  final enableFingerprint =
+                                      await showDialog<bool>(
+                                        context: context,
+                                        builder:
+                                            (context) => AlertDialog(
+                                              title: Text(
+                                                LabelService().getLabel(96),
+                                              ),
+                                              content: Text(
+                                                LabelService().getLabel(97),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed:
+                                                      () => Navigator.pop(
+                                                        context,
+                                                        false,
+                                                      ),
+                                                  child: Text(
+                                                    LabelService().getLabel(94),
+                                                  ),
+                                                ),
+                                                TextButton(
+                                                  onPressed:
+                                                      () => Navigator.pop(
+                                                        context,
+                                                        true,
+                                                      ),
+                                                  child: Text(
+                                                    LabelService().getLabel(95),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                      );
+
+                                  if (enableFingerprint == true) {
+                                    await AuthHelper.saveCredentials(
+                                      viewModel.usernameController.text,
+                                      viewModel.passwordController.text,
                                     );
                                   }
+
+                                  NavigationService.navigateTo(DashboardView());
                                 },
-                              ),
-                            SizedBox(height: 10),
-                            GestureDetector(
-                              onTap: () {
-                                NavigationService.resetTo(ChooseLanguageView());
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Icon(Icons.settings),
+                                child: Text(
+                                  LabelService().getLabel(5),
+                                  style: TextStyle(
+                                    color: AppColors.whiteColor,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
                             ),
-                          ],
+
+                        const SizedBox(height: 16),
+                        Center(
+                          child: Text(
+                            LabelService().getLabel(6),
+                            style: TextStyle(
+                              color: AppColors.blackColor.withOpacity(0.65),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 14),
+                        if (showFingerprint)
+                          Center(
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(50),
+                              onTap: () async {
+                                final authSuccess =
+                                    await AuthHelper.authenticateWithBiometrics();
+                                if (authSuccess) {
+                                  final creds =
+                                      await AuthHelper.getCredentials();
+                                  viewModel.usernameController.text =
+                                      creds['email'] ?? '';
+                                  viewModel.passwordController.text =
+                                      creds['password'] ?? '';
+                                  await viewModel.onLogin(context);
+                                  NavigationService.navigateTo(DashboardView());
+                                }
+                              },
+                              child: Container(
+                                width: 64,
+                                height: 64,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFFFFEDD5),
+                                      Color(0xFFFFFBEB),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.fingerprint,
+                                  size: 40,
+                                  color: Color(0xFFEA580C),
+                                ),
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 14),
+                        Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              NavigationService.resetTo(ChooseLanguageView());
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(Icons.settings),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  if (!isKeyboardOpen)
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 25),
-                      child: Image.network(
-                        '${ApiConstants.baseUrl}/AppImages/Footer_info.png',
-                        // height: 100,
-                        // width: 200,
-                      ),
+                ),
+                if (!isKeyboardOpen) ...[
+                  // const SizedBox(height: 24),
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(horizontal: 25),
+                  //   child: Image.network(
+                  //     '${ApiConstants.baseUrl}/AppImages/Footer_info.png',
+                  //   ),
+                  // ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Copyright 2025 @Aleedz Solutions',
+                    style: TextStyle(
+                      color: AppColors.blackColor.withOpacity(0.55),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                     ),
+                  ),
                 ],
-              ),
+              ],
             ),
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StyledField extends StatelessWidget {
+  const _StyledField({
+    required this.controller,
+    required this.focusNode,
+    required this.hint,
+    this.validator,
+    this.obscureText = false,
+    this.suffix,
+  });
+
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final String hint;
+  final String? Function(String?)? validator;
+  final bool obscureText;
+  final Widget? suffix;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      focusNode: focusNode,
+      obscureText: obscureText,
+      validator: validator,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(
+          color: AppColors.blackColor.withOpacity(0.45),
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+        suffixIcon: suffix,
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.8),
         ),
       ),
     );
