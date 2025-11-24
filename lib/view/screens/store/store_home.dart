@@ -353,46 +353,6 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border(
-                          bottom: BorderSide(color: Colors.grey.shade200),
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 12,
-                      ),
-                      child: Row(
-                        children: [
-                          InkWell(
-                            onTap: () => NavigationService.goBack(),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                // color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                Icons.arrow_back_ios_new_rounded,
-                                size: 18,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Store Actions',
-                            style: const TextStyle(
-                              color: Colors.black87,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -400,7 +360,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                       ),
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+                          colors: [Color(0xFF111827), Color(0xFF0B1120)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -408,6 +368,28 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Row(
+                            children: [
+                              InkWell(
+                                onTap: () => NavigationService.goBack(),
+                                child: const Icon(
+                                  Icons.arrow_back_ios_new_rounded,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              const Text(
+                                'Store Actions',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
                           Text(
                             widget.storeName,
                             style: const TextStyle(

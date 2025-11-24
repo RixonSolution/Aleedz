@@ -23,6 +23,18 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   bool _showProfileDrawer = false;
   List<Widget> _screens = [SizedBox(), SizedBox(), SizedBox(), SizedBox()];
 
+  Widget _navIcon(String asset, bool isActive) {
+    final color = isActive ? Colors.orange.shade500 : Colors.grey.shade400;
+    return ColorFiltered(
+      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+      child: Image.asset(
+        asset,
+        height: 30,
+        width: 30,
+      ),
+    );
+  }
+
   // final List<Widget> _screens = [
   //   HomeView(),
   //   CoverageView(),
@@ -92,44 +104,25 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                 type: BottomNavigationBarType.fixed,
                 currentIndex: _selectedIndex,
                 onTap: _onItemTapped,
-                backgroundColor: AppColors.secondary,
-                selectedItemColor: AppColors.whiteColor,
-                unselectedItemColor: AppColors.whiteColor,
+                backgroundColor: Colors.white,
+                selectedItemColor: Colors.orange.shade500,
+                unselectedItemColor: Colors.grey.shade400,
+                elevation: 8,
                 items: [
                   BottomNavigationBarItem(
-                    icon: Image.asset(
-                      AppIcons.dashboardIcon,
-                      height: 30,
-                      width: 30,
-                      color: AppColors.whiteColor,
-                    ),
+                    icon: _navIcon(AppIcons.dashboardIcon, _selectedIndex == 0),
                     label: LabelService().getLabel(7),
                   ),
                   BottomNavigationBarItem(
-                    icon: Image.asset(
-                      AppIcons.coverageIcon,
-                      height: 30,
-                      width: 30,
-                      color: AppColors.whiteColor,
-                    ),
+                    icon: _navIcon(AppIcons.coverageIcon, _selectedIndex == 1),
                     label: LabelService().getLabel(8),
                   ),
                   BottomNavigationBarItem(
-                    icon: Image.asset(
-                      AppIcons.notificationIcon,
-                      height: 30,
-                      width: 30,
-                      color: AppColors.whiteColor,
-                    ),
+                    icon: _navIcon(AppIcons.notificationIcon, _selectedIndex == 2),
                     label: LabelService().getLabel(9),
                   ),
                   BottomNavigationBarItem(
-                    icon: Image.asset(
-                      AppIcons.accountIcon,
-                      height: 30,
-                      width: 30,
-                      color: AppColors.whiteColor,
-                    ),
+                    icon: _navIcon(AppIcons.accountIcon, _selectedIndex == 3),
                     label: LabelService().getLabel(10),
                   ),
                 ],
