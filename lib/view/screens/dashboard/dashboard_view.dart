@@ -23,15 +23,12 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   bool _showProfileDrawer = false;
   List<Widget> _screens = [SizedBox(), SizedBox(), SizedBox(), SizedBox()];
 
-  Widget _navIcon(String asset, bool isActive) {
+  Widget _navIcon(IconData icon, bool isActive) {
     final color = isActive ? Colors.orange.shade500 : Colors.grey.shade400;
-    return ColorFiltered(
-      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-      child: Image.asset(
-        asset,
-        height: 30,
-        width: 30,
-      ),
+    return Icon(
+      icon,
+      color: color,
+      size: 28,
     );
   }
 
@@ -110,19 +107,22 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                 elevation: 8,
                 items: [
                   BottomNavigationBarItem(
-                    icon: _navIcon(AppIcons.dashboardIcon, _selectedIndex == 0),
+                    icon: _navIcon(Icons.home_outlined, _selectedIndex == 0),
                     label: LabelService().getLabel(7),
                   ),
                   BottomNavigationBarItem(
-                    icon: _navIcon(AppIcons.coverageIcon, _selectedIndex == 1),
+                    icon: _navIcon(Icons.shopping_bag_outlined, _selectedIndex == 1),
                     label: LabelService().getLabel(8),
                   ),
                   BottomNavigationBarItem(
-                    icon: _navIcon(AppIcons.notificationIcon, _selectedIndex == 2),
+                    icon: _navIcon(
+                      Icons.notifications_none_outlined,
+                      _selectedIndex == 2,
+                    ),
                     label: LabelService().getLabel(9),
                   ),
                   BottomNavigationBarItem(
-                    icon: _navIcon(AppIcons.accountIcon, _selectedIndex == 3),
+                    icon: _navIcon(Icons.person_outline, _selectedIndex == 3),
                     label: LabelService().getLabel(10),
                   ),
                 ],

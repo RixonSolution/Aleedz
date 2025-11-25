@@ -765,218 +765,158 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                 )
                 : Flexible(
                   child: ListView.separated(
-                    physics: const ScrollPhysics(),
+                    physics: ScrollPhysics(),
                     itemCount: viewModel.stores.length,
-                    padding: const EdgeInsets.only(
-                      bottom: 12,
-                      left: 12,
-                      right: 12,
-                    ),
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
                     itemBuilder: (context, index) {
                       final store = viewModel.stores[index];
-                      final visitStatusId = store.visitStatusId;
+                      final checkInTime = store.checkInTime.trim();
+                      final hasCheckInTime =
+                          checkInTime.isNotEmpty && checkInTime != '0';
 
-                      Color cardBg = AppColors.whiteColor;
-                      Color borderColor = Colors.grey.shade200;
-                      double cardOpacity = 1;
-                      Color badgeBg = Colors.blue.shade50;
-                      Color badgeTextColor = Colors.blue.shade600;
-                      Color numberBg = Colors.blue.shade500;
-                      Color numberText = AppColors.whiteColor;
-                      String badgeLabel = 'Plan';
-                      String trailingText = 'Plan Date: --';
-                      Color trailingColor = AppColors.greyText;
-                      VoidCallback? statusTap;
+                      final bool isPlan = store.visitStatusId == 0;
+                      final Color numberColor =
+                          isPlan
+                              ? Colors.blue.shade500
+                              : Colors.orange.shade500;
+                      final Color statusColor =
+                          isPlan
+                              ? Colors.blue.shade500
+                              : Colors.orange.shade500;
+                      final Color borderColor =
+                          isPlan ? Colors.transparent : statusColor;
 
-                      // Status-based colors/labels: 0=Plan, 1=Check In, 2=Check Out, 3=Visited, 4=Cancelled
-                      switch (visitStatusId) {
-                        case 0:
-                          badgeLabel = 'Plan';
-                          badgeBg = Colors.blue.shade50;
-                          badgeTextColor = Colors.blue.shade600;
-                          numberBg = Colors.blue.shade500;
-                          trailingText = 'Plan Date: --';
-                          statusTap = () async {
-                            final myLat = viewModel.latitude;
-                            final myLng = viewModel.longitude;
-                            final otherLat =
-                                double.tryParse(store.latitude) ?? 0.0;
-                            final otherLng =
-                                double.tryParse(store.longitude) ?? 0.0;
-                            final distance = viewModel.calculateDistanceInMeters(
-                              myLat,
-                              myLng,
-                              otherLat,
-                              otherLng,
-                            );
-
-                            await handleCheckInOrOut(
-                              context: context,
-                              hasCameraPermission: checkInCamera == 'Y',
-                              store: store,
-                              myLat: myLat,
-                              myLng: myLng,
-                              distance: distance,
-                              distancePermission: distancePermission,
-                              index: index,
-                            );
-                          };
-                          break;
-                        case 1:
-                          badgeLabel = LabelService().getLabel(14); // Check In
-                          badgeBg = Colors.orange.shade50;
-                          badgeTextColor = Colors.orange.shade600;
-                          numberBg = Colors.orange.shade500;
-                          trailingText = 'Tap to Check In';
-                          trailingColor = Colors.orange.shade600;
-                          statusTap = () async {
-                            final myLat = viewModel.latitude;
-                            final myLng = viewModel.longitude;
-                            final otherLat =
-                                double.tryParse(store.latitude) ?? 0.0;
-                            final otherLng =
-                                double.tryParse(store.longitude) ?? 0.0;
-                            final distance = viewModel.calculateDistanceInMeters(
-                              myLat,
-                              myLng,
-                              otherLat,
-                              otherLng,
-                            );
-
-                            await handleCheckInOrOut(
-                              context: context,
-                              hasCameraPermission: checkInCamera == 'Y',
-                              store: store,
-                              myLat: myLat,
-                              myLng: myLng,
-                              distance: distance,
-                              distancePermission: distancePermission,
-                              index: index,
-                            );
-                          };
-                          break;
-                        case 2:
-                          cardBg = Colors.orange.shade50;
-                          borderColor = Colors.orange.shade300;
-                          badgeBg = Colors.orange.shade500;
-                          badgeTextColor = AppColors.whiteColor;
-                          badgeLabel = LabelService().getLabel(15); // Check Out
-                          numberBg = Colors.orange.shade500;
-                          numberText = AppColors.whiteColor;
-                          trailingText =
-                              'In: ${store.checkInTime.isEmpty ? '--' : store.checkInTime}';
-                          trailingColor = Colors.orange.shade600;
-                          statusTap = () async {
-                            final myLat = viewModel.latitude;
-                            final myLng = viewModel.longitude;
-                            final otherLat =
-                                double.tryParse(store.latitude) ?? 0.0;
-                            final otherLng =
-                                double.tryParse(store.longitude) ?? 0.0;
-                            final distance = viewModel.calculateDistanceInMeters(
-                              myLat,
-                              myLng,
-                              otherLat,
-                              otherLng,
-                            );
-
-                            await handleCheckInOrOut(
-                              context: context,
-                              hasCameraPermission: checkInCamera == 'Y',
-                              store: store,
-                              myLat: myLat,
-                              myLng: myLng,
-                              distance: distance,
-                              distancePermission: distancePermission,
-                              index: index,
-                            );
-                          };
-                          break;
-                        case 3:
-                          badgeBg = Colors.green.shade50;
-                          badgeTextColor = Colors.green.shade600;
-                          badgeLabel = 'Visited';
-                          numberBg = Colors.green.shade500;
-                          numberText = AppColors.whiteColor;
-                          trailingText = 'In: ${store.checkInTime}';
-                          trailingColor = Colors.green.shade600;
-                          break;
-                        case 4:
-                          badgeBg = AppColors.error.withOpacity(0.12);
-                          badgeTextColor = AppColors.error;
-                          badgeLabel = 'Cancelled';
-                          numberBg = AppColors.error;
-                          numberText = AppColors.whiteColor;
-                          cardOpacity = 0.55;
-                          trailingText = '';
-                          break;
-                        default:
-                          break;
-                      }
-
-                      final statusBadge = _statusChip(
-                        label: badgeLabel,
-                        bgColor: badgeBg,
-                        textColor: badgeTextColor,
-                        onTap: statusTap,
-                      );
-
-                      return Opacity(
-                        opacity: cardOpacity,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: cardBg,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: borderColor),
-                          ),
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                height: 44,
-                                width: 44,
-                                decoration: BoxDecoration(
-                                  color: numberBg,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '${index + 1}',
-                                    style: TextStyle(
-                                      color: numberText,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 15,
+                        ),
+                        margin: const EdgeInsets.symmetric(horizontal: 0),
+                        decoration: BoxDecoration(
+                          color: AppColors.whiteColor,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: borderColor, width: isPlan ? 0 : 2),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x1A000000), // ~10% black
+                              blurRadius: 14,
+                              spreadRadius: 1,
+                              offset: Offset(0, 6),
+                            ),
+                            BoxShadow(
+                              color: Color(0x0D000000), // ~5% black
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 0,
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 15,
+                                      vertical: 10,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: numberColor,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      '${index + 1}',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    final allowMultiCheckIn = viewModel
-                                        .permission
-                                        ?.getPermissionValue(
-                                          'AllowMultipleCheckIn',
-                                        );
-                                    final allowStoreInWithoutCheckIn = viewModel
-                                        .permission
-                                        ?.getPermissionValue(
-                                          'Allow_StoreIn_WithoutCheckIn',
-                                        );
-                                    final selectedStore = store;
+                            ),
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 5,
+                                  ),
+                                  child: Text(
+                                    '${index + 1}.',
+                                    style: TextStyle(
+                                      color: Colors.transparent,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 25),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      final allowMultiCheckIn = viewModel
+                                          .permission
+                                          ?.getPermissionValue(
+                                            'AllowMultipleCheckIn',
+                                          );
+                                      final allowStoreInWithoutCheckIn =
+                                          viewModel.permission
+                                              ?.getPermissionValue(
+                                                'Allow_StoreIn_WithoutCheckIn',
+                                              );
 
-                                    if (allowStoreInWithoutCheckIn == 'N' &&
-                                        selectedStore.visitStatusId == 0) {
-                                      AppSnackBar.showError(
-                                        context,
-                                        LabelService().getLabel(105),
-                                      );
-                                      return;
-                                    }
+                                      final selectedStore =
+                                          viewModel.stores[index];
 
-                                    if (allowMultiCheckIn == 'Y') {
+                                      // 1. Check: StoreIn not allowed without check-in
+                                      if (allowStoreInWithoutCheckIn == 'N' &&
+                                          selectedStore.visitStatusId == 0) {
+                                        AppSnackBar.showError(
+                                          context,
+                                          LabelService().getLabel(105),
+                                        );
+                                        return;
+                                      }
+
+                                      // 2. If multi-check-in allowed, allow navigation
+                                      if (allowMultiCheckIn == 'Y') {
+                                        NavigationService.navigateTo(
+                                          StoreHome(
+                                            storeName: selectedStore.storeName,
+                                            checkInTime:
+                                                selectedStore.checkInTime,
+                                            grade: selectedStore.gradeName,
+                                            address: selectedStore.address,
+                                            storeId: selectedStore.storeId,
+                                          ),
+                                        );
+                                        return;
+                                      }
+
+                                      // 3. If multi-check-in not allowed, check if user is already checked into another store
+                                      final isAlreadyCheckedIn = viewModel
+                                          .stores
+                                          .any(
+                                            (store) =>
+                                                store.visitStatusId != 0 &&
+                                                store.storeId !=
+                                                    selectedStore.storeId,
+                                          );
+
+                                      if (isAlreadyCheckedIn) {
+                                        AppSnackBar.showError(
+                                          context,
+                                          LabelService().getLabel(106),
+                                        );
+                                        return;
+                                      }
+
+                                      // ✅ All good, navigate
                                       NavigationService.navigateTo(
                                         StoreHome(
                                           storeName: selectedStore.storeName,
@@ -987,169 +927,169 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                           storeId: selectedStore.storeId,
                                         ),
                                       );
-                                      return;
-                                    }
-
-                                    final isAlreadyCheckedIn = viewModel.stores
-                                        .any(
-                                          (storeItem) =>
-                                              storeItem.visitStatusId != 0 &&
-                                              storeItem.storeId !=
-                                                  selectedStore.storeId,
-                                        );
-
-                                    if (isAlreadyCheckedIn) {
-                                      AppSnackBar.showError(
-                                        context,
-                                        LabelService().getLabel(106),
-                                      );
-                                      return;
-                                    }
-
-                                    NavigationService.navigateTo(
-                                      StoreHome(
-                                        storeName: selectedStore.storeName,
-                                        checkInTime: selectedStore.checkInTime,
-                                        grade: selectedStore.gradeName,
-                                        address: selectedStore.address,
-                                        storeId: selectedStore.storeId,
-                                      ),
-                                    );
-                                  },
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                      Text(
-                                        store.storeName,
-                                        style: TextStyle(
-                                          color: AppColors.blackColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        store.address,
-                                        style: TextStyle(
-                                          color: AppColors.blackColor,
-                                          fontSize: 13,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 2,
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Row(
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 5),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Container(
-                                            width: 12,
-                                            height: 12,
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  store.completionStatus == '1'
-                                                      ? Colors.green
-                                                      : Colors.grey[300],
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: const Icon(
-                                              Icons.check,
-                                              color: Colors.white,
-                                              size: 8,
+                                          Text(
+                                            store.storeName,
+                                            style: TextStyle(
+                                              color: AppColors.blackColor,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                          const SizedBox(width: 8),
+                                          SizedBox(height: 3),
                                           Text(
-                                            store.lastVisitedDate,
+                                            store.address,
                                             style: TextStyle(
                                               color: AppColors.blackColor,
                                               fontSize: 13,
                                             ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 2,
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              store.completionStatus == '1'
+                                                  ? Container(
+                                                    width: 12,
+                                                    height: 12,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.green,
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: Icon(
+                                                      Icons.check,
+                                                      color: Colors.white,
+                                                      size: 8,
+                                                    ),
+                                                  )
+                                                  : Container(
+                                                    width: 12,
+                                                    height: 12,
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          Colors
+                                                              .grey[300], // Light grey background
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: Icon(
+                                                      Icons.check,
+                                                      color: Colors.white,
+                                                      size: 8,
+                                                    ),
+                                                  ),
+                                              SizedBox(width: 10),
+                                              Text(
+                                                '${store.lastVisitedDate}',
+                                                style: TextStyle(
+                                                  color: AppColors.blackColor,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: statusColor,
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                            child: Text(
+                                              store.visitStatusId == 0
+                                                  ? LabelService().getLabel(14)
+                                                  : LabelService().getLabel(15),
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 8),
-                                      statusBadge,
+                                    ),
+                                  ),
+                                ),
+
+                                InkWell(
+                                  onTap: () async {
+                                    double myLat = viewModel.latitude;
+                                    double myLng = viewModel.longitude;
+
+                                    double otherLat =
+                                        double.tryParse(
+                                          viewModel.stores[index].latitude,
+                                        ) ??
+                                        0.0;
+                                    double otherLng =
+                                        double.tryParse(
+                                          viewModel.stores[index].longitude,
+                                        ) ??
+                                        0.0;
+
+                                    double distance = viewModel
+                                        .calculateDistanceInMeters(
+                                          myLat,
+                                          myLng,
+                                          otherLat,
+                                          otherLng,
+                                        );
+
+                                    await handleCheckInOrOut(
+                                      context: context,
+                                      hasCameraPermission: checkInCamera == 'Y',
+                                      store: viewModel.stores[index],
+                                      myLat: myLat,
+                                      myLng: myLng,
+                                      distance: distance,
+                                      distancePermission: distancePermission,
+                                      index: index,
+                                    );
+                                  },
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      if (hasCheckInTime) ...[
+                                        Text(
+                                          checkInTime,
+                                          style: TextStyle(
+                                            color: AppColors.primary,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                      ],
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 16,
+                                        color: Colors.grey.shade600,
+                                      ),
                                     ],
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 10),
-                              InkWell(
-                                onTap: () async {
-                                  final myLat = viewModel.latitude;
-                                  final myLng = viewModel.longitude;
-                                  final otherLat =
-                                      double.tryParse(store.latitude) ?? 0.0;
-                                  final otherLng =
-                                      double.tryParse(store.longitude) ?? 0.0;
-                                  final distance = viewModel
-                                      .calculateDistanceInMeters(
-                                        myLat,
-                                        myLng,
-                                        otherLat,
-                                        otherLng,
-                                      );
-
-                                  await handleCheckInOrOut(
-                                    context: context,
-                                    hasCameraPermission: checkInCamera == 'Y',
-                                    store: store,
-                                    myLat: myLat,
-                                    myLng: myLng,
-                                    distance: distance,
-                                    distancePermission: distancePermission,
-                                    index: index,
-                                  );
-                                },
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    const SizedBox(height: 6),
-                                    store.visitStatusId == 0
-                                        ? Text(
-                                          LabelService().getLabel(14),
-                                          style: TextStyle(
-                                            color: AppColors.blackColor,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        )
-                                        : Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              '${LabelService().getLabel(14)}: ${store.checkInTime}',
-                                              style: TextStyle(
-                                                color: AppColors.primary,
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              store.visitStatusId == 2 ||
-                                                      store.visitStatusId == 3
-                                                  ? LabelService().getLabel(15)
-                                                  : LabelService().getLabel(15),
-                                              style: TextStyle(
-                                                color: AppColors.secondary,
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
+                          ],
                         ),
                       );
                     },
                     separatorBuilder:
-                        (context, index) => const SizedBox(height: 10),
+                        (context, index) => const SizedBox(height: 12),
                   ),
                 ),
           ],

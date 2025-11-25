@@ -1,5 +1,4 @@
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/store/display_audit_check.dart';
@@ -46,126 +45,146 @@ class _DisplayAuditCheckSummaryState
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      NavigationService.goBack();
-                    },
-                    child: Image.asset(
-                      AppIcons.backArrow,
-                      height: 30,
-                      width: 30,
-                    ),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () => NavigationService.goBack(),
+                        child: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Display Audit',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 16),
                   Text(
-                    LabelService().getLabel(130),
-                    style: TextStyle(
-                      color: AppColors.blackColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                    widget.storeName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
-                  Image.asset(
-                    AppIcons.locationIcon,
-                    height: 30,
-                    width: 30,
-                    color: AppColors.whiteColor,
-                  ),
+                  const SizedBox(height: 4),
                 ],
               ),
             ),
-            SizedBox(height: 5),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(color: AppColors.primary, height: 0),
-            ),
-
-            SizedBox(height: 5),
-            Center(
-              child: Text(
-                widget.storeName,
-                style: TextStyle(
-                  color: AppColors.blackColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Center(
-              child: Text(
-                '${LabelService().getLabel(14)} ${widget.checkInTime}',
-                style: TextStyle(
-                  color: AppColors.blackColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: DropdownButtonFormField<int>(
-                value: viewModel.selectedBrand?.brandId,
-                decoration: InputDecoration(
-                  hintText: 'All Brands ',
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.secondary),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 0,
-                    vertical: 12,
-                  ),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x19000000), // slightly stronger
+                      blurRadius: 14,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
                 ),
-                items:
-                    viewModel.brandList.map((brand) {
-                      return DropdownMenuItem<int>(
-                        value: brand.brandId,
-                        child: Text(brand.brandName),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: DropdownButtonFormField<int>(
+                    value: viewModel.selectedBrand?.brandId,
+                    isDense: true,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'All Brands (Dropdown)',
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 10,
+                      ),
+                    ),
+                    items: viewModel.brandList
+                        .map(
+                          (brand) => DropdownMenuItem<int>(
+                            value: brand.brandId,
+                            child: Text(brand.brandName),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (int? branddlId) {
+                      final selected = viewModel.brandList.firstWhere(
+                        (c) => c.brandId == branddlId,
                       );
-                    }).toList(),
-                onChanged: (int? branddlId) {
-                  final selected = viewModel.brandList.firstWhere(
-                    (c) => c.brandId == branddlId,
-                  );
-                  viewModel.selectBrand(widget.storeId, selected);
-                },
+                      viewModel.selectBrand(widget.storeId, selected);
+                    },
+                  ),
+                ),
               ),
             ),
 
             SizedBox(height: 5),
+            SizedBox(height: 12),
             viewModel.loader
                 ? Center(
                   child: CircularProgressIndicator(color: AppColors.secondary),
                 )
                 : Expanded(
-                  child: ListView.builder(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                     itemCount: viewModel.brands.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
                     itemBuilder: (context, brandIndex) {
                       final brand = viewModel.brands[brandIndex];
-                      int index = brandIndex++;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            color: AppColors.darkGreyBackground,
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
+                      final totalModelCount = brand.products.fold<int>(
+                        0,
+                        (sum, item) => sum + (item.modelCount),
+                      );
+                      final totalDisplayCount = brand.products.fold<int>(
+                        0,
+                        (sum, item) => sum + (item.displayCheckCount),
+                      );
+
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x19000000),
+                              blurRadius: 14,
+                              offset: Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       brand.brandName,
@@ -175,31 +194,57 @@ class _DisplayAuditCheckSummaryState
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    Row(
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Last update: ${widget.checkInTime}',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        SizedBox(
-                                          width: 70,
-                                          child: Text(
-                                            LabelService().getLabel(41),
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: AppColors.blackColor,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                        Text(
+                                          'Model',
+                                          style: TextStyle(
+                                            color: Colors.grey.shade600,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
-                                        SizedBox(width: 8),
-                                        SizedBox(
-                                          width: 70,
-                                          child: Text(
-                                            LabelService().getLabel(42),
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: AppColors.blackColor,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                        Text(
+                                          '$totalModelCount',
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Display',
+                                          style: TextStyle(
+                                            color: Colors.grey.shade600,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Text(
+                                          '$totalDisplayCount',
+                                          style: const TextStyle(
+                                            color: Colors.orange,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ],
@@ -208,112 +253,108 @@ class _DisplayAuditCheckSummaryState
                                 ),
                               ],
                             ),
-                          ),
-                          ...brand.products.asMap().entries.map((entry) {
-                            int productIndex =
-                                entry.key + 1; // Start from 1 (optional)
-                            var item = entry.value;
-
-                            return GestureDetector(
-                              onTap: () {
-                                NavigationService.navigateTo(
-                                  DisplayAuditCheck(
-                                    storeName: widget.storeName,
-                                    checkInTime: widget.checkInTime,
-                                    storeId: widget.storeId,
-                                    categoryId: item.productCategoryId,
-                                    categoryName: item.productCategoryName,
-                                    lastUpdate: item.lastUpdate,
-                                    updateBy: item.updateBy,
-                                    brandId: brand.brandId.toString(),
-                                    visitId: widget.visitId,
+                            const SizedBox(height: 12),
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: brand.products.length,
+                              separatorBuilder: (context, index) => Divider(
+                                color: Colors.grey.shade300,
+                              ),
+                              itemBuilder: (context, listIndex) {
+                                final item = brand.products[listIndex];
+                                return GestureDetector(
+                                  onTap: () {
+                                    NavigationService.navigateTo(
+                                      DisplayAuditCheck(
+                                        storeName: widget.storeName,
+                                        checkInTime: widget.checkInTime,
+                                        storeId: widget.storeId,
+                                        categoryId: item.productCategoryId,
+                                        categoryName: item.productCategoryName,
+                                        lastUpdate: item.lastUpdate,
+                                        updateBy: item.updateBy,
+                                        brandId: brand.brandId.toString(),
+                                        visitId: widget.visitId,
+                                      ),
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            item.productCategoryName,
+                                            style: TextStyle(
+                                              color: AppColors.blackColor,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  'Model',
+                                                  style: TextStyle(
+                                                    color: Colors.grey.shade600,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  item.modelCount.toString(),
+                                                  style: const TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(width: 16),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  'Display',
+                                                  style: TextStyle(
+                                                    color: Colors.grey.shade600,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  item.displayCheckCount
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                    color: Colors.orange,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 );
                               },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 6,
-                                  horizontal: 12,
-                                ),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 8,
-                                      ),
-                                      // color: AppColors.lightGreyBackground,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Text('$productIndex. '),
-                                                    Text(
-                                                      item.productCategoryName,
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      '$productIndex. ',
-                                                      style: TextStyle(
-                                                        color:
-                                                            AppColors
-                                                                .lightGreyBackground,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      item.lastUpdate,
-                                                      style: TextStyle(
-                                                        color:
-                                                            item.updateBy == '1'
-                                                                ? AppColors
-                                                                    .primary
-                                                                : AppColors
-                                                                    .blackColor,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                // SizedBox(width: 24),
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 70,
-                                            child: Text(
-                                              item.modelCount.toString(),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 70,
-                                            child: Text(
-                                              item.displayCheckCount.toString(),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    // if (brandIndex !=
-                                    //     viewModel.brands.length - 1)
-                                    const Divider(thickness: 1),
-                                    // else
-                                    //   const SizedBox.shrink(),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }),
-                        ],
+                            ),
+                          ],
+                        ),
                       );
                     },
                   ),
