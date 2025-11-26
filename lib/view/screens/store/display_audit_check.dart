@@ -10,7 +10,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DisplayAuditCheck extends ConsumerStatefulWidget {
-  String storeName, checkInTime, categoryName, lastUpdate, updateBy, brandId;
+  String storeName,
+      checkInTime,
+      categoryName,
+      lastUpdate,
+      updateBy,
+      brandId,
+      address;
   int storeId, categoryId, visitId;
   DisplayAuditCheck({
     Key? key,
@@ -22,6 +28,7 @@ class DisplayAuditCheck extends ConsumerStatefulWidget {
     required this.lastUpdate,
     required this.updateBy,
     required this.brandId,
+    required this.address,
     required this.visitId,
   }) : super(key: key);
 
@@ -38,6 +45,9 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
     Future.microtask(() async {
       final storeNotifier = ref.read(storeModelProvider.notifier);
 
+      storeNotifier.loader = true;
+      storeNotifier.notifyListeners();
+
       await storeNotifier.loadUser();
       await storeNotifier.getBrandDropDown();
 
@@ -46,7 +56,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
         categoryId: widget.categoryId.toString(),
         brandId: widget.brandId,
       );
-      storeNotifier.checkAudit(
+      await storeNotifier.checkAudit(
         widget.storeId,
         widget.categoryId,
         widget.brandId,
@@ -203,545 +213,352 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
         "N";
     // String cameraPermission = 'N';
 
+    final header = Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF111827), Color(0xFF0B1120)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              InkWell(
+                onTap: () => NavigationService.goBack(),
+                child: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 18,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Display Audit Check',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            widget.storeName,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            widget.address,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.grey.shade300,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '${LabelService().getLabel(14)} ${widget.checkInTime}',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.grey.shade300,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check, color: Colors.greenAccent, size: 16),
+                const SizedBox(width: 6),
+                Text(
+                  '${LabelService().getLabel(14)} ${widget.checkInTime}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
     return SafeArea(
       child: Scaffold(
+        extendBody: true,
         backgroundColor: AppColors.whiteColor,
         bottomNavigationBar:
             viewModel.loader
-                ? Center(
+                ? null
+                : SafeArea(
+                  minimum: EdgeInsets.zero,
+                  child: Container(
+                    color: Colors.transparent,
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (cameraPermission == 'Y' ||
+                              (cameraPermission == 'N' &&
+                                  viewModel.leftImages.isNotEmpty)) {
+                            await viewModel.auditMediaSubmit(
+                              context,
+                              widget.storeId,
+                              widget.categoryId.toString(),
+                              remarksController.text,
+                              widget.brandId,
+                              widget.visitId,
+                              checkInImages1: viewModel.leftImages,
+                              checkInImages2: viewModel.rightImages,
+                            );
+
+                            List<Map<String, dynamic>> dataList =
+                                viewModel.selectedProducts
+                                    .map((product) => product.toJson())
+                                    .toList();
+
+                            await viewModel.addDisplayCheck(
+                              dataList,
+                              context,
+                              widget.storeId,
+                              widget.categoryId,
+                            );
+                            await viewModel.checkSummary(
+                              widget.storeId,
+                              viewModel.selectedBrand?.brandId ?? 0,
+                              widget.visitId,
+                            );
+                            NavigationService.goBack();
+                          } else {
+                            AppSnackBar.showError(
+                              context,
+                              LabelService().getLabel(186),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                          ),
+                          backgroundColor: AppColors.primary,
+                        ),
+                        child: const Text(
+                          "Submit",
+                          style: TextStyle(
+                            color: AppColors.whiteColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+        body:
+            viewModel.loader
+                ? const Center(
                   child: CircularProgressIndicator(color: AppColors.secondary),
                 )
-                : Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (cameraPermission == 'Y' ||
-                            (cameraPermission == 'N' &&
-                                viewModel.leftImages.isNotEmpty)) {
-                          await viewModel.auditMediaSubmit(
-                            context,
-                            widget.storeId,
-                            widget.categoryId.toString(),
-                            remarksController.text,
-                            widget.brandId,
-                            widget.visitId,
-                            checkInImages1: viewModel.leftImages,
-                            checkInImages2: viewModel.rightImages,
-                          );
-
-                          List<Map<String, dynamic>> dataList =
-                              viewModel.selectedProducts
-                                  .map((product) => product.toJson())
-                                  .toList();
-
-                          await viewModel.addDisplayCheck(
-                            dataList,
-                            context,
-                            widget.storeId,
-                            widget.categoryId,
-                          );
-                          await viewModel.checkSummary(
-                            widget.storeId,
-                            viewModel.selectedBrand?.brandId ?? 0,
-                            widget.visitId,
-                          );
-                          NavigationService.goBack();
-                        } else {
-                          AppSnackBar.showError(
-                            context,
-                            LabelService().getLabel(186),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        shape: const RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.zero, // Removes rounded corners
-                        ),
-                        backgroundColor: Colors.orange,
-                      ),
-                      child: const Text(
-                        "Submit",
-                        style: TextStyle(
-                          color: AppColors.whiteColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 18,
-                ),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF111827), Color(0xFF0B1120)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Column(
+                : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        InkWell(
-                          onTap: () => NavigationService.goBack(),
-                          child: const Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            size: 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          // LabelService().getLabel(130),
-                          'Display Audit Check',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
+                    header,
                     const SizedBox(height: 16),
-                    Text(
-                      widget.storeName,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${LabelService().getLabel(14)} ${widget.checkInTime}',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.grey.shade300,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              viewModel.loader
-                  ? Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.secondary,
-                    ),
-                  )
-                  : Builder(
-                    builder: (context) {
-                      // Group audit items by brand name
-                      final groupedAudit = <String, List<AuditItem>>{};
-                      for (var item in viewModel.auditList) {
-                        groupedAudit
-                            .putIfAbsent(item.brandName, () => [])
-                            .add(item);
-                      }
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Builder(
+                              builder: (context) {
+                                // Group audit items by brand name
+                                final groupedAudit =
+                                    <String, List<AuditItem>>{};
+                                for (var item in viewModel.auditList) {
+                                  groupedAudit
+                                      .putIfAbsent(item.brandName, () => [])
+                                      .add(item);
+                                }
 
-                      final brandNames = groupedAudit.keys.toList();
+                                final brandNames = groupedAudit.keys.toList();
 
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: brandNames.length,
-                        itemBuilder: (context, brandIndex) {
-                          final brandName = brandNames[brandIndex];
-                          final brandItems = groupedAudit[brandName]!;
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemCount: brandNames.length,
+                                  itemBuilder: (context, brandIndex) {
+                                    final brandName = brandNames[brandIndex];
+                                    final brandItems = groupedAudit[brandName]!;
 
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.orange,
-                                  width: 2,
-                                ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color(0x11000000),
-                                    blurRadius: 10,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 12,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          border: Border.all(
+                                            color: AppColors.primary,
+                                            width: 2,
+                                          ),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Color(0x11000000),
+                                              blurRadius: 10,
+                                              offset: Offset(0, 4),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              brandName,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'last update ${widget.lastUpdate}',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.grey.shade600,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        TextButton(
-                                          onPressed:
-                                              () => _showBrandPlanogramImages(
-                                                brandName,
-                                              ),
-                                          style: TextButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 6,
-                                            ),
-                                            minimumSize: Size.zero,
-                                            tapTargetSize:
-                                                MaterialTapTargetSize
-                                                    .shrinkWrap,
-                                            foregroundColor: AppColors.primary,
-                                            backgroundColor: AppColors.primary
-                                                .withValues(alpha: 0.12),
-                                          ),
-                                          child: const Text(
-                                            'Images',
-                                            style: TextStyle(fontSize: 12),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const Divider(),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 10,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text(
-                                          'Products',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Row(
-                                          children: const [
-                                            SizedBox(
-                                              width: 70,
-                                              child: Text(
-                                                'Available',
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(width: 8),
-                                            SizedBox(
-                                              width: 80,
-                                              child: Text(
-                                                'Less than 2?',
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const Divider(),
-                                  Column(
-                                    children: [
-                                      ...brandItems.asMap().entries.map((
-                                        entry,
-                                      ) {
-                                        final index = entry.key + 1;
-                                        final item = entry.value;
-
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 10,
-                                          ),
-                                          child: Column(
-                                            children: [
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 12,
+                                                  ),
+                                              child: Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment
                                                         .spaceBetween,
                                                 children: [
-                                                  Expanded(
-                                                    child: Row(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        SizedBox(
-                                                          width: 24,
-                                                          child: Text(
-                                                            '$index.',
-                                                            style: const TextStyle(
-                                                              fontSize: 14,
-                                                              color:
-                                                                  AppColors
-                                                                      .blackColor,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Expanded(
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Text(
-                                                                item.productModelCode,
-                                                                style: const TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontSize: 14,
-                                                                  color:
-                                                                      AppColors
-                                                                          .blackColor,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                item.productModelName,
-                                                                style: const TextStyle(
-                                                                  fontSize: 14,
-                                                                  color:
-                                                                      AppColors
-                                                                          .blackColor,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Row(
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          final existing = viewModel
-                                                              .selectedProducts
-                                                              .firstWhereOrNull(
-                                                                (e) =>
-                                                                    e.productId ==
-                                                                    item.productId,
-                                                              );
-
-                                                          if (existing !=
-                                                              null) {
-                                                            existing.displayCheck =
-                                                                existing.displayCheck ==
-                                                                        1
-                                                                    ? 0
-                                                                    : 1;
-                                                            if (existing
-                                                                    .displayCheck ==
-                                                                0) {
-                                                              existing
-                                                                  .displayCheckCount = 0;
-                                                            }
-                                                          } else {
-                                                            viewModel.selectedProducts.add(
-                                                              ProductSelection(
-                                                                productId:
-                                                                    item.productId,
-                                                                displayCheck: 1,
-                                                                displayCheckCount:
-                                                                    0,
-                                                                token:
-                                                                    viewModel
-                                                                        .user!
-                                                                        .apiToken
-                                                                        .toString(),
-                                                                storeId:
-                                                                    widget
-                                                                        .storeId
-                                                                        .toString(),
-                                                                teamMemberId:
-                                                                    viewModel
-                                                                        .user!
-                                                                        .teamMemberID
-                                                                        .toString(),
-                                                              ),
-                                                            );
-                                                          }
-                                                          viewModel
-                                                              .notifyListeners();
-                                                        },
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets.only(
-                                                                right: 8,
-                                                              ),
-                                                      child: SizedBox(
-                                                        width: 70,
-                                                        child: Icon(
-                                                          viewModel.selectedProducts.any(
-                                                                (e) =>
-                                                                    e.productId ==
-                                                                        item.productId &&
-                                                                    e.displayCheck ==
-                                                                        1,
-                                                              )
-                                                              ? Icons.check_circle
-                                                              : Icons.check_circle_outline,
-                                                          size: 26,
-                                                          color: viewModel.selectedProducts.any(
-                                                                (e) =>
-                                                                    e.productId ==
-                                                                        item.productId &&
-                                                                    e.displayCheck ==
-                                                                        1,
-                                                              )
-                                                              ? Colors.green
-                                                              : Colors.grey.shade400,
+                                                      Text(
+                                                        brandName,
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                         ),
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        'last update ${widget.lastUpdate}',
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              Colors
+                                                                  .grey
+                                                                  .shade600,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  TextButton(
+                                                    onPressed:
+                                                        () =>
+                                                            _showBrandPlanogramImages(
+                                                              brandName,
+                                                            ),
+                                                    style: TextButton.styleFrom(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 12,
+                                                            vertical: 6,
+                                                          ),
+                                                      minimumSize: Size.zero,
+                                                      tapTargetSize:
+                                                          MaterialTapTargetSize
+                                                              .shrinkWrap,
+                                                      foregroundColor:
+                                                          AppColors.primary,
+                                                      backgroundColor: AppColors
+                                                          .primary
+                                                          .withValues(
+                                                            alpha: 0.12,
+                                                          ),
+                                                    ),
+                                                    child: const Text(
+                                                      'Images',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
                                                       ),
                                                     ),
                                                   ),
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          final existing = viewModel
-                                                              .selectedProducts
-                                                              .firstWhereOrNull(
-                                                                (e) =>
-                                                                    e.productId ==
-                                                                    item.productId,
-                                                              );
-                                                          final isAvailable =
-                                                              existing
-                                                                  ?.displayCheck ==
-                                                              1;
-                                                          if (!isAvailable) {
-                                                            ScaffoldMessenger.of(
-                                                              context,
-                                                            ).showSnackBar(
-                                                              SnackBar(
-                                                                content: Text(
-                                                                  LabelService()
-                                                                      .getLabel(
-                                                                        189,
-                                                                      ),
-                                                                ),
-                                                                backgroundColor:
-                                                                    Colors.red,
-                                                              ),
-                                                            );
-                                                            return;
-                                                          }
-
-                                                          if (existing !=
-                                                              null) {
-                                                            existing.displayCheckCount =
-                                                                existing.displayCheckCount ==
-                                                                        1
-                                                                    ? 0
-                                                                    : 1;
-                                                          } else {
-                                                            viewModel.selectedProducts.add(
-                                                              ProductSelection(
-                                                                productId:
-                                                                    item.productId,
-                                                                displayCheckCount:
-                                                                    1,
-                                                                displayCheck: 0,
-                                                                token:
-                                                                    viewModel
-                                                                        .user!
-                                                                        .apiToken
-                                                                        .toString(),
-                                                                storeId:
-                                                                    widget
-                                                                        .storeId
-                                                                        .toString(),
-                                                                teamMemberId:
-                                                                    viewModel
-                                                                        .user!
-                                                                        .teamMemberID
-                                                                        .toString(),
-                                                              ),
-                                                            );
-                                                          }
-                                                          viewModel
-                                                              .notifyListeners();
-                                                        },
-                                                        child: SizedBox(
-                                                          width: 80,
-                                                          child: Icon(
-                                                            viewModel.selectedProducts.any(
-                                                                  (e) =>
-                                                                      e.productId ==
-                                                                          item.productId &&
-                                                                      e.displayCheckCount ==
-                                                                          1,
-                                                                )
-                                                                ? Icons.check_circle
-                                                                : Icons.check_circle_outline,
-                                                            size: 26,
-                                                            color:
-                                                                viewModel.selectedProducts.any(
-                                                                      (e) =>
-                                                                          e.productId ==
-                                                                              item.productId &&
-                                                                          e.displayCheckCount ==
-                                                                              1,
-                                                                    )
-                                                                    ? Colors.green
-                                                                    : Colors.grey.shade400,
+                                                ],
+                                              ),
+                                            ),
+                                            const Divider(),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 10,
+                                                  ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  const Text(
+                                                    'Products',
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  Row(
+                                                    children: const [
+                                                      SizedBox(
+                                                        width: 70,
+                                                        child: Text(
+                                                          'Available',
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 8),
+                                                      SizedBox(
+                                                        width: 80,
+                                                        child: Text(
+                                                          'Less than 2?',
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.w600,
                                                           ),
                                                         ),
                                                       ),
@@ -749,358 +566,649 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                   ),
                                                 ],
                                               ),
-                                              const Divider(),
-                                            ],
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ],
-                                  ),
-
-                                  Padding(
-                                    padding: const EdgeInsets.all(12),
-                                    child: TextField(
-                                      controller: remarksController,
-                                      maxLines: 5,
-                                      decoration: InputDecoration(
-                                        hintText: LabelService().getLabel(52),
-                                        border: OutlineInputBorder(),
-                                      ),
-                                    ),
-                                  ),
-
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          LabelService().getLabel(49),
-                                          style: TextStyle(
-                                            color: AppColors.blackColor,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-
-                                        const SizedBox(height: 10),
-                                        Row(
-                                          children: [
-                                            Consumer(
-                                              builder: (context, ref, _) {
-                                                final viewModel = ref.watch(
-                                                  storeModelProvider,
-                                                );
-                                                return GestureDetector(
-                                                  onTap: () {
-                                                    if (viewModel
-                                                            .leftImages
-                                                            .length <
-                                                        4) {
-                                                      _showImagePickerDialog(
-                                                        'left',
-                                                      );
-                                                    } else {
-                                                      ScaffoldMessenger.of(
-                                                        context,
-                                                      ).showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(
-                                                            LabelService()
-                                                                .getLabel(114),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    }
-                                                  },
-                                                  child: Container(
-                                                    height: 80,
-                                                    width: 80,
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          Colors.grey.shade100,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            8,
-                                                          ),
-                                                    ),
-                                                    child: const Center(
-                                                      child: Icon(
-                                                        Icons.camera_alt,
-                                                        color: Colors.grey,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
                                             ),
-                                            const SizedBox(width: 10),
-                                            Expanded(
-                                              child: Consumer(
-                                                builder: (context, ref, _) {
-                                                  final viewModel = ref.watch(
-                                                    storeModelProvider,
-                                                  );
-                                                  final leftImages =
-                                                      viewModel.leftImages;
-                                                  return SizedBox(
-                                                    height: 80,
-                                                    child: ListView.builder(
-                                                      scrollDirection:
-                                                          Axis.horizontal,
-                                                      itemCount:
-                                                          leftImages.length,
-                                                      itemBuilder: (
-                                                        context,
-                                                        index,
-                                                      ) {
-                                                        final file =
-                                                            leftImages[index];
-                                                        return Stack(
+                                            const Divider(),
+                                            Column(
+                                              children: [
+                                                ...brandItems.asMap().entries.map((
+                                                  entry,
+                                                ) {
+                                                  final index = entry.key + 1;
+                                                  final item = entry.value;
+
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 12,
+                                                          vertical: 10,
+                                                        ),
+                                                    child: Column(
+                                                      children: [
+                                                        Row(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
                                                           children: [
-                                                            Container(
-                                                              margin:
-                                                                  const EdgeInsets.only(
-                                                                    right: 10,
-                                                                  ),
-                                                              height: 70,
-                                                              width: 80,
-                                                              decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius.circular(
-                                                                      8,
-                                                                    ),
-                                                                image: DecorationImage(
-                                                                  image:
-                                                                      FileImage(
-                                                                        file,
+                                                            Expanded(
+                                                              child: Row(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  SizedBox(
+                                                                    width: 24,
+                                                                    child: Text(
+                                                                      '$index.',
+                                                                      style: const TextStyle(
+                                                                        fontSize:
+                                                                            14,
+                                                                        color:
+                                                                            AppColors.blackColor,
                                                                       ),
-                                                                  fit:
-                                                                      BoxFit
-                                                                          .cover,
-                                                                ),
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                    child: Column(
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .start,
+                                                                      children: [
+                                                                        Text(
+                                                                          item.productModelCode,
+                                                                          style: const TextStyle(
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            fontSize:
+                                                                                14,
+                                                                            color:
+                                                                                AppColors.blackColor,
+                                                                          ),
+                                                                        ),
+                                                                        Text(
+                                                                          item.productModelName,
+                                                                          style: const TextStyle(
+                                                                            fontSize:
+                                                                                14,
+                                                                            color:
+                                                                                AppColors.blackColor,
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ],
                                                               ),
                                                             ),
-                                                            Positioned(
-                                                              top: 4,
-                                                              right: 4,
-                                                              child: GestureDetector(
-                                                                onTap: () {
-                                                                  viewModel
+                                                            Row(
+                                                              children: [
+                                                                GestureDetector(
+                                                                  onTap: () {
+                                                                    final existing = viewModel
+                                                                        .selectedProducts
+                                                                        .firstWhereOrNull(
+                                                                          (e) =>
+                                                                              e.productId ==
+                                                                              item.productId,
+                                                                        );
+
+                                                                    if (existing !=
+                                                                        null) {
+                                                                      existing.displayCheck =
+                                                                          existing.displayCheck ==
+                                                                                  1
+                                                                              ? 0
+                                                                              : 1;
+                                                                      if (existing
+                                                                              .displayCheck ==
+                                                                          0) {
+                                                                        existing
+                                                                            .displayCheckCount = 0;
+                                                                      }
+                                                                    } else {
+                                                                      viewModel.selectedProducts.add(
+                                                                        ProductSelection(
+                                                                          productId:
+                                                                              item.productId,
+                                                                          displayCheck:
+                                                                              1,
+                                                                          displayCheckCount:
+                                                                              0,
+                                                                          token:
+                                                                              viewModel.user!.apiToken.toString(),
+                                                                          storeId:
+                                                                              widget.storeId.toString(),
+                                                                          teamMemberId:
+                                                                              viewModel.user!.teamMemberID.toString(),
+                                                                        ),
+                                                                      );
+                                                                    }
+                                                                    viewModel
+                                                                        .notifyListeners();
+                                                                  },
+                                                                  child: Padding(
+                                                                    padding:
+                                                                        const EdgeInsets.only(
+                                                                          right:
+                                                                              8,
+                                                                        ),
+                                                                    child: SizedBox(
+                                                                      width: 70,
+                                                                      child: Icon(
+                                                                        viewModel.selectedProducts.any(
+                                                                              (
+                                                                                e,
+                                                                              ) =>
+                                                                                  e.productId ==
+                                                                                      item.productId &&
+                                                                                  e.displayCheck ==
+                                                                                      1,
+                                                                            )
+                                                                            ? Icons.check_circle
+                                                                            : Icons.check_circle_outline,
+                                                                        size:
+                                                                            26,
+                                                                        color:
+                                                                            viewModel.selectedProducts.any(
+                                                                                  (
+                                                                                    e,
+                                                                                  ) =>
+                                                                                      e.productId ==
+                                                                                          item.productId &&
+                                                                                      e.displayCheck ==
+                                                                                          1,
+                                                                                )
+                                                                                ? Colors.green
+                                                                                : Colors.grey.shade400,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                GestureDetector(
+                                                                  onTap: () {
+                                                                    final existing = viewModel
+                                                                        .selectedProducts
+                                                                        .firstWhereOrNull(
+                                                                          (e) =>
+                                                                              e.productId ==
+                                                                              item.productId,
+                                                                        );
+                                                                    final isAvailable =
+                                                                        existing
+                                                                            ?.displayCheck ==
+                                                                        1;
+                                                                    if (!isAvailable) {
+                                                                      ScaffoldMessenger.of(
+                                                                        context,
+                                                                      ).showSnackBar(
+                                                                        SnackBar(
+                                                                          content: Text(
+                                                                            LabelService().getLabel(
+                                                                              189,
+                                                                            ),
+                                                                          ),
+                                                                          backgroundColor:
+                                                                              Colors.red,
+                                                                        ),
+                                                                      );
+                                                                      return;
+                                                                    }
+
+                                                                    if (existing !=
+                                                                        null) {
+                                                                      existing.displayCheckCount =
+                                                                          existing.displayCheckCount ==
+                                                                                  1
+                                                                              ? 0
+                                                                              : 1;
+                                                                    } else {
+                                                                      viewModel.selectedProducts.add(
+                                                                        ProductSelection(
+                                                                          productId:
+                                                                              item.productId,
+                                                                          displayCheckCount:
+                                                                              1,
+                                                                          displayCheck:
+                                                                              0,
+                                                                          token:
+                                                                              viewModel.user!.apiToken.toString(),
+                                                                          storeId:
+                                                                              widget.storeId.toString(),
+                                                                          teamMemberId:
+                                                                              viewModel.user!.teamMemberID.toString(),
+                                                                        ),
+                                                                      );
+                                                                    }
+                                                                    viewModel
+                                                                        .notifyListeners();
+                                                                  },
+                                                                  child: SizedBox(
+                                                                    width: 80,
+                                                                    child: Icon(
+                                                                      viewModel.selectedProducts.any(
+                                                                            (
+                                                                              e,
+                                                                            ) =>
+                                                                                e.productId ==
+                                                                                    item.productId &&
+                                                                                e.displayCheckCount ==
+                                                                                    1,
+                                                                          )
+                                                                          ? Icons
+                                                                              .check_circle
+                                                                          : Icons
+                                                                              .check_circle_outline,
+                                                                      size: 26,
+                                                                      color:
+                                                                          viewModel.selectedProducts.any(
+                                                                                (
+                                                                                  e,
+                                                                                ) =>
+                                                                                    e.productId ==
+                                                                                        item.productId &&
+                                                                                    e.displayCheckCount ==
+                                                                                        1,
+                                                                              )
+                                                                              ? Colors.green
+                                                                              : Colors.grey.shade400,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        const Divider(),
+                                                      ],
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                              ],
+                                            ),
+
+                                            Padding(
+                                              padding: const EdgeInsets.all(12),
+                                              child: TextField(
+                                                controller: remarksController,
+                                                maxLines: 5,
+                                                decoration: InputDecoration(
+                                                  hintText: LabelService()
+                                                      .getLabel(52),
+                                                  border: OutlineInputBorder(),
+                                                ),
+                                              ),
+                                            ),
+
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                  ),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    LabelService().getLabel(49),
+                                                    style: TextStyle(
+                                                      color:
+                                                          AppColors.blackColor,
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+
+                                                  const SizedBox(height: 10),
+                                                  Row(
+                                                    children: [
+                                                      Consumer(
+                                                        builder: (
+                                                          context,
+                                                          ref,
+                                                          _,
+                                                        ) {
+                                                          final viewModel = ref
+                                                              .watch(
+                                                                storeModelProvider,
+                                                              );
+                                                          return GestureDetector(
+                                                            onTap: () {
+                                                              if (viewModel
                                                                       .leftImages
-                                                                      .removeAt(
-                                                                        index,
-                                                                      );
-                                                                  viewModel
-                                                                      .notifyListeners();
-                                                                },
-                                                                child: Container(
-                                                                  decoration: const BoxDecoration(
-                                                                    color:
-                                                                        Colors
-                                                                            .black54,
-                                                                    shape:
-                                                                        BoxShape
-                                                                            .circle,
+                                                                      .length <
+                                                                  4) {
+                                                                _showImagePickerDialog(
+                                                                  'left',
+                                                                );
+                                                              } else {
+                                                                ScaffoldMessenger.of(
+                                                                  context,
+                                                                ).showSnackBar(
+                                                                  SnackBar(
+                                                                    content: Text(
+                                                                      LabelService()
+                                                                          .getLabel(
+                                                                            114,
+                                                                          ),
+                                                                    ),
                                                                   ),
-                                                                  padding:
-                                                                      const EdgeInsets.all(
-                                                                        4,
-                                                                      ),
-                                                                  child: const Icon(
-                                                                    Icons.close,
-                                                                    size: 16,
-                                                                    color:
-                                                                        Colors
-                                                                            .white,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        );
-                                                      },
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 20),
-
-                                        /// --- Competitions Section ---
-                                        Text(
-                                          LabelService().getLabel(50),
-                                          style: TextStyle(
-                                            color: AppColors.blackColor,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Row(
-                                          children: [
-                                            Consumer(
-                                              builder: (context, ref, _) {
-                                                final viewModel = ref.watch(
-                                                  storeModelProvider,
-                                                );
-                                                return GestureDetector(
-                                                  onTap: () {
-                                                    if (viewModel
-                                                            .rightImages
-                                                            .length <
-                                                        4) {
-                                                      _showImagePickerDialog(
-                                                        'right',
-                                                      );
-                                                    } else {
-                                                      ScaffoldMessenger.of(
-                                                        context,
-                                                      ).showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(
-                                                            LabelService()
-                                                                .getLabel(114),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    }
-                                                  },
-                                                  child: Container(
-                                                    height: 80,
-                                                    width: 80,
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          Colors.grey.shade100,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            8,
-                                                          ),
-                                                    ),
-                                                    child: const Center(
-                                                      child: Icon(
-                                                        Icons.camera_alt,
-                                                        color: Colors.grey,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                            const SizedBox(width: 10),
-                                            Expanded(
-                                              child: Consumer(
-                                                builder: (context, ref, _) {
-                                                  final viewModel = ref.watch(
-                                                    storeModelProvider,
-                                                  );
-                                                  final rightImages =
-                                                      viewModel.rightImages;
-                                                  return SizedBox(
-                                                    height: 80,
-                                                    child: ListView.builder(
-                                                      scrollDirection:
-                                                          Axis.horizontal,
-                                                      itemCount:
-                                                          rightImages.length,
-                                                      itemBuilder: (
-                                                        context,
-                                                        index,
-                                                      ) {
-                                                        final file =
-                                                            rightImages[index];
-                                                        return Stack(
-                                                          children: [
-                                                            Container(
-                                                              margin:
-                                                                  const EdgeInsets.only(
-                                                                    right: 10,
-                                                                  ),
-                                                              height: 70,
+                                                                );
+                                                              }
+                                                            },
+                                                            child: Container(
+                                                              height: 80,
                                                               width: 80,
                                                               decoration: BoxDecoration(
+                                                                color:
+                                                                    Colors
+                                                                        .grey
+                                                                        .shade100,
                                                                 borderRadius:
                                                                     BorderRadius.circular(
                                                                       8,
                                                                     ),
-                                                                image: DecorationImage(
-                                                                  image:
-                                                                      FileImage(
-                                                                        file,
-                                                                      ),
-                                                                  fit:
-                                                                      BoxFit
-                                                                          .cover,
+                                                              ),
+                                                              child: const Center(
+                                                                child: Icon(
+                                                                  Icons
+                                                                      .camera_alt,
+                                                                  color:
+                                                                      Colors
+                                                                          .grey,
                                                                 ),
                                                               ),
                                                             ),
-                                                            Positioned(
-                                                              top: 4,
-                                                              right: 4,
-                                                              child: GestureDetector(
-                                                                onTap: () {
-                                                                  viewModel
-                                                                      .rightImages
-                                                                      .removeAt(
-                                                                        index,
-                                                                      );
-                                                                  viewModel
-                                                                      .notifyListeners();
+                                                          );
+                                                        },
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      Expanded(
+                                                        child: Consumer(
+                                                          builder: (
+                                                            context,
+                                                            ref,
+                                                            _,
+                                                          ) {
+                                                            final viewModel =
+                                                                ref.watch(
+                                                                  storeModelProvider,
+                                                                );
+                                                            final leftImages =
+                                                                viewModel
+                                                                    .leftImages;
+                                                            return SizedBox(
+                                                              height: 80,
+                                                              child: ListView.builder(
+                                                                scrollDirection:
+                                                                    Axis.horizontal,
+                                                                itemCount:
+                                                                    leftImages
+                                                                        .length,
+                                                                itemBuilder: (
+                                                                  context,
+                                                                  index,
+                                                                ) {
+                                                                  final file =
+                                                                      leftImages[index];
+                                                                  return Stack(
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: const EdgeInsets.only(
+                                                                          right:
+                                                                              10,
+                                                                        ),
+                                                                        height:
+                                                                            70,
+                                                                        width:
+                                                                            80,
+                                                                        decoration: BoxDecoration(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(
+                                                                                8,
+                                                                              ),
+                                                                          image: DecorationImage(
+                                                                            image: FileImage(
+                                                                              file,
+                                                                            ),
+                                                                            fit:
+                                                                                BoxFit.cover,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Positioned(
+                                                                        top: 4,
+                                                                        right:
+                                                                            4,
+                                                                        child: GestureDetector(
+                                                                          onTap: () {
+                                                                            viewModel.leftImages.removeAt(
+                                                                              index,
+                                                                            );
+                                                                            viewModel.notifyListeners();
+                                                                          },
+                                                                          child: Container(
+                                                                            decoration: const BoxDecoration(
+                                                                              color:
+                                                                                  Colors.black54,
+                                                                              shape:
+                                                                                  BoxShape.circle,
+                                                                            ),
+                                                                            padding: const EdgeInsets.all(
+                                                                              4,
+                                                                            ),
+                                                                            child: const Icon(
+                                                                              Icons.close,
+                                                                              size:
+                                                                                  16,
+                                                                              color:
+                                                                                  Colors.white,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  );
                                                                 },
-                                                                child: Container(
-                                                                  decoration: const BoxDecoration(
-                                                                    color:
-                                                                        Colors
-                                                                            .black54,
-                                                                    shape:
-                                                                        BoxShape
-                                                                            .circle,
+                                                              ),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 20),
+
+                                                  /// --- Competitions Section ---
+                                                  Text(
+                                                    LabelService().getLabel(50),
+                                                    style: TextStyle(
+                                                      color:
+                                                          AppColors.blackColor,
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 10),
+                                                  Row(
+                                                    children: [
+                                                      Consumer(
+                                                        builder: (
+                                                          context,
+                                                          ref,
+                                                          _,
+                                                        ) {
+                                                          final viewModel = ref
+                                                              .watch(
+                                                                storeModelProvider,
+                                                              );
+                                                          return GestureDetector(
+                                                            onTap: () {
+                                                              if (viewModel
+                                                                      .rightImages
+                                                                      .length <
+                                                                  4) {
+                                                                _showImagePickerDialog(
+                                                                  'right',
+                                                                );
+                                                              } else {
+                                                                ScaffoldMessenger.of(
+                                                                  context,
+                                                                ).showSnackBar(
+                                                                  SnackBar(
+                                                                    content: Text(
+                                                                      LabelService()
+                                                                          .getLabel(
+                                                                            114,
+                                                                          ),
+                                                                    ),
                                                                   ),
-                                                                  padding:
-                                                                      const EdgeInsets.all(
-                                                                        4,
-                                                                      ),
-                                                                  child: const Icon(
-                                                                    Icons.close,
-                                                                    size: 16,
-                                                                    color:
-                                                                        Colors
-                                                                            .white,
-                                                                  ),
+                                                                );
+                                                              }
+                                                            },
+                                                            child: Container(
+                                                              height: 80,
+                                                              width: 80,
+                                                              decoration: BoxDecoration(
+                                                                color:
+                                                                    Colors
+                                                                        .grey
+                                                                        .shade100,
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      8,
+                                                                    ),
+                                                              ),
+                                                              child: const Center(
+                                                                child: Icon(
+                                                                  Icons
+                                                                      .camera_alt,
+                                                                  color:
+                                                                      Colors
+                                                                          .grey,
                                                                 ),
                                                               ),
                                                             ),
-                                                          ],
-                                                        );
-                                                      },
-                                                    ),
-                                                  );
-                                                },
+                                                          );
+                                                        },
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      Expanded(
+                                                        child: Consumer(
+                                                          builder: (
+                                                            context,
+                                                            ref,
+                                                            _,
+                                                          ) {
+                                                            final viewModel =
+                                                                ref.watch(
+                                                                  storeModelProvider,
+                                                                );
+                                                            final rightImages =
+                                                                viewModel
+                                                                    .rightImages;
+                                                            return SizedBox(
+                                                              height: 80,
+                                                              child: ListView.builder(
+                                                                scrollDirection:
+                                                                    Axis.horizontal,
+                                                                itemCount:
+                                                                    rightImages
+                                                                        .length,
+                                                                itemBuilder: (
+                                                                  context,
+                                                                  index,
+                                                                ) {
+                                                                  final file =
+                                                                      rightImages[index];
+                                                                  return Stack(
+                                                                    children: [
+                                                                      Container(
+                                                                        margin: const EdgeInsets.only(
+                                                                          right:
+                                                                              10,
+                                                                        ),
+                                                                        height:
+                                                                            70,
+                                                                        width:
+                                                                            80,
+                                                                        decoration: BoxDecoration(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(
+                                                                                8,
+                                                                              ),
+                                                                          image: DecorationImage(
+                                                                            image: FileImage(
+                                                                              file,
+                                                                            ),
+                                                                            fit:
+                                                                                BoxFit.cover,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      Positioned(
+                                                                        top: 4,
+                                                                        right:
+                                                                            4,
+                                                                        child: GestureDetector(
+                                                                          onTap: () {
+                                                                            viewModel.rightImages.removeAt(
+                                                                              index,
+                                                                            );
+                                                                            viewModel.notifyListeners();
+                                                                          },
+                                                                          child: Container(
+                                                                            decoration: const BoxDecoration(
+                                                                              color:
+                                                                                  Colors.black54,
+                                                                              shape:
+                                                                                  BoxShape.circle,
+                                                                            ),
+                                                                            padding: const EdgeInsets.all(
+                                                                              4,
+                                                                            ),
+                                                                            child: const Icon(
+                                                                              Icons.close,
+                                                                              size:
+                                                                                  16,
+                                                                              color:
+                                                                                  Colors.white,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                },
+                                                              ),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
                                               ),
                                             ),
+
+                                            const SizedBox(height: 20),
                                           ],
                                         ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  const SizedBox(height: 20),
-                                ],
-                              ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
                             ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-            ],
-          ),
-        ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
       ),
     );
   }

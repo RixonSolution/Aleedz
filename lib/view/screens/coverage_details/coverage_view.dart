@@ -631,6 +631,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
           children: [
             Container(
               width: double.infinity,
+              constraints: const BoxConstraints(minHeight: 150),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -683,7 +684,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                     ],
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 40),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -737,6 +738,17 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
               child: DropdownButtonFormField<int>(
                 value: viewModel.selectedChannel?.channelId,
                 decoration: _inputDecoration(hint: LabelService().getLabel(19)),
+                style: const TextStyle(
+                  color: AppColors.blackColor,
+                  fontSize: 14,
+                ),
+                hint: Text(
+                  LabelService().getLabel(19),
+                  style: TextStyle(
+                    color: AppColors.blackColor.withOpacity(0.45),
+                    fontSize: 14,
+                  ),
+                ),
 
                 items:
                     viewModel.channelList.map((channel) {
@@ -775,16 +787,31 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                           checkInTime.isNotEmpty && checkInTime != '0';
 
                       final bool isPlan = store.visitStatusId == 0;
-                      final Color numberColor =
-                          isPlan
-                              ? Colors.blue.shade500
-                              : Colors.orange.shade500;
-                      final Color statusColor =
-                          isPlan
-                              ? Colors.blue.shade500
-                              : Colors.orange.shade500;
-                      final Color borderColor =
-                          isPlan ? Colors.transparent : statusColor;
+
+                      Color cardBg = AppColors.whiteColor;
+                      Color borderColor = Colors.grey.shade200;
+                      double borderWidth = 1;
+                      Color numberColor = AppColors.secondary;
+                      Color statusColor = AppColors.secondary.withOpacity(0.08);
+                      Color statusTextColor = AppColors.secondary;
+
+                      if (store.visitStatusId == 2) {
+                        cardBg = AppColors.primary.withOpacity(0.08);
+                        borderColor = AppColors.primary;
+                        numberColor = AppColors.primary;
+                        statusColor = AppColors.primary;
+                        statusTextColor = AppColors.whiteColor;
+                      } else if (store.visitStatusId == 3) {
+                        borderColor = AppColors.success;
+                        numberColor = AppColors.success;
+                        statusColor = AppColors.success.withOpacity(0.12);
+                        statusTextColor = AppColors.success;
+                      } else if (store.visitStatusId == 4) {
+                        borderColor = AppColors.error;
+                        numberColor = AppColors.error;
+                        statusColor = AppColors.error.withOpacity(0.12);
+                        statusTextColor = AppColors.error;
+                      }
 
                       return Container(
                         padding: const EdgeInsets.symmetric(
@@ -793,9 +820,12 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                         ),
                         margin: const EdgeInsets.symmetric(horizontal: 0),
                         decoration: BoxDecoration(
-                          color: AppColors.whiteColor,
+                          color: cardBg,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: borderColor, width: isPlan ? 0 : 2),
+                          border: Border.all(
+                            color: borderColor,
+                            width: borderWidth,
+                          ),
                           boxShadow: const [
                             BoxShadow(
                               color: Color(0x1A000000), // ~10% black
@@ -1010,8 +1040,8 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                               store.visitStatusId == 0
                                                   ? LabelService().getLabel(14)
                                                   : LabelService().getLabel(15),
-                                              style: const TextStyle(
-                                                color: Colors.white,
+                                              style: TextStyle(
+                                                color: statusTextColor,
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w700,
                                               ),

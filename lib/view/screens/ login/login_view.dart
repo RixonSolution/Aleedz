@@ -10,6 +10,7 @@ import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:aleedz/core/constants/assets/app_images.dart';
 
 class LoginView extends ConsumerStatefulWidget {
   const LoginView({super.key});
@@ -22,6 +23,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
   @override
   void initState() {
     _loadLabels();
+    _loadBaseUrl();
     checkFingerprintAvailability();
 
     super.initState();
@@ -31,6 +33,16 @@ class _LoginViewState extends ConsumerState<LoginView> {
     await LabelService().loadLabels();
 
     setState(() {}); // Trigger a rebuild after labels are loaded
+  }
+
+  Future<void> _loadBaseUrl() async {
+    await ApiConstants.initialize();
+    final persisted = ApiConstants.persistedBaseUrl;
+    if (persisted == null || persisted.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        NavigationService.resetTo(ChooseLanguageView());
+      });
+    }
   }
 
   bool showFingerprint = false;
@@ -60,8 +72,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 // Logo + tagline
                 Column(
                   children: [
-                    Image.network(
-                      '${ApiConstants.baseUrl}/AppImages/Client_logo.png',
+                    Image.asset(
+                      AppImages.logo1,
                       height: 140,
                       width: 200,
                       fit: BoxFit.contain,

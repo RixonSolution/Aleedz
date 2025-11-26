@@ -23,13 +23,11 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   bool _showProfileDrawer = false;
   List<Widget> _screens = [SizedBox(), SizedBox(), SizedBox(), SizedBox()];
 
+  static const Color _navBackground = Color(0xFF1f2937);
+
   Widget _navIcon(IconData icon, bool isActive) {
-    final color = isActive ? Colors.orange.shade500 : Colors.grey.shade400;
-    return Icon(
-      icon,
-      color: color,
-      size: 28,
-    );
+    final color = isActive ? Colors.white : Colors.white70;
+    return Icon(icon, color: color, size: 28);
   }
 
   // final List<Widget> _screens = [
@@ -101,17 +99,20 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                 type: BottomNavigationBarType.fixed,
                 currentIndex: _selectedIndex,
                 onTap: _onItemTapped,
-                backgroundColor: Colors.white,
-                selectedItemColor: Colors.orange.shade500,
-                unselectedItemColor: Colors.grey.shade400,
-                elevation: 8,
+                backgroundColor: _navBackground,
+                selectedItemColor: Colors.white,
+                unselectedItemColor: Colors.white70,
+                elevation: 10,
                 items: [
                   BottomNavigationBarItem(
                     icon: _navIcon(Icons.home_outlined, _selectedIndex == 0),
                     label: LabelService().getLabel(7),
                   ),
                   BottomNavigationBarItem(
-                    icon: _navIcon(Icons.shopping_bag_outlined, _selectedIndex == 1),
+                    icon: _navIcon(
+                      Icons.shopping_bag_outlined,
+                      _selectedIndex == 1,
+                    ),
                     label: LabelService().getLabel(8),
                   ),
                   BottomNavigationBarItem(

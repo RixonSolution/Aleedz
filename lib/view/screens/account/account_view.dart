@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/view/screens/%20login/auth_helper.dart';
 import 'package:aleedz/view/screens/%20login/login_view.dart';
 import 'package:aleedz/view/screens/change_pwd/change_pwd_view.dart';
 import 'package:aleedz/view/screens/issues/issues.view.dart';
@@ -50,7 +52,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               TextButton(
                 onPressed: () async {
                   final prefs = await SharedPreferences.getInstance();
-                  await prefs.clear();
+                  final keysToKeep = {ApiConstants.baseUrlPreferenceKey};
+                  for (final key in prefs.getKeys()) {
+                    if (!keysToKeep.contains(key)) {
+                      await prefs.remove(key);
+                    }
+                  }
+                  await AuthHelper.clearCredentials();
                   NavigationService.resetTo(LoginView());
                 },
                 child: Text(
@@ -191,7 +199,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.secondary,
+              color: AppColors.navBarDark,
               boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
             ),
             child: Row(
@@ -210,7 +218,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ? const Icon(
                                 Icons.person,
                                 size: 20,
-                                color: AppColors.secondary,
+                                color: AppColors.travelBlue,
                               )
                               : null,
                     ),
@@ -259,7 +267,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       .where((item) => item['visible'] != false)
                       .map(
                         (item) => ListTile(
-                          leading: Icon(item['icon'], color: Colors.blue),
+                          leading: Icon(
+                            item['icon'],
+                            color: AppColors.travelBlue,
+                          ),
                           title: Text(item['title'] ?? ''),
                           trailing: const Icon(
                             Icons.arrow_forward_ios,

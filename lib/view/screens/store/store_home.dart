@@ -98,6 +98,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
             DisplayAuditCheckSummary(
               storeName: widget.storeName,
               checkInTime: widget.checkInTime,
+              address: widget.address,
               storeId: widget.storeId,
               visitId: viewModel.visitId,
             ),
@@ -521,12 +522,6 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
   }
 }
 
-
-
-
-
-
-
 // InkWell(
 //                           onTap: () {
 //                             if (viewModel.rosLabels[index].rosLabelID == 29) {
@@ -648,4 +643,3 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
 //                             ),
 //                           ),
 //                         );
-                  

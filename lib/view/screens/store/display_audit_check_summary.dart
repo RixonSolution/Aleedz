@@ -7,12 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DisplayAuditCheckSummary extends ConsumerStatefulWidget {
-  String storeName, checkInTime;
+  String storeName, checkInTime, address;
   int storeId, visitId;
   DisplayAuditCheckSummary({
     Key? key,
     required this.storeName,
     required this.checkInTime,
+    required this.address,
     required this.storeId,
     required this.visitId,
   }) : super(key: key);
@@ -89,6 +90,46 @@ class _DisplayAuditCheckSummaryState
                     ),
                   ),
                   const SizedBox(height: 4),
+                  Text(
+                    widget.address,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.grey.shade300,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.check,
+                          color: Colors.greenAccent,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${LabelService().getLabel(14)} ${widget.checkInTime}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -116,18 +157,17 @@ class _DisplayAuditCheckSummaryState
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       hintText: 'All Brands (Dropdown)',
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 10,
-                      ),
+                      contentPadding: EdgeInsets.symmetric(vertical: 10),
                     ),
-                    items: viewModel.brandList
-                        .map(
-                          (brand) => DropdownMenuItem<int>(
-                            value: brand.brandId,
-                            child: Text(brand.brandName),
-                          ),
-                        )
-                        .toList(),
+                    items:
+                        viewModel.brandList
+                            .map(
+                              (brand) => DropdownMenuItem<int>(
+                                value: brand.brandId,
+                                child: Text(brand.brandName),
+                              ),
+                            )
+                            .toList(),
                     onChanged: (int? branddlId) {
                       final selected = viewModel.brandList.firstWhere(
                         (c) => c.brandId == branddlId,
@@ -207,7 +247,8 @@ class _DisplayAuditCheckSummaryState
                                 Row(
                                   children: [
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Text(
                                           'Model',
@@ -229,7 +270,8 @@ class _DisplayAuditCheckSummaryState
                                     ),
                                     const SizedBox(width: 16),
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Text(
                                           'Display',
@@ -258,9 +300,9 @@ class _DisplayAuditCheckSummaryState
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: brand.products.length,
-                              separatorBuilder: (context, index) => Divider(
-                                color: Colors.grey.shade300,
-                              ),
+                              separatorBuilder:
+                                  (context, index) =>
+                                      Divider(color: Colors.grey.shade300),
                               itemBuilder: (context, listIndex) {
                                 final item = brand.products[listIndex];
                                 return GestureDetector(
@@ -269,6 +311,7 @@ class _DisplayAuditCheckSummaryState
                                       DisplayAuditCheck(
                                         storeName: widget.storeName,
                                         checkInTime: widget.checkInTime,
+                                        address: widget.address,
                                         storeId: widget.storeId,
                                         categoryId: item.productCategoryId,
                                         categoryName: item.productCategoryName,

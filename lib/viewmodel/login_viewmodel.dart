@@ -69,7 +69,14 @@ class LoginViewModel extends ChangeNotifier {
             userData.apiToken!,
             userData.teamMemberID!,
           );
-          await chooseLanguage('1', language: false);
+          final labelsLoaded = await chooseLanguage('1', language: false);
+          if (!labelsLoaded) {
+            AppSnackBar.showError(
+              context,
+              'Unable to load language data. Please try again.',
+            );
+            return false;
+          }
           AppSnackBar.showSuccess(context, 'Login successful!');
           return true; // ✅ SUCCESS
         }
@@ -128,7 +135,10 @@ class LoginViewModel extends ChangeNotifier {
     return null;
   }
 
-  Future<void> chooseLanguage(String languageId, {bool language = true}) async {
+  Future<bool> chooseLanguage(
+    String languageId, {
+    bool language = true,
+  }) async {
     loader = true;
     notifyListeners();
 
@@ -141,15 +151,17 @@ class LoginViewModel extends ChangeNotifier {
 
     if (response != null && response["status"] == 200) {
       final nestedData = response["data"]['data'];
-      final List<LabelModel> labels =
-          (nestedData as List).map((e) => LabelModel.fromJson(e)).toList();
-      await localData.saveLabelsToPrefs(labels);
-      final List<LabelModel> savedLabels = await localData.getLabelsFromPrefs();
-      if (language == true) {
-        NavigationService.navigateTo(LoginView());
-      } else {}
+      if (nestedData is List && nestedData.isNotEmpty) {
+        final List<LabelModel> labels =
+            nestedData.map((e) => LabelModel.fromJson(e)).toList();
+        await localData.saveLabelsToPrefs(labels);
+        if (language == true) {
+          NavigationService.navigateTo(LoginView());
+        }
+        return true;
+      }
+    }
 
-      // AppSnackBar.showSuccess(context, 'Language is set as English}');
-    } else {}
+    return false;
   }
 }

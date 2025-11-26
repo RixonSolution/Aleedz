@@ -1030,14 +1030,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                             children: [
                                               Icon(
                                                 Icons.event_note,
-                                                color: Color(0xFF60a5fa),
+                                                color: AppColors.travelBlue,
                                                 size: 18,
                                               ),
                                               const SizedBox(width: 6),
-                                              const Text(
+                                              Text(
                                                 "Today's Plan",
                                                 style: TextStyle(
-                                                  color: Color(0xFF60a5fa),
+                                                  color: AppColors.travelBlue,
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w600,
                                                 ),
@@ -1300,7 +1300,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                   numberBg = AppColors.success;
                                   numberText = AppColors.whiteColor;
                                   trailingText =
-                                      'In: ${store.checkInTime} - Out: ${store.checkOutTime}';
+                                      'In: ${store.checkInTime.isNotEmpty ? store.checkInTime : '--'}';
                                 } else if (visitStatusId == 4) {
                                   badgeBg = AppColors.error.withOpacity(0.12);
                                   badgeTextColor = AppColors.error;
