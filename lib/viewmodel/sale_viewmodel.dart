@@ -31,7 +31,7 @@ class SaleViewModel extends ChangeNotifier {
 
   bool loader = false;
 
-  void selectBrand(int storeId, BrandListModel? brand) async {
+  Future<void> selectBrand(int storeId, BrandListModel? brand) async {
     selectedBrand = brand;
     notifyListeners();
     print("Selected Channel ID: ${brand?.brandId}");
@@ -40,7 +40,10 @@ class SaleViewModel extends ChangeNotifier {
     }
   }
 
-  void selectProductCategory(int storeId, ProductCategoryDP? category) async {
+  Future<void> selectProductCategory(
+    int storeId,
+    ProductCategoryDP? category,
+  ) async {
     selectedProductCategory = category;
     notifyListeners();
     print("Selected Product ID: ${category?.productCategoryID}");
@@ -53,7 +56,7 @@ class SaleViewModel extends ChangeNotifier {
     }
   }
 
-  void selectSearchModel(SaleSearchModel? search) async {
+  Future<void> selectSearchModel(SaleSearchModel? search) async {
     selectedSaleSearch = search;
     notifyListeners();
     print("Selected SearchModel ID: ${search?.productID}");

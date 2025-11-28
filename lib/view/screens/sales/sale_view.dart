@@ -1,5 +1,4 @@
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
@@ -10,12 +9,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 class SaleView extends ConsumerStatefulWidget {
-  String storeName, checkInTime;
+  String storeName, checkInTime, address;
   int storeId;
   SaleView({
     Key? key,
     required this.storeName,
     required this.checkInTime,
+    required this.address,
     required this.storeId,
   }) : super(key: key);
 
@@ -43,14 +43,12 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
   void clcTotal() {
     totalQuantity = 0;
     totalPrice = 0;
-    setState(() {});
     for (var item in ref.read(saleModelProvider.notifier).saleList) {
       final qty = int.tryParse(item.saleQuantity?.toString() ?? '0') ?? 0;
       final price = double.tryParse(item.saleValue?.toString() ?? '0') ?? 0;
 
       totalQuantity += qty;
       totalPrice += qty * price;
-      setState(() {});
     }
   }
 
@@ -60,14 +58,19 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
 
   DateTime _selectedDate = DateTime.now();
 
-  final List<DateTime> visibleDates = List.generate(
-    30,
-    (index) => DateTime.now().subtract(Duration(days: 29 - index)),
-  );
-
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController totalController = TextEditingController();
+
+  final NumberFormat _amountFormatter = NumberFormat('#,##0.##');
+
+  String _formatAmount(num value) => _amountFormatter.format(value);
+
+  double _toDouble(dynamic value) {
+    if (value == null) return 0;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value.toString()) ?? 0;
+  }
 
   void calculateTotal() {
     final quantity = double.tryParse(quantityController.text) ?? 0;
@@ -75,7 +78,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
     final total = quantity * price;
 
     totalController.text = total.toStringAsFixed(2);
-    setState(() {});
   }
 
   Future<void> _showLogoutDialog(
@@ -157,30 +159,788 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
     super.dispose();
   }
 
+  bool _isFutureDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final candidate = DateTime(date.year, date.month, date.day);
+    return candidate.isAfter(today);
+  }
+
+  void _updateDate(DateTime date, SaleViewModel viewModel) {
+    setState(() {
+      _selectedDate = date;
+    });
+    final formattedDate = DateFormat(
+      'yyyy-MM-dd',
+    ).format(date); // backend expects this format
+    viewModel.loadsale(context, widget.storeId.toString(), formattedDate);
+  }
+
+  Future<void> _openDatePicker(SaleViewModel viewModel) async {
+    final now = DateTime.now();
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(now.year, now.month, now.day),
+    );
+
+    if (pickedDate != null) {
+      _updateDate(pickedDate, viewModel);
+    }
+  }
+
+  void _changeDateBy(int days, SaleViewModel viewModel) {
+    final candidate = _selectedDate.add(Duration(days: days));
+    if (days > 0 && _isFutureDate(candidate)) return;
+    _updateDate(candidate, viewModel);
+  }
+
+  Widget _arrowButton({required IconData icon, required VoidCallback? onTap}) {
+    final enabled = onTap != null;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(22),
+      child: Container(
+        height: 44,
+        width: 44,
+        decoration: BoxDecoration(
+          color: enabled ? const Color(0xFFF4F5F7) : const Color(0xFFE9E9EC),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: enabled ? const Color(0xFF111827) : Colors.grey,
+          size: 20,
+        ),
+      ),
+    );
+  }
+
+  Widget _dateSelector(SaleViewModel viewModel) {
+    final displayDate = DateFormat('dd MMMM yyyy').format(_selectedDate);
+    final canGoForward =
+        !_isFutureDate(_selectedDate.add(const Duration(days: 1)));
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.12),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              _arrowButton(
+                icon: Icons.chevron_left,
+                onTap: () => _changeDateBy(-1, viewModel),
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _openDatePicker(viewModel),
+                  child: Center(
+                    child: Text(
+                      displayDate,
+                      style: const TextStyle(
+                        color: Color(0xFF111827),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              _arrowButton(
+                icon: Icons.chevron_right,
+                onTap: canGoForward ? () => _changeDateBy(1, viewModel) : null,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Divider(color: Colors.grey.shade200, height: 1),
+        ],
+      ),
+    );
+  }
+
+  Widget _saleCard({
+    required SaleViewModel viewModel,
+    required int index,
+    required String formattedDate2,
+  }) {
+    final item = viewModel.saleList[index];
+    final double qty = _toDouble(item.saleQuantity);
+    final double price = _toDouble(item.saleValue);
+    final double lineTotal = qty * price;
+
+    return InkWell(
+      onLongPress: () {
+        _showLogoutDialog(context, () async {
+          NavigationService.goBack();
+          viewModel.loader = true;
+          viewModel.notifyListeners();
+
+          await viewModel.deleteSale(
+            context,
+            storeId: widget.storeId.toString(),
+            saleId: item.saleId.toString(),
+          );
+          await viewModel.saleView(
+            context,
+            storeId: widget.storeId.toString(),
+            saleDate: formattedDate2,
+          );
+          clcTotal();
+
+          viewModel.loader = false;
+          viewModel.notifyListeners();
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x19000000),
+              blurRadius: 14,
+              offset: Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.productModelName ?? '-',
+                    style: const TextStyle(
+                      color: Color(0xFF111827),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'SKU: ${item.productModelCode ?? '-'}',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Price: ${_formatAmount(price)}',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'Qty: ${_formatAmount(qty)}',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _formatAmount(lineTotal),
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _summaryRow(String title, String value, {bool isBold = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: isBold ? 18 : 16,
+            fontWeight: isBold ? FontWeight.w800 : FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _summaryCard(SaleViewModel viewModel) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF111827), Color(0xFF0B1120)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _summaryRow('Total Items', _formatAmount(totalQuantity)),
+          Divider(color: Colors.white.withOpacity(0.16), height: 18),
+          _summaryRow(
+            'Products Sold',
+            _formatAmount(viewModel.saleList.length),
+          ),
+          Divider(color: Colors.white.withOpacity(0.16), height: 18),
+          _summaryRow('Total Amount', _formatAmount(totalPrice), isBold: true),
+        ],
+      ),
+    );
+  }
+
+  Widget _fieldLabel(String text) {
+    return Row(
+      children: [
+        Text(
+          text,
+          style: const TextStyle(
+            color: Color(0xFF111827),
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const Text(
+          ' *',
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
+    );
+  }
+
+  InputDecoration _sheetInputDecoration(String hint, {Widget? prefix}) {
+    return InputDecoration(
+      hintText: hint,
+      prefixIcon: prefix,
+      filled: true,
+      fillColor: const Color(0xFFF7F8FA),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: AppColors.secondary),
+      ),
+    );
+  }
+
+  Widget _totalAmountTile(double amount) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF111827), Color(0xFF0B1120)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Total Amount',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.8),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '${_formatAmount(amount)} KD',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openAddSaleSheet(SaleViewModel viewModel) {
+    if (quantityController.text.isEmpty) {
+      quantityController.text = '1';
+    }
+    calculateTotal();
+    bool isSubmitting = false;
+    final saleDate = DateFormat('yyyy-MM-dd').format(_selectedDate);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return AnimatedBuilder(
+              animation: viewModel,
+              builder: (context, _) {
+                final totalAmount =
+                    _toDouble(quantityController.text) *
+                    _toDouble(priceController.text);
+
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Add New Sale',
+                                style: TextStyle(
+                                  color: Color(0xFF111827),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () => Navigator.of(context).pop(),
+                                child: Container(
+                                  height: 36,
+                                  width: 36,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFF2F3F5),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 18,
+                                    color: Color(0xFF111827),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Divider(color: Colors.grey.shade300, height: 1),
+                          const SizedBox(height: 16),
+
+                          _fieldLabel('Brand'),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<int>(
+                            value: viewModel.selectedBrand?.brandId,
+                            decoration: _sheetInputDecoration('Select Brand'),
+                            items:
+                                viewModel.brandList
+                                    .map(
+                                      (brand) => DropdownMenuItem<int>(
+                                        value: brand.brandId,
+                                        child: Text(brand.brandName),
+                                      ),
+                                    )
+                                    .toList(),
+                            onChanged:
+                                (viewModel.brandList.isEmpty)
+                                    ? null
+                                    : (int? brandId) async {
+                                      if (brandId == null) return;
+                                      final selected = viewModel.brandList
+                                          .firstWhere(
+                                            (c) => c.brandId == brandId,
+                                          );
+                                      await viewModel.selectBrand(
+                                        widget.storeId,
+                                        selected,
+                                      );
+                                      setModalState(() {});
+                                    },
+                          ),
+
+                          const SizedBox(height: 16),
+                          _fieldLabel('Category'),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<int>(
+                            value:
+                                viewModel
+                                    .selectedProductCategory
+                                    ?.productCategoryID,
+                            isExpanded: true,
+                            decoration: _sheetInputDecoration(
+                              'Select Category',
+                            ),
+                            items:
+                                viewModel.productCategory
+                                    .map(
+                                      (category) => DropdownMenuItem<int>(
+                                        value: category.productCategoryID,
+                                        child: Text(
+                                          category.productCategoryName ?? '',
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                            onChanged:
+                                viewModel.productCategory.isEmpty
+                                    ? null
+                                    : (int? categoryId) async {
+                                      if (categoryId != null) {
+                                        final selected = viewModel
+                                            .productCategory
+                                            .firstWhere(
+                                              (c) =>
+                                                  c.productCategoryID ==
+                                                  categoryId,
+                                            );
+                                        await viewModel.selectProductCategory(
+                                          widget.storeId,
+                                          selected,
+                                        );
+                                        setModalState(() {});
+                                      }
+                                    },
+                          ),
+
+                          const SizedBox(height: 16),
+                          _fieldLabel('Search Product'),
+                          const SizedBox(height: 8),
+                          DropdownSearch<int>(
+                            items:
+                                viewModel.saleSearch
+                                    .map((model) => model.productID!)
+                                    .toList(),
+                            selectedItem:
+                                viewModel.selectedSaleSearch?.productID,
+                            itemAsString: (int id) {
+                              final model = viewModel.saleSearch.firstWhere(
+                                (m) => m.productID == id,
+                              );
+                              return model.productModelName ?? '';
+                            },
+                            dropdownDecoratorProps: DropDownDecoratorProps(
+                              dropdownSearchDecoration: _sheetInputDecoration(
+                                'Type to search products...',
+                                prefix: const Icon(Icons.search),
+                              ),
+                            ),
+                            popupProps: PopupProps.menu(
+                              showSearchBox: true,
+                              searchFieldProps: TextFieldProps(
+                                decoration: _sheetInputDecoration('Search'),
+                              ),
+                            ),
+                            onChanged:
+                                viewModel.saleSearch.isEmpty
+                                    ? null
+                                    : (int? id) {
+                                      if (id != null) {
+                                        final selected = viewModel.saleSearch
+                                            .firstWhere(
+                                              (m) => m.productID == id,
+                                            );
+                                        viewModel.selectSearchModel(selected);
+                                        setModalState(() {});
+                                      }
+                                    },
+                          ),
+
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _fieldLabel('Quantity'),
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      controller: quantityController,
+                                      keyboardType: TextInputType.number,
+                                      maxLength: 4,
+                                      onChanged: (_) {
+                                        calculateTotal();
+                                        setModalState(() {});
+                                      },
+                                      decoration: _sheetInputDecoration(
+                                        '1',
+                                      ).copyWith(counterText: ''),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _fieldLabel('Price (KD)'),
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      controller: priceController,
+                                      keyboardType: TextInputType.number,
+                                      maxLength: 7,
+                                      onChanged: (_) {
+                                        calculateTotal();
+                                        setModalState(() {});
+                                      },
+                                      decoration: _sheetInputDecoration(
+                                        '0',
+                                      ).copyWith(counterText: ''),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 18),
+                          _totalAmountTile(totalAmount),
+                          const SizedBox(height: 18),
+
+                          SizedBox(
+                            width: double.infinity,
+                            height: 54,
+                            child: InkWell(
+                              onTap:
+                                  isSubmitting
+                                      ? null
+                                      : () async {
+                                        if (viewModel.selectedBrand == null) {
+                                          AppSnackBar.showError(
+                                            context,
+                                            'Please select a brand',
+                                          );
+                                          return;
+                                        }
+                                        if (viewModel.selectedProductCategory ==
+                                            null) {
+                                          AppSnackBar.showError(
+                                            context,
+                                            'Please select a category',
+                                          );
+                                          return;
+                                        }
+                                        if (viewModel.selectedSaleSearch ==
+                                            null) {
+                                          AppSnackBar.showError(
+                                            context,
+                                            'Please select a product',
+                                          );
+                                          return;
+                                        }
+                                        if (quantityController.text.isEmpty) {
+                                          AppSnackBar.showError(
+                                            context,
+                                            LabelService().getLabel(158),
+                                          );
+                                          return;
+                                        }
+                                        if (priceController.text.isEmpty) {
+                                          AppSnackBar.showError(
+                                            context,
+                                            LabelService().getLabel(169),
+                                          );
+                                          return;
+                                        }
+
+                                        FocusScope.of(context).unfocus();
+                                        setModalState(() {
+                                          isSubmitting = true;
+                                        });
+
+                                        await viewModel.addSale(
+                                          context,
+                                          productCategoryId:
+                                              viewModel
+                                                  .selectedSaleSearch!
+                                                  .productID
+                                                  .toString(),
+                                          storeId: widget.storeId.toString(),
+                                          saleCount: quantityController.text,
+                                          salePrice: priceController.text,
+                                          saleDate: saleDate,
+                                          saleType: '1',
+                                        );
+
+                                        quantityController.clear();
+                                        priceController.clear();
+                                        totalController.clear();
+                                        clcTotal();
+
+                                        setModalState(() {
+                                          isSubmitting = false;
+                                        });
+                                        if (Navigator.of(context).canPop()) {
+                                          Navigator.of(context).pop();
+                                        }
+                                        setState(() {});
+                                      },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFFFF7A3D),
+                                      Color(0xFFFF4C3B),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(14),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Color(0x33000000),
+                                      blurRadius: 12,
+                                      offset: Offset(0, 6),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child:
+                                      isSubmitting
+                                          ? const SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation(
+                                                    Colors.white,
+                                                  ),
+                                            ),
+                                          )
+                                          : const Text(
+                                            'Submit Sale',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _addSaleButton(SaleViewModel viewModel) {
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: GestureDetector(
+            onTap: () => _openAddSaleSheet(viewModel),
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF7A3D), Color(0xFFFF4C3B)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x33000000),
+                    blurRadius: 12,
+                    offset: Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: const Center(
+                child: Text(
+                  'Add New Sale',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   double totalQuantity = 0;
   double totalPrice = 0.0;
-
-  final List<String> modelNames = [
-    "Model A",
-    "Model B",
-    "Model C",
-    "Model D",
-    "Model E",
-  ];
-  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(saleModelProvider);
-    String formattedDate = DateFormat('dd MMM yyyy').format(_selectedDate);
 
     String formattedDate2 = DateFormat(
       'yyyy-MM-dd',
     ).format(_selectedDate); // e.g., 2025-06-05
-
-    bool isSameDay(DateTime a, DateTime b) {
-      return a.year == b.year && a.month == b.month && a.day == b.day;
-    }
 
     calculateTotal();
     clcTotal();
@@ -192,887 +952,161 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
       child: SafeArea(
         child: Scaffold(
           backgroundColor: AppColors.whiteColor,
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.all(12.0), // Optional padding
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(color: AppColors.secondary),
-              width: double.infinity,
-              height: 50,
-              child: Row(
+
+          body: Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(
-                      LabelService().getLabel(77),
-                      style: TextStyle(fontSize: 16, color: Colors.white),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 18,
                     ),
-                  ),
-                  SizedBox(
-                    // color: Colors.red,
-                    width: 80,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Row(
+                          children: [
+                            InkWell(
+                              onTap: () => NavigationService.goBack(),
+                              child: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              LabelService().getLabel(179),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
                         Text(
-                          totalQuantity.toStringAsFixed(0),
-                          style: TextStyle(fontSize: 16, color: Colors.white),
+                          widget.storeName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          widget.address,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.grey.shade300,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.check,
+                                color: Colors.greenAccent,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '${LabelService().getLabel(14)} ${widget.checkInTime}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(
-                    // color: Colors.red,
-                    width: 80,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                  const SizedBox(height: 20),
+
+                  Expanded(
+                    child: ListView(
                       children: [
-                        Text(
-                          totalPrice.toStringAsFixed(1),
-                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        _dateSelector(viewModel),
+                        SizedBox(height: 20),
+                        const SizedBox(height: 10),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                right: 8,
+                                top: 5,
+                                bottom: 10,
+                              ),
+                              child: Text(
+                                LabelService().getLabel(56),
+                                style: TextStyle(
+                                  color: AppColors.greyText,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+
+                        const SizedBox(height: 8),
+                        viewModel.loader
+                            ? const Center(child: CircularProgressIndicator())
+                            : Column(
+                              children: [
+                                ...viewModel.saleList
+                                    .asMap()
+                                    .entries
+                                    .map(
+                                      (entry) => _saleCard(
+                                        viewModel: viewModel,
+                                        index: entry.key,
+                                        formattedDate2: formattedDate2,
+                                      ),
+                                    )
+                                    .toList(),
+                                if (viewModel.saleList.isNotEmpty)
+                                  _summaryCard(viewModel),
+                                const SizedBox(height: 120),
+                              ],
+                            ),
                       ],
                     ),
                   ),
                 ],
               ),
-            ),
-          ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        NavigationService.goBack();
-                      },
-                      child: Image.asset(
-                        AppIcons.backArrow,
-                        height: 30,
-                        width: 30,
-                      ),
-                    ),
-                    Text(
-                      LabelService().getLabel(179),
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Image.asset(
-                      AppIcons.locationIcon,
-                      height: 30,
-                      width: 30,
-                      color: AppColors.whiteColor,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 5),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Divider(color: AppColors.primary, height: 0),
-              ),
-
-              SizedBox(height: 5),
-              Center(
-                child: Text(
-                  widget.storeName,
-                  style: TextStyle(
-                    color: AppColors.blackColor,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Center(
-                child: Text(
-                  '${LabelService().getLabel(14)} ${widget.checkInTime}',
-                  style: TextStyle(
-                    color: AppColors.blackColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              SizedBox(height: 10),
-
-              Expanded(
-                child: ListView(
-                  children: [
-                    WeeklyCalendar(
-                      selectedDate: _selectedDate,
-                      onDateSelected: (date) {
-                        setState(() {
-                          _selectedDate = date;
-                        });
-                        print(
-                          'Selected Date: ${DateFormat('dd MMM yyyy').format(_selectedDate)}',
-                        );
-                        viewModel.loadsale(
-                          context,
-                          widget.storeId.toString(),
-                          formattedDate2,
-                        );
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    // brand
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        // border: Border.all(color: AppColors.blackColor),
-                      ),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 5,
-                            ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    Colors
-                                        .grey
-                                        .shade100, // Light grey background
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              child: DropdownButtonFormField<int>(
-                                value: viewModel.selectedBrand?.brandId,
-                                decoration: InputDecoration(
-                                  hintText: LabelService().getLabel(164),
-                                  border: InputBorder.none, // Removes underline
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 0,
-                                    vertical: 12,
-                                  ),
-                                ),
-                                items:
-                                    viewModel.brandList.map((brand) {
-                                      return DropdownMenuItem<int>(
-                                        value: brand.brandId,
-                                        child: Text(brand.brandName),
-                                      );
-                                    }).toList(),
-                                onChanged: (int? branddlId) {
-                                  final selected = viewModel.brandList
-                                      .firstWhere(
-                                        (c) => c.brandId == branddlId,
-                                      );
-                                  viewModel.selectBrand(
-                                    widget.storeId,
-                                    selected,
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          if (viewModel.productCategory.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
-                              ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color:
-                                      Colors
-                                          .grey
-                                          .shade100, // Light grey background
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                ),
-                                child: DropdownButtonFormField<int>(
-                                  value:
-                                      viewModel
-                                          .selectedProductCategory
-                                          ?.productCategoryID,
-                                  isExpanded:
-                                      true, // Optional: makes it full-width
-                                  decoration: InputDecoration(
-                                    hintText: LabelService().getLabel(165),
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 0,
-                                      vertical: 12,
-                                    ),
-                                  ),
-                                  items:
-                                      viewModel.productCategory.map((category) {
-                                        return DropdownMenuItem<int>(
-                                          value: category.productCategoryID,
-                                          child: Text(
-                                            category.productCategoryName ?? '',
-                                          ),
-                                        );
-                                      }).toList(),
-                                  onChanged: (int? categoryId) {
-                                    if (categoryId != null) {
-                                      final selected = viewModel.productCategory
-                                          .firstWhere(
-                                            (c) =>
-                                                c.productCategoryID ==
-                                                categoryId,
-                                          );
-                                      viewModel.selectProductCategory(
-                                        widget.storeId,
-                                        selected,
-                                      );
-                                    }
-                                  },
-                                  // This makes sure a hint is shown when no value is selected
-                                  hint: Text(LabelService().getLabel(167)),
-                                ),
-                              ),
-                            ),
-                          if (viewModel.saleSearch.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
-                              ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                ),
-                                child: DropdownSearch<int>(
-                                  items:
-                                      viewModel.saleSearch
-                                          .map((model) => model.productID!)
-                                          .toList(),
-                                  selectedItem:
-                                      viewModel.selectedSaleSearch?.productID,
-                                  itemAsString: (int id) {
-                                    final model = viewModel.saleSearch
-                                        .firstWhere((m) => m.productID == id);
-                                    return model.productModelName ?? '';
-                                  },
-                                  dropdownDecoratorProps:
-                                      DropDownDecoratorProps(
-                                        dropdownSearchDecoration:
-                                            InputDecoration(
-                                              hintText: LabelService().getLabel(
-                                                74,
-                                              ),
-                                              border: InputBorder.none,
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                    horizontal: 0,
-                                                    vertical: 12,
-                                                  ),
-                                            ),
-                                      ),
-                                  popupProps: PopupProps.menu(
-                                    showSearchBox: true,
-                                    searchFieldProps: TextFieldProps(
-                                      decoration: InputDecoration(
-                                        hintText: LabelService().getLabel(168),
-                                      ),
-                                    ),
-                                  ),
-                                  onChanged: (int? id) {
-                                    if (id != null) {
-                                      final selected = viewModel.saleSearch
-                                          .firstWhere((m) => m.productID == id);
-                                      viewModel.selectSearchModel(selected);
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-
-                          if (viewModel.saleSearch.isNotEmpty &&
-                              viewModel.productCategory.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
-                              ),
-                              child: Row(
-                                children: [
-                                  buildTextField(
-                                    LabelService().getLabel(75),
-                                    quantityController,
-                                    onChanged: (_) => calculateTotal(),
-                                    maxLength: 4,
-                                  ),
-                                  buildTextField(
-                                    LabelService().getLabel(76),
-                                    priceController,
-                                    onChanged: (_) => calculateTotal(),
-                                    maxLength: 7,
-                                  ),
-                                  buildTextField(
-                                    LabelService().getLabel(77),
-                                    totalController,
-                                    readOnly: true,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          if (viewModel.saleSearch.isNotEmpty &&
-                              viewModel.productCategory.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: SizedBox(
-                                width: double.infinity,
-                                height: 50,
-                                child:
-                                    viewModel.loader
-                                        ? Center(
-                                          child: CircularProgressIndicator(),
-                                        )
-                                        : ElevatedButton(
-                                          onPressed: () async {
-                                            if (quantityController
-                                                .text
-                                                .isEmpty) {
-                                              AppSnackBar.showError(
-                                                context,
-                                                LabelService().getLabel(158),
-                                              );
-                                            } else if (priceController
-                                                .text
-                                                .isEmpty) {
-                                              AppSnackBar.showError(
-                                                context,
-                                                LabelService().getLabel(169),
-                                              );
-                                            } else {
-                                              FocusScope.of(
-                                                context,
-                                              ).unfocus(); // Removes focus from any text field
-
-                                              await viewModel.addSale(
-                                                context,
-                                                productCategoryId:
-                                                    viewModel
-                                                        .selectedSaleSearch!
-                                                        .productID
-                                                        .toString(),
-                                                storeId:
-                                                    widget.storeId.toString(),
-                                                saleCount:
-                                                    quantityController.text,
-                                                salePrice: priceController.text,
-                                                saleDate: formattedDate2,
-                                                saleType: '1',
-                                              );
-                                              quantityController.clear();
-                                              priceController.clear();
-                                              totalController.clear();
-                                              clcTotal();
-
-                                              setState(() {});
-                                            }
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            shape: const RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius
-                                                      .zero, // Removes rounded corners
-                                            ),
-                                            backgroundColor:
-                                                AppColors.secondary,
-                                          ),
-                                          child: Text(
-                                            LabelService().getLabel(79),
-                                            style: TextStyle(
-                                              color: AppColors.whiteColor,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            right: 8,
-                            top: 5,
-                            bottom: 10,
-                          ),
-                          child: Text(
-                            LabelService().getLabel(56),
-                            style: TextStyle(
-                              color: AppColors.greyText,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(color: AppColors.secondary),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Text(
-                                  '#',
-                                  style: TextStyle(
-                                    color: AppColors.whiteColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(width: 20),
-                                Text(
-                                  'Sales Description',
-                                  style: TextStyle(
-                                    color: AppColors.whiteColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Row(
-                              children: [
-                                Text(
-                                  LabelService().getLabel(75),
-
-                                  style: TextStyle(
-                                    color: AppColors.whiteColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(width: 20),
-                                Text(
-                                  LabelService().getLabel(77),
-                                  style: TextStyle(
-                                    color: AppColors.whiteColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    viewModel.loader
-                        ? Center(child: CircularProgressIndicator())
-                        : ListView.builder(
-                          itemCount: viewModel.saleList.length,
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return InkWell(
-                              onLongPress: () {
-                                _showLogoutDialog(context, () async {
-                                  NavigationService.goBack();
-                                  viewModel.loader = true;
-                                  viewModel.notifyListeners();
-
-                                  await viewModel.deleteSale(
-                                    context,
-                                    storeId: widget.storeId.toString(),
-                                    saleId:
-                                        viewModel.saleList[index].saleId
-                                            .toString(),
-                                  );
-                                  await viewModel.saleView(
-                                    context,
-                                    storeId: widget.storeId.toString(),
-                                    saleDate: formattedDate2,
-                                  );
-                                  clcTotal();
-
-                                  viewModel.loader = false;
-                                  viewModel.notifyListeners();
-                                });
-                              },
-                              child: Stack(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8),
-                                    child: Text(
-                                      '${index + 1}.',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                  Column(
-                                    children: [
-                                      Row(
-                                        // crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              left: 8,
-                                            ),
-                                            child: Text(
-                                              '${index + 1}.',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 12,
-                                                          ),
-                                                      child: SizedBox(
-                                                        width: 190,
-                                                        // color: Colors.red,
-                                                        child: Text(
-                                                          viewModel
-                                                              .saleList[index]
-                                                              .productModelCode
-                                                              .toString(),
-                                                          style: TextStyle(
-                                                            color:
-                                                                AppColors
-                                                                    .blackColor,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 14,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 12,
-                                                          ),
-                                                      child: SizedBox(
-                                                        width: 190,
-                                                        // color: Colors.red,
-                                                        child: Text(
-                                                          viewModel
-                                                                  .saleList[index]
-                                                                  .productModelName ??
-                                                              '',
-                                                          style: TextStyle(
-                                                            color:
-                                                                AppColors
-                                                                    .greyText,
-                                                            fontSize: 14,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 12,
-                                                          ),
-                                                      child: SizedBox(
-                                                        width: 190,
-                                                        // color: Colors.red,
-                                                        child: Text(
-                                                          'Price: ${viewModel.saleList[index].saleValue}',
-                                                          style: TextStyle(
-                                                            color:
-                                                                AppColors
-                                                                    .blackColor,
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Container(
-                                            // color: Colors.red,
-                                            width: 40,
-                                            padding: const EdgeInsets.only(
-                                              right: 0,
-                                            ),
-                                            child: Text(
-                                              viewModel
-                                                  .saleList[index]
-                                                  .saleQuantity
-                                                  .toString(),
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(width: 10),
-                                          Container(
-                                            // color: Colors.red,
-                                            width: 70,
-                                            padding: const EdgeInsets.only(
-                                              right: 00,
-                                            ),
-                                            child: Text(
-                                              '${(viewModel.saleList[index].saleQuantity ?? 0.0) * (viewModel.saleList[index].saleValue ?? 0.0)}',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-
-                                      Divider(
-                                        color: Colors.grey[300],
-                                        thickness: 1,
-                                        indent: 12,
-                                        endIndent: 12,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                  ],
-                ),
-              ),
+              _addSaleButton(viewModel),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class WeeklyCalendar extends StatefulWidget {
-  final DateTime selectedDate;
-  final Function(DateTime) onDateSelected;
-
-  const WeeklyCalendar({
-    Key? key,
-    required this.selectedDate,
-    required this.onDateSelected,
-  }) : super(key: key);
-
-  @override
-  _WeeklyCalendarState createState() => _WeeklyCalendarState();
-}
-
-class _WeeklyCalendarState extends State<WeeklyCalendar> {
-  late DateTime _startOfWeek;
-  late int _selectedDayIndex;
-
-  void _goToNextWeek() {
-    final nextWeek = _startOfWeek.add(const Duration(days: 7));
-    final startOfCurrentWeek = _getStartOfWeek(DateTime.now());
-
-    if (!nextWeek.isAfter(startOfCurrentWeek)) {
-      setState(() {
-        _startOfWeek = nextWeek;
-        _selectedDayIndex = 0;
-      });
-      widget.onDateSelected(_startOfWeek);
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _startOfWeek = _getStartOfWeek(widget.selectedDate);
-    _selectedDayIndex = widget.selectedDate.difference(_startOfWeek).inDays;
-  }
-
-  DateTime _getStartOfWeek(DateTime date) {
-    return date.subtract(Duration(days: date.weekday - 1)); // Monday
-  }
-
-  void _goToPreviousWeek() {
-    setState(() {
-      _startOfWeek = _startOfWeek.subtract(const Duration(days: 7));
-      _selectedDayIndex = 0;
-    });
-    widget.onDateSelected(_startOfWeek);
-  }
-
-  bool get isOnCurrentWeek {
-    final now = DateTime.now();
-    final startOfCurrentWeek = _getStartOfWeek(now);
-    return _startOfWeek.isAtSameMomentAs(startOfCurrentWeek);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    List<DateTime> weekDays = List.generate(7, (index) {
-      final date = _startOfWeek.add(Duration(days: index));
-      return date;
-    });
-
-    bool isFutureDate(DateTime date) {
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      return date.isAfter(today); // disables dates after today
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          // Header with Backward Button Only
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                DateFormat('MMMM yyyy').format(_startOfWeek),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.chevron_left),
-                    onPressed: _goToPreviousWeek,
-                  ),
-                  Text(
-                    'Week of ${DateFormat('dd MMM').format(_startOfWeek)}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.chevron_right),
-                    onPressed:
-                        _startOfWeek
-                                .add(const Duration(days: 7))
-                                .isAfter(_getStartOfWeek(DateTime.now()))
-                            ? null
-                            : _goToNextWeek,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Week Days Row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children:
-                weekDays.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  DateTime date = entry.value;
-                  bool isSelected = index == _selectedDayIndex;
-
-                  return GestureDetector(
-                    onTap:
-                        isFutureDate(date)
-                            ? null // Disable tap if date is in the future
-                            : () {
-                              setState(() {
-                                _selectedDayIndex = index;
-                              });
-                              widget.onDateSelected(date);
-                            },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color:
-                            isSelected
-                                ? AppColors.secondary
-                                : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            DateFormat('d').format(date),
-                            style: TextStyle(
-                              color:
-                                  isFutureDate(date)
-                                      ? Colors
-                                          .grey // Grey for future date
-                                      : isSelected
-                                      ? Colors.white
-                                      : Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            DateFormat('E').format(date),
-                            style: TextStyle(
-                              color:
-                                  isFutureDate(date)
-                                      ? Colors.grey
-                                      : isSelected
-                                      ? Colors.white
-                                      : Colors.black87,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
-          ),
-        ],
       ),
     );
   }

@@ -316,7 +316,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                   minimum: EdgeInsets.zero,
                   child: Container(
                     color: Colors.transparent,
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                    padding: const EdgeInsets.fromLTRB(25, 8, 25, 12),
                     child: SizedBox(
                       width: double.infinity,
                       height: 56,
@@ -709,7 +709,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                             ? Icons.check_circle
                                                                             : Icons.check_circle_outline,
                                                                         size:
-                                                                            26,
+                                                                            35,
                                                                         color:
                                                                             viewModel.selectedProducts.any(
                                                                                   (
@@ -800,7 +800,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                               .check_circle
                                                                           : Icons
                                                                               .check_circle_outline,
-                                                                      size: 26,
+                                                                      size: 35,
                                                                       color:
                                                                           viewModel.selectedProducts.any(
                                                                                 (

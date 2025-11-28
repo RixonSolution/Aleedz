@@ -164,6 +164,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
           SaleView(
             storeName: widget.storeName,
             checkInTime: widget.checkInTime,
+            address: widget.address,
             storeId: widget.storeId,
           ),
         );

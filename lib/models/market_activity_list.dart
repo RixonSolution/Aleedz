@@ -24,7 +24,7 @@ class MarketActivityList {
   int? storeID;
   String? storeCode;
   String? storeName;
-  Null? isEmailSent;
+  Null isEmailSent;
   String? imageActivity;
   String? imageActivity2;
 

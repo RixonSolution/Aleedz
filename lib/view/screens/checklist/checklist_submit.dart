@@ -964,7 +964,7 @@ class _DateBoxState extends ConsumerState<DateBox> {
   void initState() {
     super.initState();
 
-    if (widget.initialValue != null && widget.initialValue!.isNotEmpty) {
+    if (widget.initialValue != null && widget.initialValue.isNotEmpty) {
       try {
         selectedDate = DateTime.parse(widget.initialValue!);
       } catch (e) {
