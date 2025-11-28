@@ -26,6 +26,47 @@ class DisplayPicture extends ConsumerStatefulWidget {
 }
 
 class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
+  InputDecoration _sheetInputDecoration(String hint, {Widget? prefix}) {
+    return InputDecoration(
+      hintText: hint,
+      prefixIcon: prefix,
+      filled: true,
+      fillColor: const Color(0xFFF7F8FA),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: AppColors.secondary),
+      ),
+    );
+  }
+
+  Widget _fieldLabel(String text) {
+    return Row(
+      children: [
+        Text(
+          text,
+          style: const TextStyle(
+            color: Color(0xFF111827),
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const Text(
+          ' *',
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +85,51 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
   TextEditingController remarksControll = TextEditingController();
 
   bool deleteLoader = false;
+
+  Future<bool> _showDeleteDialog(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: AppColors.secondary,
+            title: const Text(
+              'Confirm Delete',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            content: const Text(
+              'Delete this display picture record?',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(
+                  LabelService().getLabel(94), // Cancel
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(
+                  LabelService().getLabel(95), // Delete/Yes
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+              ),
+            ],
+          ),
+    );
+
+    return result ?? false;
+  }
 
   void _showImagePickerDialog(String directiion) {
     showDialog(
@@ -141,6 +227,402 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
     );
   }
 
+  void _openAddDisplaySheet(StoreViewModel viewModel) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return AnimatedBuilder(
+              animation: viewModel,
+              builder: (context, _) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Add Display Picture',
+                                style: TextStyle(
+                                  color: Color(0xFF111827),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () => Navigator.of(context).pop(),
+                                child: Container(
+                                  height: 36,
+                                  width: 36,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFF2F3F5),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 18,
+                                    color: Color(0xFF111827),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Divider(color: Colors.grey.shade300, height: 1),
+                          const SizedBox(height: 16),
+
+                          _fieldLabel('Brand'),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<int>(
+                            value: viewModel.selectedBrand?.brandId,
+                            decoration: _sheetInputDecoration('Select Brand'),
+                            items:
+                                viewModel.brandList
+                                    .map(
+                                      (brand) => DropdownMenuItem<int>(
+                                        value: brand.brandId,
+                                        child: Text(brand.brandName),
+                                      ),
+                                    )
+                                    .toList(),
+                            onChanged:
+                                (viewModel.brandList.isEmpty)
+                                    ? null
+                                    : (int? brandId) async {
+                                      if (brandId == null) return;
+                                      final selected = viewModel.brandList
+                                          .firstWhere(
+                                            (c) => c.brandId == brandId,
+                                          );
+                                      await viewModel.selectBrand(
+                                        widget.storeId,
+                                        selected,
+                                      );
+                                      setModalState(() {});
+                                    },
+                          ),
+
+                          const SizedBox(height: 16),
+                          _fieldLabel(LabelService().getLabel(132)),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<int>(
+                            value:
+                                viewModel
+                                    .selectedPictureModel
+                                    ?.pictureElementId,
+                            decoration: _sheetInputDecoration(
+                              LabelService().getLabel(132),
+                            ),
+                            items:
+                                viewModel.pictureList
+                                    .map(
+                                      (picture) => DropdownMenuItem<int>(
+                                        value: picture.pictureElementId,
+                                        child: Text(picture.pictureElementName),
+                                      ),
+                                    )
+                                    .toList(),
+                            onChanged:
+                                viewModel.pictureList.isEmpty
+                                    ? null
+                                    : (int? picId) async {
+                                      if (picId == null) return;
+                                      final selected = viewModel.pictureList
+                                          .firstWhere(
+                                            (c) => c.pictureElementId == picId,
+                                          );
+                                      await viewModel.selectPictureDrop(
+                                        selected,
+                                        context,
+                                      );
+                                      setModalState(() {});
+                                    },
+                          ),
+
+                          const SizedBox(height: 16),
+                          _fieldLabel(LabelService().getLabel(128)),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<int>(
+                            value: viewModel.selectedIssueCategory?.categoryId,
+                            decoration: _sheetInputDecoration(
+                              LabelService().getLabel(128),
+                            ),
+                            items:
+                                viewModel.categoryIssue
+                                    .map(
+                                      (category) => DropdownMenuItem<int>(
+                                        value: category.categoryId,
+                                        child: Text(category.categoryName),
+                                      ),
+                                    )
+                                    .toList(),
+                            onChanged:
+                                viewModel.categoryIssue.isEmpty
+                                    ? null
+                                    : (int? cateId) async {
+                                      if (cateId == null) return;
+                                      final selected = viewModel.categoryIssue
+                                          .firstWhere(
+                                            (c) => c.categoryId == cateId,
+                                          );
+                                      await viewModel.selectCategoryIssue(
+                                        widget.storeId,
+                                        selected,
+                                      );
+                                      setModalState(() {});
+                                    },
+                          ),
+
+                          const SizedBox(height: 16),
+                          _fieldLabel('Remarks'),
+                          const SizedBox(height: 8),
+                          TextField(
+                            focusNode: remarksFocus,
+                            controller: remarksControll,
+                            maxLines: 3,
+                            minLines: 2,
+                            decoration: _sheetInputDecoration('Remarks'),
+                          ),
+
+                          const SizedBox(height: 16),
+                          _fieldLabel('Upload Photo'),
+                          const SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () {
+                              _showImagePickerDialog('left');
+                            },
+                            child: Container(
+                              height: 140,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF7F8FA),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child:
+                                  viewModel.leftImage != null
+                                      ? Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            child: Image.file(
+                                              viewModel.leftImage!,
+                                              fit: BoxFit.cover,
+                                              height: double.infinity,
+                                              width: double.infinity,
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 8,
+                                            right: 8,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                viewModel.leftImage = null;
+                                                viewModel.notifyListeners();
+                                                setModalState(() {});
+                                              },
+                                              child: Container(
+                                                decoration: const BoxDecoration(
+                                                  color: AppColors.secondary,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                padding: const EdgeInsets.all(
+                                                  6,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.close,
+                                                  size: 18,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                      : const Center(
+                                        child: Icon(
+                                          Icons.camera_alt,
+                                          color: Colors.grey,
+                                          size: 32,
+                                        ),
+                                      ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 18),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 54,
+                            child:
+                                viewModel.loader
+                                    ? const Center(
+                                      child: CircularProgressIndicator(),
+                                    )
+                                    : InkWell(
+                                      onTap: () async {
+                                        if (viewModel.selectedBrand == null) {
+                                          AppSnackBar.showError(
+                                            context,
+                                            'Please select brand',
+                                          );
+                                        } else if (viewModel
+                                                .selectedPictureModel ==
+                                            null) {
+                                          AppSnackBar.showError(
+                                            context,
+                                            LabelService().getLabel(132),
+                                          );
+                                        } else if (viewModel
+                                                .selectedIssueCategory ==
+                                            null) {
+                                          AppSnackBar.showError(
+                                            context,
+                                            LabelService().getLabel(128),
+                                          );
+                                        } else if (remarksControll
+                                            .text
+                                            .isEmpty) {
+                                          AppSnackBar.showError(
+                                            context,
+                                            LabelService().getLabel(129),
+                                          );
+                                        } else if (viewModel.leftImage ==
+                                            null) {
+                                          AppSnackBar.showError(
+                                            context,
+                                            LabelService().getLabel(116),
+                                          );
+                                        } else {
+                                          FocusScope.of(context).unfocus();
+
+                                          await viewModel.submitDisplayPicture(
+                                            issueCategoryId:
+                                                viewModel
+                                                    .selectedIssueCategory!
+                                                    .categoryId
+                                                    .toString(),
+                                            storeId: widget.storeId.toString(),
+                                            pictureElementId:
+                                                viewModel
+                                                    .selectedPictureModel!
+                                                    .pictureElementId
+                                                    .toString(),
+                                            remarks: remarksControll.text,
+                                            pictureId: '0',
+                                            elementImg: viewModel.leftImage!,
+                                            brandId:
+                                                viewModel.selectedBrand!.brandId
+                                                    .toString(),
+                                          );
+                                          remarksControll.clear();
+                                          Navigator.of(context).pop();
+                                        }
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Color(0xFFFF7A3D),
+                                              Color(0xFFFF4C3B),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Color(0x33000000),
+                                              blurRadius: 12,
+                                              offset: Offset(0, 6),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Center(
+                                          child: Text(
+                                            'Submit',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _addDisplayButton(StoreViewModel viewModel) {
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: GestureDetector(
+            onTap: () => _openAddDisplaySheet(viewModel),
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF7A3D), Color(0xFFFF4C3B)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x33000000),
+                    blurRadius: 12,
+                    offset: Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: const Center(
+                child: Text(
+                  'Add Display Picture',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(storeModelProvider);
@@ -152,649 +634,310 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
       child: SafeArea(
         child: Scaffold(
           backgroundColor: AppColors.whiteColor,
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          body: Stack(
             children: [
-              SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        NavigationService.goBack();
-                      },
-                      child: Image.asset(
-                        AppIcons.backArrow,
-                        height: 30,
-                        width: 30,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 18,
+                    ),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
                     ),
-                    Text(
-                      LabelService().getLabel(131),
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Image.asset(
-                      AppIcons.locationIcon,
-                      height: 30,
-                      width: 30,
-                      color: AppColors.whiteColor,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 5),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Divider(color: AppColors.primary, height: 0),
-              ),
-
-              SizedBox(height: 5),
-              Center(
-                child: Text(
-                  widget.storeName,
-                  style: TextStyle(
-                    color: AppColors.blackColor,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Center(
-                child: Text(
-                  '${LabelService().getLabel(14)} ${widget.checkInTime}',
-                  style: TextStyle(
-                    color: AppColors.blackColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-
-              Expanded(
-                child: ListView(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.blackColor),
-                      ),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 5,
-                            ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    Colors
-                                        .grey
-                                        .shade100, // Light grey background
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              child: DropdownButtonFormField<int>(
-                                value: viewModel.selectedBrand?.brandId,
-                                decoration: const InputDecoration(
-                                  hintText: 'Select Brands',
-                                  border: InputBorder.none, // Removes underline
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 0,
-                                    vertical: 12,
-                                  ),
-                                ),
-                                items:
-                                    viewModel.brandList.map((brand) {
-                                      return DropdownMenuItem<int>(
-                                        value: brand.brandId,
-                                        child: Text(brand.brandName),
-                                      );
-                                    }).toList(),
-                                onChanged: (int? branddlId) {
-                                  final selected = viewModel.brandList
-                                      .firstWhere(
-                                        (c) => c.brandId == branddlId,
-                                      );
-                                  viewModel.selectBrand(
-                                    widget.storeId,
-                                    selected,
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 5,
-                            ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    Colors
-                                        .grey
-                                        .shade100, // Light grey background
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              child: DropdownButtonFormField<int>(
-                                value:
-                                    viewModel
-                                        .selectedPictureModel
-                                        ?.pictureElementId,
-                                decoration: InputDecoration(
-                                  hintText: LabelService().getLabel(132),
-                                  border: InputBorder.none, // Removes underline
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 0,
-                                    vertical: 12,
-                                  ),
-                                ),
-                                items:
-                                    viewModel.pictureList.map((brand) {
-                                      return DropdownMenuItem<int>(
-                                        value: brand.pictureElementId,
-                                        child: Text(brand.pictureElementName),
-                                      );
-                                    }).toList(),
-                                onChanged: (int? picListId) {
-                                  final selected = viewModel.pictureList
-                                      .firstWhere(
-                                        (c) => c.pictureElementId == picListId,
-                                      );
-                                  viewModel.selectPictureDrop(
-                                    selected,
-                                    context,
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 5,
-                            ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    Colors
-                                        .grey
-                                        .shade100, // Light grey background
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              child: DropdownButtonFormField<int>(
-                                value:
-                                    viewModel.selectedIssueCategory?.categoryId,
-                                decoration: InputDecoration(
-                                  hintText: LabelService().getLabel(128),
-                                  border: InputBorder.none, // Removes underline
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 0,
-                                    vertical: 12,
-                                  ),
-                                ),
-                                items:
-                                    viewModel.categoryIssue.map((category) {
-                                      return DropdownMenuItem<int>(
-                                        value: category.categoryId,
-                                        child: Text(category.categoryName),
-                                      );
-                                    }).toList(),
-                                onChanged: (int? cateId) {
-                                  final selected = viewModel.categoryIssue
-                                      .firstWhere(
-                                        (c) => c.categoryId == cateId,
-                                      );
-                                  viewModel.selectCategoryIssue(
-                                    widget.storeId,
-                                    selected,
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 5,
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Multiline TextField
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade100,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                    ),
-                                    child: TextField(
-                                      focusNode: remarksFocus,
-                                      controller: remarksControll,
-                                      maxLines: 3,
-                                      minLines: 2,
-                                      decoration: const InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: 'Remarks',
-                                        contentPadding: EdgeInsets.symmetric(
-                                          vertical: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                GestureDetector(
-                                  onTap: () {
-                                    _showImagePickerDialog('left');
-                                  },
-                                  child: Container(
-                                    height: 70,
-                                    width: 80,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade100,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child:
-                                        viewModel.leftImage != null
-                                            ? Stack(
-                                              children: [
-                                                Image.file(
-                                                  viewModel.leftImage!,
-                                                  fit: BoxFit.cover,
-                                                  height: 70,
-                                                  width: 80,
-                                                ),
-                                                Positioned(
-                                                  top: 4,
-                                                  right: 4,
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      viewModel.leftImage =
-                                                          null;
-                                                      viewModel
-                                                          .notifyListeners(); // If using ChangeNotifier
-                                                    },
-                                                    child: Container(
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                            color:
-                                                                AppColors
-                                                                    .secondary,
-                                                            shape:
-                                                                BoxShape.circle,
-                                                          ),
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                            4,
-                                                          ),
-                                                      child: const Icon(
-                                                        Icons.close,
-                                                        size: 16,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                            : const Center(
-                                              child: Icon(
-                                                Icons.camera_alt,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child:
-                                  viewModel.loader
-                                      ? Center(
-                                        child: CircularProgressIndicator(),
-                                      )
-                                      : ElevatedButton(
-                                        onPressed: () async {
-                                          if (viewModel.selectedBrand == null) {
-                                            AppSnackBar.showError(
-                                              context,
-                                              'Please select brand',
-                                            );
-                                          } else if (viewModel
-                                                  .selectedPictureModel ==
-                                              null) {
-                                            AppSnackBar.showError(
-                                              context,
-                                              LabelService().getLabel(132),
-                                            );
-                                          } else if (viewModel
-                                                  .selectedIssueCategory ==
-                                              null) {
-                                            AppSnackBar.showError(
-                                              context,
-                                              LabelService().getLabel(128),
-                                            );
-                                          } else if (remarksControll
-                                              .text
-                                              .isEmpty) {
-                                            AppSnackBar.showError(
-                                              context,
-                                              LabelService().getLabel(129),
-                                            );
-                                          } else if (viewModel.leftImage ==
-                                              null) {
-                                            AppSnackBar.showError(
-                                              context,
-                                              LabelService().getLabel(116),
-                                            );
-                                          } else {
-                                            FocusScope.of(
-                                              context,
-                                            ).unfocus(); // Removes focus from any text field
-
-                                            await viewModel.submitDisplayPicture(
-                                              issueCategoryId:
-                                                  viewModel
-                                                      .selectedIssueCategory!
-                                                      .categoryId
-                                                      .toString(),
-                                              storeId:
-                                                  widget.storeId.toString(),
-                                              pictureElementId:
-                                                  viewModel
-                                                      .selectedPictureModel!
-                                                      .pictureElementId
-                                                      .toString(),
-                                              remarks: remarksControll.text,
-                                              pictureId: '0',
-                                              elementImg: viewModel.leftImage!,
-                                              brandId:
-                                                  viewModel
-                                                      .selectedBrand!
-                                                      .brandId
-                                                      .toString(),
-                                            );
-                                            remarksControll.clear();
-                                          }
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          shape: const RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius
-                                                    .zero, // Removes rounded corners
-                                          ),
-                                          backgroundColor: AppColors.secondary,
-                                        ),
-                                        child: const Text(
-                                          "Submit",
-                                          style: TextStyle(
-                                            color: AppColors.whiteColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    GestureDetector(
-                      onTap: () {
-                        //
-                      },
-                      child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 12),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.darkGreyBackground,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
+                            InkWell(
+                              onTap: () => NavigationService.goBack(),
+                              child: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
                             Text(
-                              LabelService().getLabel(53),
-                              style: TextStyle(
-                                color: AppColors.secondary,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                              LabelService().getLabel(131),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 12),
-                      child: const Divider(color: AppColors.primary, height: 5),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            right: 8,
-                            top: 5,
-                            bottom: 10,
+                        const SizedBox(height: 16),
+                        Text(
+                          widget.storeName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
                           ),
-                          child: Text(
-                            LabelService().getLabel(56),
-                            style: TextStyle(
-                              color: AppColors.greyText,
-                              fontSize: 12,
-                            ),
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.check,
+                                color: Colors.greenAccent,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '${LabelService().getLabel(14)} ${widget.checkInTime}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    ListView.builder(
-                      itemCount: viewModel.viewPicture.length,
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                          onLongPress: () {
-                            _showLogoutDialog(
-                              context,
-                              viewModel.viewPicture[index].pictureID.toString(),
-                              viewModel.viewPicture[index].pictureName
-                                  .toString(),
-                              () async {
-                                NavigationService.goBack();
-                                viewModel.loader = true;
-                                viewModel.notifyListeners();
+                  ),
 
-                                await ref
-                                    .read(storeModelProvider.notifier)
-                                    .deleteDisplayPicture(
-                                      storeId: widget.storeId.toString(),
-                                      pictureId:
-                                          viewModel.viewPicture[index].pictureID
-                                              .toString(),
-                                      pictureName:
-                                          viewModel
-                                              .viewPicture[index]
-                                              .pictureName
-                                              .toString(),
-                                    );
-                                viewModel.loader = false;
-                                viewModel.notifyListeners();
-                              },
-                            );
-                          },
-                          child: Column(
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8),
-                                    child: Text(
-                                      '${index + 1}.',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        const SizedBox(height: 10),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                right: 8,
+                                top: 5,
+                                bottom: 10,
+                              ),
+                              child: Text(
+                                'Swipe left to delete the record',
+                                style: TextStyle(
+                                  color: AppColors.greyText,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        ListView.builder(
+                          itemCount: viewModel.viewPicture.length,
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            final picture = viewModel.viewPicture[index];
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              child: Dismissible(
+                                key: ValueKey(
+                                  picture.pictureID ??
+                                      '${picture.pictureName}_$index',
+                                ),
+                                direction: DismissDirection.endToStart,
+                                confirmDismiss: (direction) async {
+                                  if (direction !=
+                                      DismissDirection.endToStart) {
+                                    return false;
+                                  }
+
+                                  final shouldDelete = await _showDeleteDialog(
+                                    context,
+                                  );
+                                  if (!shouldDelete) return false;
+
+                                  viewModel.loader = true;
+                                  viewModel.notifyListeners();
+
+                                  await ref
+                                      .read(storeModelProvider.notifier)
+                                      .deleteDisplayPicture(
+                                        storeId: widget.storeId.toString(),
+                                        pictureId: picture.pictureID.toString(),
+                                        pictureName:
+                                            picture.pictureName.toString(),
+                                      );
+                                  viewModel.loader = false;
+                                  viewModel.notifyListeners();
+                                  return true;
+                                },
+                                background: Container(
+                                  alignment: Alignment.centerLeft,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
                                   ),
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        Column(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  child: const Icon(
+                                    Icons.swipe_left,
+                                    color: Colors.grey,
+                                    size: 24,
+                                  ),
+                                ),
+                                secondaryBackground: Container(
+                                  alignment: Alignment.centerRight,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade50,
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  child: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                    size: 28,
+                                  ),
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.all(14),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(18),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Color(0x19000000),
+                                        blurRadius: 14,
+                                        offset: Offset(0, 6),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 5,
+                                        ),
+                                        child: Container(
+                                          height: 32,
+                                          width: 32,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Color(0xFF111827),
+                                                Color(0xFF0B1120),
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '${index + 1}',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                  ),
-                                              child: SizedBox(
-                                                width: 190,
-                                                // color: Colors.red,
-                                                child: Text(
-                                                  viewModel
-                                                          .viewPicture[index]
-                                                          .brandName ??
-                                                      '',
-                                                  style: TextStyle(
-                                                    color: AppColors.blackColor,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
+                                            Text(
+                                              picture.brandName ?? '',
+                                              style: const TextStyle(
+                                                color: Color(0xFF111827),
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w800,
                                               ),
                                             ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                  ),
-                                              child: SizedBox(
-                                                width: 190,
-                                                // color: Colors.red,
-                                                child: Text(
-                                                  viewModel
-                                                          .viewPicture[index]
-                                                          .storePictureElementName ??
-                                                      '',
-                                                  style: TextStyle(
-                                                    color: AppColors.greyText,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              picture.storePictureElementName ??
+                                                  '',
+                                              style: TextStyle(
+                                                color: Colors.grey.shade600,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                  ),
-                                              child: SizedBox(
-                                                width: 190,
-                                                // color: Colors.red,
-                                                child: Text(
-                                                  viewModel
-                                                          .viewPicture[index]
-                                                          .categoryIssueName ??
-                                                      '',
-                                                  style: TextStyle(
-                                                    color: AppColors.greyText,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              picture.categoryIssueName ?? '',
+                                              style: TextStyle(
+                                                color: Colors.grey.shade600,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                  ),
-                                              child: SizedBox(
-                                                width: 190,
-                                                // color: Colors.red,
-                                                child: Text(
-                                                  viewModel
-                                                          .viewPicture[index]
-                                                          .remarks ??
-                                                      '',
-                                                  style: TextStyle(
-                                                    color: AppColors.greyText,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              picture.remarks ?? '',
+                                              style: TextStyle(
+                                                color: Colors.grey.shade600,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                            Padding(
+                                            const SizedBox(height: 4),
+                                            Container(
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                    horizontal: 12,
+                                                    horizontal: 10,
+                                                    vertical: 6,
                                                   ),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.secondary
+                                                    .withOpacity(0.08),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
                                               child: Text(
-                                                viewModel
-                                                        .viewPicture[index]
-                                                        .creationDateTime ??
-                                                    '',
-                                                style: TextStyle(
-                                                  color: AppColors.greyText,
-                                                  fontSize: 14,
+                                                picture.creationDateTime ?? '',
+                                                style: const TextStyle(
+                                                  color: Color(0xFF111827),
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w700,
                                                 ),
                                               ),
                                             ),
                                           ],
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          right: 12,
-                                        ),
+                                      ),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
                                         child: CachedNetworkImage(
                                           imageUrl:
-                                              '${ApiConstants.baseUrl}${viewModel.viewPicture[index].column1 ?? ''}',
+                                              '${ApiConstants.baseUrl}${picture.column1 ?? ''}',
                                           height: 100,
                                           width: 90,
-
                                           placeholder:
                                               (context, url) =>
                                                   Shimmer.fromColors(
@@ -803,37 +946,31 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                                     highlightColor:
                                                         Colors.grey[100]!,
                                                     child: Container(
-                                                      height: 70,
-                                                      width: 80,
+                                                      height: 100,
+                                                      width: 90,
                                                       color: Colors.white,
                                                     ),
                                                   ),
                                           errorWidget:
-                                              (context, url, error) => Icon(
-                                                Icons.error,
-                                              ), // optional error widget
-                                          fit: BoxFit.cover, // optional fit
+                                              (context, url, error) =>
+                                                  const Icon(Icons.error),
+                                          fit: BoxFit.cover,
                                         ),
                                       ),
                                     ],
                                   ),
-                                ],
+                                ),
                               ),
-
-                              Divider(
-                                color: Colors.grey[300],
-                                thickness: 1,
-                                indent: 12,
-                                endIndent: 12,
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 120),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+              _addDisplayButton(viewModel),
             ],
           ),
         ),

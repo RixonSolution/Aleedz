@@ -80,44 +80,50 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
     totalController.text = total.toStringAsFixed(2);
   }
 
-  Future<void> _showLogoutDialog(
-    BuildContext context,
-
-    void Function()? onPressed,
-  ) async {
-    showDialog(
+  Future<bool> _showDeleteDialog(BuildContext context) async {
+    final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false, // Prevent closing by tapping outside
       builder:
           (context) => AlertDialog(
             backgroundColor: AppColors.secondary,
-            title: Text(
-              LabelService().getLabel(100),
-              style: TextStyle(color: AppColors.whiteColor),
-            ),
             content: Text(
-              LabelService().getLabel(99),
-              style: TextStyle(color: AppColors.whiteColor),
+              'Delete this sale record?',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            title: Text(
+              'Confirm Delete',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(context).pop(), // Close dialog
+                onPressed:
+                    () => Navigator.of(context).pop(false), // Close dialog
                 child: Text(
-                  LabelService().getLabel(94),
+                  'Cancel',
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
               TextButton(
-                onPressed: onPressed,
+                onPressed: () => Navigator.of(context).pop(true),
                 child: Text(
-                  LabelService().getLabel(95),
-
+                  'Delete',
                   style: TextStyle(color: AppColors.whiteColor),
                 ),
               ),
             ],
           ),
     );
+
+    return result ?? false;
   }
 
   Widget buildTextField(
@@ -266,8 +272,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Divider(color: Colors.grey.shade200, height: 1),
         ],
       ),
     );
@@ -283,10 +287,17 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
     final double price = _toDouble(item.saleValue);
     final double lineTotal = qty * price;
 
-    return InkWell(
-      onLongPress: () {
-        _showLogoutDialog(context, () async {
-          NavigationService.goBack();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      child: Dismissible(
+        key: ValueKey(item.saleId ?? '${item.productModelCode}_$index'),
+        direction: DismissDirection.endToStart,
+        confirmDismiss: (direction) async {
+          if (direction != DismissDirection.endToStart) return false;
+
+          final shouldDelete = await _showDeleteDialog(context);
+          if (!shouldDelete) return false;
+
           viewModel.loader = true;
           viewModel.notifyListeners();
 
@@ -304,81 +315,124 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
 
           viewModel.loader = false;
           viewModel.notifyListeners();
-        });
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x19000000),
-              blurRadius: 14,
-              offset: Offset(0, 6),
-            ),
-          ],
+          return true;
+        },
+        background: Container(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: const Icon(Icons.swipe_left, color: Colors.grey, size: 24),
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        secondaryBackground: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          decoration: BoxDecoration(
+            color: Colors.red.shade50,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: const Icon(Icons.delete, color: Colors.red, size: 28),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x19000000),
+                blurRadius: 14,
+                offset: Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: Container(
+                  height: 32,
+                  width: 32,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${index + 1}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.productModelName ?? '-',
+                      style: const TextStyle(
+                        color: Color(0xFF111827),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'SKU: ${item.productModelCode ?? '-'}',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Price: ${_formatAmount(price)}',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    item.productModelName ?? '-',
+                    'Qty: ${_formatAmount(qty)}',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _formatAmount(lineTotal),
                     style: const TextStyle(
-                      color: Color(0xFF111827),
-                      fontSize: 16,
+                      color: Colors.green,
+                      fontSize: 20,
                       fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'SKU: ${item.productModelCode ?? '-'}',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Price: ${_formatAmount(price)}',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  'Qty: ${_formatAmount(qty)}',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _formatAmount(lineTotal),
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -501,7 +555,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
           ),
           const SizedBox(height: 6),
           Text(
-            '${_formatAmount(amount)} KD',
+            '${_formatAmount(amount)}',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 24,
@@ -876,6 +930,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                               ),
                             ),
                           ),
+                          const SizedBox(height: 20),
                         ],
                       ),
                     ),
@@ -1048,14 +1103,13 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
 
+                  // const SizedBox(height: 20),
                   Expanded(
                     child: ListView(
                       children: [
                         _dateSelector(viewModel),
-                        SizedBox(height: 20),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 5),
 
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -1067,7 +1121,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                 bottom: 10,
                               ),
                               child: Text(
-                                LabelService().getLabel(56),
+                                'Swipe left to delete the record',
                                 style: TextStyle(
                                   color: AppColors.greyText,
                                   fontSize: 12,
@@ -1077,7 +1131,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                           ],
                         ),
 
-                        const SizedBox(height: 8),
                         viewModel.loader
                             ? const Center(child: CircularProgressIndicator())
                             : Column(

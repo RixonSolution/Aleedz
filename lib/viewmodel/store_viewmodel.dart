@@ -77,7 +77,10 @@ class StoreViewModel extends ChangeNotifier {
   PictureListModel? selectedPictureModel;
   CategoryIssueModel? selectedIssueCategory;
 
-  void selectCategoryIssue(int storeId, CategoryIssueModel? category) async {
+  Future<void> selectCategoryIssue(
+    int storeId,
+    CategoryIssueModel? category,
+  ) async {
     loader = true;
     notifyListeners();
     selectedIssueCategory = category;
@@ -91,7 +94,7 @@ class StoreViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void selectBrand(int storeId, BrandListModel? brand) async {
+  Future<void> selectBrand(int storeId, BrandListModel? brand) async {
     loader = true;
     notifyListeners();
     selectedBrand = brand;
@@ -109,7 +112,7 @@ class StoreViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void selectPictureDrop(
+  Future<void> selectPictureDrop(
     PictureListModel? pictureList,
     BuildContext context,
   ) async {
