@@ -115,7 +115,7 @@ class _DisplayAuditCheckSummaryState
                       children: [
                         const Icon(
                           Icons.check,
-                          color: Colors.greenAccent,
+                          color: AppColors.primary,
                           size: 16,
                         ),
                         const SizedBox(width: 6),
@@ -156,7 +156,7 @@ class _DisplayAuditCheckSummaryState
                     isDense: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'All Brands (Dropdown)',
+                      hintText: 'All Brands',
                       contentPadding: EdgeInsets.symmetric(vertical: 10),
                     ),
                     items:
@@ -253,9 +253,9 @@ class _DisplayAuditCheckSummaryState
                                         Text(
                                           'Model',
                                           style: TextStyle(
-                                            color: Colors.grey.shade600,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.primary,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w800,
                                           ),
                                         ),
                                         Text(
@@ -276,9 +276,9 @@ class _DisplayAuditCheckSummaryState
                                         Text(
                                           'Display',
                                           style: TextStyle(
-                                            color: Colors.grey.shade600,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.primary,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w800,
                                           ),
                                         ),
                                         Text(
@@ -293,12 +293,14 @@ class _DisplayAuditCheckSummaryState
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Divider(color: Colors.grey.shade300, thickness: 1),
+                          const SizedBox(height: 8),
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                               itemCount: brand.products.length,
                               separatorBuilder:
                                   (context, index) =>
@@ -330,6 +332,18 @@ class _DisplayAuditCheckSummaryState
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(right: 8),
+                                          child: Text(
+                                            '${listIndex + 1}.',
+                                            style: const TextStyle(
+                                              color: AppColors.blackColor,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
                                         Expanded(
                                           child: Text(
                                             item.productCategoryName,

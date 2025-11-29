@@ -24,6 +24,7 @@ class SaleView extends ConsumerStatefulWidget {
 }
 
 class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
+  bool _showSwipeHint = false;
   @override
   void initState() {
     super.initState();
@@ -86,14 +87,10 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
       barrierDismissible: false, // Prevent closing by tapping outside
       builder:
           (context) => AlertDialog(
-            backgroundColor: AppColors.secondary,
-            content: Text(
-              'Delete this sale record?',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
+            backgroundColor: const Color(0xFF0B1120),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: Colors.white.withOpacity(0.1)),
             ),
             title: Text(
               'Confirm Delete',
@@ -103,21 +100,28 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                 fontWeight: FontWeight.w700,
               ),
             ),
+            content: Text(
+              'Delete this sale record?',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
             actions: [
               TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.whiteColor,
+                ),
                 onPressed:
                     () => Navigator.of(context).pop(false), // Close dialog
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
+                child: const Text('Cancel'),
               ),
               TextButton(
+                style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text(
-                  'Delete',
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
+                child: const Text('Delete'),
               ),
             ],
           ),
@@ -335,33 +339,36 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
           ),
           child: const Icon(Icons.delete, color: Colors.red, size: 28),
         ),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x19000000),
-                blurRadius: 14,
-                offset: Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: Container(
-                  height: 32,
-                  width: 32,
+        child: IntrinsicHeight(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x19000000),
+                  blurRadius: 14,
+                  offset: Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  width: 35,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
                     gradient: LinearGradient(
-                      colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                      colors: [
+                        Color.fromARGB(255, 29, 43, 74),
+                        Color.fromARGB(255, 29, 43, 74),
+                      ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(18),
+                      bottomLeft: Radius.circular(18),
                     ),
                   ),
                   child: Center(
@@ -369,69 +376,79 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                       '${index + 1}',
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.productModelName ?? '-',
-                      style: const TextStyle(
-                        color: Color(0xFF111827),
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'SKU: ${item.productModelCode ?? '-'}',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Price: ${_formatAmount(price)}',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'Qty: ${_formatAmount(qty)}',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.productModelName ?? '-',
+                                style: const TextStyle(
+                                  color: Color(0xFF111827),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'SKU: ${item.productModelCode ?? '-'}',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Price: ${_formatAmount(price)}',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Qty: ${_formatAmount(qty)}',
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              _formatAmount(lineTotal),
+                              style: const TextStyle(
+                                color: Colors.green,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _formatAmount(lineTotal),
-                    style: const TextStyle(
-                      color: Colors.green,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -783,7 +800,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _fieldLabel('Price (KD)'),
+                                    _fieldLabel('Price'),
                                     const SizedBox(height: 8),
                                     TextField(
                                       controller: priceController,
@@ -887,22 +904,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                       },
                               child: Container(
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFFFF7A3D),
-                                      Color(0xFFFF4C3B),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(14),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Color(0x33000000),
-                                      blurRadius: 12,
-                                      offset: Offset(0, 6),
-                                    ),
-                                  ],
+                                  color: AppColors.primary,
                                 ),
                                 child: Center(
                                   child:
@@ -930,7 +932,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 40),
                         ],
                       ),
                     ),
@@ -954,21 +956,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
             onTap: () => _openAddSaleSheet(viewModel),
             child: Container(
               height: 56,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFF7A3D), Color(0xFFFF4C3B)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x33000000),
-                    blurRadius: 12,
-                    offset: Offset(0, 6),
-                  ),
-                ],
-              ),
+              decoration: BoxDecoration(color: AppColors.primary),
               child: const Center(
                 child: Text(
                   'Add New Sale',
@@ -1048,6 +1036,18 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.info_outline,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _showSwipeHint = !_showSwipeHint;
+                                });
+                              },
+                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -1083,9 +1083,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.check,
-                                color: Colors.greenAccent,
+                                color: AppColors.primary,
                                 size: 16,
                               ),
                               const SizedBox(width: 6),
@@ -1111,25 +1111,27 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                         _dateSelector(viewModel),
                         SizedBox(height: 5),
 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                right: 8,
-                                top: 5,
-                                bottom: 10,
-                              ),
-                              child: Text(
-                                'Swipe left to delete the record',
-                                style: TextStyle(
-                                  color: AppColors.greyText,
-                                  fontSize: 12,
+                        if (_showSwipeHint)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  right: 8,
+                                  top: 5,
+                                  bottom: 10,
+                                ),
+                                child: Text(
+                                  'Swipe left to delete the record',
+                                  style: TextStyle(
+                                    color: AppColors.greyText,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
 
                         viewModel.loader
                             ? const Center(child: CircularProgressIndicator())

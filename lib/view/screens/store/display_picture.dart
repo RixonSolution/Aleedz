@@ -26,6 +26,7 @@ class DisplayPicture extends ConsumerStatefulWidget {
 }
 
 class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
+  bool _showSwipeHint = false;
   InputDecoration _sheetInputDecoration(String hint, {Widget? prefix}) {
     return InputDecoration(
       hintText: hint,
@@ -92,7 +93,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
       barrierDismissible: false,
       builder:
           (context) => AlertDialog(
-            backgroundColor: AppColors.secondary,
+            backgroundColor: const Color(0xFF0B1120),
             title: const Text(
               'Confirm Delete',
               style: TextStyle(
@@ -109,20 +110,23 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                 fontWeight: FontWeight.w600,
               ),
             ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: Colors.white.withOpacity(0.1)),
+            ),
+            actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(
-                  LabelService().getLabel(94), // Cancel
-                  style: TextStyle(color: AppColors.whiteColor),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.whiteColor,
                 ),
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(LabelService().getLabel(94)), // Cancel
               ),
               TextButton(
+                style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text(
-                  LabelService().getLabel(95), // Delete/Yes
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
+                child: Text(LabelService().getLabel(95)), // Delete/Yes
               ),
             ],
           ),
@@ -535,24 +539,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                       },
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [
-                                              Color(0xFFFF7A3D),
-                                              Color(0xFFFF4C3B),
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            14,
-                                          ),
-                                          boxShadow: const [
-                                            BoxShadow(
-                                              color: Color(0x33000000),
-                                              blurRadius: 12,
-                                              offset: Offset(0, 6),
-                                            ),
-                                          ],
+                                          color: AppColors.primary,
                                         ),
                                         child: const Center(
                                           child: Text(
@@ -591,21 +578,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
             onTap: () => _openAddDisplaySheet(viewModel),
             child: Container(
               height: 56,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFF7A3D), Color(0xFFFF4C3B)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x33000000),
-                    blurRadius: 12,
-                    offset: Offset(0, 6),
-                  ),
-                ],
-              ),
+              decoration: BoxDecoration(color: AppColors.primary),
               child: const Center(
                 child: Text(
                   'Add Display Picture',
@@ -647,7 +620,10 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                     ),
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                        colors: [
+                          Color.fromARGB(255, 29, 43, 74),
+                          Color.fromARGB(255, 29, 43, 74),
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -674,6 +650,18 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.info_outline,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _showSwipeHint = !_showSwipeHint;
+                                });
+                              },
+                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -698,9 +686,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.check,
-                                color: Colors.greenAccent,
+                                color: AppColors.primary,
                                 size: 16,
                               ),
                               const SizedBox(width: 6),
@@ -724,25 +712,27 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                       children: [
                         const SizedBox(height: 10),
 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                right: 8,
-                                top: 5,
-                                bottom: 10,
-                              ),
-                              child: Text(
-                                'Swipe left to delete the record',
-                                style: TextStyle(
-                                  color: AppColors.greyText,
-                                  fontSize: 12,
+                        if (_showSwipeHint)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  right: 8,
+                                  top: 5,
+                                  bottom: 10,
+                                ),
+                                child: Text(
+                                  'Swipe left to delete the record',
+                                  style: TextStyle(
+                                    color: AppColors.greyText,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
                         ListView.builder(
                           itemCount: viewModel.viewPicture.length,
                           shrinkWrap: true,
@@ -817,7 +807,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                   ),
                                 ),
                                 child: Container(
-                                  padding: const EdgeInsets.all(14),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(18),
@@ -829,135 +818,179 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                       ),
                                     ],
                                   ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          right: 5,
-                                        ),
-                                        child: Container(
-                                          height: 32,
-                                          width: 32,
+                                  child: IntrinsicHeight(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        Container(
+                                          width: 35,
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              6,
-                                            ),
                                             gradient: LinearGradient(
                                               colors: [
-                                                Color(0xFF111827),
-                                                Color(0xFF0B1120),
+                                                Color.fromARGB(255, 29, 43, 74),
+                                                Color.fromARGB(255, 29, 43, 74),
                                               ],
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                             ),
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                  topLeft: Radius.circular(18),
+                                                  bottomLeft: Radius.circular(
+                                                    18,
+                                                  ),
+                                                ),
                                           ),
                                           child: Center(
                                             child: Text(
                                               '${index + 1}',
                                               style: const TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w700,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w800,
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              picture.brandName ?? '',
-                                              style: const TextStyle(
-                                                color: Color(0xFF111827),
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w800,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              picture.storePictureElementName ??
-                                                  '',
-                                              style: TextStyle(
-                                                color: Colors.grey.shade600,
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              picture.categoryIssueName ?? '',
-                                              style: TextStyle(
-                                                color: Colors.grey.shade600,
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              picture.remarks ?? '',
-                                              style: TextStyle(
-                                                color: Colors.grey.shade600,
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 6,
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(14),
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        picture.brandName ?? '',
+                                                        style: const TextStyle(
+                                                          color: Color(
+                                                            0xFF111827,
+                                                          ),
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w800,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        picture.storePictureElementName ??
+                                                            '',
+                                                        style: TextStyle(
+                                                          color:
+                                                              Colors
+                                                                  .grey
+                                                                  .shade600,
+                                                          fontSize: 13,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        picture.categoryIssueName ??
+                                                            '',
+                                                        style: TextStyle(
+                                                          color:
+                                                              Colors
+                                                                  .grey
+                                                                  .shade600,
+                                                          fontSize: 13,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        picture.remarks ?? '',
+                                                        style: TextStyle(
+                                                          color:
+                                                              Colors
+                                                                  .grey
+                                                                  .shade600,
+                                                          fontSize: 13,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 6),
+                                                      Container(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 10,
+                                                              vertical: 6,
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          color: AppColors
+                                                              .secondary
+                                                              .withOpacity(
+                                                                0.08,
+                                                              ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                12,
+                                                              ),
+                                                        ),
+                                                        child: Text(
+                                                          picture.creationDateTime ??
+                                                              '',
+                                                          style:
+                                                              const TextStyle(
+                                                                color: Color(
+                                                                  0xFF111827,
+                                                                ),
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                              decoration: BoxDecoration(
-                                                color: AppColors.secondary
-                                                    .withOpacity(0.08),
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: Text(
-                                                picture.creationDateTime ?? '',
-                                                style: const TextStyle(
-                                                  color: Color(0xFF111827),
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w700,
                                                 ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(12),
-                                        child: CachedNetworkImage(
-                                          imageUrl:
-                                              '${ApiConstants.baseUrl}${picture.column1 ?? ''}',
-                                          height: 100,
-                                          width: 90,
-                                          placeholder:
-                                              (context, url) =>
-                                                  Shimmer.fromColors(
-                                                    baseColor:
-                                                        Colors.grey[300]!,
-                                                    highlightColor:
-                                                        Colors.grey[100]!,
-                                                    child: Container(
-                                                      height: 100,
-                                                      width: 90,
-                                                      color: Colors.white,
-                                                    ),
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  child: CachedNetworkImage(
+                                                    imageUrl:
+                                                        '${ApiConstants.baseUrl}${picture.column1 ?? ''}',
+                                                    height: 100,
+                                                    width: 90,
+                                                    placeholder:
+                                                        (
+                                                          context,
+                                                          url,
+                                                        ) => Shimmer.fromColors(
+                                                          baseColor:
+                                                              Colors.grey[300]!,
+                                                          highlightColor:
+                                                              Colors.grey[100]!,
+                                                          child: Container(
+                                                            height: 100,
+                                                            width: 90,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                    errorWidget:
+                                                        (context, url, error) =>
+                                                            const Icon(
+                                                              Icons.error,
+                                                            ),
+                                                    fit: BoxFit.cover,
                                                   ),
-                                          errorWidget:
-                                              (context, url, error) =>
-                                                  const Icon(Icons.error),
-                                          fit: BoxFit.cover,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

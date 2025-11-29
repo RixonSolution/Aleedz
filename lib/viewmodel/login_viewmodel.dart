@@ -19,7 +19,6 @@ class LoginViewModel extends ChangeNotifier {
   final TextEditingController passwordController = TextEditingController();
   final FocusNode usernameFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   UserPermission? userPermission;
 
   UserModel? user;
@@ -43,18 +42,15 @@ class LoginViewModel extends ChangeNotifier {
   bool loader = false;
 
   Future<bool> onLogin(BuildContext context) async {
-    if (formKey.currentState?.validate() ?? false) {
-      loader = true;
-      notifyListeners();
+    loader = true;
+    notifyListeners();
 
+    try {
       final response = await _authController.loginUser(
         username: usernameController.text.trim(),
         password: passwordController.text.trim(),
         deviceIMEIID: "",
       );
-
-      loader = false;
-      notifyListeners();
 
       if (response != null && response["status"] == 200) {
         final store = StoreLocalData();
@@ -69,7 +65,11 @@ class LoginViewModel extends ChangeNotifier {
             userData.apiToken!,
             userData.teamMemberID!,
           );
-          final labelsLoaded = await chooseLanguage('1', language: false);
+          final labelsLoaded = await chooseLanguage(
+            '1',
+            language: false,
+            showLoader: false,
+          );
           if (!labelsLoaded) {
             AppSnackBar.showError(
               context,
@@ -77,15 +77,16 @@ class LoginViewModel extends ChangeNotifier {
             );
             return false;
           }
-          AppSnackBar.showSuccess(context, 'Login successful!');
           return true; // ✅ SUCCESS
         }
       }
 
       AppSnackBar.showError(context, 'Login failed. Please try again.');
       return false; // ❌ FAILURE
+    } finally {
+      loader = false;
+      notifyListeners();
     }
-    return false;
   }
 
   Future<UserPermission?> loadStoredPermissions() async {
@@ -107,9 +108,6 @@ class LoginViewModel extends ChangeNotifier {
       userTeamId: teamId,
       userToken: token.trim(),
     );
-
-    loader = false;
-    notifyListeners();
 
     if (response != null && response["status"] == 200) {
       final nestedData = response["data"];
@@ -138,16 +136,21 @@ class LoginViewModel extends ChangeNotifier {
   Future<bool> chooseLanguage(
     String languageId, {
     bool language = true,
+    bool showLoader = true,
   }) async {
-    loader = true;
-    notifyListeners();
+    if (showLoader) {
+      loader = true;
+      notifyListeners();
+    }
 
     final response = await _authController.choosLanguage(
       languageId: languageId,
     );
 
-    loader = false;
-    notifyListeners();
+    if (showLoader) {
+      loader = false;
+      notifyListeners();
+    }
 
     if (response != null && response["status"] == 200) {
       final nestedData = response["data"]['data'];

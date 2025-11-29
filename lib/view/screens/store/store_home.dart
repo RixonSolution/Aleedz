@@ -426,7 +426,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                               children: [
                                 const Icon(
                                   Icons.check,
-                                  color: Colors.greenAccent,
+                                  color: AppColors.primary,
                                   size: 16,
                                 ),
                                 const SizedBox(width: 6),

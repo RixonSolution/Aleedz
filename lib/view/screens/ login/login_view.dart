@@ -20,6 +20,8 @@ class LoginView extends ConsumerStatefulWidget {
 }
 
 class _LoginViewState extends ConsumerState<LoginView> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     _loadLabels();
@@ -111,7 +113,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                     ],
                   ),
                   child: Form(
-                    key: viewModel.formKey,
+                    key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -234,6 +236,9 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                       }),
                                 ),
                                 onPressed: () async {
+                                  if (!(_formKey.currentState?.validate() ?? false)) {
+                                    return;
+                                  }
                                   final success = await viewModel.onLogin(
                                     context,
                                   );
@@ -324,8 +329,14 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                       creds['email'] ?? '';
                                   viewModel.passwordController.text =
                                       creds['password'] ?? '';
-                                  await viewModel.onLogin(context);
-                                  NavigationService.navigateTo(DashboardView());
+                                  final loginSucceeded = await viewModel.onLogin(
+                                    context,
+                                  );
+                                  if (loginSucceeded) {
+                                    NavigationService.navigateTo(
+                                      DashboardView(),
+                                    );
+                                  }
                                 }
                               },
                               child: Container(

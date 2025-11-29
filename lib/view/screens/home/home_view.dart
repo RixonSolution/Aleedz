@@ -1267,6 +1267,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 String trailingText =
                                     'Plan Date: ${store.planDate}';
                                 Color trailingColor = AppColors.greyText;
+                                Color statusBg = badgeBg;
+                                Color statusText = badgeTextColor;
                                 VoidCallback? statusTap;
 
                                 if (visitStatusId == 1) {
@@ -1283,6 +1285,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                   borderColor = AppColors.primary;
                                   badgeBg = AppColors.primary;
                                   badgeTextColor = AppColors.whiteColor;
+                                  statusBg = badgeBg;
+                                  statusText = badgeTextColor;
                                   badgeLabel = LabelService().getLabel(15);
                                   numberBg = AppColors.primary;
                                   numberText = AppColors.whiteColor;
@@ -1300,6 +1304,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 } else if (visitStatusId == 3) {
                                   badgeBg = AppColors.success.withOpacity(0.12);
                                   badgeTextColor = AppColors.success;
+                                  statusBg = badgeBg;
+                                  statusText = badgeTextColor;
                                   badgeLabel =
                                       store.visitStatus.isNotEmpty
                                           ? store.visitStatus
@@ -1311,6 +1317,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 } else if (visitStatusId == 4) {
                                   badgeBg = AppColors.error.withOpacity(0.12);
                                   badgeTextColor = AppColors.error;
+                                  statusBg = badgeBg;
+                                  statusText = badgeTextColor;
                                   badgeLabel =
                                       store.visitStatus.isNotEmpty
                                           ? store.visitStatus
@@ -1321,185 +1329,262 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                   trailingText = '';
                                 }
 
-                                final statusBadge = _statusChip(
-                                  label: badgeLabel,
-                                  bgColor: badgeBg,
-                                  textColor: badgeTextColor,
-                                  onTap: statusTap,
-                                );
+                                final hasTime = trailingText.isNotEmpty;
 
                                 return Opacity(
                                   opacity: cardOpacity,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: cardBg,
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(color: borderColor),
-                                    ),
-                                    padding: const EdgeInsets.all(12),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          height: 44,
-                                          width: 44,
-                                          decoration: BoxDecoration(
-                                            color: numberBg,
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
+                                  child: IntrinsicHeight(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: cardBg,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(color: borderColor),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Color(0x1A000000),
+                                            blurRadius: 12,
+                                            offset: Offset(0, 6),
                                           ),
-                                          child: Center(
-                                            child: Text(
-                                              '${index + 1}',
-                                              style: TextStyle(
-                                                color: numberText,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
+                                          BoxShadow(
+                                            color: Color(0x0D000000),
+                                            blurRadius: 6,
+                                            offset: Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            width: 35,
+                                            decoration: BoxDecoration(
+                                              color: numberBg,
+                                              borderRadius:
+                                                  const BorderRadius.only(
+                                                    topLeft: Radius.circular(
+                                                      16,
+                                                    ),
+                                                    bottomLeft: Radius.circular(
+                                                      16,
+                                                    ),
+                                                  ),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                '${index + 1}',
+                                                style: TextStyle(
+                                                  color: numberText,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w800,
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: GestureDetector(
-                                            onLongPress: () async {
-                                              if (visitStatusId == 1) {
-                                                showCancelPopup(
-                                                  context: context,
-                                                  title: store.storeName,
-                                                  cancel: (value) async {
-                                                    viewModel.cancelVisite(
-                                                      context,
-                                                      store.storeId,
-                                                      store.visitId,
-                                                      remarks: value,
-                                                    );
-                                                  },
-                                                );
-                                              }
-                                            },
-                                            onTap: () async {
-                                              final allowMultiCheckIn =
-                                                  viewModel.permission
-                                                      ?.getPermissionValue(
-                                                        'AllowMultipleCheckIn',
-                                                      );
-                                              final allowStoreInWithoutCheckIn =
-                                                  viewModel.permission
-                                                      ?.getPermissionValue(
-                                                        'Allow_StoreIn_WithoutCheckIn',
-                                                      );
-
-                                              final selectedStore = store;
-
-                                              if (allowStoreInWithoutCheckIn ==
-                                                      'N' &&
-                                                  selectedStore.visitStatusId ==
-                                                      1) {
-                                                AppSnackBar.showError(
-                                                  context,
-                                                  LabelService().getLabel(105),
-                                                );
-                                                return;
-                                              }
-
-                                              if (allowMultiCheckIn == 'Y' &&
-                                                  visitStatusId == 2) {
-                                                NavigationService.navigateTo(
-                                                  StoreHome(
-                                                    storeName:
-                                                        selectedStore.storeName,
-                                                    checkInTime:
-                                                        selectedStore
-                                                            .checkInTime,
-                                                    grade:
-                                                        selectedStore.gradeName,
-                                                    address:
-                                                        selectedStore.address,
-                                                    storeId:
-                                                        selectedStore.storeId,
+                                          Expanded(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                    14,
+                                                    14,
+                                                    14,
+                                                    14,
                                                   ),
-                                                );
-                                                return;
-                                              }
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  GestureDetector(
+                                                    onLongPress: () async {
+                                                      if (visitStatusId == 1) {
+                                                        showCancelPopup(
+                                                          context: context,
+                                                          title:
+                                                              store.storeName,
+                                                          cancel: (
+                                                            value,
+                                                          ) async {
+                                                            viewModel
+                                                                .cancelVisite(
+                                                                  context,
+                                                                  store.storeId,
+                                                                  store.visitId,
+                                                                  remarks:
+                                                                      value,
+                                                                );
+                                                          },
+                                                        );
+                                                      }
+                                                    },
+                                                    onTap: () async {
+                                                      final allowMultiCheckIn =
+                                                          viewModel.permission
+                                                              ?.getPermissionValue(
+                                                                'AllowMultipleCheckIn',
+                                                              );
+                                                      final allowStoreInWithoutCheckIn =
+                                                          viewModel.permission
+                                                              ?.getPermissionValue(
+                                                                'Allow_StoreIn_WithoutCheckIn',
+                                                              );
 
-                                              final isAlreadyCheckedIn =
-                                                  viewModel.stores.any(
-                                                    (storeItem) =>
-                                                        storeItem
-                                                                .visitStatusId !=
-                                                            0 &&
-                                                        storeItem.storeId !=
-                                                            selectedStore
-                                                                .storeId,
-                                                  );
+                                                      final selectedStore =
+                                                          store;
 
-                                              if (isAlreadyCheckedIn) {
-                                                AppSnackBar.showError(
-                                                  context,
-                                                  LabelService().getLabel(106),
-                                                );
-                                                return;
-                                              }
-                                            },
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  store.storeName,
-                                                  style: TextStyle(
-                                                    color: AppColors.blackColor,
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w700,
+                                                      if (allowStoreInWithoutCheckIn ==
+                                                              'N' &&
+                                                          selectedStore
+                                                                  .visitStatusId ==
+                                                              1) {
+                                                        AppSnackBar.showError(
+                                                          context,
+                                                          LabelService()
+                                                              .getLabel(105),
+                                                        );
+                                                        return;
+                                                      }
+
+                                                      if (allowMultiCheckIn ==
+                                                              'Y' &&
+                                                          visitStatusId == 2) {
+                                                        NavigationService.navigateTo(
+                                                          StoreHome(
+                                                            storeName:
+                                                                selectedStore
+                                                                    .storeName,
+                                                            checkInTime:
+                                                                selectedStore
+                                                                    .checkInTime,
+                                                            grade:
+                                                                selectedStore
+                                                                    .gradeName,
+                                                            address:
+                                                                selectedStore
+                                                                    .address,
+                                                            storeId:
+                                                                selectedStore
+                                                                    .storeId,
+                                                          ),
+                                                        );
+                                                        return;
+                                                      }
+
+                                                      final isAlreadyCheckedIn =
+                                                          viewModel.stores.any(
+                                                            (storeItem) =>
+                                                                storeItem
+                                                                        .visitStatusId !=
+                                                                    0 &&
+                                                                storeItem
+                                                                        .storeId !=
+                                                                    selectedStore
+                                                                        .storeId,
+                                                          );
+
+                                                      if (isAlreadyCheckedIn) {
+                                                        AppSnackBar.showError(
+                                                          context,
+                                                          LabelService()
+                                                              .getLabel(106),
+                                                        );
+                                                        return;
+                                                      }
+                                                    },
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          store.storeName,
+                                                          style: TextStyle(
+                                                            color:
+                                                                AppColors
+                                                                    .blackColor,
+                                                            fontSize: 15,
+                                                            fontWeight:
+                                                                FontWeight.w800,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 4,
+                                                        ),
+                                                        Text(
+                                                          store.address,
+                                                          maxLines: 2,
+                                                          overflow:
+                                                              TextOverflow
+                                                                  .ellipsis,
+                                                          style: TextStyle(
+                                                            color:
+                                                                AppColors
+                                                                    .greyText,
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 6,
+                                                        ),
+                                                        Row(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Container(
+                                                              padding:
+                                                                  const EdgeInsets.symmetric(
+                                                                    horizontal:
+                                                                        14,
+                                                                    vertical: 6,
+                                                                  ),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                    color:
+                                                                        statusBg,
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                          30,
+                                                                        ),
+                                                                  ),
+                                                              child: Text(
+                                                                badgeLabel,
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      statusText,
+                                                                  fontSize: 13,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            if (hasTime) ...[
+                                                              const SizedBox(
+                                                                width: 10,
+                                                              ),
+                                                              Text(
+                                                                trailingText,
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      trailingColor,
+                                                                  fontSize: 12,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  store.address,
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    color: AppColors.greyText,
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 6),
-                                                Row(children: [statusBadge]),
-                                              ],
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            if (trailingText.isNotEmpty)
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                  right: 6,
-                                                ),
-                                                child: Text(
-                                                  trailingText,
-                                                  style: TextStyle(
-                                                    color: trailingColor,
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ),
-                                            Icon(
-                                              Icons.chevron_right,
-                                              color: Colors.grey.shade400,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 );

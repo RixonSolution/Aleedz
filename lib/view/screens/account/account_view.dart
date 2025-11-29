@@ -58,7 +58,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       await prefs.remove(key);
                     }
                   }
-                  await AuthHelper.clearCredentials();
                   NavigationService.resetTo(LoginView());
                 },
                 child: Text(
