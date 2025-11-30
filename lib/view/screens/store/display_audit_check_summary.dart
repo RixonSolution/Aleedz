@@ -293,14 +293,14 @@ class _DisplayAuditCheckSummaryState
                                     ),
                                   ],
                                 ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Divider(color: Colors.grey.shade300, thickness: 1),
-                          const SizedBox(height: 8),
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Divider(color: Colors.grey.shade300, thickness: 1),
+                            const SizedBox(height: 8),
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
                               itemCount: brand.products.length,
                               separatorBuilder:
                                   (context, index) =>
@@ -333,8 +333,9 @@ class _DisplayAuditCheckSummaryState
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Padding(
-                                          padding:
-                                              const EdgeInsets.only(right: 8),
+                                          padding: const EdgeInsets.only(
+                                            right: 8,
+                                          ),
                                           child: Text(
                                             '${listIndex + 1}.',
                                             style: const TextStyle(

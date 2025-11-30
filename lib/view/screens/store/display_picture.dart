@@ -26,7 +26,6 @@ class DisplayPicture extends ConsumerStatefulWidget {
 }
 
 class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
-  bool _showSwipeHint = false;
   InputDecoration _sheetInputDecoration(String hint, {Widget? prefix}) {
     return InputDecoration(
       hintText: hint,
@@ -91,45 +90,67 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: const Color(0xFF0B1120),
-            title: const Text(
-              'Confirm Delete',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ),
-            content: const Text(
-              'Delete this display picture record?',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: Colors.white.withOpacity(0.1)),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
             ),
-            actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            actions: [
-              TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.whiteColor,
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Confirm Delete',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(LabelService().getLabel(94)), // Cancel
-              ),
-              TextButton(
-                style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text(LabelService().getLabel(95)), // Delete/Yes
-              ),
-            ],
+                const SizedBox(height: 12),
+                const Text(
+                  'Delete this display picture record?',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.whiteColor,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: Text(LabelService().getLabel(94)), // Cancel
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.redAccent,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: Text(LabelService().getLabel(95)), // Delete/Yes
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
+        );
+      },
     );
 
     return result ?? false;
@@ -200,34 +221,59 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
     showDialog(
       context: context,
       barrierDismissible: false, // Prevent closing by tapping outside
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: AppColors.secondary,
-            title: Text(
-              LabelService().getLabel(100),
-              style: TextStyle(color: AppColors.whiteColor),
-            ),
-            content: Text(
-              LabelService().getLabel(99),
-              style: TextStyle(color: AppColors.whiteColor),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(), // Close dialog
-                child: Text(
-                  LabelService().getLabel(94),
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              TextButton(
-                onPressed: onPressed,
-                child: Text(
-                  LabelService().getLabel(95),
-                  style: TextStyle(color: AppColors.whiteColor),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  LabelService().getLabel(100),
+                  style: TextStyle(color: AppColors.whiteColor, fontSize: 16, fontWeight: FontWeight.w700),
                 ),
-              ),
-            ],
+                const SizedBox(height: 12),
+                Text(
+                  LabelService().getLabel(99),
+                  style: TextStyle(color: AppColors.whiteColor, fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(), // Close dialog
+                      child: Text(
+                        LabelService().getLabel(94),
+                        style: TextStyle(color: AppColors.whiteColor),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: onPressed,
+                      child: Text(
+                        LabelService().getLabel(95),
+                        style: TextStyle(color: AppColors.whiteColor),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
+        );
+      },
     );
   }
 
@@ -358,12 +404,12 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                           ),
 
                           const SizedBox(height: 16),
-                          _fieldLabel(LabelService().getLabel(128)),
+                          _fieldLabel(LabelService().getLabel(194)),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<int>(
                             value: viewModel.selectedIssueCategory?.categoryId,
                             decoration: _sheetInputDecoration(
-                              LabelService().getLabel(128),
+                              LabelService().getLabel(194),
                             ),
                             items:
                                 viewModel.categoryIssue
@@ -540,6 +586,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: AppColors.primary,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         child: const Center(
                                           child: Text(
@@ -578,7 +627,10 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
             onTap: () => _openAddDisplaySheet(viewModel),
             child: Container(
               height: 56,
-              decoration: BoxDecoration(color: AppColors.primary),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: const Center(
                 child: Text(
                   'Add Display Picture',
@@ -592,6 +644,32 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showSwipeHintSnack() {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Row(
+          children: const [
+            Icon(Icons.swipe_left, color: Colors.white),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Swipe left to delete the record',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.secondary,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -620,10 +698,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                     ),
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [
-                          Color.fromARGB(255, 29, 43, 74),
-                          Color.fromARGB(255, 29, 43, 74),
-                        ],
+                        colors: [Color(0xFF1f2937), Color(0xFF0f172a)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -656,11 +731,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                 Icons.info_outline,
                                 color: Colors.white,
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _showSwipeHint = !_showSwipeHint;
-                                });
-                              },
+                              onPressed: _showSwipeHintSnack,
                             ),
                           ],
                         ),
@@ -711,28 +782,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                     child: ListView(
                       children: [
                         const SizedBox(height: 10),
-
-                        if (_showSwipeHint)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  right: 8,
-                                  top: 5,
-                                  bottom: 10,
-                                ),
-                                child: Text(
-                                  'Swipe left to delete the record',
-                                  style: TextStyle(
-                                    color: AppColors.greyText,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
                         ListView.builder(
                           itemCount: viewModel.viewPicture.length,
                           shrinkWrap: true,

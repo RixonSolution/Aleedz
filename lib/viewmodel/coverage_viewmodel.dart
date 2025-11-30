@@ -130,8 +130,8 @@ class CoverageViewModel extends ChangeNotifier {
   ) {
     const earthRadius = 6371000; // in meters
 
-    final dLat = _degreesToRadians(endLat - latitude);
-    final dLng = _degreesToRadians(endLng - longitude);
+    final dLat = _degreesToRadians(endLat - startLat);
+    final dLng = _degreesToRadians(endLng - startLng);
 
     final a =
         sin(dLat / 2) * sin(dLat / 2) +
@@ -221,8 +221,15 @@ class CoverageViewModel extends ChangeNotifier {
   }) async {
     loader = true;
     notifyListeners();
+    if (forceRefresh) {
+      stores = [];
+    }
     // Condition to skip API call unless list is empty or forceRefresh is true
-    if (stores.isNotEmpty && !forceRefresh) return;
+    if (stores.isNotEmpty && !forceRefresh) {
+      loader = false;
+      notifyListeners();
+      return;
+    }
 
     final response = await _coverageController.coverageList(
       teamMemberId: user?.teamMemberID ?? 0,
@@ -234,16 +241,17 @@ class CoverageViewModel extends ChangeNotifier {
 
     if (response != null && response["status"] == 200) {
       final dataList = response["data"]['data'];
-      loader = false;
-      notifyListeners();
       if (dataList != null && dataList is List && dataList.isNotEmpty) {
         stores = dataList.map((e) => StoreModel.fromJson(e)).toList();
+      } else {
+        stores = [];
       }
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
-      loader = false;
-      notifyListeners();
+      stores = [];
     }
+    loader = false;
+    notifyListeners();
   }
 
   Future<void> getCoverageDropDown() async {

@@ -450,8 +450,10 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                             alpha: 0.12,
                                                           ),
                                                     ),
-                                                    child: const Text(
-                                                      'Images',
+                                                    child: Text(
+                                                      LabelService().getLabel(
+                                                        192,
+                                                      ),
                                                       style: TextStyle(
                                                         fontSize: 12,
                                                       ),
@@ -650,8 +652,8 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                                 e.displayCheck ==
                                                                                     1,
                                                                           )
-                                                                          ? Colors
-                                                                              .green
+                                                                          ? AppColors
+                                                                              .primary
                                                                           : Colors
                                                                               .grey
                                                                               .shade400,
@@ -742,8 +744,8 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                                 e.displayCheckCount ==
                                                                                     1,
                                                                           )
-                                                                          ? Colors
-                                                                              .green
+                                                                          ? AppColors
+                                                                              .primary
                                                                           : Colors
                                                                               .grey
                                                                               .shade400,
@@ -1208,7 +1210,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                     shape: RoundedRectangleBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                            0,
+                                                            12,
                                                           ),
                                                     ),
                                                   ),

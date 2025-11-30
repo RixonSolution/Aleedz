@@ -462,10 +462,15 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                               decoration: BoxDecoration(
                                 color:
                                     isChecked
-                                        ? Colors.green
+                                        ? AppColors.primary
                                         : Colors.transparent,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: Colors.grey),
+                                border: Border.all(
+                                  color:
+                                      isChecked
+                                          ? AppColors.primary
+                                          : Colors.transparent,
+                                ),
                               ),
                               child:
                                   isChecked

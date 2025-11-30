@@ -4,7 +4,6 @@ import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/%20login/auth_helper.dart';
 import 'package:aleedz/view/screens/%20login/login_view.dart';
 import 'package:aleedz/view/screens/change_pwd/change_pwd_view.dart';
 import 'package:aleedz/view/screens/issues/issues.view.dart';
@@ -106,45 +105,45 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           NavigationService.navigateTo(ChangePassword());
         },
       },
-      {
-        'title': LabelService().getLabel(81),
-        'icon': Icons.school,
-        'onTap': () async {
-          if (widget.onClose != null) widget.onClose!(); // Hide drawer
-          await Future.delayed(
-            Duration(milliseconds: 300),
-          ); // Wait for animation
-          NavigationService.navigateTo(UserTrainingListView());
-        },
-        'visible': hasRosLabel(30),
-      },
-      {
-        'title': LabelService().getLabel(82),
-        'icon': Icons.school,
-        'onTap': () async {
-          if (widget.onClose != null) widget.onClose!(); // Hide drawer
-          await Future.delayed(
-            Duration(milliseconds: 300),
-          ); // Wait for animation
-          NavigationService.navigateTo(PendingDeplomentView());
-        },
-        'visible': hasRosLabel(34),
-      },
-      {
-        'title': 'Sellout',
-        'icon': Icons.school,
-        'onTap': () async {
-          if (widget.onClose != null) widget.onClose!(); // Hide drawer
-          await Future.delayed(
-            Duration(milliseconds: 300),
-          ); // Wait for animation
-          NavigationService.navigateTo(
-            IssuesView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
-          );
-        },
-        'visible': hasRosLabel(38),
-      },
 
+      // {
+      //   'title': LabelService().getLabel(81),
+      //   'icon': Icons.school,
+      //   'onTap': () async {
+      //     if (widget.onClose != null) widget.onClose!(); // Hide drawer
+      //     await Future.delayed(
+      //       Duration(milliseconds: 300),
+      //     ); // Wait for animation
+      //     NavigationService.navigateTo(UserTrainingListView());
+      //   },
+      //   'visible': hasRosLabel(30),
+      // },
+      // {
+      //   'title': LabelService().getLabel(82),
+      //   'icon': Icons.school,
+      //   'onTap': () async {
+      //     if (widget.onClose != null) widget.onClose!(); // Hide drawer
+      //     await Future.delayed(
+      //       Duration(milliseconds: 300),
+      //     ); // Wait for animation
+      //     NavigationService.navigateTo(PendingDeplomentView());
+      //   },
+      //   'visible': hasRosLabel(34),
+      // },
+      // {
+      //   'title': 'Sellout',
+      //   'icon': Icons.school,
+      //   'onTap': () async {
+      //     if (widget.onClose != null) widget.onClose!(); // Hide drawer
+      //     await Future.delayed(
+      //       Duration(milliseconds: 300),
+      //     ); // Wait for animation
+      //     NavigationService.navigateTo(
+      //       IssuesView(checkInTime: '05:30', storeName: 'STC', storeId: 0),
+      //     );
+      //   },
+      //   'visible': hasRosLabel(38),
+      // },
       {
         'title': LabelService().getLabel(85),
         'icon': Icons.logout,

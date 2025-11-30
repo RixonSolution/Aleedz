@@ -1,15 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
-import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/app_text_style.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/coverage_details/google_map.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
-import 'package:aleedz/view/screens/open_issues/open_issues_view.dart';
 import 'package:aleedz/view/screens/store/store_home.dart';
 import 'package:aleedz/view/screens/today_plan/today_plan_view.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
@@ -634,6 +629,60 @@ class _HomeViewState extends ConsumerState<HomeView> {
     return InkWell(onTap: onTap, child: chip);
   }
 
+  Future<void> _ensureLocation(CoverageViewModel viewModel) async {
+    if (viewModel.latitude != 0.0 || viewModel.longitude != 0.0) return;
+    try {
+      await viewModel.getLatLong();
+    } catch (e) {
+      debugPrint('Location error: $e');
+      AppSnackBar.showError(context, 'Unable to fetch location');
+    }
+  }
+
+  Future<void> _onStoreTap({
+    required CoverageViewModel viewModel,
+    required String allowMultiCheckIn,
+    required String allowWithoutCheckIn,
+    required store, // DashboardModel
+  }) async {
+    if (allowWithoutCheckIn == 'N' && store.visitStatusId == 1) {
+      AppSnackBar.showError(context, LabelService().getLabel(105));
+      return;
+    }
+
+    if (allowMultiCheckIn == 'Y' && store.visitStatusId == 2) {
+      NavigationService.navigateTo(
+        StoreHome(
+          storeName: store.storeName,
+          checkInTime: store.checkInTime,
+          grade: store.gradeName,
+          address: store.address,
+          storeId: store.storeId,
+        ),
+      );
+      return;
+    }
+
+    final isAlreadyCheckedIn = viewModel.dashBoardList.any(
+      (item) => item.visitStatusId == 2 && item.storeId != store.storeId,
+    );
+
+    if (isAlreadyCheckedIn) {
+      AppSnackBar.showError(context, LabelService().getLabel(106));
+      return;
+    }
+
+    NavigationService.navigateTo(
+      StoreHome(
+        storeName: store.storeName,
+        checkInTime: store.checkInTime,
+        grade: store.gradeName,
+        address: store.address,
+        storeId: store.storeId,
+      ),
+    );
+  }
+
   Future<void> _handleCheckIn(
     BuildContext context,
     CoverageViewModel viewModel,
@@ -641,12 +690,21 @@ class _HomeViewState extends ConsumerState<HomeView> {
     String distancePermission,
     String checkInCamera,
   ) async {
+    await _ensureLocation(viewModel);
+    if (viewModel.latitude == 0.0 && viewModel.longitude == 0.0) {
+      AppSnackBar.showError(context, 'Location unavailable');
+      return;
+    }
+
+    final limit = double.tryParse(distancePermission) ?? double.infinity;
     if (checkInCamera == 'Y') {
       final myLat = viewModel.latitude;
       final myLng = viewModel.longitude;
 
-      final otherLat = double.parse(viewModel.dashBoardList[index].latitude);
-      final otherLng = double.parse(viewModel.dashBoardList[index].longitude);
+      final otherLat =
+          double.tryParse(viewModel.dashBoardList[index].latitude) ?? 0.0;
+      final otherLng =
+          double.tryParse(viewModel.dashBoardList[index].longitude) ?? 0.0;
 
       final isOtherLocationEmpty = otherLat == 0.0 && otherLng == 0.0;
       final distance = viewModel.calculateDistanceInMeters(
@@ -656,7 +714,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         otherLng,
       );
 
-      if (isOtherLocationEmpty || distance < double.parse(distancePermission)) {
+      if (isOtherLocationEmpty || distance < limit) {
         final picker = ImagePicker();
         final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
@@ -703,7 +761,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
             imageFile: imageFile,
           );
         }
-      } else if (distance > double.parse(distancePermission)) {
+      } else if (distance > limit) {
         showLocationPopup(
           context: context,
           title: viewModel.dashBoardList[index].storeName,
@@ -749,12 +807,21 @@ class _HomeViewState extends ConsumerState<HomeView> {
     String distancePermission,
     String checkoutCamera,
   ) async {
+    await _ensureLocation(viewModel);
+    if (viewModel.latitude == 0.0 && viewModel.longitude == 0.0) {
+      AppSnackBar.showError(context, 'Location unavailable');
+      return;
+    }
+
+    final limit = double.tryParse(distancePermission) ?? double.infinity;
     if (checkoutCamera == 'Y') {
       final myLat = viewModel.latitude;
       final myLng = viewModel.longitude;
 
-      final otherLat = double.parse(viewModel.dashBoardList[index].latitude);
-      final otherLng = double.parse(viewModel.dashBoardList[index].longitude);
+      final otherLat =
+          double.tryParse(viewModel.dashBoardList[index].latitude) ?? 0.0;
+      final otherLng =
+          double.tryParse(viewModel.dashBoardList[index].longitude) ?? 0.0;
 
       final isOtherLocationEmpty = otherLat == 0.0 && otherLng == 0.0;
       final distance = viewModel.calculateDistanceInMeters(
@@ -764,7 +831,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         otherLng,
       );
 
-      if (isOtherLocationEmpty || distance < double.parse(distancePermission)) {
+      if (isOtherLocationEmpty || distance < limit) {
         final picker = ImagePicker();
         final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
@@ -802,7 +869,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
             imageFile: imageFile,
           );
         }
-      } else if (distance > double.parse(distancePermission)) {
+      } else if (distance > limit) {
         showLocationPopup(
           context: context,
           title: viewModel.dashBoardList[index].storeName,
@@ -1037,14 +1104,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                             children: [
                                               Icon(
                                                 Icons.event_note,
-                                                color: AppColors.travelBlue,
+                                                color: AppColors.primary,
                                                 size: 18,
                                               ),
                                               const SizedBox(width: 6),
                                               Text(
                                                 "Today's Plan",
                                                 style: TextStyle(
-                                                  color: AppColors.travelBlue,
+                                                  color: Color(0xFFfbbf24),
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w600,
                                                 ),
@@ -1200,7 +1267,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 vertical: 6,
                               ),
                               child: Text(
-                                "Today's Journey",
+                                LabelService().getLabel(12),
                                 style: TextStyle(
                                   color: AppColors.blackColor,
                                   fontSize: 16,
@@ -1220,7 +1287,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 }
                               },
                               child: Text(
-                                'View All',
+                                LabelService().getLabel(193),
                                 style: TextStyle(
                                   color: AppColors.primary,
                                   fontSize: 13,
@@ -1334,256 +1401,181 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 return Opacity(
                                   opacity: cardOpacity,
                                   child: IntrinsicHeight(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: cardBg,
-                                        borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(color: borderColor),
-                                        boxShadow: const [
-                                          BoxShadow(
-                                            color: Color(0x1A000000),
-                                            blurRadius: 12,
-                                            offset: Offset(0, 6),
-                                          ),
-                                          BoxShadow(
-                                            color: Color(0x0D000000),
-                                            blurRadius: 6,
-                                            offset: Offset(0, 2),
-                                          ),
-                                        ],
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(16),
+                                      onTap: () => _onStoreTap(
+                                        viewModel: viewModel,
+                                        allowMultiCheckIn: allowMultiCheckIn,
+                                        allowWithoutCheckIn: allowWithoutCheckIn,
+                                        store: store,
                                       ),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            width: 35,
-                                            decoration: BoxDecoration(
-                                              color: numberBg,
-                                              borderRadius:
-                                                  const BorderRadius.only(
-                                                    topLeft: Radius.circular(
-                                                      16,
-                                                    ),
-                                                    bottomLeft: Radius.circular(
-                                                      16,
-                                                    ),
-                                                  ),
+                                      onLongPress: () async {
+                                        if (visitStatusId == 1) {
+                                          showCancelPopup(
+                                            context: context,
+                                            title: store.storeName,
+                                            cancel: (value) async {
+                                              viewModel.cancelVisite(
+                                                context,
+                                                store.storeId,
+                                                store.visitId,
+                                                remarks: value,
+                                              );
+                                            },
+                                          );
+                                        }
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: cardBg,
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          border:
+                                              Border.all(color: borderColor),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Color(0x1A000000),
+                                              blurRadius: 12,
+                                              offset: Offset(0, 6),
                                             ),
-                                            child: Center(
-                                              child: Text(
-                                                '${index + 1}',
-                                                style: TextStyle(
-                                                  color: numberText,
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w800,
+                                            BoxShadow(
+                                              color: Color(0x0D000000),
+                                              blurRadius: 6,
+                                              offset: Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: 35,
+                                              decoration: BoxDecoration(
+                                                color: numberBg,
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                      topLeft: Radius.circular(
+                                                        16,
+                                                      ),
+                                                      bottomLeft:
+                                                          Radius.circular(16),
+                                                    ),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  '${index + 1}',
+                                                  style: TextStyle(
+                                                    color: numberText,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w800,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                          Expanded(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                    14,
-                                                    14,
-                                                    14,
-                                                    14,
-                                                  ),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  GestureDetector(
-                                                    onLongPress: () async {
-                                                      if (visitStatusId == 1) {
-                                                        showCancelPopup(
-                                                          context: context,
-                                                          title:
-                                                              store.storeName,
-                                                          cancel: (
-                                                            value,
-                                                          ) async {
-                                                            viewModel
-                                                                .cancelVisite(
-                                                                  context,
-                                                                  store.storeId,
-                                                                  store.visitId,
-                                                                  remarks:
-                                                                      value,
-                                                                );
-                                                          },
-                                                        );
-                                                      }
-                                                    },
-                                                    onTap: () async {
-                                                      final allowMultiCheckIn =
-                                                          viewModel.permission
-                                                              ?.getPermissionValue(
-                                                                'AllowMultipleCheckIn',
-                                                              );
-                                                      final allowStoreInWithoutCheckIn =
-                                                          viewModel.permission
-                                                              ?.getPermissionValue(
-                                                                'Allow_StoreIn_WithoutCheckIn',
-                                                              );
-
-                                                      final selectedStore =
-                                                          store;
-
-                                                      if (allowStoreInWithoutCheckIn ==
-                                                              'N' &&
-                                                          selectedStore
-                                                                  .visitStatusId ==
-                                                              1) {
-                                                        AppSnackBar.showError(
-                                                          context,
-                                                          LabelService()
-                                                              .getLabel(105),
-                                                        );
-                                                        return;
-                                                      }
-
-                                                      if (allowMultiCheckIn ==
-                                                              'Y' &&
-                                                          visitStatusId == 2) {
-                                                        NavigationService.navigateTo(
-                                                          StoreHome(
-                                                            storeName:
-                                                                selectedStore
-                                                                    .storeName,
-                                                            checkInTime:
-                                                                selectedStore
-                                                                    .checkInTime,
-                                                            grade:
-                                                                selectedStore
-                                                                    .gradeName,
-                                                            address:
-                                                                selectedStore
-                                                                    .address,
-                                                            storeId:
-                                                                selectedStore
-                                                                    .storeId,
-                                                          ),
-                                                        );
-                                                        return;
-                                                      }
-
-                                                      final isAlreadyCheckedIn =
-                                                          viewModel.stores.any(
-                                                            (storeItem) =>
-                                                                storeItem
-                                                                        .visitStatusId !=
-                                                                    0 &&
-                                                                storeItem
-                                                                        .storeId !=
-                                                                    selectedStore
-                                                                        .storeId,
-                                                          );
-
-                                                      if (isAlreadyCheckedIn) {
-                                                        AppSnackBar.showError(
-                                                          context,
-                                                          LabelService()
-                                                              .getLabel(106),
-                                                        );
-                                                        return;
-                                                      }
-                                                    },
-                                                    child: Column(
+                                            Expanded(
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                      14,
+                                                      14,
+                                                      14,
+                                                      14,
+                                                    ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      store.storeName,
+                                                      style: TextStyle(
+                                                        color: AppColors
+                                                            .blackColor,
+                                                        fontSize: 15,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 4,
+                                                    ),
+                                                    Text(
+                                                      store.address,
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColors.greyText,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 6,
+                                                    ),
+                                                    Row(
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
-                                                              .start,
+                                                              .center,
                                                       children: [
-                                                        Text(
-                                                          store.storeName,
-                                                          style: TextStyle(
-                                                            color:
-                                                                AppColors
-                                                                    .blackColor,
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                                FontWeight.w800,
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 4,
-                                                        ),
-                                                        Text(
-                                                          store.address,
-                                                          maxLines: 2,
-                                                          overflow:
-                                                              TextOverflow
-                                                                  .ellipsis,
-                                                          style: TextStyle(
-                                                            color:
-                                                                AppColors
-                                                                    .greyText,
-                                                            fontSize: 12,
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 6,
-                                                        ),
-                                                        Row(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Container(
-                                                              padding:
-                                                                  const EdgeInsets.symmetric(
-                                                                    horizontal:
-                                                                        14,
-                                                                    vertical: 6,
-                                                                  ),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                    color:
-                                                                        statusBg,
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                          30,
-                                                                        ),
-                                                                  ),
-                                                              child: Text(
-                                                                badgeLabel,
-                                                                style: TextStyle(
-                                                                  color:
-                                                                      statusText,
-                                                                  fontSize: 13,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
+                                                        InkWell(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(30),
+                                                          onTap: statusTap,
+                                                          child: Container(
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      14,
+                                                                  vertical: 6,
                                                                 ),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                                  color:
+                                                                      statusBg,
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        30,
+                                                                      ),
+                                                                ),
+                                                            child: Text(
+                                                              badgeLabel,
+                                                              style: TextStyle(
+                                                                color:
+                                                                    statusText,
+                                                                fontSize: 13,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
                                                               ),
                                                             ),
-                                                            if (hasTime) ...[
-                                                              const SizedBox(
-                                                                width: 10,
-                                                              ),
-                                                              Text(
-                                                                trailingText,
-                                                                style: TextStyle(
-                                                                  color:
-                                                                      trailingColor,
-                                                                  fontSize: 12,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ],
+                                                          ),
                                                         ),
+                                                        if (hasTime) ...[
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Text(
+                                                            trailingText,
+                                                            style: TextStyle(
+                                                              color:
+                                                                  trailingColor,
+                                                              fontSize: 12,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w700,
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ],
                                                     ),
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
