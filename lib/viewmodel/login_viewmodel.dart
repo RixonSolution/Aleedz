@@ -111,9 +111,8 @@ class LoginViewModel extends ChangeNotifier {
 
     if (response != null && response["status"] == 200) {
       final nestedData = response["data"];
-      if (nestedData != null &&
-          nestedData["data"] != null &&
-          nestedData["data"].isNotEmpty) {
+      final data = nestedData?["data"];
+      if (data is List && data.isNotEmpty) {
         final userPermission = UserPermission.fromJson(nestedData);
 
         final prefs = await SharedPreferences.getInstance();
@@ -123,9 +122,8 @@ class LoginViewModel extends ChangeNotifier {
         );
 
         return userPermission;
-      } else {
-        AppSnackBar.showError(context, 'No user data found.');
       }
+      // If permissions are missing, just continue without showing an error.
     } else {
       AppSnackBar.showError(context, 'Permission error: ${response?['data']}');
     }

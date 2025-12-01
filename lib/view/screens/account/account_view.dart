@@ -1,15 +1,11 @@
 import 'dart:io';
-
 import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/%20login/login_view.dart';
 import 'package:aleedz/view/screens/change_pwd/change_pwd_view.dart';
-import 'package:aleedz/view/screens/issues/issues.view.dart';
-import 'package:aleedz/view/screens/pending_deployment/pending_deployment.dart';
 import 'package:aleedz/view/screens/user_profile/user_profile_view.dart';
-import 'package:aleedz/view/screens/user_training/user_training_list_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,40 +27,72 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       barrierDismissible: false,
       builder:
           (context) => AlertDialog(
-            backgroundColor: AppColors.secondary,
-            title: Text(
-              LabelService().getLabel(85),
-              style: TextStyle(color: AppColors.whiteColor),
+            backgroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            contentPadding: EdgeInsets.zero,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            content: Text(
-              LabelService().getLabel(99),
-              style: TextStyle(color: AppColors.whiteColor),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  LabelService().getLabel(94),
-                  style: TextStyle(color: AppColors.whiteColor),
+            content: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF1f2937), Color(0xFF0f172a)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      LabelService().getLabel(85),
+                      style: TextStyle(color: AppColors.whiteColor),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      LabelService().getLabel(99),
+                      style: TextStyle(color: AppColors.whiteColor),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text(
+                            LabelService().getLabel(94),
+                            style: TextStyle(color: AppColors.whiteColor),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            final prefs = await SharedPreferences.getInstance();
+                            final keysToKeep = {
+                              ApiConstants.baseUrlPreferenceKey,
+                            };
+                            for (final key in prefs.getKeys()) {
+                              if (!keysToKeep.contains(key)) {
+                                await prefs.remove(key);
+                              }
+                            }
+                            NavigationService.resetTo(LoginView());
+                          },
+                          child: Text(
+                            LabelService().getLabel(95),
+                            style: TextStyle(color: AppColors.whiteColor),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              TextButton(
-                onPressed: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  final keysToKeep = {ApiConstants.baseUrlPreferenceKey};
-                  for (final key in prefs.getKeys()) {
-                    if (!keysToKeep.contains(key)) {
-                      await prefs.remove(key);
-                    }
-                  }
-                  NavigationService.resetTo(LoginView());
-                },
-                child: Text(
-                  LabelService().getLabel(95),
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
-              ),
-            ],
+            ),
           ),
     );
   }

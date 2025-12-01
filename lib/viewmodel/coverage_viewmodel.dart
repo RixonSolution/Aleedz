@@ -50,6 +50,7 @@ class CoverageViewModel extends ChangeNotifier {
   List<AuditItem> auditList = [];
 
   ChannelModel? selectedChannel;
+  DateTime dashboardDate = DateTime.now();
 
   Future<UserPermission?> loadStoredPermissions() async {
     final prefs = await SharedPreferences.getInstance();
@@ -372,9 +373,10 @@ class CoverageViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> getDashboard() async {
+  Future<void> getDashboard({DateTime? planDate}) async {
     dashBoardList = [];
-    DateTime date = DateTime.now(); // or DateTime.now()
+    dashboardDate = planDate ?? dashboardDate;
+    DateTime date = dashboardDate; // or DateTime.now()
     String formattedDate = DateFormat('yyyy-MM-dd').format(date);
     final response = await _coverageController.getDashboard(
       token: user?.apiToken ?? '',
@@ -478,14 +480,18 @@ class CoverageViewModel extends ChangeNotifier {
     }
   }
 
-  Future loadDashboard(context) async {
+  Future loadDashboard(
+    BuildContext context, {
+    DateTime? planDate,
+  }) async {
     loader = true;
     notifyListeners();
     await loadUser();
     await getLatLong();
     await getCoverageCount(context);
     await getOpenIssueCount(context);
-    await getDashboard();
+    dashboardDate = planDate ?? DateTime.now();
+    await getDashboard(planDate: dashboardDate);
 
     loader = false;
     notifyListeners();

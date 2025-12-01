@@ -95,10 +95,12 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
     CoverageViewModel viewModel,
     StoreModel selectedStore,
   ) async {
-    final allowMultiCheckIn =
-        viewModel.permission?.getPermissionValue('AllowMultipleCheckIn');
-    final allowStoreInWithoutCheckIn =
-        viewModel.permission?.getPermissionValue('Allow_StoreIn_WithoutCheckIn');
+    final allowMultiCheckIn = viewModel.permission?.getPermissionValue(
+      'AllowMultipleCheckIn',
+    );
+    final allowStoreInWithoutCheckIn = viewModel.permission?.getPermissionValue(
+      'Allow_StoreIn_WithoutCheckIn',
+    );
 
     if (allowStoreInWithoutCheckIn == 'N' && selectedStore.visitStatusId == 0) {
       AppSnackBar.showError(context, LabelService().getLabel(105));
@@ -159,8 +161,12 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
     final otherLat = double.tryParse(store.latitude) ?? 0.0;
     final otherLng = double.tryParse(store.longitude) ?? 0.0;
 
-    final distance =
-        viewModel.calculateDistanceInMeters(myLat, myLng, otherLat, otherLng);
+    final distance = viewModel.calculateDistanceInMeters(
+      myLat,
+      myLng,
+      otherLat,
+      otherLng,
+    );
 
     final hasCameraPermission =
         store.visitStatusId == 0 ? checkInCamera == 'Y' : checkoutCamera == 'Y';
@@ -216,11 +222,26 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                         vertical: 5,
                         horizontal: 10,
                       ),
-                      decoration: BoxDecoration(color: AppColors.secondary),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(Icons.close, color: AppColors.secondary),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: Icon(Icons.close),
+                          ),
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 30,
@@ -340,12 +361,13 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 15),
                                 decoration: BoxDecoration(
-                                  color: AppColors.secondary,
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: AppColors.primary,
-                                      width: 4.0,
-                                    ),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFF111827),
+                                      Color(0xFF0B1120),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
                                 ),
                                 child: Center(
@@ -361,32 +383,33 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                               ),
                             ),
                           ),
-                          if (checkStatus1 != '') SizedBox(width: 5),
-                          if (checkStatus1 != '' && checkStatus != 'Check out')
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  cancel(_controller.text);
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 15),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.error,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      checkStatus1,
-                                      style: TextStyle(
-                                        color: AppColors.whiteColor,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+
+                          // if (checkStatus1 != '') SizedBox(width: 5),
+                          // if (checkStatus1 != '' && checkStatus != 'Check out')
+                          //   Expanded(
+                          //     child: InkWell(
+                          //       onTap: () {
+                          //         Navigator.pop(context);
+                          //         cancel(_controller.text);
+                          //       },
+                          //       child: Container(
+                          //         padding: EdgeInsets.symmetric(vertical: 15),
+                          //         decoration: BoxDecoration(
+                          //           color: AppColors.error,
+                          //         ),
+                          //         child: Center(
+                          //           child: Text(
+                          //             checkStatus1,
+                          //             style: TextStyle(
+                          //               color: AppColors.whiteColor,
+                          //               fontSize: 14,
+                          //               fontWeight: FontWeight.w600,
+                          //             ),
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ),
                         ],
                       ),
                     ),
@@ -438,11 +461,26 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                         vertical: 5,
                         horizontal: 10,
                       ),
-                      decoration: BoxDecoration(color: AppColors.secondary),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(Icons.close, color: AppColors.secondary),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: Icon(Icons.close),
+                          ),
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 30,
@@ -577,7 +615,8 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
         store.latitude == "0.0" && store.longitude == "0.0";
 
     final limit = double.tryParse(distancePermission);
-    bool isLocationValid = isOtherLocationEmpty || distance < (limit ?? double.infinity);
+    bool isLocationValid =
+        isOtherLocationEmpty || distance < (limit ?? double.infinity);
 
     if (!hasCameraPermission) {
       if (isLocationValid) {
@@ -813,6 +852,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
               ),
             ),
             const SizedBox(height: 12),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: TextField(
@@ -1046,15 +1086,18 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                             InkWell(
                                               borderRadius:
                                                   BorderRadius.circular(30),
-                                              onTap: () => _onCheckBadgeTap(
-                                                viewModel: viewModel,
-                                                store: store,
-                                                index: index,
-                                                distancePermission:
-                                                    distancePermission,
-                                                checkInCamera: checkInCamera,
-                                                checkoutCamera: checkoutCamera,
-                                              ),
+                                              onTap:
+                                                  () => _onCheckBadgeTap(
+                                                    viewModel: viewModel,
+                                                    store: store,
+                                                    index: index,
+                                                    distancePermission:
+                                                        distancePermission,
+                                                    checkInCamera:
+                                                        checkInCamera,
+                                                    checkoutCamera:
+                                                        checkoutCamera,
+                                                  ),
                                               child: Container(
                                                 padding:
                                                     const EdgeInsets.symmetric(
@@ -1064,16 +1107,16 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                 decoration: BoxDecoration(
                                                   color: statusColor,
                                                   borderRadius:
-                                                      BorderRadius.circular(
-                                                        30,
-                                                      ),
+                                                      BorderRadius.circular(30),
                                                 ),
                                                 child: Text(
                                                   store.visitStatusId == 0
-                                                      ? LabelService()
-                                                          .getLabel(14)
-                                                      : LabelService()
-                                                          .getLabel(15),
+                                                      ? LabelService().getLabel(
+                                                        14,
+                                                      )
+                                                      : LabelService().getLabel(
+                                                        15,
+                                                      ),
                                                   style: TextStyle(
                                                     color: statusTextColor,
                                                     fontSize: 13,

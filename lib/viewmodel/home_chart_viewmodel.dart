@@ -31,6 +31,26 @@ class HomeChartViewModel extends ChangeNotifier {
 
   bool loader = false;
 
+  // Month map as a static or top-level constant
+  static const Map<int, String> _monthNameMap = {
+    1: 'January',
+    2: 'February',
+    3: 'March',
+    4: 'April',
+    5: 'May',
+    6: 'June',
+    7: 'July',
+    8: 'August',
+    9: 'September',
+    10: 'October',
+    11: 'November',
+    12: 'December',
+  };
+
+  String selectedMonth = _monthNameMap[DateTime.now().month]!;
+  String selectedMonthNumber = DateTime.now().month.toString().padLeft(2, '0');
+  String selectedYear = DateTime.now().year.toString();
+
   Future<UserPermission?> loadStoredPermissions() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString('user_permission');
@@ -194,27 +214,6 @@ class HomeChartViewModel extends ChangeNotifier {
       debugPrint("Monthly Target Value Error: ${response?['data']}");
     }
   }
-
-  late String selectedMonth;
-  late String selectedMonthNumber;
-
-  // Month map as a static or top-level constant
-  static const Map<int, String> _monthNameMap = {
-    1: 'January',
-    2: 'February',
-    3: 'March',
-    4: 'April',
-    5: 'May',
-    6: 'June',
-    7: 'July',
-    8: 'August',
-    9: 'September',
-    10: 'October',
-    11: 'November',
-    12: 'December',
-  };
-
-  late String selectedYear;
 
   Future<void> init() async {
     final now = DateTime.now();

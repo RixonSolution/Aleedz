@@ -1,6 +1,7 @@
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -156,6 +157,8 @@ class _CoverageViewState extends ConsumerState<TodayPlanView> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = ref.watch(coverageModelProvider);
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
@@ -163,39 +166,49 @@ class _CoverageViewState extends ConsumerState<TodayPlanView> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Container(
+              width: double.infinity,
+              constraints: const BoxConstraints(minHeight: 150),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      NavigationService.goBack(); // or any index like 2
-                    },
-                    child: Image.asset(
-                      AppIcons.backArrow,
-                      height: 30,
-                      width: 30,
-                    ),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          NavigationService.goBack();
+                        },
+                        child: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Daily Plan',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    'Daily Plan',
-                    style: TextStyle(
-                      color: AppColors.blackColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Image.asset(AppIcons.locationIcon, height: 30, width: 30),
                 ],
               ),
             ),
-            SizedBox(height: 5),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(color: AppColors.primary, height: 0),
-            ),
+            const SizedBox(height: 12),
             Expanded(
               child:
                   currentLocation == null

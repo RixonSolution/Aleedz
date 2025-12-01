@@ -242,19 +242,28 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
               children: [
                 Text(
                   LabelService().getLabel(100),
-                  style: TextStyle(color: AppColors.whiteColor, fontSize: 16, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    color: AppColors.whiteColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   LabelService().getLabel(99),
-                  style: TextStyle(color: AppColors.whiteColor, fontSize: 15, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: AppColors.whiteColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 18),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
-                      onPressed: () => Navigator.of(context).pop(), // Close dialog
+                      onPressed:
+                          () => Navigator.of(context).pop(), // Close dialog
                       child: Text(
                         LabelService().getLabel(94),
                         style: TextStyle(color: AppColors.whiteColor),
@@ -603,7 +612,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                       ),
                                     ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 30),
                         ],
                       ),
                     ),

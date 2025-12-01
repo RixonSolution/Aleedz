@@ -22,6 +22,121 @@ class HomeView extends ConsumerStatefulWidget {
 }
 
 class _HomeViewState extends ConsumerState<HomeView> {
+  DateTime _selectedDate = DateTime.now();
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  bool get _isTodaySelected => _isSameDay(_selectedDate, DateTime.now());
+
+  bool _isFutureDate(DateTime date) {
+    final today = DateTime.now();
+    final candidate = DateTime(date.year, date.month, date.day);
+    final todayOnly = DateTime(today.year, today.month, today.day);
+    return candidate.isAfter(todayOnly);
+  }
+
+  Future<void> _updateDate(DateTime date) async {
+    setState(() {
+      _selectedDate = date;
+    });
+    await ref
+        .read(coverageModelProvider.notifier)
+        .loadDashboard(context, planDate: date);
+  }
+
+  Future<void> _changeDateBy(int days) async {
+    final newDate = _selectedDate.add(Duration(days: days));
+    if (_isFutureDate(newDate)) return;
+    await _updateDate(newDate);
+  }
+
+  Future<void> _openDatePicker() async {
+    final now = DateTime.now();
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(now.year, now.month, now.day),
+    );
+
+    if (pickedDate != null) {
+      await _updateDate(pickedDate);
+    }
+  }
+
+  Widget _arrowButton({
+    required IconData icon,
+    required VoidCallback? onTap,
+    bool enabled = true,
+  }) {
+    return InkWell(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: enabled ? AppColors.whiteColor : Colors.grey.shade200,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: enabled ? const Color(0xFF111827) : Colors.grey,
+          size: 20,
+        ),
+      ),
+    );
+  }
+
+  Widget _dateSelector(CoverageViewModel _) {
+    final displayDate = DateFormat('dd MMMM yyyy').format(_selectedDate);
+    final canGoForward =
+        !_isFutureDate(_selectedDate.add(const Duration(days: 1)));
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.12),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          _arrowButton(
+            icon: Icons.chevron_left,
+            onTap: () => _changeDateBy(-1),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _openDatePicker(),
+              child: Center(
+                child: Text(
+                  displayDate,
+                  style: const TextStyle(
+                    color: Color(0xFF111827),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          _arrowButton(
+            icon: Icons.chevron_right,
+            onTap: canGoForward ? () => _changeDateBy(1) : null,
+            enabled: canGoForward,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -35,7 +150,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final storeNotifier = ref.read(storeModelProvider.notifier);
     final store = ref.read(storeModelProvider);
 
-    await coverageNotifier.loadDashboard(context);
+    await coverageNotifier.loadDashboard(context, planDate: _selectedDate);
     if (!mounted) return;
 
     await store.getROSLabels();
@@ -81,11 +196,26 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         vertical: 5,
                         horizontal: 10,
                       ),
-                      decoration: BoxDecoration(color: AppColors.secondary),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(Icons.close, color: AppColors.secondary),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: Icon(Icons.close),
+                          ),
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 30,
@@ -206,12 +336,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 15),
                                 decoration: BoxDecoration(
-                                  color: AppColors.secondary,
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: AppColors.primary,
-                                      width: 4.0,
-                                    ),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFF111827),
+                                      Color(0xFF0B1120),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
                                 ),
                                 child: Center(
@@ -278,7 +409,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
     return showDialog(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.transparent,
       builder: (context) {
         return Dialog(
           insetPadding: EdgeInsets.symmetric(
@@ -290,7 +420,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           child: Align(
             alignment: Alignment.center, // Position to top if needed
             child: Material(
-              color: AppColors.secondary,
+              color: AppColors.whiteColor,
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 child: Column(
@@ -301,11 +431,26 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         vertical: 5,
                         horizontal: 10,
                       ),
-                      decoration: BoxDecoration(color: AppColors.secondary),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(Icons.close, color: AppColors.secondary),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: Icon(Icons.close, color: Colors.transparent),
+                          ),
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 30,
@@ -335,100 +480,75 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         ],
                       ),
                     ),
-                    // const SizedBox(height: 10),
-
-                    // Padding(
-                    //   padding: const EdgeInsets.symmetric(horizontal: 16),
-                    //   child: Text(
-                    //     title,
-                    //     style: TextStyle(
-                    //       color: AppColors.whiteColor,
-                    //       fontSize: 14,
-                    //       fontWeight: FontWeight.w600,
-                    //     ),
-                    //   ),
-                    // ),
                     const SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         LabelService().getLabel(55),
                         style: TextStyle(
-                          color: AppColors.whiteColor,
+                          color: AppColors.blackColor,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 10),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-
                       child: TextField(
                         controller: _controller,
-                        style: TextStyle(color: AppColors.whiteColor),
+                        style: TextStyle(color: AppColors.blackColor),
                         decoration: InputDecoration(
                           hintText: LabelService().getLabel(103),
-                          hintStyle: TextStyle(color: AppColors.whiteColor),
+                          hintStyle: TextStyle(color: AppColors.greyText),
                           border: UnderlineInputBorder(),
                           enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.whiteColor),
+                            borderSide: BorderSide(color: AppColors.blackColor),
                           ),
                           focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.whiteColor),
+                            borderSide: BorderSide(color: AppColors.blackColor),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 16),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              decoration: BoxDecoration(),
-                              child: Center(
-                                child: Text(
-                                  LabelService().getLabel(94),
-                                  style: TextStyle(
-                                    color: AppColors.whiteColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                if (_controller.text.isEmpty) {
+                                  AppSnackBar.showError(
+                                    context,
+                                    LabelService().getLabel(103),
+                                  );
+                                } else {
+                                  Navigator.pop(context);
+                                  cancel(_controller.text);
+                                }
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 15),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFF111827),
+                                      Color(0xFF0B1120),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
                                 ),
-                              ),
-                            ),
-                          ),
-
-                          InkWell(
-                            onTap: () {
-                              if (_controller.text.isEmpty) {
-                                AppSnackBar.showError(
-                                  context,
-                                  LabelService().getLabel(103),
-                                );
-                              } else {
-                                Navigator.pop(context);
-                                cancel(_controller.text);
-                              }
-                            },
-                            child: Container(
-                              padding: EdgeInsets.only(right: 20),
-                              decoration: BoxDecoration(),
-                              child: Center(
-                                child: Text(
-                                  LabelService().getLabel(95),
-                                  style: TextStyle(
-                                    color: AppColors.whiteColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                                child: Center(
+                                  child: Text(
+                                    LabelService().getLabel(102),
+                                    style: TextStyle(
+                                      color: AppColors.whiteColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -437,8 +557,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
@@ -489,11 +608,26 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         vertical: 5,
                         horizontal: 10,
                       ),
-                      decoration: BoxDecoration(color: AppColors.secondary),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(Icons.close, color: AppColors.secondary),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: Icon(Icons.close),
+                          ),
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 30,
@@ -645,6 +779,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
     required String allowWithoutCheckIn,
     required store, // DashboardModel
   }) async {
+    if (!_isTodaySelected) {
+      AppSnackBar.showError(context, 'Actions are only available for today.');
+      return;
+    }
     if (allowWithoutCheckIn == 'N' && store.visitStatusId == 1) {
       AppSnackBar.showError(context, LabelService().getLabel(105));
       return;
@@ -690,6 +828,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
     String distancePermission,
     String checkInCamera,
   ) async {
+    if (!_isTodaySelected) {
+      AppSnackBar.showError(context, 'Actions are only available for today.');
+      return;
+    }
     await _ensureLocation(viewModel);
     if (viewModel.latitude == 0.0 && viewModel.longitude == 0.0) {
       AppSnackBar.showError(context, 'Location unavailable');
@@ -807,6 +949,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
     String distancePermission,
     String checkoutCamera,
   ) async {
+    if (!_isTodaySelected) {
+      AppSnackBar.showError(context, 'Actions are only available for today.');
+      return;
+    }
     await _ensureLocation(viewModel);
     if (viewModel.latitude == 0.0 && viewModel.longitude == 0.0) {
       AppSnackBar.showError(context, 'Location unavailable');
@@ -925,9 +1071,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
           "Allow_StoreIn_WithoutCheckIn",
         ) ??
         "N";
+    final checkedOutCount =
+        viewModel.dashBoardList
+            .where((store) => store.visitStatusId == 3)
+            .length;
+    final totalStores = viewModel.dashBoardList.length;
+    final bool isTodaySelected = _isTodaySelected;
 
-    DateTime today = DateTime.now();
-    String formattedDate = DateFormat('dd-MMM-yyyy').format(today);
     // print('distancePermission$distancePermission');
 
     return SafeArea(
@@ -1119,12 +1269,26 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                             ],
                                           ),
                                           const SizedBox(height: 8),
-                                          Text(
-                                            "${viewModel.userVisited}/${viewModel.userPlan}",
-                                            style: const TextStyle(
-                                              color: AppColors.whiteColor,
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.bold,
+                                          RichText(
+                                            text: TextSpan(
+                                              style: const TextStyle(
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              children: [
+                                                TextSpan(
+                                                  text: '$checkedOutCount',
+                                                  style: TextStyle(
+                                                    color: AppColors.whiteColor,
+                                                  ),
+                                                ),
+                                                TextSpan(
+                                                  text: '/$totalStores',
+                                                  style: const TextStyle(
+                                                    color: AppColors.whiteColor,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                           const SizedBox(height: 2),
@@ -1254,6 +1418,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
                             ),
                           ),
                         ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+                        child: _dateSelector(viewModel),
                       ),
 
                       Padding(
@@ -1396,185 +1565,249 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                   trailingText = '';
                                 }
 
-                                final hasTime = trailingText.isNotEmpty;
+                                if (!isTodaySelected) {
+                                  statusTap = null;
+                                }
 
-                                return Opacity(
-                                  opacity: cardOpacity,
-                                  child: IntrinsicHeight(
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(16),
-                                      onTap: () => _onStoreTap(
-                                        viewModel: viewModel,
-                                        allowMultiCheckIn: allowMultiCheckIn,
-                                        allowWithoutCheckIn: allowWithoutCheckIn,
-                                        store: store,
-                                      ),
-                                      onLongPress: () async {
-                                        if (visitStatusId == 1) {
-                                          showCancelPopup(
-                                            context: context,
-                                            title: store.storeName,
-                                            cancel: (value) async {
-                                              viewModel.cancelVisite(
-                                                context,
-                                                store.storeId,
-                                                store.visitId,
-                                                remarks: value,
-                                              );
-                                            },
-                                          );
-                                        }
+                                final hasTime = trailingText.isNotEmpty;
+                                final canDismiss =
+                                    isTodaySelected && visitStatusId == 1;
+
+                                return Dismissible(
+                                  key: ValueKey(
+                                    'store-${store.storeId}-${store.visitId}',
+                                  ),
+                                  direction:
+                                      canDismiss
+                                          ? DismissDirection.endToStart
+                                          : DismissDirection.none,
+                                  confirmDismiss: (direction) async {
+                                    if (!canDismiss) return false;
+                                    await showCancelPopup(
+                                      context: context,
+                                      title: store.storeName,
+                                      cancel: (value) async {
+                                        viewModel.cancelVisite(
+                                          context,
+                                          store.storeId,
+                                          store.visitId,
+                                          remarks: value,
+                                        );
                                       },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: cardBg,
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                          border:
-                                              Border.all(color: borderColor),
-                                          boxShadow: const [
-                                            BoxShadow(
-                                              color: Color(0x1A000000),
-                                              blurRadius: 12,
-                                              offset: Offset(0, 6),
-                                            ),
-                                            BoxShadow(
-                                              color: Color(0x0D000000),
-                                              blurRadius: 6,
-                                              offset: Offset(0, 2),
-                                            ),
-                                          ],
+                                    );
+                                    return false;
+                                  },
+                                  background: Container(
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.error.withOpacity(0.12),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Icon(
+                                          Icons.cancel,
+                                          color: AppColors.error,
                                         ),
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              width: 35,
-                                              decoration: BoxDecoration(
-                                                color: numberBg,
-                                                borderRadius:
-                                                    const BorderRadius.only(
-                                                      topLeft: Radius.circular(
-                                                        16,
-                                                      ),
-                                                      bottomLeft:
-                                                          Radius.circular(16),
-                                                    ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          LabelService().getLabel(102),
+                                          style: TextStyle(
+                                            color: AppColors.error,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  child: Opacity(
+                                    opacity: cardOpacity,
+                                    child: IntrinsicHeight(
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(16),
+                                        onTap:
+                                            () => _onStoreTap(
+                                              viewModel: viewModel,
+                                              allowMultiCheckIn:
+                                                  allowMultiCheckIn,
+                                              allowWithoutCheckIn:
+                                                  allowWithoutCheckIn,
+                                              store: store,
+                                            ),
+                                        onLongPress: () async {
+                                          if (canDismiss) {
+                                            showCancelPopup(
+                                              context: context,
+                                              title: store.storeName,
+                                              cancel: (value) async {
+                                                viewModel.cancelVisite(
+                                                  context,
+                                                  store.storeId,
+                                                  store.visitId,
+                                                  remarks: value,
+                                                );
+                                              },
+                                            );
+                                          }
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: cardBg,
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            border: Border.all(
+                                              color: borderColor,
+                                            ),
+                                            boxShadow: const [
+                                              BoxShadow(
+                                                color: Color(0x1A000000),
+                                                blurRadius: 12,
+                                                offset: Offset(0, 6),
                                               ),
-                                              child: Center(
-                                                child: Text(
-                                                  '${index + 1}',
-                                                  style: TextStyle(
-                                                    color: numberText,
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w800,
+                                              BoxShadow(
+                                                color: Color(0x0D000000),
+                                                blurRadius: 6,
+                                                offset: Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                width: 35,
+                                                decoration: BoxDecoration(
+                                                  color: numberBg,
+                                                  borderRadius:
+                                                      const BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(16),
+                                                        bottomLeft:
+                                                            Radius.circular(16),
+                                                      ),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    '${index + 1}',
+                                                    style: TextStyle(
+                                                      color: numberText,
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                            Expanded(
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                      14,
-                                                      14,
-                                                      14,
-                                                      14,
-                                                    ),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      store.storeName,
-                                                      style: TextStyle(
-                                                        color: AppColors
-                                                            .blackColor,
-                                                        fontSize: 15,
-                                                        fontWeight:
-                                                            FontWeight.w800,
+                                              Expanded(
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                        14,
+                                                        14,
+                                                        14,
+                                                        14,
                                                       ),
-                                                    ),
-                                                    const SizedBox(
-                                                      height: 4,
-                                                    ),
-                                                    Text(
-                                                      store.address,
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                        color:
-                                                            AppColors.greyText,
-                                                        fontSize: 12,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        store.storeName,
+                                                        style: TextStyle(
+                                                          color:
+                                                              AppColors
+                                                                  .blackColor,
+                                                          fontSize: 15,
+                                                          fontWeight:
+                                                              FontWeight.w800,
+                                                        ),
                                                       ),
-                                                    ),
-                                                    const SizedBox(
-                                                      height: 6,
-                                                    ),
-                                                    Row(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        InkWell(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(30),
-                                                          onTap: statusTap,
-                                                          child: Container(
-                                                            padding:
-                                                                const EdgeInsets.symmetric(
-                                                                  horizontal:
-                                                                      14,
-                                                                  vertical: 6,
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        store.address,
+                                                        maxLines: 2,
+                                                        overflow:
+                                                            TextOverflow
+                                                                .ellipsis,
+                                                        style: TextStyle(
+                                                          color:
+                                                              AppColors
+                                                                  .greyText,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 6),
+                                                      Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          InkWell(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  30,
                                                                 ),
-                                                            decoration:
-                                                                BoxDecoration(
+                                                            onTap: statusTap,
+                                                            child: Container(
+                                                              padding:
+                                                                  const EdgeInsets.symmetric(
+                                                                    horizontal:
+                                                                        14,
+                                                                    vertical: 6,
+                                                                  ),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                    color:
+                                                                        statusBg,
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                          30,
+                                                                        ),
+                                                                  ),
+                                                              child: Text(
+                                                                badgeLabel,
+                                                                style: TextStyle(
                                                                   color:
-                                                                      statusBg,
-                                                                  borderRadius:
-                                                                      BorderRadius.circular(
-                                                                        30,
-                                                                      ),
+                                                                      statusText,
+                                                                  fontSize: 13,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
                                                                 ),
-                                                            child: Text(
-                                                              badgeLabel,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          if (hasTime) ...[
+                                                            const SizedBox(
+                                                              width: 10,
+                                                            ),
+                                                            Text(
+                                                              trailingText,
                                                               style: TextStyle(
                                                                 color:
-                                                                    statusText,
-                                                                fontSize: 13,
+                                                                    trailingColor,
+                                                                fontSize: 12,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w700,
                                                               ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                        if (hasTime) ...[
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
-                                                          Text(
-                                                            trailingText,
-                                                            style: TextStyle(
-                                                              color:
-                                                                  trailingColor,
-                                                              fontSize: 12,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w700,
-                                                            ),
-                                                          ),
+                                                          ],
                                                         ],
-                                                      ],
-                                                    ),
-                                                  ],
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),

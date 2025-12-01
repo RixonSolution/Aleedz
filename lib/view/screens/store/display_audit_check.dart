@@ -71,39 +71,62 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: AppColors.secondary,
-          title: Text(
-            'Pick an image',
-            style: TextStyle(color: AppColors.whiteColor),
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          contentPadding: EdgeInsets.zero,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text(
-                  LabelService().getLabel(112),
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
-                onTap: () {
-                  ref
-                      .read(storeModelProvider.notifier)
-                      .pickFromCameras(direction);
-                  Navigator.pop(context);
-                },
+          content: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1f2937), Color(0xFF0f172a)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              ListTile(
-                title: Text(
-                  LabelService().getLabel(113),
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
-                onTap: () {
-                  ref
-                      .read(storeModelProvider.notifier)
-                      .pickFromGallerys(direction);
-                  Navigator.pop(context);
-                },
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pick an image',
+                    style: TextStyle(color: AppColors.whiteColor),
+                  ),
+                  const SizedBox(height: 12),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      LabelService().getLabel(112),
+                      style: TextStyle(color: AppColors.whiteColor),
+                    ),
+                    onTap: () {
+                      ref
+                          .read(storeModelProvider.notifier)
+                          .pickFromCameras(direction);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      LabelService().getLabel(113),
+                      style: TextStyle(color: AppColors.whiteColor),
+                    ),
+                    onTap: () {
+                      ref
+                          .read(storeModelProvider.notifier)
+                          .pickFromGallerys(direction);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         );
       },
@@ -1137,18 +1160,42 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                     12,
                                                     16,
                                                   ),
-                                              child: SizedBox(
+                                                child: SizedBox(
                                                 width: double.infinity,
                                                 height: 52,
                                                 child: ElevatedButton(
                                                   onPressed: () async {
+                                                    final hasBrandImages =
+                                                        viewModel
+                                                            .leftImages
+                                                            .isNotEmpty;
+                                                    final hasCompetitionImages =
+                                                        viewModel
+                                                            .rightImages
+                                                            .isNotEmpty;
+
+                                                    if (!hasBrandImages) {
+                                                      AppSnackBar.showError(
+                                                        context,
+                                                        'Brand images are required before submitting.',
+                                                      );
+                                                      return;
+                                                    }
+
+                                                    if (!hasCompetitionImages) {
+                                                      AppSnackBar.showError(
+                                                        context,
+                                                        'Competition images are required before submitting.',
+                                                      );
+                                                      return;
+                                                    }
+
                                                     if (cameraPermission ==
                                                             'Y' ||
                                                         (cameraPermission ==
                                                                 'N' &&
-                                                            viewModel
-                                                                .leftImages
-                                                                .isNotEmpty)) {
+                                                            hasBrandImages &&
+                                                            hasCompetitionImages)) {
                                                       await viewModel
                                                           .auditMediaSubmit(
                                                             context,

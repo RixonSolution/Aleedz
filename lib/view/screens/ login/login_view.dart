@@ -236,20 +236,23 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                       }),
                                 ),
                                 onPressed: () async {
-                                  if (!(_formKey.currentState?.validate() ?? false)) {
-                                    return;
-                                  }
-                                  final success = await viewModel.onLogin(
-                                    context,
-                                  );
+                                if (!(_formKey.currentState?.validate() ?? false)) {
+                                  return;
+                                }
+                                final success = await viewModel.onLogin(
+                                  context,
+                                );
 
-                                  if (!success) return;
+                                if (!success) return;
 
-                                  await storeViewModel.getROSLabels();
+                                viewModel.loader = true;
+                                viewModel.notifyListeners();
 
-                                  final enableFingerprint =
-                                      await showDialog<bool>(
-                                        context: context,
+                                await storeViewModel.getROSLabels();
+
+                                final enableFingerprint =
+                                    await showDialog<bool>(
+                                      context: context,
                                         builder:
                                             (context) => AlertDialog(
                                               title: Text(
@@ -289,6 +292,9 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                       viewModel.passwordController.text,
                                     );
                                   }
+
+                                  viewModel.loader = false;
+                                  viewModel.notifyListeners();
 
                                   NavigationService.navigateTo(DashboardView());
                                 },

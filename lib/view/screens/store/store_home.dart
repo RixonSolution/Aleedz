@@ -469,7 +469,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                                   color:
                                       isChecked
                                           ? AppColors.primary
-                                          : Colors.transparent,
+                                          : AppColors.blackColor,
                                 ),
                               ),
                               child:
