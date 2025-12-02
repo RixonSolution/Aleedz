@@ -33,14 +33,18 @@ class HomeChartServices {
     required String token,
     required String targetYear,
     required String targetMonth,
+    int managerId = 0,
+    int brandId = 0,
   }) async {
     final encodedTeamId = Uri.encodeComponent(teamMemberId.toString());
     final encodedToken = Uri.encodeComponent(token);
     final encodedTargetYear = Uri.encodeComponent(targetYear);
     final encodedTargetMonth = Uri.encodeComponent(targetMonth);
+    final encodedManagerId = Uri.encodeComponent(managerId.toString());
+    final encodedBrandId = Uri.encodeComponent(brandId.toString());
 
     final url = Uri.parse(
-      '${ApiConstants.targetMonthlySale}?TargetMonth=$encodedTargetMonth&TargetYear=$encodedTargetYear&TeamMemberID=$encodedTeamId&_token=$encodedToken',
+      '${ApiConstants.targetMonthlySale}?TargetMonth=$encodedTargetMonth&TargetYear=$encodedTargetYear&TeamMemberID=$encodedTeamId&_token=$encodedToken&ManagerID=$encodedManagerId&BrandID=$encodedBrandId',
     );
 
     try {
@@ -49,8 +53,19 @@ class HomeChartServices {
         headers: {'Accept': 'application/json'},
       );
 
-      final data = json.decode(response.body);
-      return {"status": response.statusCode, "data": data};
+      try {
+        final data = json.decode(response.body);
+        return {"status": response.statusCode, "data": data};
+      } catch (e) {
+        print('Unhandled error: $e');
+        print('Response body: ${response.body}');
+        return {
+          "status": response.statusCode,
+          "data": null,
+          "error": e.toString(),
+          "raw": response.body,
+        };
+      }
     } catch (e) {
       print('Unhandled error: $e');
       return null;
@@ -62,14 +77,18 @@ class HomeChartServices {
     required String token,
     required String targetYear,
     required String targetMonth,
+    int managerId = 0,
+    int brandId = 0,
   }) async {
     final encodedTeamId = Uri.encodeComponent(teamMemberId.toString());
     final encodedToken = Uri.encodeComponent(token);
     final encodedTargetYear = Uri.encodeComponent(targetYear);
     final encodedTargetMonth = Uri.encodeComponent(targetMonth);
+    final encodedManagerId = Uri.encodeComponent(managerId.toString());
+    final encodedBrandId = Uri.encodeComponent(brandId.toString());
 
     final url = Uri.parse(
-      '${ApiConstants.targetMonthlyTargetValue}?TargetMonth=$encodedTargetMonth&TargetYear=$encodedTargetYear&TeamMemberID=$encodedTeamId&_token=$encodedToken',
+      '${ApiConstants.targetMonthlyTargetValue}?TargetMonth=$encodedTargetMonth&TargetYear=$encodedTargetYear&TeamMemberID=$encodedTeamId&_token=$encodedToken&ManagerID=$encodedManagerId&BrandID=$encodedBrandId',
     );
 
     try {
@@ -78,8 +97,19 @@ class HomeChartServices {
         headers: {'Accept': 'application/json'},
       );
 
-      final data = json.decode(response.body);
-      return {"status": response.statusCode, "data": data};
+      try {
+        final data = json.decode(response.body);
+        return {"status": response.statusCode, "data": data};
+      } catch (e) {
+        print('Unhandled error: $e');
+        print('Response body: ${response.body}');
+        return {
+          "status": response.statusCode,
+          "data": null,
+          "error": e.toString(),
+          "raw": response.body,
+        };
+      }
     } catch (e) {
       print('Unhandled error: $e');
       return null;
@@ -142,15 +172,17 @@ class HomeChartServices {
     required String year,
     required int teamMemberId,
     required String token,
+    int managerId = 0,
   }) async {
     final encodedBrandId = Uri.encodeComponent(brandId.toString());
     final encodedMonth = Uri.encodeComponent(month);
     final encodedYear = Uri.encodeComponent(year);
     final encodedTeamId = Uri.encodeComponent(teamMemberId.toString());
     final encodedToken = Uri.encodeComponent(token);
+    final encodedManagerId = Uri.encodeComponent(managerId.toString());
 
     final url = Uri.parse(
-      '${ApiConstants.targetAchievementValue}?BrandID=$encodedBrandId&Month=$encodedMonth&Year=$encodedYear&TeamMemberID=$encodedTeamId&_token=$encodedToken',
+      '${ApiConstants.targetAchievementValue}?BrandID=$encodedBrandId&Month=$encodedMonth&Year=$encodedYear&TeamMemberID=$encodedTeamId&_token=$encodedToken&ManagerID=$encodedManagerId',
     );
 
     try {
@@ -159,8 +191,19 @@ class HomeChartServices {
         headers: {'Accept': 'application/json'},
       );
 
-      final data = json.decode(response.body);
-      return {"status": response.statusCode, "data": data};
+      try {
+        final data = json.decode(response.body);
+        return {"status": response.statusCode, "data": data};
+      } catch (e) {
+        print('Unhandled error: $e');
+        print('Response body: ${response.body}');
+        return {
+          "status": response.statusCode,
+          "data": null,
+          "error": e.toString(),
+          "raw": response.body,
+        };
+      }
     } catch (e) {
       print('Unhandled error: $e');
       return null;
@@ -173,15 +216,17 @@ class HomeChartServices {
     required String year,
     required int teamMemberId,
     required String token,
+    int managerId = 0,
   }) async {
     final encodedBrandId = Uri.encodeComponent(brandId.toString());
     final encodedMonth = Uri.encodeComponent(month);
     final encodedYear = Uri.encodeComponent(year);
     final encodedTeamId = Uri.encodeComponent(teamMemberId.toString());
     final encodedToken = Uri.encodeComponent(token);
+    final encodedManagerId = Uri.encodeComponent(managerId.toString());
 
     final url = Uri.parse(
-      '${ApiConstants.targetAchievementQty}?BrandID=$encodedBrandId&Month=$encodedMonth&Year=$encodedYear&TeamMemberID=$encodedTeamId&_token=$encodedToken',
+      '${ApiConstants.targetAchievementQty}?BrandID=$encodedBrandId&Month=$encodedMonth&Year=$encodedYear&TeamMemberID=$encodedTeamId&_token=$encodedToken&ManagerID=$encodedManagerId',
     );
 
     try {
@@ -190,8 +235,19 @@ class HomeChartServices {
         headers: {'Accept': 'application/json'},
       );
 
-      final data = json.decode(response.body);
-      return {"status": response.statusCode, "data": data};
+      try {
+        final data = json.decode(response.body);
+        return {"status": response.statusCode, "data": data};
+      } catch (e) {
+        print('Unhandled error: $e');
+        print('Response body: ${response.body}');
+        return {
+          "status": response.statusCode,
+          "data": null,
+          "error": e.toString(),
+          "raw": response.body,
+        };
+      }
     } catch (e) {
       print('Unhandled error: $e');
       return null;

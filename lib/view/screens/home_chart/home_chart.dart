@@ -8,6 +8,8 @@ import 'package:aleedz/view/screens/home_chart/weekly_sale_chart.dart';
 import 'package:aleedz/viewmodel/home_chart_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:aleedz/models/target_achievement_model.dart';
 
 class HomeChartView extends ConsumerStatefulWidget {
   const HomeChartView({super.key});
@@ -172,8 +174,9 @@ class _TargetAchievementCard extends StatelessWidget {
                       value: (percent / 100).clamp(0.0, 1.0),
                       strokeWidth: 14,
                       backgroundColor: Colors.grey.shade200,
-                      valueColor:
-                          const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        AppColors.primary,
+                      ),
                     ),
                   ),
                   Column(
@@ -258,6 +261,148 @@ class _TargetAchievementCard extends StatelessWidget {
 }
 
 class _HomeViewState extends ConsumerState<HomeChartView> {
+  DateTime _selectedDate = DateTime.now();
+
+  Widget _buildToggleChip({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+    required Color selectedColor,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: selected ? selectedColor : AppColors.greyText,
+          ),
+        ),
+      ),
+    );
+  }
+
+  bool _isFutureDate(DateTime date) {
+    final today = DateTime.now();
+    final candidate = DateTime(date.year, date.month, date.day);
+    final todayOnly = DateTime(today.year, today.month, today.day);
+    return candidate.isAfter(todayOnly);
+  }
+
+  Future<void> _updateDate(DateTime date, HomeChartViewModel viewModel) async {
+    setState(() {
+      _selectedDate = date;
+    });
+    final monthName = DateFormat('MMMM').format(date);
+    await ref
+        .read(homeChartMP.notifier)
+        .updateSelectedMonth(monthName, year: date.year.toString());
+  }
+
+  Future<void> _changeDateBy(
+    int days,
+    HomeChartViewModel viewModel,
+  ) async {
+    final newDate = _selectedDate.add(Duration(days: days));
+    if (_isFutureDate(newDate)) return;
+    await _updateDate(newDate, viewModel);
+  }
+
+  Future<void> _openDatePicker(HomeChartViewModel viewModel) async {
+    final now = DateTime.now();
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(now.year, now.month, now.day),
+    );
+
+    if (pickedDate != null) {
+      await _updateDate(pickedDate, viewModel);
+    }
+  }
+
+  Widget _arrowButton({
+    required IconData icon,
+    required VoidCallback? onTap,
+    bool enabled = true,
+  }) {
+    return InkWell(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: enabled ? AppColors.whiteColor : Colors.grey.shade200,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: enabled ? const Color(0xFF111827) : Colors.grey,
+          size: 20,
+        ),
+      ),
+    );
+  }
+
+  Widget _dateSelector(HomeChartViewModel viewModel) {
+    final displayDate = DateFormat('dd MMMM yyyy').format(_selectedDate);
+    final canGoForward =
+        !_isFutureDate(_selectedDate.add(const Duration(days: 1)));
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.12),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          _arrowButton(
+            icon: Icons.chevron_left,
+            onTap: () => _changeDateBy(-1, viewModel),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _openDatePicker(viewModel),
+              child: Center(
+                child: Text(
+                  displayDate,
+                  style: const TextStyle(
+                    color: Color(0xFF111827),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          _arrowButton(
+            icon: Icons.chevron_right,
+            onTap: canGoForward ? () => _changeDateBy(1, viewModel) : null,
+            enabled: canGoForward,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -277,16 +422,161 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
     return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
   }
 
+  final List<Color> _achievementPalette = const [
+    Color(0xFF22C55E),
+    Color(0xFF8B5CF6),
+    Color(0xFFF97316),
+    Color(0xFF0EA5E9),
+  ];
+
+  String _formatValue(double value) {
+    if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
+    if (value >= 1000) return '${(value / 1000).toStringAsFixed(1)}K';
+    if (value % 1 == 0) return value.toStringAsFixed(0);
+    return value.toStringAsFixed(1);
+  }
+
+  Widget _buildAchievementCard(TargetAchievementModel entry, int index) {
+    final color = _achievementPalette[index % _achievementPalette.length];
+    final bgColor = color.withOpacity(0.1);
+    final borderColor = color.withOpacity(0.2);
+    final progress = (entry.percentage / 100).clamp(0.0, 1.0);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 42,
+                width: 42,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: color.withOpacity(0.3)),
+                ),
+                child: Icon(Icons.assessment, color: color),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      entry.brandName,
+                      style: TextStyle(
+                        color: AppColors.blackColor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      entry.targetDescription.isNotEmpty
+                          ? entry.targetDescription
+                          : 'Achievement progress',
+                      style: TextStyle(color: AppColors.greyText, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '${entry.percentage.toStringAsFixed(0)}%',
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const Text(
+                    'Achievement',
+                    style: TextStyle(
+                      color: AppColors.greyText,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Target: ${_formatValue(entry.target)}',
+                style: const TextStyle(
+                  color: AppColors.blackColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              Text(
+                'Achieved: ${_formatValue(entry.achieved)}',
+                style: TextStyle(
+                  color: color,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              height: 8,
+              color: Colors.white,
+              child: Stack(
+                children: [
+                  Container(color: Colors.grey.shade200),
+                  FractionallySizedBox(
+                    widthFactor: progress,
+                    child: Container(color: color),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(homeChartMP);
-    double _toDouble(dynamic value) {
-      if (value == null) return 0.0;
-      if (value is num) return value.toDouble();
-      return double.tryParse(value.toString()) ?? 0.0;
-    }
-
-    final summaries = viewModel.activeTargetAchievementSummaries;
+    final achievements = viewModel.activeTargetAchievements;
+    final double totalTarget = achievements.fold(
+      0.0,
+      (sum, item) => sum + (item.target),
+    );
+    final double totalAchieved = achievements.fold(
+      0.0,
+      (sum, item) => sum + (item.achieved),
+    );
+    final double performancePercent =
+        totalTarget > 0 ? (totalAchieved / totalTarget) * 100 : 0;
     const monthAbbreviations = {
       'January': 'Jan',
       'February': 'Feb',
@@ -318,73 +608,317 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.whiteColor,
-                        border: Border(
-                          bottom: BorderSide(color: Colors.grey.shade200),
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 22),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF1f2937), Color(0xFF0f172a)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(24),
+                          bottomRight: Radius.circular(24),
                         ),
                       ),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            height: 56,
-                            width: 56,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFFFF7A1A), Color(0xFFF0530F)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                _initialsFromName(
-                                  viewModel.user?.teamMemberName ?? '',
-                                ),
-                                style: const TextStyle(
-                                  color: AppColors.whiteColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(
-                                '${viewModel.user?.teamMemberName ?? ""}',
-                                style: const TextStyle(
-                                  color: Color(0xFF111827),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                              Container(
+                                height: 56,
+                                width: 56,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    _initialsFromName(
+                                      viewModel.user?.teamMemberName ?? '',
+                                    ),
+                                    style: const TextStyle(
+                                      color: AppColors.whiteColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '${viewModel.user?.teamTypeName ?? ""}',
-                                style: const TextStyle(
-                                  color: Color(0xFF4B5563),
-                                  fontSize: 12,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${viewModel.user?.teamMemberName ?? ""}',
+                                      style: const TextStyle(
+                                        color: AppColors.whiteColor,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${viewModel.user?.teamTypeName ?? ""}',
+                                      style: const TextStyle(
+                                        color: Color(0xFFd1d5db),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${viewModel.user?.divisionName ?? ""}',
+                                      style: const TextStyle(
+                                        color: Color(0xFF9ca3af),
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '${viewModel.user?.divisionName ?? ""}',
-                                style: const TextStyle(
-                                  color: Color(0xFF6B7280),
-                                  fontSize: 11,
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    NavigationService.navigateTo(
+                                      DashboardView(initialIndex: 1),
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(14),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.08),
+                                      borderRadius: BorderRadius.circular(18),
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.12),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.public,
+                                              color: AppColors.primary,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              'Performance',
+                                              style: const TextStyle(
+                                                color: Color(0xFFFBBF24),
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          '${performancePercent.toStringAsFixed(0)}%',
+                                          style: const TextStyle(
+                                            color: Color(0xFFcbd5e1),
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '${_formatValue(totalAchieved)} / ${_formatValue(totalTarget)}',
+                                          style: const TextStyle(
+                                            color: AppColors.whiteColor,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.all(14),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(18),
+                                    border: Border.all(
+                                      color: Colors.white.withOpacity(0.12),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.event_note,
+                                            color: AppColors.primary,
+                                            size: 20,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            formatMonthLabel(
+                                              viewModel.selectedMonth,
+                                            ),
+                                            style: const TextStyle(
+                                              color: Color(0xFFFBBF24),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        (viewModel
+                                                    .monthlyDashboardSaleModel
+                                                    ?.isNotEmpty ??
+                                                false)
+                                            ? (viewModel
+                                                        .monthlyDashboardSaleModel!
+                                                        .first
+                                                        .saleValue ??
+                                                    0.0)
+                                                .toStringAsFixed(0)
+                                            : '0',
+                                        style: const TextStyle(
+                                          color: AppColors.whiteColor,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      const Text(
+                                        'Sales Achieved',
+                                        style: TextStyle(
+                                          color: Color(0xFFcbd5e1),
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
                           ),
                         ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Transform.translate(
+                        offset: const Offset(0, -18),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.whiteColor,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: Colors.grey.shade200),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 10,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      height: 44,
+                                      width: 44,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFF7ED),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(
+                                        Icons.access_time,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          viewModel.storeTimeSpend,
+                                          style: const TextStyle(
+                                            color: AppColors.blackColor,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const Text(
+                                          'Time in Store',
+                                          style: TextStyle(
+                                            color: AppColors.greyText,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      height: 44,
+                                      width: 44,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFEEF2FF),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(
+                                        Icons.map_outlined,
+                                        color: Color(0xFF2563EB),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          viewModel.storeTotalTravel,
+                                          style: const TextStyle(
+                                            color: AppColors.blackColor,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const Text(
+                                          'Total Travel',
+                                          style: TextStyle(
+                                            color: AppColors.greyText,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                     Expanded(
@@ -394,355 +928,86 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(height: 10),
-
-                              // Stats
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        NavigationService.navigateTo(
-                                          DashboardView(initialIndex: 1),
-                                        );
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(14),
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [
-                                              Color(0xFF3B82F6),
-                                              Color(0xFF2563EB),
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.public,
-                                                  color: Colors.white,
-                                                  size: 20,
-                                                ),
-                                                const SizedBox(width: 6),
-                                                Text(
-                                                  LabelService().getLabel(11),
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 6),
-                                            const Text(
-                                              'Stores',
-                                              style: TextStyle(
-                                                color: Colors.white70,
-                                                fontSize: 11,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              "${viewModel.storeCount ?? 0}",
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 28,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
+                              _dateSelector(viewModel),
+                              const SizedBox(height: 12),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.secondary.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.all(14),
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            Color(0xFFFF7A1A),
-                                            Color(0xFFF0530F),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.event_note,
-                                                color: Colors.white,
-                                                size: 20,
-                                              ),
-                                              const SizedBox(width: 6),
-                                              Text(
-                                                formatMonthLabel(
-                                                  viewModel.selectedMonth,
-                                                ),
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 6),
-                                          const Text(
-                                            'Sales Achieved',
-                                            style: TextStyle(
-                                              color: Colors.white70,
-                                              fontSize: 11,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            (viewModel
-                                                        .monthlyDashboardSaleModel
-                                                        ?.isNotEmpty ??
-                                                    false)
-                                                ? (viewModel
-                                                            .monthlyDashboardSaleModel!
-                                                            .first
-                                                            .saleValue ??
-                                                        0.0)
-                                                    .toStringAsFixed(0)
-                                                : '0',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 28,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 5),
-
-                              // GestureDetector(
-                              //   onTap: () {
-                              //     NavigationService.navigateTo(OpenIssuesScreen()); //
-                              //   },
-                              //   child: Container(
-                              //     padding: const EdgeInsets.symmetric(
-                              //       horizontal: 5,
-                              //       vertical: 8,
-                              //     ),
-                              //     decoration: BoxDecoration(
-                              //       color: Colors.grey.shade100,
-                              //       borderRadius: BorderRadius.circular(12),
-                              //     ),
-                              //     child: Row(
-                              //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              //       children: [
-                              //         Column(
-                              //           crossAxisAlignment: CrossAxisAlignment.start,
-                              //           children: [
-                              //             Text(
-                              //               'Recent Checked In',
-                              //               textAlign: TextAlign.center,
-                              //               style: AppTextStyles.labelStyle,
-                              //             ),
-                              //             Text(
-                              //               'Store Name abc...address',
-                              //               textAlign: TextAlign.center,
-                              //               style: TextStyle(fontSize: 14),
-                              //             ),
-                              //           ],
-                              //         ),
-                              //         Column(
-                              //           crossAxisAlignment: CrossAxisAlignment.end,
-                              //           children: [
-                              //             Text(
-                              //               'In: 10:19',
-                              //               textAlign: TextAlign.center,
-                              //               style: TextStyle(
-                              //                 color: AppColors.primary,
-                              //                 fontSize: 10,
-                              //                 fontWeight: FontWeight.bold,
-                              //               ),
-                              //             ),
-                              //             Text(
-                              //               'Check Out',
-                              //               textAlign: TextAlign.center,
-                              //               style: TextStyle(
-                              //                 color: AppColors.secondary,
-                              //                 fontSize: 14,
-                              //                 fontWeight: FontWeight.bold,
-                              //               ),
-                              //             ),
-                              //           ],
-                              //         ),
-                              //       ],
-                              //     ),
-                              //   ),
-                              // ),
-                              SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Row(
-                                        children: [
-                                          InkWell(
-                                            onTap:
-                                                () => ref
-                                                    .read(homeChartMP.notifier)
-                                                    .setShowQty(true),
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 20,
-                                                vertical: 10,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    viewModel.showQty
-                                                        ? AppColors.secondary
-                                                        : Colors.transparent,
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                border: Border.all(
-                                                  color: AppColors.secondary,
-                                                ),
-                                              ),
-                                              child: Text(
-                                                LabelService().getLabel(162),
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color:
-                                                      viewModel.showQty
-                                                          ? Colors.white
-                                                          : AppColors.secondary,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(width: 8),
-                                          InkWell(
-                                            onTap:
-                                                () => ref
-                                                    .read(homeChartMP.notifier)
-                                                    .setShowQty(false),
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 20,
-                                                vertical: 10,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    !viewModel.showQty
-                                                        ? AppColors.primary
-                                                        : Colors.transparent,
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                border: Border.all(
-                                                  color: AppColors.primary,
-                                                ),
-                                              ),
-                                              child: Text(
-                                                "Value",
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color:
-                                                      !viewModel.showQty
-                                                          ? Colors.white
-                                                          : AppColors.primary,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                                      _buildToggleChip(
+                                        label: LabelService().getLabel(162),
+                                        selected: viewModel.showQty,
+                                        onTap: () => ref
+                                            .read(homeChartMP.notifier)
+                                            .setShowQty(true),
+                                        selectedColor: AppColors.secondary,
+                                      ),
+                                      _buildToggleChip(
+                                        label: "Value",
+                                        selected: !viewModel.showQty,
+                                        onTap: () => ref
+                                            .read(homeChartMP.notifier)
+                                            .setShowQty(false),
+                                        selectedColor: AppColors.secondary,
                                       ),
                                     ],
                                   ),
-                                  Container(
-                                    padding: EdgeInsets.only(
-                                      left: 5,
-                                      bottom: 10,
-                                      top: 10,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppColors.secondary,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: DropdownButton<String>(
-                                      isDense: true,
-                                      padding: EdgeInsets.zero,
-                                      value: viewModel.selectedMonth,
-                                      underline: SizedBox(),
-                                      items:
-                                          [
-                                            'January',
-                                            'February',
-                                            'March',
-                                            'April',
-                                            'May',
-                                            'June',
-                                            'July',
-                                            'August',
-                                            'September',
-                                            'October',
-                                            'November',
-                                            'December',
-                                          ].map((String value) {
-                                            return DropdownMenuItem<String>(
-                                              value: value,
-                                              child: Text(
-                                                formatMonthLabel(value),
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                      onChanged: (newValue) {
-                                        ref
-                                            .read(homeChartMP.notifier)
-                                            .updateSelectedMonth(newValue!);
-                                      },
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
 
                               const SizedBox(height: 12),
-                              if (summaries.isNotEmpty)
-                                _TargetAchievementCard(
-                                  monthLabel: formatMonthLabel(
-                                    viewModel.selectedMonth,
-                                  ),
-                                  isQty: viewModel.showQty,
-                                  summaries: summaries,
-                                )
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                  vertical: 4,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Target vs Achievement',
+                                      style: TextStyle(
+                                        color: AppColors.blackColor,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      viewModel.showQty ? 'Qty' : 'Value',
+                                      style: const TextStyle(
+                                        color: AppColors.blackColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              if (achievements.isNotEmpty)
+                                ...achievements
+                                    .asMap()
+                                    .entries
+                                    .map(
+                                      (entry) => Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 10,
+                                        ),
+                                        child: _buildAchievementCard(
+                                          entry.value,
+                                          entry.key,
+                                        ),
+                                      ),
+                                    )
+                                    .toList()
                               else
                                 Container(
                                   padding: const EdgeInsets.all(12),
@@ -753,7 +1018,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                       color: Colors.grey.shade200,
                                     ),
                                   ),
-                                  child: Text(
+                                  child: const Text(
                                     'No target achievement data available.',
                                     style: TextStyle(
                                       color: AppColors.blackColor,
@@ -797,24 +1062,8 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                       runSpacing: 8,
                                       children: const [
                                         _LegendDot(
-                                          label: 'Series 1',
-                                          color: Color(0xFF67E8F9),
-                                        ),
-                                        _LegendDot(
-                                          label: 'Series 2',
-                                          color: Color(0xFF22D3EE),
-                                        ),
-                                        _LegendDot(
-                                          label: 'Series 3',
-                                          color: Color(0xFF06B6D4),
-                                        ),
-                                        _LegendDot(
-                                          label: 'Series 4',
-                                          color: Color(0xFF0891B2),
-                                        ),
-                                        _LegendDot(
-                                          label: 'Series 5',
-                                          color: Color(0xFFA855F7),
+                                          label: 'Sales',
+                                          color: AppColors.primary,
                                         ),
                                       ],
                                     ),

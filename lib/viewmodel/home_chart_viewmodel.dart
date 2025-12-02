@@ -28,6 +28,8 @@ class HomeChartViewModel extends ChangeNotifier {
   List<TargetAchievementModel> targetAchievementQty = [];
 
   String? storeCount = '0';
+  String storeTimeSpend = '00:00';
+  String storeTotalTravel = '-';
 
   bool loader = false;
 
@@ -108,6 +110,8 @@ class HomeChartViewModel extends ChangeNotifier {
       token: user?.apiToken ?? '',
       targetYear: year,
       targetMonth: month,
+      managerId: 0,
+      brandId: 0,
     );
 
     if (response != null && response["status"] == 200) {
@@ -138,6 +142,8 @@ class HomeChartViewModel extends ChangeNotifier {
       token: user?.apiToken ?? '',
       targetYear: year,
       targetMonth: month,
+      managerId: 0,
+      brandId: 0,
     );
 
     if (response != null && response["status"] == 200) {
@@ -228,12 +234,18 @@ class HomeChartViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateSelectedMonth(String month) async {
+  Future<void> updateSelectedMonth(String month, {String? year}) async {
+    loader = true;
+    notifyListeners();
     selectedMonth = month;
     selectedMonthNumber = _monthMap[month] ?? '01';
+    if (year != null) {
+      selectedYear = year;
+    }
     await getMonthlyTargetValue(targetMonth: selectedMonthNumber);
     await getMonthlySale(targetMonth: selectedMonthNumber);
     await fetchTargetAchievements(month: selectedMonthNumber);
+    loader = false;
     notifyListeners();
   }
 
@@ -252,7 +264,7 @@ class HomeChartViewModel extends ChangeNotifier {
     'November': '11',
     'December': '12',
   };
-  bool showQty = true;
+  bool showQty = false;
 
   void setShowQty(bool value) {
     showQty = value;
@@ -261,12 +273,14 @@ class HomeChartViewModel extends ChangeNotifier {
 
   List<TargetAchievementModel> get activeTargetAchievements {
     final list = showQty ? targetAchievementQty : targetAchievementValue;
+    final fallback = showQty ? targetAchievementValue : targetAchievementQty;
+    final effectiveList = list.isNotEmpty ? list : fallback;
     if (user?.teamMemberID != null && user!.teamMemberID != 0) {
-      return list
+      return effectiveList
           .where((entry) => entry.teamMemberId == user!.teamMemberID)
           .toList();
     }
-    return list;
+    return effectiveList;
   }
 
   List<TargetAchievementSummary> get activeTargetAchievementSummaries {
@@ -304,6 +318,7 @@ class HomeChartViewModel extends ChangeNotifier {
       year: currentYear,
       teamMemberId: user?.teamMemberID ?? 0,
       token: user?.apiToken ?? '',
+      managerId: 0,
     );
 
     if (valueResponse != null && valueResponse["status"] == 200) {
@@ -328,6 +343,7 @@ class HomeChartViewModel extends ChangeNotifier {
       year: currentYear,
       teamMemberId: user?.teamMemberID ?? 0,
       token: user?.apiToken ?? '',
+      managerId: 0,
     );
 
     if (qtyResponse != null && qtyResponse["status"] == 200) {

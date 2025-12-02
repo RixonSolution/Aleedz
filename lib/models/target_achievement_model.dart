@@ -5,6 +5,7 @@ class TargetAchievementModel {
   final String brandName;
   final double target;
   final double achieved;
+  final String targetDescription;
   final int brandId;
   final int teamMemberId;
 
@@ -15,6 +16,7 @@ class TargetAchievementModel {
     required this.brandName,
     required this.target,
     required this.achieved,
+    required this.targetDescription,
     required this.brandId,
     required this.teamMemberId,
   });
@@ -35,6 +37,8 @@ class TargetAchievementModel {
       achieved: (json['Achieved'] is num)
           ? (json['Achieved'] as num).toDouble()
           : double.tryParse(json['Achieved'].toString()) ?? 0.0,
+      targetDescription: (json['TagetDescription'] ?? json['TargetDescription'] ?? '')
+          .toString(),
       brandId: json['BrandID'] is int
           ? json['BrandID']
           : int.tryParse(json['BrandID'].toString()) ?? 0,

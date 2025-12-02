@@ -1,3 +1,4 @@
+import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/viewmodel/home_chart_viewmodel.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -79,7 +80,7 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: AppColors.primary,
                       ),
                     ),
                   );
@@ -113,14 +114,7 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
               barRods: [
                 BarChartRodData(
                   toY: value,
-                  gradient: LinearGradient(
-                    colors: const [
-                      Color(0xFF67E8F9),
-                      Color(0xFF06B6D4),
-                    ],
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                  ),
+                  color: AppColors.primary,
                   width: 20,
                   borderRadius: BorderRadius.circular(2),
                 ),

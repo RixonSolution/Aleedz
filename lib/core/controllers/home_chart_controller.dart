@@ -18,12 +18,16 @@ class HomeChartController {
     required String token,
     required String targetYear,
     required String targetMonth,
+    int managerId = 0,
+    int brandId = 0,
   }) async {
     return await _apiService.getMonthlySale(
       teamMemberId: teamMemberId,
       token: token,
       targetYear: targetYear,
       targetMonth: targetMonth,
+      managerId: managerId,
+      brandId: brandId,
     );
   }
 
@@ -32,12 +36,16 @@ class HomeChartController {
     required String token,
     required String targetYear,
     required String targetMonth,
+    int managerId = 0,
+    int brandId = 0,
   }) async {
     return await _apiService.getMonthlyTargeValue(
       teamMemberId: teamMemberId,
       token: token,
       targetYear: targetYear,
       targetMonth: targetMonth,
+      managerId: managerId,
+      brandId: brandId,
     );
   }
 
@@ -67,6 +75,7 @@ class HomeChartController {
     required String year,
     required int teamMemberId,
     required String token,
+    int managerId = 0,
   }) async {
     return await _apiService.getTargetAchievementValue(
       brandId: brandId,
@@ -74,6 +83,7 @@ class HomeChartController {
       year: year,
       teamMemberId: teamMemberId,
       token: token,
+      managerId: managerId,
     );
   }
 
@@ -83,6 +93,7 @@ class HomeChartController {
     required String year,
     required int teamMemberId,
     required String token,
+    int managerId = 0,
   }) async {
     return await _apiService.getTargetAchievementQty(
       brandId: brandId,
@@ -90,6 +101,7 @@ class HomeChartController {
       year: year,
       teamMemberId: teamMemberId,
       token: token,
+      managerId: managerId,
     );
   }
 }
