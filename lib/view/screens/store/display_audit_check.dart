@@ -1152,128 +1152,130 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                             ),
 
                                             const SizedBox(height: 20),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                    12,
-                                                    0,
-                                                    12,
-                                                    16,
-                                                  ),
-                                                child: SizedBox(
-                                                width: double.infinity,
-                                                height: 52,
-                                                child: ElevatedButton(
-                                                  onPressed: () async {
-                                                    final hasBrandImages =
-                                                        viewModel
-                                                            .leftImages
-                                                            .isNotEmpty;
-                                                    final hasCompetitionImages =
-                                                        viewModel
-                                                            .rightImages
-                                                            .isNotEmpty;
-
-                                                    if (!hasBrandImages) {
-                                                      AppSnackBar.showError(
-                                                        context,
-                                                        'Brand images are required before submitting.',
-                                                      );
-                                                      return;
-                                                    }
-
-                                                    if (!hasCompetitionImages) {
-                                                      AppSnackBar.showError(
-                                                        context,
-                                                        'Competition images are required before submitting.',
-                                                      );
-                                                      return;
-                                                    }
-
-                                                    if (cameraPermission ==
-                                                            'Y' ||
-                                                        (cameraPermission ==
-                                                                'N' &&
-                                                            hasBrandImages &&
-                                                            hasCompetitionImages)) {
-                                                      await viewModel
-                                                          .auditMediaSubmit(
-                                                            context,
-                                                            widget.storeId,
-                                                            widget.categoryId
-                                                                .toString(),
-                                                            remarksController
-                                                                .text,
-                                                            widget.brandId,
-                                                            widget.visitId,
-                                                            checkInImages1:
-                                                                viewModel
-                                                                    .leftImages,
-                                                            checkInImages2:
-                                                                viewModel
-                                                                    .rightImages,
-                                                          );
-
-                                                      List<Map<String, dynamic>>
-                                                      dataList =
-                                                          viewModel
-                                                              .selectedProducts
-                                                              .map(
-                                                                (product) =>
-                                                                    product
-                                                                        .toJson(),
-                                                              )
-                                                              .toList();
-
-                                                      await viewModel
-                                                          .addDisplayCheck(
-                                                            dataList,
-                                                            context,
-                                                            widget.storeId,
-                                                            widget.categoryId,
-                                                          );
-                                                      await viewModel
-                                                          .checkSummary(
-                                                            widget.storeId,
-                                                            viewModel
-                                                                    .selectedBrand
-                                                                    ?.brandId ??
-                                                                0,
-                                                            widget.visitId,
-                                                          );
-                                                      NavigationService.goBack();
-                                                    } else {
-                                                      AppSnackBar.showError(
-                                                        context,
-                                                        LabelService().getLabel(
-                                                          186,
-                                                        ),
-                                                      );
-                                                    }
-                                                  },
-                                                  style: ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        AppColors.primary,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            12,
-                                                          ),
+                                            if (widget.visitId != 0)
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                      12,
+                                                      0,
+                                                      12,
+                                                      16,
                                                     ),
-                                                  ),
-                                                  child: const Text(
-                                                    "Submit",
-                                                    style: TextStyle(
-                                                      color:
-                                                          AppColors.whiteColor,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 14,
+                                                child: SizedBox(
+                                                  width: double.infinity,
+                                                  height: 52,
+                                                  child: ElevatedButton(
+                                                    onPressed: () async {
+                                                      final hasBrandImages =
+                                                          viewModel
+                                                              .leftImages
+                                                              .isNotEmpty;
+                                                      final hasCompetitionImages =
+                                                          viewModel
+                                                              .rightImages
+                                                              .isNotEmpty;
+
+                                                      if (!hasBrandImages) {
+                                                        AppSnackBar.showError(
+                                                          context,
+                                                          'Brand images are required before submitting.',
+                                                        );
+                                                        return;
+                                                      }
+
+                                                      if (!hasCompetitionImages) {
+                                                        AppSnackBar.showError(
+                                                          context,
+                                                          'Competition images are required before submitting.',
+                                                        );
+                                                        return;
+                                                      }
+
+                                                      if (cameraPermission ==
+                                                              'Y' ||
+                                                          (cameraPermission ==
+                                                                  'N' &&
+                                                              hasBrandImages &&
+                                                              hasCompetitionImages)) {
+                                                        await viewModel
+                                                            .auditMediaSubmit(
+                                                              context,
+                                                              widget.storeId,
+                                                              widget.categoryId
+                                                                  .toString(),
+                                                              remarksController
+                                                                  .text,
+                                                              widget.brandId,
+                                                              widget.visitId,
+                                                              checkInImages1:
+                                                                  viewModel
+                                                                      .leftImages,
+                                                              checkInImages2:
+                                                                  viewModel
+                                                                      .rightImages,
+                                                            );
+
+                                                        List<
+                                                          Map<String, dynamic>
+                                                        >
+                                                        dataList =
+                                                            viewModel
+                                                                .selectedProducts
+                                                                .map(
+                                                                  (product) =>
+                                                                      product
+                                                                          .toJson(),
+                                                                )
+                                                                .toList();
+
+                                                        await viewModel
+                                                            .addDisplayCheck(
+                                                              dataList,
+                                                              context,
+                                                              widget.storeId,
+                                                              widget.categoryId,
+                                                            );
+                                                        await viewModel.checkSummary(
+                                                          widget.storeId,
+                                                          viewModel
+                                                                  .selectedBrand
+                                                                  ?.brandId ??
+                                                              0,
+                                                          widget.visitId,
+                                                        );
+                                                        NavigationService.goBack();
+                                                      } else {
+                                                        AppSnackBar.showError(
+                                                          context,
+                                                          LabelService()
+                                                              .getLabel(186),
+                                                        );
+                                                      }
+                                                    },
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor:
+                                                          AppColors.primary,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              12,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                    child: const Text(
+                                                      "Submit",
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColors
+                                                                .whiteColor,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 14,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
                                           ],
                                         ),
                                       ),

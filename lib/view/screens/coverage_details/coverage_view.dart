@@ -202,18 +202,21 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
       barrierDismissible: true,
       builder: (context) {
         return Dialog(
-          insetPadding: EdgeInsets.symmetric(
-            horizontal: 0,
-          ), // Remove default dialog padding
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 24,
+          ),
           backgroundColor:
               Colors
                   .transparent, // Make dialog transparent to handle full custom layout
           child: Align(
             alignment: Alignment.center, // Position to top if needed
             child: Material(
+              borderRadius: BorderRadius.circular(16),
+              clipBehavior: Clip.antiAlias,
               color: AppColors.whiteColor,
               child: Container(
-                width: MediaQuery.of(context).size.width,
+                width: double.infinity,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -369,6 +372,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Center(
                                   child: Text(
@@ -441,18 +445,21 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
       barrierDismissible: true,
       builder: (context) {
         return Dialog(
-          insetPadding: EdgeInsets.symmetric(
-            horizontal: 0,
-          ), // Remove default dialog padding
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 24,
+          ),
           backgroundColor:
               Colors
                   .transparent, // Make dialog transparent to handle full custom layout
           child: Align(
             alignment: Alignment.center, // Position to top if needed
             child: Material(
+              borderRadius: BorderRadius.circular(16),
+              clipBehavior: Clip.antiAlias,
               color: AppColors.whiteColor,
               child: Container(
-                width: MediaQuery.of(context).size.width,
+                width: double.infinity,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -804,15 +811,20 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                       ),
                       InkWell(
                         onTap: () {
-                          viewModel.getCoverageList(
-                            context,
-                            forceRefresh: true,
-                          );
+                          // viewModel.getCoverageList(
+                          //   context,
+                          //   forceRefresh: true,
+                          // );
                         },
-                        child: const Icon(
-                          Icons.refresh,
-                          size: 22,
-                          color: Colors.white,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: Icon(Icons.refresh, size: 22),
                         ),
                       ),
                     ],

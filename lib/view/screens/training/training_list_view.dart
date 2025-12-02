@@ -10,13 +10,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TrainingListView extends ConsumerStatefulWidget {
   String checkInTime, storeName;
-  int storeId;
+  int storeId, visiteId;
 
   TrainingListView({
     Key? key,
     required this.checkInTime,
     required this.storeName,
     required this.storeId,
+    required this.visiteId,
   }) : super(key: key);
 
   @override

@@ -12,12 +12,13 @@ import 'package:shimmer/shimmer.dart';
 
 class DisplayPicture extends ConsumerStatefulWidget {
   String storeName, checkInTime;
-  int storeId;
+  int storeId, visiteId;
   DisplayPicture({
     Key? key,
     required this.storeName,
     required this.checkInTime,
     required this.storeId,
+    required this.visiteId,
   }) : super(key: key);
 
   @override
@@ -1061,7 +1062,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                   ),
                 ],
               ),
-              _addDisplayButton(viewModel),
+              if (widget.visiteId != 0) _addDisplayButton(viewModel),
             ],
           ),
         ),

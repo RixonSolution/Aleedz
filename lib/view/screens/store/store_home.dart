@@ -78,6 +78,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
             storeName: widget.storeName,
             checkInTime: widget.checkInTime,
             storeId: widget.storeId,
+            visiteId: viewModel.visitId,
           ),
         );
         break;
@@ -87,6 +88,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
             storeName: widget.storeName,
             checkInTime: widget.checkInTime,
             storeId: widget.storeId,
+            visiteId: viewModel.visitId,
           ),
         );
         break;
