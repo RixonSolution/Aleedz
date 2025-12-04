@@ -22,6 +22,14 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
   Widget build(BuildContext context) {
     final viewModel = ref.watch(homeChartMP);
     final weeklyEntries = viewModel.getWeeklySaleData();
+    final barGradient = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color.lerp(AppColors.primary, Colors.white, 0.45)!,
+        AppColors.primary,
+      ],
+    );
 
     final maxValue =
         weeklyEntries.isNotEmpty
@@ -114,7 +122,7 @@ class _WeeklySalesChartState extends ConsumerState<WeeklySalesChart> {
               barRods: [
                 BarChartRodData(
                   toY: value,
-                  color: AppColors.primary,
+                  gradient: barGradient,
                   width: 20,
                   borderRadius: BorderRadius.circular(2),
                 ),

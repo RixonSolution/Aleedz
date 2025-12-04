@@ -499,12 +499,15 @@ class CoverageViewModel extends ChangeNotifier {
 
   Future loadCoverageData(context) async {
     loader = true;
+    // Reset filters and cached list so the screen always starts fresh
+    selectedChannel = null;
+    stores = [];
     notifyListeners();
     // await loadUser();
     // await getLatLong();
     await getCoverageCount(context);
     await getCoverageDropDown();
-    await getCoverageList(context);
+    await getCoverageList(context, forceRefresh: true);
 
     loader = false;
     notifyListeners();

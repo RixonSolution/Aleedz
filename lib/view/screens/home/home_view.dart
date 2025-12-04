@@ -341,8 +341,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      Color(0xFF111827),
-                                      Color(0xFF0B1120),
+                                      AppColors.primary.withOpacity(0.95),
+                                      AppColors.primary,
                                     ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
@@ -541,8 +541,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      Color(0xFF111827),
-                                      Color(0xFF0B1120),
+                                      AppColors.primary.withOpacity(0.95),
+                                      AppColors.primary,
                                     ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
@@ -790,6 +790,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
     required String allowWithoutCheckIn,
     required store, // DashboardModel
   }) async {
+    if (store.visitId == 0) {
+      AppSnackBar.showError(
+        context,
+        'Visit not available for this store.',
+      );
+      return;
+    }
+
     if (!_isTodaySelected) {
       AppSnackBar.showError(context, 'Actions are only available for today.');
       return;

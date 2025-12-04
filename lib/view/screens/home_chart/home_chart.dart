@@ -355,9 +355,9 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
   }
 
   Widget _dateSelector(HomeChartViewModel viewModel) {
-    final displayDate = DateFormat('dd MMMM yyyy').format(_selectedDate);
+    final displayDate = DateFormat('MMMM yyyy').format(_selectedDate);
     final canGoForward =
-        !_isFutureDate(_selectedDate.add(const Duration(days: 1)));
+        !_isFutureDate(_selectedDate.add(const Duration(days: 7)));
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
@@ -376,7 +376,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
         children: [
           _arrowButton(
             icon: Icons.chevron_left,
-            onTap: () => _changeDateBy(-1, viewModel),
+            onTap: () => _changeDateBy(-7, viewModel),
           ),
           Expanded(
             child: GestureDetector(
@@ -395,7 +395,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
           ),
           _arrowButton(
             icon: Icons.chevron_right,
-            onTap: canGoForward ? () => _changeDateBy(1, viewModel) : null,
+            onTap: canGoForward ? () => _changeDateBy(7, viewModel) : null,
             enabled: canGoForward,
           ),
         ],

@@ -162,51 +162,74 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: AppColors.secondary,
+          backgroundColor: Colors.transparent,
+          contentPadding: EdgeInsets.zero,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
           title: Text(
-            LabelService().getLabel(111),
+            '',
             style: TextStyle(color: AppColors.whiteColor),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text(
-                  LabelService().getLabel(112),
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
-                onTap: () {
-                  ref
-                      .read(storeModelProvider.notifier)
-                      .pickFromCamera(directiion);
-
-                  Navigator.pop(context);
-                  // if (source == 'camera') {
-                  // } else {
-                  //   ref.read(storeModelProvider.notifier).pickFromGallery();
-                  // }
-                },
+          content: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              ListTile(
-                title: Text(
-                  LabelService().getLabel(113),
-                  style: TextStyle(color: AppColors.whiteColor),
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      LabelService().getLabel(111),
+                      style: const TextStyle(
+                        color: AppColors.whiteColor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.close, color: Colors.white),
+                    ),
+                  ],
                 ),
-
-                onTap: () {
-                  ref
-                      .read(storeModelProvider.notifier)
-                      .pickFromGallery(directiion);
-
-                  Navigator.pop(context);
-
-                  // if (source == 'camera') {
-                  //   ref.read(storeModelProvider.notifier).pickFromCamera();
-                  // } else {
-                  // }
-                },
-              ),
-            ],
+                const SizedBox(height: 12),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.camera_alt, color: Colors.white),
+                  title: Text(
+                    LabelService().getLabel(112),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    ref
+                        .read(storeModelProvider.notifier)
+                        .pickFromCamera(directiion);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.photo_library, color: Colors.white),
+                  title: Text(
+                    LabelService().getLabel(113),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    ref
+                        .read(storeModelProvider.notifier)
+                        .pickFromGallery(directiion);
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },

@@ -103,7 +103,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
     );
 
     if (allowStoreInWithoutCheckIn == 'N' && selectedStore.visitStatusId == 0) {
-      AppSnackBar.showError(context, LabelService().getLabel(105));
+      AppSnackBar.showError(context, LabelService().getLabel(195));
       return;
     }
 
@@ -366,8 +366,8 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      Color(0xFF111827),
-                                      Color(0xFF0B1120),
+                                      AppColors.primary.withOpacity(0.95),
+                                      AppColors.primary,
                                     ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
@@ -930,34 +930,46 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                     itemBuilder: (context, index) {
                       final store = viewModel.stores[index];
                       final checkInTime = store.checkInTime.trim();
-                      final hasCheckInTime =
-                          checkInTime.isNotEmpty && checkInTime != '0';
 
                       final bool isPlan = store.visitStatusId == 0;
+                      final bool hasCheckInTime =
+                          checkInTime.isNotEmpty && checkInTime != '0';
+                      final bool isChecked =
+                          store.visitStatusId == 2 ||
+                          store.visitStatusId == 3 ||
+                          hasCheckInTime;
 
                       Color cardBg = AppColors.whiteColor;
                       Color borderColor = Colors.grey.shade200;
                       double borderWidth = 1;
                       Color numberColor = AppColors.secondary;
-                      Color statusColor = AppColors.secondary.withOpacity(0.08);
+                      Color numberText = AppColors.whiteColor;
+                      Color statusBg = AppColors.secondary.withOpacity(0.08);
                       Color statusTextColor = AppColors.secondary;
+                      String statusLabel = LabelService().getLabel(
+                        isPlan ? 14 : 15,
+                      );
 
-                      if (store.visitStatusId == 2) {
+                      if (isChecked) {
                         cardBg = AppColors.primary.withOpacity(0.08);
                         borderColor = AppColors.primary;
                         numberColor = AppColors.primary;
-                        statusColor = AppColors.primary;
-                        statusTextColor = AppColors.whiteColor;
-                      } else if (store.visitStatusId == 3) {
-                        borderColor = AppColors.success;
-                        numberColor = AppColors.success;
-                        statusColor = AppColors.success.withOpacity(0.12);
-                        statusTextColor = AppColors.success;
-                      } else if (store.visitStatusId == 4) {
+                        statusBg = store.visitStatusId == 2
+                            ? AppColors.primary
+                            : AppColors.primary.withOpacity(0.12);
+                        statusTextColor = store.visitStatusId == 2
+                            ? AppColors.whiteColor
+                            : AppColors.primary;
+                        statusLabel = LabelService().getLabel(15);
+                      }
+
+                      if (store.visitStatusId == 4) {
+                        cardBg = AppColors.error.withOpacity(0.05);
                         borderColor = AppColors.error;
                         numberColor = AppColors.error;
-                        statusColor = AppColors.error.withOpacity(0.12);
+                        statusBg = AppColors.error.withOpacity(0.12);
                         statusTextColor = AppColors.error;
+                        statusLabel = LabelService().getLabel(102);
                       }
 
                       return IntrinsicHeight(
@@ -986,21 +998,14 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                   offset: Offset(0, 2),
                                 ),
                               ],
-                            ),
+                                ),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
                                   width: 35,
                                   decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Color.fromARGB(255, 29, 43, 74),
-                                        Color.fromARGB(255, 29, 43, 74),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
+                                    color: numberColor,
                                     borderRadius: const BorderRadius.only(
                                       topLeft: Radius.circular(16),
                                       bottomLeft: Radius.circular(16),
@@ -1009,8 +1014,8 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                   child: Center(
                                     child: Text(
                                       '${index + 1}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: TextStyle(
+                                        color: numberText,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w800,
                                       ),
@@ -1117,18 +1122,12 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                                       vertical: 6,
                                                     ),
                                                 decoration: BoxDecoration(
-                                                  color: statusColor,
+                                                  color: statusBg,
                                                   borderRadius:
                                                       BorderRadius.circular(30),
                                                 ),
                                                 child: Text(
-                                                  store.visitStatusId == 0
-                                                      ? LabelService().getLabel(
-                                                        14,
-                                                      )
-                                                      : LabelService().getLabel(
-                                                        15,
-                                                      ),
+                                                  statusLabel,
                                                   style: TextStyle(
                                                     color: statusTextColor,
                                                     fontSize: 13,

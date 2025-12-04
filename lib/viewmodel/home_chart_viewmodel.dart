@@ -273,14 +273,12 @@ class HomeChartViewModel extends ChangeNotifier {
 
   List<TargetAchievementModel> get activeTargetAchievements {
     final list = showQty ? targetAchievementQty : targetAchievementValue;
-    final fallback = showQty ? targetAchievementValue : targetAchievementQty;
-    final effectiveList = list.isNotEmpty ? list : fallback;
     if (user?.teamMemberID != null && user!.teamMemberID != 0) {
-      return effectiveList
+      return list
           .where((entry) => entry.teamMemberId == user!.teamMemberID)
           .toList();
     }
-    return effectiveList;
+    return list;
   }
 
   List<TargetAchievementSummary> get activeTargetAchievementSummaries {
