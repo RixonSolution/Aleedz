@@ -49,6 +49,15 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
 
   Future<void> _initializeData() async {
     final notifier = ref.read(storeModelProvider.notifier);
+    final viewModel = ref.read(storeModelProvider);
+
+    // Ensure ROS labels are available after a cold start (provider is empty).
+    if (viewModel.rosLabels.isEmpty) {
+      await notifier.loadROSLabelsFromPrefs();
+      if (ref.read(storeModelProvider).rosLabels.isEmpty) {
+        await notifier.getROSLabels();
+      }
+    }
 
     // await notifier.getROSLabels();
     await notifier.getVisiteId(storeId: widget.storeId.toString());

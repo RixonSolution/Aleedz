@@ -58,9 +58,9 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
 
     setState(() {
       _screens = [
-        user?.teamMemberID == 9 ? HomeChartView() : HomeView(),
+        user?.teamTypeID == 6 ? HomeChartView() : HomeView(),
         CoverageView(),
-        user?.teamMemberID == 9 ? HomeChartView() : HomeView(),
+        user?.teamTypeID == 6 ? HomeChartView() : HomeView(),
 
         SizedBox(), // Drawer placeholder
       ];
