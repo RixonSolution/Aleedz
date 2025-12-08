@@ -196,13 +196,6 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
                                       storeName: widget.storeName,
                                       checkInTime: widget.checkInTime,
                                       storeId: widget.storeId,
-                                      activityTypeName: widget.activityTypeName,
-                                      activityCategoryName:
-                                          item.activityCategoryName ?? '',
-                                      divisionId: widget.divisionId,
-                                      activityTypeId: widget.activityTypeId,
-                                      activitiCategoryId:
-                                          item.activityCategoryID ?? 0,
                                     ),
                                   );
                                 },

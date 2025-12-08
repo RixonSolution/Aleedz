@@ -3,7 +3,7 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/activity/activity_view.dart';
+import 'package:aleedz/view/screens/activity/activity_submit_view.dart';
 import 'package:aleedz/view/screens/checklist/checklist_view.dart';
 import 'package:aleedz/view/screens/delployement/deployment_view.dart';
 import 'package:aleedz/view/screens/issues/issues_list.dart';
@@ -144,7 +144,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
         break;
       case 35:
         NavigationService.navigateTo(
-          ActivityView(
+          ActivitySubmitView(
             storeName: widget.storeName,
             checkInTime: widget.checkInTime,
             storeId: widget.storeId,
