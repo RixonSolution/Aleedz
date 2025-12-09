@@ -7,6 +7,7 @@ import 'package:aleedz/view/screens/activity/activity_submit_view.dart';
 import 'package:aleedz/view/screens/checklist/checklist_view.dart';
 import 'package:aleedz/view/screens/delployement/deployment_view.dart';
 import 'package:aleedz/view/screens/issues/issues_list.dart';
+import 'package:aleedz/view/screens/issues/issues_submit.dart';
 import 'package:aleedz/view/screens/price/price_view.dart';
 import 'package:aleedz/view/screens/sales/sale_view.dart';
 import 'package:aleedz/view/screens/stock/stock_summary_view.dart';
@@ -153,7 +154,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
         break;
       case 36:
         NavigationService.navigateTo(
-          IssuesList(
+          IssueSubmitView(
             storeName: widget.storeName,
             checkInTime: widget.checkInTime,
             storeId: widget.storeId,

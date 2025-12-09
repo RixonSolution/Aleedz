@@ -460,7 +460,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                'Create New Issue',
+                                'Create New Activity',
                                 style: TextStyle(
                                   color: Color(0xFF111827),
                                   fontSize: 20,
@@ -794,7 +794,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                         ),
                                       ),
                                       child: const Text(
-                                        "Create Issue",
+                                        "Create Activity",
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
@@ -803,6 +803,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                       ),
                                     ),
                           ),
+                          SizedBox(height: 40),
                         ],
                       ),
                     ),
@@ -835,7 +836,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
               ),
               child: const Center(
                 child: Text(
-                  'Create New Issue',
+                  'Create New Activity',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -938,16 +939,6 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                               Icons.check,
                               '${LabelService().getLabel(14)} ${widget.checkInTime}',
                             ),
-                            if (typeLabel.isNotEmpty)
-                              _headerTag(
-                                Icons.local_activity_outlined,
-                                typeLabel,
-                              ),
-                            if (categoryLabel.isNotEmpty)
-                              _headerTag(
-                                Icons.category_outlined,
-                                categoryLabel,
-                              ),
                           ],
                         ),
                       ],
@@ -991,7 +982,9 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.red.shade50,
-                                          borderRadius: BorderRadius.circular(18),
+                                          borderRadius: BorderRadius.circular(
+                                            18,
+                                          ),
                                         ),
                                         child: const Icon(
                                           Icons.delete,
@@ -1009,7 +1002,8 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                         if (!shouldDelete) return false;
 
                                         await viewModel.removeActivity(
-                                          activityId: item.activityID.toString(),
+                                          activityId:
+                                              item.activityID.toString(),
                                           activityTypeId:
                                               item.activityTypeID.toString(),
                                         );

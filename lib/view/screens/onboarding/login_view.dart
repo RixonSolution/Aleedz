@@ -3,10 +3,11 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_constants.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/%20login/auth_helper.dart';
-import 'package:aleedz/view/screens/%20login/login_provider.dart';
 import 'package:aleedz/view/screens/choose_language/choose_language_view.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
+import 'package:aleedz/view/screens/onboarding/auth_helper.dart';
+import 'package:aleedz/view/screens/onboarding/login_provider.dart';
+import 'package:aleedz/view/screens/onboarding/signup_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -236,23 +237,24 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                       }),
                                 ),
                                 onPressed: () async {
-                                if (!(_formKey.currentState?.validate() ?? false)) {
-                                  return;
-                                }
-                                final success = await viewModel.onLogin(
-                                  context,
-                                );
+                                  if (!(_formKey.currentState?.validate() ??
+                                      false)) {
+                                    return;
+                                  }
+                                  final success = await viewModel.onLogin(
+                                    context,
+                                  );
 
-                                if (!success) return;
+                                  if (!success) return;
 
-                                viewModel.loader = true;
-                                viewModel.notifyListeners();
+                                  viewModel.loader = true;
+                                  viewModel.notifyListeners();
 
-                                await storeViewModel.getROSLabels();
+                                  await storeViewModel.getROSLabels();
 
-                                final enableFingerprint =
-                                    await showDialog<bool>(
-                                      context: context,
+                                  final enableFingerprint =
+                                      await showDialog<bool>(
+                                        context: context,
                                         builder:
                                             (context) => AlertDialog(
                                               title: Text(
@@ -311,13 +313,33 @@ class _LoginViewState extends ConsumerState<LoginView> {
 
                         const SizedBox(height: 16),
                         Center(
-                          child: Text(
-                            LabelService().getLabel(6),
-                            style: TextStyle(
-                              color: AppColors.blackColor.withOpacity(0.65),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                LabelService().getLabel(6),
+                                style: TextStyle(
+                                  color: AppColors.blackColor.withOpacity(0.65),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  NavigationService.navigateTo(
+                                    const SignupView(),
+                                  );
+                                },
+                                child: Text(
+                                  '  | Sign Up ',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 14),
@@ -335,9 +357,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                       creds['email'] ?? '';
                                   viewModel.passwordController.text =
                                       creds['password'] ?? '';
-                                  final loginSucceeded = await viewModel.onLogin(
-                                    context,
-                                  );
+                                  final loginSucceeded = await viewModel
+                                      .onLogin(context);
                                   if (loginSucceeded) {
                                     NavigationService.navigateTo(
                                       DashboardView(),

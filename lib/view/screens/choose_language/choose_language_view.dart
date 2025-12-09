@@ -5,7 +5,7 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/app_constants.dart';
 import 'package:aleedz/core/constants/assets/app_images.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
-import 'package:aleedz/view/screens/%20login/login_provider.dart';
+import 'package:aleedz/view/screens/onboarding/login_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;

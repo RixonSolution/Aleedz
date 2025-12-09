@@ -173,18 +173,7 @@ class _MyConsumerState extends ConsumerState<IssuesList> {
                                       IssueSubmitView(
                                         storeName: widget.storeName,
                                         checkInTime: widget.checkInTime,
-
                                         storeId: widget.storeId,
-                                        divisionId:
-                                            activity.divisionID?.toInt() ?? 1,
-                                        activityTypeId:
-                                            activity.activityTypeID?.toInt() ??
-                                            1,
-                                        activityCategoryName:
-                                            activity.activityCategoryName
-                                                .toString(),
-                                        activitiCategoryId:
-                                            activity.activityCategoryID!,
                                       ),
                                     );
                                   },

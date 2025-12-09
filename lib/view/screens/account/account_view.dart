@@ -3,7 +3,7 @@ import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/%20login/login_view.dart';
+import 'package:aleedz/view/screens/onboarding/login_view.dart';
 import 'package:aleedz/view/screens/change_pwd/change_pwd_view.dart';
 import 'package:aleedz/view/screens/user_profile/user_profile_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';

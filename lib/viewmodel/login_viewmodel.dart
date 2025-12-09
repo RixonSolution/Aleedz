@@ -7,7 +7,7 @@ import 'package:aleedz/models/language_model.dart';
 import 'package:aleedz/models/uer_permission.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/view/screens/%20login/login_view.dart';
+import 'package:aleedz/view/screens/onboarding/login_view.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
