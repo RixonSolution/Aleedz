@@ -90,10 +90,17 @@ class PriceViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> pricePromotion(int storeId, int brandId, String visitId) async {
-    loader = true;
+  Future<void> pricePromotion(
+    int storeId,
+    int brandId,
+    String visitId, {
+    bool showLoader = true,
+  }) async {
+    if (showLoader) {
+      loader = true;
+      notifyListeners();
+    }
     brands = [];
-    notifyListeners();
     final response = await _priceController.pricePromotion(
       storeId: storeId.toString(),
       branddId: brandId.toString(),
@@ -106,12 +113,16 @@ class PriceViewModel extends ChangeNotifier {
         response['data']['data'].map((x) => PriceModel.fromJson(x)),
       );
       brands = brandList;
-      loader = false;
+      if (showLoader) {
+        loader = false;
+      }
       notifyListeners();
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
-      loader = false;
-      notifyListeners();
+      if (showLoader) {
+        loader = false;
+        notifyListeners();
+      }
     }
   }
 
