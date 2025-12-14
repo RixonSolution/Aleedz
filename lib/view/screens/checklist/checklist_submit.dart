@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/models/checklist_entry.dart';
+import 'package:aleedz/models/checklist_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/checklist_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +29,9 @@ class ChecklistSubmit extends ConsumerStatefulWidget {
 }
 
 class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
+  late int _currentChecklistTypeId;
+  late String _currentChecklistName;
+
   void _showImagePickerDialog(
     String direction, {
     required Function(String) onImageSelected,
@@ -37,41 +40,90 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: AppColors.secondary,
-          title: Text(
-            LabelService().getLabel(111),
-            style: TextStyle(color: AppColors.whiteColor),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text(
-                  LabelService().getLabel(112),
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
-                onTap: () async {
-                  final path = await ref
-                      .read(checklistModelProvider.notifier)
-                      .pickFromCamera(direction);
-                  Navigator.pop(context);
-                  if (path != null) onImageSelected(path);
-                },
+          backgroundColor: Colors.transparent,
+          titlePadding: EdgeInsets.zero,
+          contentPadding: EdgeInsets.zero,
+          content: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1f2937), Color(0xFF0f172a)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              ListTile(
-                title: Text(
-                  LabelService().getLabel(113),
-                  style: TextStyle(color: AppColors.whiteColor),
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      LabelService().getLabel(111),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.close, color: Colors.white),
+                    ),
+                  ],
                 ),
-                onTap: () async {
-                  final path = await ref
-                      .read(checklistModelProvider.notifier)
-                      .pickFromGallery(direction);
-                  Navigator.pop(context);
-                  if (path != null) onImageSelected(path);
-                },
-              ),
-            ],
+                const SizedBox(height: 12),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white24),
+                    ),
+                    child: const Icon(Icons.camera_alt, color: Colors.white),
+                  ),
+                  title: Text(
+                    LabelService().getLabel(112),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final path = await ref
+                        .read(checklistModelProvider.notifier)
+                        .pickFromCamera(direction);
+                    if (path != null) onImageSelected(path);
+                  },
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white24),
+                    ),
+                    child: const Icon(Icons.photo_library, color: Colors.white),
+                  ),
+                  title: Text(
+                    LabelService().getLabel(113),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final path = await ref
+                        .read(checklistModelProvider.notifier)
+                        .pickFromGallery(direction);
+                    if (path != null) onImageSelected(path);
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -81,6 +133,8 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
   @override
   void initState() {
     super.initState();
+    _currentChecklistTypeId = widget.checklistTypeId;
+    _currentChecklistName = widget.checklistName;
     Future.microtask(() {
       loadUserAndFetchCheckList();
     });
@@ -88,11 +142,222 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
 
   Future<void> loadUserAndFetchCheckList() async {
     final notifier = ref.read(checklistModelProvider.notifier);
+    await notifier.loadUser();
+    if (notifier.checkList.isEmpty) {
+      await notifier.getCheckListType(storeId: widget.storeId.toString());
+    }
     await notifier.getCheckSubmitList(
       storeId: widget.storeId.toString(),
-      checkListCateId: widget.checklistTypeId.toString(),
+      checkListCateId: _currentChecklistTypeId.toString(),
       visitedId: widget.visiteId.toString(),
     );
+  }
+
+  Future<void> _applyFilter(
+    ChecklistModel item,
+    checklistViewModel viewModel,
+  ) async {
+    Navigator.of(context).pop();
+    setState(() {
+      _currentChecklistTypeId =
+          item.checklistCategoryID ?? _currentChecklistTypeId;
+      _currentChecklistName = item.checklist ?? _currentChecklistName;
+    });
+    await viewModel.getCheckSubmitList(
+      storeId: widget.storeId.toString(),
+      checkListCateId: _currentChecklistTypeId.toString(),
+      visitedId: widget.visiteId.toString(),
+    );
+  }
+
+  void _openFilterSheet(checklistViewModel viewModel) async {
+    if (viewModel.checkList.isEmpty) {
+      await viewModel.getCheckListType(storeId: widget.storeId.toString());
+    }
+
+    List<ChecklistModel> localList = List.from(viewModel.checkList);
+    final searchController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            void filter(String query) {
+              final q = query.toLowerCase();
+              setModalState(() {
+                localList =
+                    viewModel.checkList.where((item) {
+                      final name = item.checklist?.toLowerCase() ?? '';
+                      return name.contains(q);
+                    }).toList();
+              });
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
+              ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Filter Checklist',
+                            style: TextStyle(
+                              color: Color(0xFF111827),
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () => Navigator.of(ctx).pop(),
+                            child: Container(
+                              height: 36,
+                              width: 36,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFF2F3F5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                size: 18,
+                                color: Color(0xFF111827),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Divider(color: Colors.grey.shade300, height: 1),
+                      const SizedBox(height: 16),
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x19000000),
+                              blurRadius: 12,
+                              offset: Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: TextField(
+                            controller: searchController,
+                            onChanged: filter,
+                            style: const TextStyle(color: AppColors.blackColor),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: LabelService().getLabel(135),
+                              hintStyle: const TextStyle(
+                                color: AppColors.greyText,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                              ),
+                              prefixIconConstraints: const BoxConstraints(
+                                minWidth: 0,
+                                minHeight: 0,
+                              ),
+                              prefixIcon: const Padding(
+                                padding: EdgeInsets.only(right: 8),
+                                child: Icon(
+                                  Icons.search,
+                                  size: 20,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      localList.isEmpty
+                          ? Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 30),
+                            child: Center(
+                              child: Text(
+                                LabelService().getLabel(134),
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          )
+                          : ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: localList.length,
+                            separatorBuilder:
+                                (_, __) => Divider(color: Colors.grey.shade300),
+                            itemBuilder: (context, index) {
+                              final item = localList[index];
+                              return InkWell(
+                                onTap: () => _applyFilter(item, viewModel),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        width: 24,
+                                        child: Text(
+                                          '${index + 1}.',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.blackColor,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          item.checklist ?? '',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            color: AppColors.blackColor,
+                                          ),
+                                        ),
+                                      ),
+                                      const Icon(
+                                        Icons.chevron_right_rounded,
+                                        color: AppColors.primary,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() => searchController.dispose());
   }
 
   String? getChecklistImagePath(String checklistId) {
@@ -170,133 +435,198 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
 
   Map<String, TextEditingController> descriptionControllers = {}; // ✅ Add here
 
+  Widget _buildSubmitButton(checklistViewModel viewModel) {
+    if (!canSubmitChecklist() && !loader) {
+      return const SizedBox.shrink();
+    }
+    final bool disabled = loader;
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: GestureDetector(
+            onTap:
+                disabled
+                    ? null
+                    : () async {
+                      await submitChecklistEntries();
+                      if (!mounted) return;
+                      NavigationService.goBack();
+                      AppSnackBar.showSuccess(
+                        context,
+                        LabelService().getLabel(73),
+                      );
+                    },
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x19000000),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Center(
+                child:
+                    loader
+                        ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.2,
+                            color: Colors.white,
+                          ),
+                        )
+                        : Text(
+                          LabelService().getLabel(73),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(checklistModelProvider);
 
     return SafeArea(
       child: Scaffold(
-        bottomNavigationBar: Container(
-          margin: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-          color: Colors.white,
-          child: ElevatedButton(
-            onPressed:
-                canSubmitChecklist() && !loader
-                    ? () async {
-                      await submitChecklistEntries();
-                      NavigationService.goBack();
-                      AppSnackBar.showSuccess(context, 'Checklist submitted');
-                    }
-                    : null, // disables the button if no checklistStatus is present or loader is true
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.secondary,
-              padding: EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(0),
-              ),
-            ),
-            child:
-                loader
-                    ? CircularProgressIndicator(color: AppColors.whiteColor)
-                    : Text(
-                      LabelService().getLabel(73),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.whiteColor,
-                      ),
-                    ),
-          ),
-        ),
-
         backgroundColor: AppColors.whiteColor,
-        body:
+        body: Stack(
+          children: [
             viewModel.loader
                 ? const Center(child: CircularProgressIndicator())
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 18,
+                      ),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          InkWell(
-                            onTap: () {
-                              NavigationService.goBack();
-                            },
-                            child: Image.asset(
-                              AppIcons.backArrow,
-                              height: 30,
-                              width: 30,
+                          Row(
+                            children: [
+                              InkWell(
+                                onTap: () => NavigationService.goBack(),
+                                child: const Icon(
+                                  Icons.arrow_back_ios_new_rounded,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              const Text(
+                                'Checklist',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const Spacer(),
+                              InkWell(
+                                onTap: () => _openFilterSheet(viewModel),
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.08),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.filter_alt_outlined,
+                                    size: 18,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            widget.storeName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
-                          const Text(
-                            'Checklist',
-                            style: TextStyle(
-                              color: AppColors.blackColor,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                          const SizedBox(height: 6),
+                          Text(
+                            _currentChecklistName,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                          Image.asset(
-                            AppIcons.locationIcon,
-                            height: 30,
-                            width: 30,
-                            color: AppColors.whiteColor,
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.access_time_filled,
+                                  color: AppColors.primary,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '${LabelService().getLabel(14)} ${widget.checkInTime}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                          const SizedBox(height: 4),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 5),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Divider(color: AppColors.primary, height: 0),
-                    ),
-                    const SizedBox(height: 5),
-                    Center(
-                      child: Text(
-                        widget.storeName,
-                        style: const TextStyle(
-                          color: AppColors.blackColor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        '${LabelService().getLabel(14)} ${widget.checkInTime}',
-                        style: const TextStyle(
-                          color: AppColors.blackColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(color: AppColors.secondary),
-                      child: Center(
-                        child: Text(
-                          widget.checklistName,
-                          style: const TextStyle(
-                            color: AppColors.whiteColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-
+                    const SizedBox(height: 12),
                     Expanded(
                       child: ListView.builder(
                         itemCount: viewModel.checkListSubmitView.length,
                         shrinkWrap: true,
-                        physics: ScrollPhysics(),
+                        physics: const ScrollPhysics(),
                         primary: true,
+                        padding: const EdgeInsets.only(bottom: 120),
                         itemBuilder: (BuildContext context, int index) {
                           final descriptionController = TextEditingController(
                             text: getChecklistDescription(
@@ -304,6 +634,35 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                   .toString(),
                             ),
                           );
+                          final inputType =
+                              viewModel.checkListSubmitView[index].inputTypeID;
+                          final String optionLabel =
+                              inputType == 1
+                                  ? 'Status'
+                                  : inputType == 2
+                                  ? 'Quantity'
+                                  : inputType == 3
+                                  ? 'Date'
+                                  : 'Value';
+                          final hasStatus =
+                              (viewModel
+                                      .checkListSubmitView[index]
+                                      .checkListStatus
+                                      ?.isNotEmpty ??
+                                  false);
+                          final hasDescription =
+                              descriptionController.text.trim().isNotEmpty;
+                          final hasImage =
+                              (getChecklistImagePath(
+                                        viewModel
+                                            .checkListSubmitView[index]
+                                            .checklistID
+                                            .toString(),
+                                      ) ??
+                                      '')
+                                  .isNotEmpty;
+                          final isPrefilled =
+                              hasStatus || hasDescription || hasImage;
 
                           return Column(
                             children: [
@@ -311,8 +670,8 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                 storeId: widget.storeId,
                                 visitId: widget.visiteId,
                                 initialDescription: descriptionController.text,
-                                index1: index + 1,
-
+                                optionLabel: optionLabel,
+                                isPrefilled: isPrefilled,
                                 title:
                                     viewModel
                                         .checkListSubmitView[index]
@@ -346,6 +705,7 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                           index: index,
                                           storeId: widget.storeId,
                                           visiteId: widget.visiteId,
+                                          hint: optionLabel,
                                         )
                                         : viewModel
                                                 .checkListSubmitView[index]
@@ -360,6 +720,7 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                           index: index,
                                           storeId: widget.storeId,
                                           visiteId: widget.visiteId,
+                                          hint: optionLabel,
                                         )
                                         : TextBox(
                                           initialValue:
@@ -370,6 +731,7 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                           index: index,
                                           storeId: widget.storeId,
                                           visiteId: widget.visiteId,
+                                          hint: optionLabel,
                                         ),
                                 index: index,
                                 onRemoveImage: () {
@@ -446,8 +808,6 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                       .toString(),
                                 ),
                               ),
-
-                              Divider(indent: 12, endIndent: 12),
                             ],
                           );
                         },
@@ -455,6 +815,9 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                     ),
                   ],
                 ),
+            _buildSubmitButton(viewModel),
+          ],
+        ),
       ),
     );
   }
@@ -463,10 +826,11 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
 class ProductCard extends ConsumerStatefulWidget {
   final String title;
   final Widget optionWidget;
+  final String optionLabel;
   final int index; // change from dynamic to int
-  final int index1; // change from dynamic to int
   final int storeId;
   final int visitId;
+  final bool isPrefilled;
 
   final String? imagePath;
   final Function()? onPickImage;
@@ -476,8 +840,9 @@ class ProductCard extends ConsumerStatefulWidget {
   ProductCard({
     required this.title,
     required this.optionWidget,
+    required this.optionLabel,
     required this.index,
-    required this.index1,
+    required this.isPrefilled,
 
     this.imagePath,
     this.onPickImage,
@@ -512,129 +877,207 @@ class _ProductCardState extends ConsumerState<ProductCard> {
     final viewModel = ref.watch(checklistModelProvider);
 
     return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${widget.index1}. ',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Expanded(
-                child: Text(
-                  widget.title,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              widget.optionWidget,
-            ],
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color:
+              widget.isPrefilled
+                  ? AppColors.primary.withOpacity(0.08)
+                  : Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x14000000),
+              blurRadius: 14,
+              offset: Offset(0, 6),
+            ),
+          ],
+          border: Border.all(
+            color:
+                widget.isPrefilled
+                    ? AppColors.primary.withOpacity(0.35)
+                    : Colors.transparent,
           ),
-          SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: controller,
-
-                  onChanged: (value) {
-                    print(
-                      viewModel.checkListSubmitView[widget.index].checklistID,
-                    );
-                    print(
-                      "Description: $value",
-                    ); // or answers[index].answer = value;
-
-                    viewModel.addOrUpdateChecklistEntry(
-                      ChecklistEntry(
-                        token: viewModel.user?.apiToken ?? '',
-                        checklistAuditID:
-                            viewModel
-                                        .checkListSubmitView[widget.index]
-                                        .checklistAuditID ==
-                                    null
-                                ? '0'
-                                : viewModel
-                                    .checkListSubmitView[widget.index]
-                                    .checklistAuditID,
-                        checkListID:
-                            viewModel
-                                .checkListSubmitView[widget.index]
-                                .checklistID
-                                .toString(),
-                        storeID: widget.storeId.toString(),
-                        // checkListStatus: value,
-                        teamMemberID:
-                            viewModel.user?.teamMemberID.toString() ?? '',
-                        visitID: widget.visitId.toString(),
-                        description: value,
-                        // imagePath: '/new/path.jpg',
-                      ),
-                    );
-                  },
-                  decoration: InputDecoration(
-                    labelText: LabelService().getLabel(66),
-                    border: OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                  ),
-                  maxLines: 2,
-                ),
-              ),
-              SizedBox(width: 12),
-              GestureDetector(
-                onTap: widget.onPickImage,
+        ),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.centerLeft,
                 child: Container(
-                  height: 80,
-                  width: 80,
+                  width: 34,
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(8),
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primary,
+                        AppColors.primary.withOpacity(0.8),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(18),
+                      bottomLeft: Radius.circular(18),
+                    ),
                   ),
-                  child:
-                      (widget.imagePath != null && widget.imagePath!.isNotEmpty)
-                          ? Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.file(
-                                  File(widget.imagePath!),
-                                  fit: BoxFit.cover,
-                                  width: 80,
-                                  height: 80,
-                                ),
-                              ),
-                              Positioned(
-                                top: 4,
-                                right: 4,
-                                child: GestureDetector(
-                                  onTap:
-                                      widget
-                                          .onRemoveImage, // <-- Add this callback
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black54,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    padding: EdgeInsets.all(4),
-                                    child: Icon(
-                                      Icons.close,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                          : Icon(Icons.camera_alt),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${widget.index + 1}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16,
+                    ),
+                  ),
                 ),
               ),
-            ],
-          ),
-        ],
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(50, 12, 14, 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                            color: Color(0xFF111827),
+                            height: 1.2,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      widget.optionWidget,
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: controller,
+                    onChanged: (value) {
+                      viewModel.addOrUpdateChecklistEntry(
+                        ChecklistEntry(
+                          token: viewModel.user?.apiToken ?? '',
+                          checklistAuditID:
+                              viewModel
+                                          .checkListSubmitView[widget.index]
+                                          .checklistAuditID ==
+                                      null
+                                  ? '0'
+                                  : viewModel
+                                      .checkListSubmitView[widget.index]
+                                      .checklistAuditID,
+                          checkListID:
+                              viewModel
+                                  .checkListSubmitView[widget.index]
+                                  .checklistID
+                                  .toString(),
+                          storeID: widget.storeId.toString(),
+                          teamMemberID:
+                              viewModel.user?.teamMemberID.toString() ?? '',
+                          visitID: widget.visitId.toString(),
+                          description: value,
+                        ),
+                      );
+                    },
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: LabelService().getLabel(66),
+                      hintStyle: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFFF7F8FB),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1.2,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(
+                          color: AppColors.primary,
+                          width: 1.4,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: widget.onPickImage,
+                        child: Container(
+                          height: 70,
+                          width: 70,
+                          decoration: BoxDecoration(
+                            color: AppColors.lightGreyBackground,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.grey.shade300,
+                              width: 1,
+                            ),
+                          ),
+                          child:
+                              (widget.imagePath != null &&
+                                      widget.imagePath!.isNotEmpty)
+                                  ? Stack(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Image.file(
+                                          File(widget.imagePath!),
+                                          fit: BoxFit.cover,
+                                          width: 70,
+                                          height: 70,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 4,
+                                        right: 4,
+                                        child: GestureDetector(
+                                          onTap: widget.onRemoveImage,
+                                          child: Container(
+                                            decoration: const BoxDecoration(
+                                              color: Colors.black54,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            padding: const EdgeInsets.all(4),
+                                            child: const Icon(
+                                              Icons.close,
+                                              size: 16,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                  : const Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.black54,
+                                    size: 28,
+                                  ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -665,27 +1108,11 @@ class _ToggleYesNoState extends ConsumerState<ToggleYesNo> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       children: [
-        Row(
-          children: [
-            _buildOption(LabelService().getLabel(95), widget.index),
-            SizedBox(width: 12),
-            _buildOption(LabelService().getLabel(94), widget.index),
-          ],
-        ),
-        Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 10, top: 5),
-              child: Text(LabelService().getLabel(95)),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 10, top: 5),
-              child: Text(LabelService().getLabel(94)),
-            ),
-          ],
-        ),
+        _buildOption(LabelService().getLabel(95), widget.index),
+        const SizedBox(width: 8),
+        _buildOption(LabelService().getLabel(94), widget.index),
       ],
     );
   }
@@ -694,6 +1121,7 @@ class _ToggleYesNoState extends ConsumerState<ToggleYesNo> {
     final viewModel = ref.watch(checklistModelProvider);
 
     bool isSelected = selected == value;
+    final bool isYes = value == LabelService().getLabel(95);
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -721,13 +1149,31 @@ class _ToggleYesNoState extends ConsumerState<ToggleYesNo> {
         );
       },
       child: Container(
+        height: 36,
+        width: 36,
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isSelected ? Colors.black : Colors.grey[300],
+          color:
+              isSelected
+                  ? (isYes ? const Color(0xFFE9F9F0) : const Color(0xFFFFE5E5))
+                  : Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color:
+                isSelected
+                    ? (isYes
+                        ? const Color(0xFF16A34A)
+                        : const Color(0xFFFF7A7A))
+                    : const Color(0xFFCBD1DC),
+            width: 1.6,
+          ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Icon(Icons.check, color: Colors.white, size: 20),
+        child: Icon(
+          isYes ? Icons.check : Icons.close,
+          color:
+              isSelected
+                  ? (isYes ? const Color(0xFF16A34A) : const Color(0xFFD14343))
+                  : const Color(0xFF94A3B8),
+          size: 18,
         ),
       ),
     );
@@ -737,12 +1183,14 @@ class _ToggleYesNoState extends ConsumerState<ToggleYesNo> {
 class QuantityBox extends ConsumerStatefulWidget {
   final String initialValue;
   final int index, storeId, visiteId;
+  final String? hint;
 
   const QuantityBox({
     required this.initialValue,
     required this.index,
     required this.storeId,
     required this.visiteId,
+    this.hint,
   });
 
   @override
@@ -769,16 +1217,19 @@ class _QuantityBoxState extends ConsumerState<QuantityBox> {
     final viewModel = ref.watch(checklistModelProvider);
 
     return Container(
-      width: 80, // Set a fixed width similar to your design
-      height: 36,
+      width: 96,
+      height: 40,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F8FB),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFCBD1DC)),
+      ),
+      alignment: Alignment.center,
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
         onChanged: (value) {
-          print(viewModel.checkListSubmitView[widget.index].checklistID);
-          print("Quantity: $value"); // or answers[index].answer = value;
-
           viewModel.addOrUpdateChecklistEntry(
             ChecklistEntry(
               token: viewModel.user?.apiToken ?? '',
@@ -798,21 +1249,24 @@ class _QuantityBoxState extends ConsumerState<QuantityBox> {
               checkListStatus: value,
               teamMemberID: viewModel.user?.teamMemberID.toString() ?? '',
               visitID: widget.visiteId.toString(),
-              // imagePath: '/new/path.jpg',
             ),
           );
         },
         decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          hintText: LabelService().getLabel(63),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(4),
-            borderSide: BorderSide(color: Colors.grey),
+          counterText: '',
+          border: InputBorder.none,
+          isDense: true,
+          hintText: widget.hint,
+          hintStyle: TextStyle(
+            color: Colors.grey.shade500,
+            fontWeight: FontWeight.w600,
           ),
-          filled: true,
-          fillColor: Colors.white,
         ),
-        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF111827),
+        ),
       ),
     );
   }
@@ -821,12 +1275,14 @@ class _QuantityBoxState extends ConsumerState<QuantityBox> {
 class TextBox extends ConsumerStatefulWidget {
   final String initialValue;
   final int index, storeId, visiteId;
+  final String? hint;
 
   const TextBox({
     required this.initialValue,
     required this.index,
     required this.storeId,
     required this.visiteId,
+    this.hint,
   });
 
   @override
@@ -853,15 +1309,18 @@ class _TextBoxState extends ConsumerState<TextBox> {
     final viewModel = ref.watch(checklistModelProvider);
 
     return Container(
-      width: 80, // Set a fixed width similar to your design
-      height: 36,
+      width: 120,
+      height: 40,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F8FB),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFCBD1DC)),
+      ),
+      alignment: Alignment.center,
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.text,
         onChanged: (value) {
-          print(viewModel.checkListSubmitView[widget.index].checklistID);
-          print("Text value: $value"); // or update your JSON model here
-
           viewModel.addOrUpdateChecklistEntry(
             ChecklistEntry(
               token: viewModel.user?.apiToken ?? '',
@@ -881,24 +1340,23 @@ class _TextBoxState extends ConsumerState<TextBox> {
               checkListStatus: value,
               teamMemberID: viewModel.user?.teamMemberID.toString() ?? '',
               visitID: widget.visiteId.toString(),
-              // imagePath: '/new/path.jpg',
             ),
           );
         },
         textAlign: TextAlign.center,
-        maxLength: 10,
+        maxLength: 20,
         decoration: InputDecoration(
           counterText: '',
-          contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          hintText: LabelService().getLabel(65),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(4),
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          filled: true,
-          fillColor: Colors.white,
+          border: InputBorder.none,
+          isDense: true,
+          hintText: widget.hint ?? LabelService().getLabel(65),
+          hintStyle: TextStyle(color: Colors.grey.shade500),
         ),
-        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF111827),
+        ),
       ),
     );
   }
@@ -907,12 +1365,14 @@ class _TextBoxState extends ConsumerState<TextBox> {
 class DateBox extends ConsumerStatefulWidget {
   final String initialValue;
   final int index, storeId, visiteId;
+  final String? hint;
   const DateBox({
     Key? key,
     required this.initialValue,
     required this.index,
     required this.storeId,
     required this.visiteId,
+    this.hint,
   }) : super(key: key);
   @override
   _DateBoxState createState() => _DateBoxState();
@@ -920,6 +1380,7 @@ class DateBox extends ConsumerStatefulWidget {
 
 class _DateBoxState extends ConsumerState<DateBox> {
   DateTime selectedDate = DateTime.now();
+  bool hasValue = false;
 
   Future<void> _selectDate(BuildContext context, int index) async {
     final viewModel = ref.watch(checklistModelProvider);
@@ -934,9 +1395,8 @@ class _DateBoxState extends ConsumerState<DateBox> {
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
+        hasValue = true;
       });
-
-      String formatted = DateFormat('dd-MM-yyyy').format(picked);
 
       print(viewModel.checkListSubmitView[index].checklistID);
       print("Selected date: $selectedDate"); // or update answers[index].answer
@@ -964,9 +1424,10 @@ class _DateBoxState extends ConsumerState<DateBox> {
   void initState() {
     super.initState();
 
-    if (widget.initialValue != null && widget.initialValue.isNotEmpty) {
+    if (widget.initialValue.isNotEmpty) {
       try {
-        selectedDate = DateTime.parse(widget.initialValue!);
+        selectedDate = DateTime.parse(widget.initialValue);
+        hasValue = true;
       } catch (e) {
         print('Invalid date format in initialValue: ${widget.initialValue}');
         selectedDate = DateTime.now(); // fallback to today
@@ -981,21 +1442,26 @@ class _DateBoxState extends ConsumerState<DateBox> {
   @override
   Widget build(BuildContext context) {
     String formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
+    final displayText = hasValue ? formattedDate : (widget.hint ?? 'Date');
 
     return GestureDetector(
       onTap: () => _selectDate(context, widget.index),
       child: Container(
-        width: 80,
-        padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
+        width: 120,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(4),
-          color: Colors.white,
+          border: Border.all(color: const Color(0xFFCBD1DC)),
+          borderRadius: BorderRadius.circular(12),
+          color: const Color(0xFFF7F8FB),
         ),
         child: Center(
           child: Text(
-            formattedDate,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            displayText,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+              color: hasValue ? const Color(0xFF111827) : Colors.grey.shade500,
+            ),
           ),
         ),
       ),

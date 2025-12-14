@@ -29,7 +29,12 @@ class PriceViewModel extends ChangeNotifier {
 
   List<PriceListModel> priceList = [];
 
-  bool loader = false;
+  bool loader = true;
+
+  void setLoader(bool value) {
+    loader = value;
+    notifyListeners();
+  }
 
   void selectBrand(int storeId, BrandListModel? brand, String visitId) async {
     selectedBrand = brand;

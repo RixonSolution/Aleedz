@@ -721,12 +721,51 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                             );
 
                             final product = viewModel.priceList[index];
+                            final imagePath = getChecklistImagePath(
+                              product.productID.toString(),
+                            );
+                            final hasPrice = priceController.text.trim().isNotEmpty &&
+                                priceController.text.trim() != '0';
+                            final hasNetPrice =
+                                netPriceController.text.trim().isNotEmpty &&
+                                netPriceController.text.trim() != '0';
+                            final hasPromotion =
+                                promotionController.text.trim().isNotEmpty;
+                            final hasImage = (imagePath ?? '').isNotEmpty;
+                            final hasOutOfStock = isOutOfStock == true;
+                            final isPrefilled =
+                                hasPrice ||
+                                hasNetPrice ||
+                                hasPromotion ||
+                                hasImage ||
+                                hasOutOfStock;
+
+                            void handleOutOfStockChange(bool? value) {
+                              final newValue = value ?? false;
+                              setState(() {});
+                              viewModel.updateProductEntry(
+                                productId: product.productID.toString(),
+                                storeId: widget.storeId.toString(),
+                                visitId: widget.visiteId.toString(),
+                                token: viewModel.user?.apiToken ?? '',
+                                teamMemberId:
+                                    viewModel.user?.teamMemberID.toString(),
+                                isOutOfStock: newValue,
+                                price: '0',
+                                netPrice: '0',
+                                promotion: '',
+                                imagePath: '',
+                              );
+                            }
 
                             return Padding(
                               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color:
+                                      isPrefilled
+                                          ? AppColors.primary.withOpacity(0.08)
+                                          : Colors.white,
                                   borderRadius: BorderRadius.circular(18),
                                   boxShadow: const [
                                     BoxShadow(
@@ -735,6 +774,14 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                       offset: Offset(0, 6),
                                     ),
                                   ],
+                                  border: Border.all(
+                                    color:
+                                        isPrefilled
+                                            ? AppColors.primary.withOpacity(
+                                                0.35,
+                                              )
+                                            : Colors.transparent,
+                                  ),
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(14),
@@ -746,46 +793,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          SizedBox(
-                                            width: 15,
-                                            height: 25,
-                                            child: Checkbox(
-                                              materialTapTargetSize:
-                                                  MaterialTapTargetSize
-                                                      .shrinkWrap,
-                                              activeColor: AppColors.primary,
-                                              value: isOutOfStock,
-                                              onChanged: (value) {
-                                                setState(() {});
-                                                viewModel.updateProductEntry(
-                                                  productId:
-                                                      product.productID
-                                                          .toString(),
-                                                  storeId:
-                                                      widget.storeId.toString(),
-                                                  visitId:
-                                                      widget.visiteId
-                                                          .toString(),
-                                                  token:
-                                                      viewModel
-                                                          .user
-                                                          ?.apiToken ??
-                                                      '',
-                                                  teamMemberId:
-                                                      viewModel
-                                                          .user
-                                                          ?.teamMemberID
-                                                          .toString(),
-                                                  isOutOfStock: value,
-                                                  price: '0',
-                                                  netPrice: '0',
-                                                  promotion: '',
-                                                  imagePath: '',
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
                                           Expanded(
                                             child: Column(
                                               crossAxisAlignment:
@@ -871,11 +878,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                               ),
                                               child: Builder(
                                                 builder: (_) {
-                                                  final imagePath =
-                                                      getChecklistImagePath(
-                                                        product.productID
-                                                            .toString(),
-                                                      );
                                                   if (imagePath != null &&
                                                       imagePath.isNotEmpty) {
                                                     return Stack(
@@ -1212,6 +1214,42 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                           ],
                                         ),
                                       ),
+                                      const SizedBox(height: 12),
+                                      GestureDetector(
+                                        onTap:
+                                            () => handleOutOfStockChange(
+                                              !(isOutOfStock ?? false),
+                                            ),
+                                        behavior: HitTestBehavior.opaque,
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            SizedBox(
+                                              width: 20,
+                                              height: 25,
+                                              child: Checkbox(
+                                                materialTapTargetSize:
+                                                    MaterialTapTargetSize
+                                                        .shrinkWrap,
+                                                activeColor: AppColors.primary,
+                                                value: isOutOfStock,
+                                                onChanged:
+                                                    handleOutOfStockChange,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'Out of Stock',
+                                              style: TextStyle(
+                                                color: AppColors.blackColor,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -1222,51 +1260,44 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                       ),
                     ],
                   ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: SafeArea(
-                  minimum: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: GestureDetector(
-                    onTap:
-                        viewModel.loader
-                            ? null
-                            : () async {
-                              await viewModel.submitAllPrices(
-                                widget.storeId,
-                                widget.visiteId.toString(),
-                              );
-                              AppSnackBar.showSuccess(
-                                context,
-                                'Price Promotions submitted}',
-                              );
-                            },
-                    child: Container(
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child:
-                            viewModel.loader
-                                ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
-                                : Text(
-                                  LabelService().getLabel(73),
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                  ),
-                                ),
+              if (!viewModel.loader)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: SafeArea(
+                    minimum: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: GestureDetector(
+                      onTap: () async {
+                        await viewModel.submitAllPrices(
+                          widget.storeId,
+                          widget.visiteId.toString(),
+                        );
+                        AppSnackBar.showSuccess(
+                          context,
+                          'Price Promotions submitted}',
+                        );
+                      },
+                      child: Container(
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            LabelService().getLabel(73),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
