@@ -1,16 +1,12 @@
 import 'dart:io';
-import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/issues_veiwmodel.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class DeployementSubmitView extends ConsumerStatefulWidget {
@@ -33,67 +29,331 @@ class DeployementSubmitView extends ConsumerStatefulWidget {
 }
 
 class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController barcodeController = TextEditingController();
+
   void _showImagePickerDialog() {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: AppColors.secondary,
-          title: Text(
-            LabelService().getLabel(111),
-            style: TextStyle(color: AppColors.whiteColor),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text(
-                  LabelService().getLabel(112),
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final pickedImage = await ImagePicker().pickImage(
-                    source: ImageSource.camera,
-                  );
-                  if (pickedImage != null &&
-                      ref
-                              .read(issuesModelProvider.notifier)
-                              .beforeActivityImages
-                              .length <
-                          4) {
-                    ref
-                        .read(issuesModelProvider.notifier)
-                        .beforeActivityImages
-                        .add(File(pickedImage.path));
-                    ref.read(issuesModelProvider.notifier).notifyListeners();
-                  }
-                },
+          backgroundColor: Colors.transparent,
+          titlePadding: EdgeInsets.zero,
+          contentPadding: EdgeInsets.zero,
+          content: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1f2937), Color(0xFF0f172a)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              ListTile(
-                title: Text(
-                  LabelService().getLabel(113),
-                  style: TextStyle(color: AppColors.whiteColor),
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      LabelService().getLabel(111),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.close, color: Colors.white),
+                    ),
+                  ],
                 ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final pickedImages = await ImagePicker().pickMultiImage();
-                  if (pickedImages.isNotEmpty) {
-                    for (var image in pickedImages) {
-                      if (ref
-                              .read(issuesModelProvider.notifier)
-                              .beforeActivityImages
-                              .length >=
-                          4)
-                        break;
+                const SizedBox(height: 12),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.camera_alt, color: Colors.white),
+                  title: Text(
+                    LabelService().getLabel(112),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final pickedImage =
+                        await ImagePicker().pickImage(source: ImageSource.camera);
+                    if (pickedImage != null &&
+                        ref
+                                .read(issuesModelProvider.notifier)
+                                .beforeActivityImages
+                                .length <
+                            4) {
                       ref
                           .read(issuesModelProvider.notifier)
                           .beforeActivityImages
-                          .add(File(image.path));
+                          .add(File(pickedImage.path));
+                      ref.read(issuesModelProvider.notifier).notifyListeners();
                     }
-                    ref.read(issuesModelProvider.notifier).notifyListeners();
-                  }
-                },
+                  },
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading:
+                      const Icon(Icons.photo_library, color: Colors.white),
+                  title: Text(
+                    LabelService().getLabel(113),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final pickedImages = await ImagePicker().pickMultiImage();
+                    if (pickedImages.isNotEmpty) {
+                      for (var image in pickedImages) {
+                        if (ref
+                                .read(issuesModelProvider.notifier)
+                                .beforeActivityImages
+                                .length >=
+                            4) {
+                          break;
+                        }
+                        ref
+                            .read(issuesModelProvider.notifier)
+                            .beforeActivityImages
+                            .add(File(image.path));
+                      }
+                      ref.read(issuesModelProvider.notifier).notifyListeners();
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(loadUserAndFetchActivity);
+  }
+
+  @override
+  void dispose() {
+    descriptionController.dispose();
+    barcodeController.dispose();
+    super.dispose();
+  }
+
+  Future<void> loadUserAndFetchActivity() async {
+    await ref.read(issuesModelProvider.notifier).getMarketActivityList(
+          storeId: widget.storeId.toString(),
+          activityCategoryId: widget.activitiCategoryId.toString(),
+          activityTypeId: widget.activityTypeId.toString(),
+          brandId: '1',
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = ref.watch(issuesModelProvider);
+    final labelService = LabelService();
+
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F7FB),
+        body: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () => NavigationService.goBack(),
+                            child: const Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            labelService.getLabel(121),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const Spacer(),
+                          InkWell(
+                            onTap: () {
+                              _openFilterSheet();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.08),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.filter_alt_outlined,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        widget.storeName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        widget.activityCategoryName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.access_time_filled,
+                              color: AppColors.primary,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${labelService.getLabel(14)} ${widget.checkInTime}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: viewModel.loader
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 90),
+                          children: const [],
+                        ),
+                ),
+              ],
+            ),
+            _AddDeploymentButton(onTap: () {
+              _openAddDeploymentSheet(viewModel);
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Deployment Category',
+                    style: TextStyle(
+                      color: Color(0xFF111827),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      height: 36,
+                      width: 36,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF2F3F5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        size: 18,
+                        color: Color(0xFF111827),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                widget.activityCategoryName,
+                style: const TextStyle(
+                  color: Color(0xFF111827),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Store: ${widget.storeName}',
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -102,640 +362,342 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
     );
   }
 
-  TextEditingController searchController = TextEditingController();
+  void _openAddDeploymentSheet(IssuesViewModel viewModel) {
+    // reset inputs each time sheet opens
+    descriptionController.clear();
+    barcodeController.clear();
+    viewModel.beforeActivityImages.clear();
 
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      loadUserAndFetchActivity();
-    });
-  }
-
-  Future<void> loadUserAndFetchActivity() async {
-    await ref
-        .read(issuesModelProvider.notifier)
-        .getMarketActivityList(
-          storeId: widget.storeId.toString(),
-          activityCategoryId: widget.activitiCategoryId.toString(),
-          activityTypeId: widget.activityTypeId.toString(),
-          brandId: '1',
-        );
-  }
-
-  Future<void> _showLogoutDialog(
-    BuildContext context,
-
-    void Function()? onPressed,
-  ) async {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      barrierDismissible: false, // Prevent closing by tapping outside
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: AppColors.secondary,
-            title: Text(
-              LabelService().getLabel(100),
-              style: TextStyle(color: AppColors.whiteColor),
-            ),
-            content: Text(
-              LabelService().getLabel(99),
-              style: TextStyle(color: AppColors.whiteColor),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(), // Close dialog
-                child: Text(
-                  LabelService().getLabel(94),
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) {
+        bool localSubmitting = false;
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
               ),
-              TextButton(
-                onPressed: onPressed,
-                child: Text(
-                  LabelService().getLabel(95),
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
-              ),
-            ],
-          ),
-    );
-  }
-
-  TextEditingController descriptionController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    final viewModel = ref.watch(issuesModelProvider);
-
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: AppColors.whiteColor,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      NavigationService.goBack();
-                    },
-                    child: Image.asset(
-                      AppIcons.backArrow,
-                      height: 30,
-                      width: 30,
-                    ),
-                  ),
-                  Text(
-                    LabelService().getLabel(121),
-                    style: TextStyle(
-                      color: AppColors.blackColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Image.asset(
-                    AppIcons.locationIcon,
-                    height: 30,
-                    width: 30,
-                    color: AppColors.whiteColor,
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 5),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(color: AppColors.primary, height: 0),
-            ),
-            SizedBox(height: 5),
-            Center(
-              child: Text(
-                widget.storeName,
-                style: TextStyle(
-                  color: AppColors.blackColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Center(
-              child: Text(
-                '${LabelService().getLabel(14)} ${widget.checkInTime}',
-                style: TextStyle(
-                  color: AppColors.blackColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-
-            Container(
-              decoration: BoxDecoration(color: AppColors.secondary),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Column(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          widget.activityCategoryName,
-                          style: TextStyle(
-                            color: AppColors.whiteColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            Expanded(
-              child: ListView(
-                children: [
-                  SizedBox(height: 10),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.blackColor),
-                    ),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 10),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                ),
-                                child: TextField(
-                                  controller: descriptionController,
-                                  maxLines: 3,
-                                  minLines: 2,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: LabelService().getLabel(118),
-                                    contentPadding: EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              BarcodeScannerUI(),
-                              SizedBox(height: 10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          if (viewModel
-                                                  .beforeActivityImages
-                                                  .length <
-                                              4) {
-                                            _showImagePickerDialog();
-                                          } else {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  LabelService().getLabel(114),
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        },
-                                        child: Container(
-                                          height: 80,
-                                          width: 80,
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey.shade100,
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                          child: const Center(
-                                            child: Icon(
-                                              Icons.camera_alt,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      SizedBox(
-                                        height: 80,
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          physics:
-                                              NeverScrollableScrollPhysics(),
-                                          scrollDirection: Axis.horizontal,
-                                          itemCount:
-                                              viewModel
-                                                  .beforeActivityImages
-                                                  .length,
-                                          itemBuilder: (context, index) {
-                                            final file =
-                                                viewModel
-                                                    .beforeActivityImages[index];
-                                            return Stack(
-                                              children: [
-                                                Container(
-                                                  margin: const EdgeInsets.only(
-                                                    right: 10,
-                                                  ),
-                                                  height: 70,
-                                                  width: 80,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          8,
-                                                        ),
-                                                    image: DecorationImage(
-                                                      image: FileImage(file),
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Positioned(
-                                                  top: 4,
-                                                  right: 4,
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      viewModel
-                                                          .beforeActivityImages
-                                                          .removeAt(index);
-                                                      viewModel
-                                                          .notifyListeners();
-                                                    },
-                                                    child: Container(
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                            color:
-                                                                AppColors
-                                                                    .secondary,
-                                                            shape:
-                                                                BoxShape.circle,
-                                                          ),
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                            4,
-                                                          ),
-                                                      child: const Icon(
-                                                        Icons.close,
-                                                        size: 16,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: SizedBox(
-                            // width: double.infinity,
-                            height: 50,
-                            child:
-                                viewModel.loader
-                                    ? Center(child: CircularProgressIndicator())
-                                    : ElevatedButton(
-                                      onPressed: () async {
-                                        if (descriptionController
-                                            .text
-                                            .isEmpty) {
-                                          AppSnackBar.showError(
-                                            context,
-                                            LabelService().getLabel(157),
-                                          );
-                                        } else if (viewModel
-                                            .beforeActivityImages
-                                            .isEmpty) {
-                                          AppSnackBar.showError(
-                                            context,
-                                            LabelService().getLabel(115),
-                                          );
-                                        } else {
-                                          await viewModel.marketActivityAdd(
-                                            storeID: widget.storeId.toString(),
-                                            activityTypeId:
-                                                widget.activityTypeId
-                                                    .toString(),
-                                            activityCategoryId:
-                                                widget.activitiCategoryId
-                                                    .toString(),
-                                            brandId: '1',
-                                            activityDescription:
-                                                descriptionController.text,
-                                            statusId: '1',
-                                            quantity: '1',
-                                            deployementReason: '1',
-                                            beforeActivityPictures:
-                                                viewModel.beforeActivityImages,
-                                          );
-                                          descriptionController.clear();
-                                          viewModel.beforeActivityImages
-                                              .clear();
-                                          setState(() {});
-
-                                          viewModel.notifyListeners();
-                                        }
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius
-                                                  .zero, // Removes rounded corners
-                                        ),
-                                        backgroundColor: AppColors.secondary,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          const Text(
-                                            "Submit",
-                                            style: TextStyle(
-                                              color: AppColors.whiteColor,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  GestureDetector(
-                    onTap: () {
-                      //
-                    },
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 12),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.darkGreyBackground,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            LabelService().getLabel(120),
+                          const Text(
+                            'Add New Deployment',
                             style: TextStyle(
-                              color: AppColors.secondary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF111827),
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: Container(
+                              height: 36,
+                              width: 36,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFF2F3F5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                size: 18,
+                                color: Color(0xFF111827),
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 12),
-                    child: const Divider(color: AppColors.primary, height: 5),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          right: 8,
-                          top: 5,
-                          bottom: 10,
+                      const SizedBox(height: 12),
+                      Divider(color: Colors.grey.shade300, height: 1),
+                      const SizedBox(height: 16),
+
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Text(
-                          LabelService().getLabel(56),
-                          style: TextStyle(
-                            color: AppColors.greyText,
-                            fontSize: 12,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: TextField(
+                          controller: descriptionController,
+                          maxLines: 3,
+                          minLines: 2,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: LabelService().getLabel(118),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                            ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  ListView.builder(
-                    itemCount: viewModel.marketActivityList.length,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return InkWell(
-                        onLongPress: () {
-                          _showLogoutDialog(context, () async {
-                            NavigationService.goBack();
-
-                            await viewModel.removeActivity(
-                              activityId:
-                                  viewModel.marketActivityList[index].activityID
-                                      .toString(),
-                              activityTypeId:
-                                  viewModel
-                                      .marketActivityList[index]
-                                      .activityTypeID
-                                      .toString(),
-                            );
-                            await loadUserAndFetchActivity();
-                          });
-                        },
-                        child: Column(
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 8),
-                                  child: Text(
-                                    '${index + 1}.',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
-                                        child: SizedBox(
-                                          width: 190,
-                                          // color: Colors.red,
-                                          child: Text(
-                                            '${viewModel.marketActivityList[index].activityTypeName} - ${viewModel.marketActivityList[index].activityCategoryName}',
-                                            style: TextStyle(
-                                              color: AppColors.blackColor,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
-                                        child: SizedBox(
-                                          width: 190,
-                                          // color: Colors.red,
-                                          child: Text(
-                                            viewModel
-                                                .marketActivityList[index]
-                                                .activityDescription
-                                                .toString(),
-                                            style: TextStyle(
-                                              color: AppColors.greyText,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(height: 15),
-
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
-                                        child: Text(
-                                          '${LabelService().getLabel(159)}: ${viewModel.marketActivityList[index].activityDateTime}}',
-                                          style: TextStyle(
-                                            color: AppColors.blackColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(height: 5),
-
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
-                                        child: Text(
-                                          '${LabelService().getLabel(160)}: ${viewModel.marketActivityList[index].quantity}',
-                                          style: TextStyle(
-                                            color: AppColors.blackColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          SizedBox(height: 10),
-
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                            ),
-                                            child: CachedNetworkImage(
-                                              //
-                                              imageUrl:
-                                                  '${ApiConstants.baseUrl}/${viewModel.marketActivityList[index].imageActivity}',
-                                              // imageUrl:
-                                              //     '${ApiConstants.baseUrl}${viewModel.viewPicture[index].column1 ?? ''}',
-                                              height: 120,
-                                              width:
-                                                  MediaQuery.of(
-                                                    context,
-                                                  ).size.width,
-
-                                              placeholder:
-                                                  (context, url) =>
-                                                      Shimmer.fromColors(
-                                                        baseColor:
-                                                            Colors.grey[300]!,
-                                                        highlightColor:
-                                                            Colors.grey[100]!,
-                                                        child: Container(
-                                                          height: 120,
-                                                          width:
-                                                              MediaQuery.of(
-                                                                context,
-                                                              ).size.width,
-
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                              errorWidget:
-                                                  (context, url, error) => Icon(
-                                                    Icons.error,
-                                                  ), // optional error widget
-                                              fit: BoxFit.cover, // optional fit
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            Divider(
-                              color: Colors.grey[300],
-                              thickness: 1,
-                              indent: 12,
-                              endIndent: 12,
+                      const SizedBox(height: 10),
+                      BarcodeScannerUI(
+                        controller: barcodeController,
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFFFD8B2)),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x0F000000),
+                              blurRadius: 8,
+                              offset: Offset(0, 3),
                             ),
                           ],
                         ),
-                      );
-                    },
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                if (viewModel.beforeActivityImages.length < 4) {
+                                  _showImagePickerDialog();
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        LabelService().getLabel(114),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Container(
+                                height: 90,
+                                width: 90,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF4E8),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: const Color(0xFFFFD8B2),
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Icon(
+                                      Icons.camera_alt,
+                                      color: AppColors.primary,
+                                      size: 28,
+                                    ),
+                                    SizedBox(height: 6),
+                                    Text(
+                                      'Add Photo',
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: SizedBox(
+                                height: 90,
+                                child: viewModel.beforeActivityImages.isEmpty
+                                    ? Center(
+                                        child: Text(
+                                          'No photos added',
+                                          style: TextStyle(
+                                            color: Colors.grey.shade500,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      )
+                                    : ListView.builder(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: viewModel
+                                            .beforeActivityImages.length,
+                                        itemBuilder: (context, index) {
+                                          final file = viewModel
+                                              .beforeActivityImages[index];
+                                          return Stack(
+                                            children: [
+                                              Container(
+                                                margin: const EdgeInsets.only(
+                                                  right: 10,
+                                                ),
+                                                height: 90,
+                                                width: 100,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  border: Border.all(
+                                                    color:
+                                                        const Color(0xFFFFD8B2),
+                                                  ),
+                                                  image: DecorationImage(
+                                                    image: FileImage(file),
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: 6,
+                                                right: 6,
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    viewModel
+                                                        .beforeActivityImages
+                                                        .removeAt(index);
+                                                    viewModel.notifyListeners();
+                                                    setModalState(() {});
+                                                  },
+                                                  child: Container(
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                      color: Colors.black54,
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    padding:
+                                                        const EdgeInsets.all(4),
+                                                    child: const Icon(
+                                                      Icons.close,
+                                                      size: 16,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: localSubmitting || viewModel.loader
+                            ? const Center(
+                                child: CircularProgressIndicator(),
+                              )
+                            : ElevatedButton(
+                                onPressed: () async {
+                                  if (descriptionController.text.isEmpty) {
+                                    AppSnackBar.showError(
+                                      context,
+                                      LabelService().getLabel(157),
+                                    );
+                                    return;
+                                  }
+                                  if (viewModel.beforeActivityImages.isEmpty) {
+                                    AppSnackBar.showError(
+                                      context,
+                                      LabelService().getLabel(115),
+                                    );
+                                    return;
+                                  }
+                                  setModalState(() {
+                                    localSubmitting = true;
+                                  });
+                                  await viewModel.marketActivityAdd(
+                                    storeID: widget.storeId.toString(),
+                                    activityTypeId:
+                                        widget.activityTypeId.toString(),
+                                    activityCategoryId:
+                                        widget.activitiCategoryId.toString(),
+                                    brandId: '1',
+                                    activityDescription:
+                                        descriptionController.text,
+                                    statusId: '1',
+                                    quantity: '1',
+                                    deployementReason: '1',
+                                    beforeActivityPictures:
+                                        viewModel.beforeActivityImages,
+                                  );
+                                  descriptionController.clear();
+                                  viewModel.beforeActivityImages.clear();
+                                  setModalState(() {
+                                    localSubmitting = false;
+                                  });
+                                  if (mounted) Navigator.pop(context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Submit",
+                                  style: TextStyle(
+                                    color: AppColors.whiteColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _AddDeploymentButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _AddDeploymentButton({Key? key, required this.onTap}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: GestureDetector(
+            onTap: onTap,
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Center(
+                child: Text(
+                  'Add New Deployment',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -743,43 +705,24 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
 }
 
 class BarcodeScannerUI extends StatefulWidget {
-  const BarcodeScannerUI({super.key});
+  final TextEditingController controller;
+  const BarcodeScannerUI({Key? key, required this.controller}) : super(key: key);
 
   @override
   State<BarcodeScannerUI> createState() => _BarcodeScannerUIState();
 }
 
 class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
-  final TextEditingController _barcodeController = TextEditingController();
-  final List<String> scannedCodes = [];
+  bool hasScanned = false;
+  MobileScannerController cameraController = MobileScannerController();
+  bool _torchOn = false;
+  bool _showScanner = false;
 
-  void _addCode() {
-    final code = _barcodeController.text.trim();
-    if (code.isNotEmpty) {
-      setState(() {
-        scannedCodes.add(code);
-        _barcodeController.clear();
-      });
-    }
-  }
-
-  void _removeCode(int index) {
-    setState(() {
-      scannedCodes.removeAt(index);
-    });
-  }
-
-  void _openQRScanner() async {
-    final scannedCode = await Navigator.push<String>(
-      context,
-      MaterialPageRoute(builder: (_) => const QRScannerScreen()),
+  void _handleScan(String value) {
+    widget.controller.text = value;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Barcode: $value')),
     );
-
-    if (scannedCode != null && scannedCode.trim().isNotEmpty) {
-      setState(() {
-        scannedCodes.add(scannedCode.trim());
-      });
-    }
   }
 
   @override
@@ -787,162 +730,99 @@ class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        /// Input Row
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _barcodeController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter Scan Code',
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: _addCode,
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.add, color: Colors.white),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                GestureDetector(
-                  onTap: _openQRScanner,
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.qr_code_scanner, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-
-        /// Table Header
         Container(
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.black),
-            color: Colors.grey.shade200,
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: Text('#', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-              Expanded(
-                flex: 4,
-                child: Text(
-                  'Scan Code',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Text(
-                  LabelService().getLabel(149),
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        /// Table List
-        ...List.generate(scannedCodes.length, (index) {
-          return Container(
-            decoration: BoxDecoration(
-              border: Border(
-                left: BorderSide(color: Colors.black),
-                right: BorderSide(color: Colors.black),
-                bottom: BorderSide(color: Colors.black),
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-            child: Row(
-              children: [
-                Expanded(flex: 1, child: Text('${index + 1}')),
-                Expanded(flex: 4, child: Text(scannedCodes[index])),
-                Expanded(
-                  flex: 2,
-                  child: IconButton(
-                    onPressed: () => _removeCode(index),
-                    icon: Icon(Icons.cancel, color: Colors.orange),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-
-        /// Table Footer
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.black),
             color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(10),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
-              const Expanded(
-                flex: 5,
-                child: Text(
-                  'Total Count',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
+              const Icon(Icons.qr_code_scanner, color: AppColors.primary),
+              const SizedBox(width: 8),
               Expanded(
-                flex: 2,
-                child: Text(
-                  '${scannedCodes.length}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                child: TextField(
+                  controller: widget.controller,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter / Scan Barcode',
+                    border: InputBorder.none,
+                    isDense: true,
+                  ),
                 ),
               ),
             ],
           ),
         ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ElevatedButton(
+            onPressed: () {
+              setState(() {
+                hasScanned = false;
+                _showScanner = !_showScanner;
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              _showScanner ? 'Hide Scanner' : 'Scan Barcode',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+        if (_showScanner) ...[
+          const SizedBox(height: 8),
+          Container(
+            height: 200,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade400),
+            ),
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: MobileScanner(
+                    controller: cameraController,
+                    onDetect: (capture) {
+                      if (hasScanned) return;
+                      final barcodes = capture.barcodes;
+                      for (final barcode in barcodes) {
+                        final String? rawValue = barcode.rawValue;
+                        if (rawValue != null) {
+                          hasScanned = true;
+                          _handleScan(rawValue);
+                          break;
+                        }
+                      }
+                    },
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: IconButton(
+                    icon: Icon(_torchOn ? Icons.flash_on : Icons.flash_off),
+                    color: Colors.white,
+                    onPressed: () async {
+                      await cameraController.toggleTorch();
+                      setState(() {
+                        _torchOn = !_torchOn;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
-    );
-  }
-}
-
-class QRScannerScreen extends StatelessWidget {
-  const QRScannerScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Scan QR Code')),
-      body: MobileScanner(
-        onDetect: (BarcodeCapture capture) {
-          final List<Barcode> barcodes = capture.barcodes;
-          if (barcodes.isNotEmpty) {
-            final String? code = barcodes.first.rawValue;
-            if (code != null) {
-              Navigator.pop(context, code);
-            }
-          }
-        },
-      ),
     );
   }
 }

@@ -902,176 +902,173 @@ class _ProductCardState extends ConsumerState<ProductCard> {
         child: Stack(
           children: [
             Positioned.fill(
+              left: 10,
+              top: 12,
               child: Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  width: 34,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.primary,
-                        AppColors.primary.withOpacity(0.8),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(18),
-                      bottomLeft: Radius.circular(18),
-                    ),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '${widget.index + 1}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
-                    ),
+                alignment: Alignment.topLeft,
+                child: Text(
+                  '${widget.index + 1}. ',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    color: Color(0xFF111827),
+                    height: 1.2,
                   ),
                 ),
               ),
             ),
+
             Padding(
-              padding: const EdgeInsets.fromLTRB(50, 12, 14, 14),
+              padding: const EdgeInsets.fromLTRB(0, 12, 14, 14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 16,
-                            color: Color(0xFF111827),
-                            height: 1.2,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 30),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              color: Color(0xFF111827),
+                              height: 1.2,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      widget.optionWidget,
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
-                  TextField(
-                    controller: controller,
-                    onChanged: (value) {
-                      viewModel.addOrUpdateChecklistEntry(
-                        ChecklistEntry(
-                          token: viewModel.user?.apiToken ?? '',
-                          checklistAuditID:
-                              viewModel
-                                          .checkListSubmitView[widget.index]
-                                          .checklistAuditID ==
-                                      null
-                                  ? '0'
-                                  : viewModel
-                                      .checkListSubmitView[widget.index]
-                                      .checklistAuditID,
-                          checkListID:
-                              viewModel
-                                  .checkListSubmitView[widget.index]
-                                  .checklistID
-                                  .toString(),
-                          storeID: widget.storeId.toString(),
-                          teamMemberID:
-                              viewModel.user?.teamMemberID.toString() ?? '',
-                          visitID: widget.visitId.toString(),
-                          description: value,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: TextField(
+                      controller: controller,
+                      onChanged: (value) {
+                        viewModel.addOrUpdateChecklistEntry(
+                          ChecklistEntry(
+                            token: viewModel.user?.apiToken ?? '',
+                            checklistAuditID:
+                                viewModel
+                                            .checkListSubmitView[widget.index]
+                                            .checklistAuditID ==
+                                        null
+                                    ? '0'
+                                    : viewModel
+                                        .checkListSubmitView[widget.index]
+                                        .checklistAuditID,
+                            checkListID:
+                                viewModel
+                                    .checkListSubmitView[widget.index]
+                                    .checklistID
+                                    .toString(),
+                            storeID: widget.storeId.toString(),
+                            teamMemberID:
+                                viewModel.user?.teamMemberID.toString() ?? '',
+                            visitID: widget.visitId.toString(),
+                            description: value,
+                          ),
+                        );
+                      },
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: LabelService().getLabel(66),
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
                         ),
-                      );
-                    },
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      hintText: LabelService().getLabel(66),
-                      hintStyle: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFFF7F8FB),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300,
-                          width: 1.2,
+                        filled: true,
+                        fillColor: const Color(0xFFF7F8FB),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(
-                          color: AppColors.primary,
-                          width: 1.4,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade300,
+                            width: 1.2,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1.4,
+                          ),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: widget.onPickImage,
-                        child: Container(
-                          height: 70,
-                          width: 70,
-                          decoration: BoxDecoration(
-                            color: AppColors.lightGreyBackground,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.grey.shade300,
-                              width: 1,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: widget.onPickImage,
+                          child: Container(
+                            height: 70,
+                            width: 70,
+                            decoration: BoxDecoration(
+                              color: AppColors.lightGreyBackground,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.grey.shade300,
+                                width: 1,
+                              ),
                             ),
-                          ),
-                          child:
-                              (widget.imagePath != null &&
-                                      widget.imagePath!.isNotEmpty)
-                                  ? Stack(
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(12),
-                                        child: Image.file(
-                                          File(widget.imagePath!),
-                                          fit: BoxFit.cover,
-                                          width: 70,
-                                          height: 70,
+                            child:
+                                (widget.imagePath != null &&
+                                        widget.imagePath!.isNotEmpty)
+                                    ? Stack(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          child: Image.file(
+                                            File(widget.imagePath!),
+                                            fit: BoxFit.cover,
+                                            width: 70,
+                                            height: 70,
+                                          ),
                                         ),
-                                      ),
-                                      Positioned(
-                                        top: 4,
-                                        right: 4,
-                                        child: GestureDetector(
-                                          onTap: widget.onRemoveImage,
-                                          child: Container(
-                                            decoration: const BoxDecoration(
-                                              color: Colors.black54,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            padding: const EdgeInsets.all(4),
-                                            child: const Icon(
-                                              Icons.close,
-                                              size: 16,
-                                              color: Colors.white,
+                                        Positioned(
+                                          top: 4,
+                                          right: 4,
+                                          child: GestureDetector(
+                                            onTap: widget.onRemoveImage,
+                                            child: Container(
+                                              decoration: const BoxDecoration(
+                                                color: Colors.black54,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              padding: const EdgeInsets.all(4),
+                                              child: const Icon(
+                                                Icons.close,
+                                                size: 16,
+                                                color: Colors.white,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  )
-                                  : const Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.black54,
-                                    size: 28,
-                                  ),
+                                      ],
+                                    )
+                                    : const Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.black54,
+                                      size: 28,
+                                    ),
+                          ),
                         ),
-                      ),
-                    ],
+                        widget.optionWidget,
+                      ],
+                    ),
                   ),
                 ],
               ),

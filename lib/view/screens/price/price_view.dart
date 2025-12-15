@@ -54,13 +54,14 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
               final brandMatch = entry.key.toLowerCase().contains(query);
               if (brandMatch) return entry;
 
-              final filteredProducts = entry.value
-                  .where(
-                    (item) => (item.productCategoryName ?? '')
-                        .toLowerCase()
-                        .contains(query),
-                  )
-                  .toList();
+              final filteredProducts =
+                  entry.value
+                      .where(
+                        (item) => (item.productCategoryName ?? '')
+                            .toLowerCase()
+                            .contains(query),
+                      )
+                      .toList();
 
               if (filteredProducts.isEmpty) return null;
               return MapEntry(entry.key, filteredProducts);
@@ -216,9 +217,10 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: TextField(
-                    onChanged: (value) => setState(() {
-                      _searchQuery = value;
-                    }),
+                    onChanged:
+                        (value) => setState(() {
+                          _searchQuery = value;
+                        }),
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: 'Search',
@@ -226,8 +228,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                         Icons.search,
                         color: Colors.grey.shade600,
                       ),
-                      contentPadding:
-                          const EdgeInsets.symmetric(vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
                 ),
@@ -281,26 +282,26 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                     0),
                           );
 
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x19000000),
-                                  blurRadius: 14,
-                                  offset: Offset(0, 6),
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 14,
                                 ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Color(0x19000000),
+                                      blurRadius: 14,
+                                      offset: Offset(0, 6),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
@@ -332,270 +333,300 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              labelService.getLabel(67),
-                                              style: TextStyle(
-                                                color: AppColors.primary,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w700,
+                                        SizedBox(
+                                          width: 50,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                labelService.getLabel(67),
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  color: AppColors.primary,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
                                               ),
-                                            ),
-                                            Text(
-                                              '$totalModelCount',
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold,
+                                              Text(
+                                                '$totalModelCount',
+                                                style: const TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                        const SizedBox(width: 12),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              labelService.getLabel(68),
-                                              style: TextStyle(
-                                                color: AppColors.primary,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w700,
+                                        const SizedBox(width: 10),
+                                        SizedBox(
+                                          width: 60,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                labelService.getLabel(68),
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  color: AppColors.primary,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
                                               ),
-                                            ),
-                                            Text(
-                                              '$totalUpdatedCount',
-                                              style: const TextStyle(
-                                                color: Colors.orange,
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold,
+                                              Text(
+                                                '$totalUpdatedCount',
+                                                style: const TextStyle(
+                                                  color: Colors.orange,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 12),
-                                Divider(
-                                  color: Colors.grey.shade300,
-                                  thickness: 1,
-                                ),
-                                const SizedBox(height: 8),
-                                ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: products.length,
-                                  itemBuilder: (context, listIndex) {
-                                    final item = products[listIndex];
-                                    final isUpdated =
-                                        item.updatedBy?.toString() == '1';
+                              ),
+                              const SizedBox(height: 10),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: products.length,
+                                itemBuilder: (context, listIndex) {
+                                  final item = products[listIndex];
+                                  final isUpdated =
+                                      item.updatedBy?.toString() == '1';
 
-                                    return Column(
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            NavigationService.navigateTo(
-                                              PriceSubmit(
-                                                storeName: widget.storeName,
-                                                checkInTime: widget.checkInTime,
-                                                storeId: widget.storeId,
-                                                brandId: item.brandID ?? 0,
-                                                visiteId: widget.visiteId,
-                                                productCategoryId:
-                                                    item.productCategoryID ?? 0,
-                                                productName:
-                                                    item.productCategoryName
-                                                        .toString(),
-                                                brandName:
-                                                    item.brandName.toString(),
-                                              ),
-                                            );
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 8,
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        right: 8,
-                                                      ),
-                                                  child: Text(
-                                                    '${listIndex + 1}.',
-                                                    style: const TextStyle(
-                                                      color:
-                                                          AppColors.blackColor,
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
+                                  return Padding(
+                                    padding:
+                                        const EdgeInsets.only(bottom: 10),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(12),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Color(0x14000000),
+                                            blurRadius: 10,
+                                            offset: Offset(0, 4),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          Positioned(
+                                            left: 0,
+                                            top: 0,
+                                            bottom: 0,
+                                            child: Container(
+                                              width: 30,
+                                              decoration: const BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Color(0xFF111827),
+                                                    Color(0xFF0B1120),
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
                                                 ),
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        item.productCategoryName
-                                                                ?.toString() ??
-                                                            '',
-                                                        style: TextStyle(
-                                                          color:
-                                                              AppColors
-                                                                  .blackColor,
-                                                          fontSize: 15,
-                                                          fontWeight:
-                                                              FontWeight.w500,
+                                                borderRadius:
+                                                    BorderRadius.only(
+                                                  topLeft: Radius.circular(12),
+                                                  bottomLeft:
+                                                      Radius.circular(12),
+                                                ),
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                '${listIndex + 1}',
+                                                style: const TextStyle(
+                                                  color: AppColors.whiteColor,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () {
+                                              NavigationService.navigateTo(
+                                                PriceSubmit(
+                                                  storeName: widget.storeName,
+                                                  checkInTime:
+                                                      widget.checkInTime,
+                                                  storeId: widget.storeId,
+                                                  brandId: item.brandID ?? 0,
+                                                  visiteId: widget.visiteId,
+                                                  productCategoryId: item
+                                                          .productCategoryID ??
+                                                      0,
+                                                  productName: item
+                                                      .productCategoryName
+                                                      .toString(),
+                                                  brandName: item.brandName
+                                                      .toString(),
+                                                ),
+                                              );
+                                            },
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                40,
+                                                12,
+                                                12,
+                                                12,
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          item.productCategoryName
+                                                                  ?.toString() ??
+                                                              '',
+                                                          style: TextStyle(
+                                                            color: AppColors
+                                                                .blackColor,
+                                                            fontSize: 15,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
                                                         ),
-                                                      ),
-                                                      const SizedBox(height: 4),
-                                                      Container(
-                                                        padding:
-                                                            const EdgeInsets.symmetric(
-                                                              horizontal: 8,
-                                                              vertical: 4,
+                                                        const SizedBox(
+                                                          height: 4,
+                                                        ),
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 4,
+                                                          ),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: isUpdated
+                                                                ? AppColors
+                                                                    .primary
+                                                                    .withOpacity(
+                                                                      0.12,
+                                                                    )
+                                                                : Colors.grey
+                                                                    .shade200,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                              8,
                                                             ),
-                                                        decoration: BoxDecoration(
-                                                          color:
-                                                              isUpdated
+                                                          ),
+                                                          child: Text(
+                                                            isUpdated
+                                                                ? 'Updated'
+                                                                : 'Pending',
+                                                            style: TextStyle(
+                                                              color: isUpdated
                                                                   ? AppColors
                                                                       .primary
-                                                                      .withOpacity(
-                                                                        0.12,
-                                                                      )
-                                                                  : Colors
-                                                                      .grey
-                                                                      .shade200,
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                8,
-                                                              ),
-                                                        ),
-                                                        child: Text(
-                                                          isUpdated
-                                                              ? 'Updated'
-                                                              : 'Pending',
-                                                          style: TextStyle(
-                                                            color:
-                                                                isUpdated
-                                                                    ? AppColors
-                                                                        .primary
-                                                                    : Colors
-                                                                        .grey
-                                                                        .shade600,
-                                                            fontSize: 11,
-                                                            fontWeight:
-                                                                FontWeight.w600,
+                                                                  : Colors.grey
+                                                                      .shade600,
+                                                              fontSize: 11,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                            ),
                                                           ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      SizedBox(
+                                                        width: 50,
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            const SizedBox(
+                                                              height: 4,
+                                                            ),
+                                                            Text(
+                                                              item.noOfModels
+                                                                      ?.toString() ??
+                                                                  '0',
+                                                              style:
+                                                                  const TextStyle(
+                                                                color:
+                                                                    Colors.black,
+                                                                fontSize: 15,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 12,
+                                                      ),
+                                                      SizedBox(
+                                                        width: 60,
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            const SizedBox(
+                                                              height: 4,
+                                                            ),
+                                                            Text(
+                                                              item.nofModelUpdated ??
+                                                                  '0',
+                                                              style:
+                                                                  const TextStyle(
+                                                                color: Colors
+                                                                    .orange,
+                                                                fontSize: 15,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
                                                       ),
                                                     ],
                                                   ),
-                                                ),
-                                                Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Text(
-                                                          labelService.getLabel(
-                                                            67,
-                                                          ),
-                                                          style: TextStyle(
-                                                            color:
-                                                                Colors
-                                                                    .grey
-                                                                    .shade600,
-                                                            fontSize: 11,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          item.noOfModels
-                                                                  ?.toString() ??
-                                                              '0',
-                                                          style:
-                                                              const TextStyle(
-                                                                color:
-                                                                    Colors
-                                                                        .black,
-                                                                fontSize: 15,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    const SizedBox(width: 12),
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Text(
-                                                          labelService.getLabel(
-                                                            68,
-                                                          ),
-                                                          style: TextStyle(
-                                                            color:
-                                                                Colors
-                                                                    .grey
-                                                                    .shade600,
-                                                            fontSize: 11,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          item.nofModelUpdated ??
-                                                              '0',
-                                                          style:
-                                                              const TextStyle(
-                                                                color:
-                                                                    Colors
-                                                                        .orange,
-                                                                fontSize: 15,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        Divider(color: Colors.grey.shade300),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
                           );
                         },
                       ),

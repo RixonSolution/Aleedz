@@ -226,13 +226,15 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               );
-                          final bool isPrefilled = viewModel.checklistEntries.any(
-                            (e) =>
-                                e.checkListID ==
-                                    activity.checklistCategoryID?.toString() &&
-                                ((e.checkListStatus?.isNotEmpty ?? false) ||
-                                    (e.description?.isNotEmpty ?? false)),
-                          );
+                          final bool isPrefilled = viewModel.checklistEntries
+                              .any(
+                                (e) =>
+                                    e.checkListID ==
+                                        activity.checklistCategoryID
+                                            ?.toString() &&
+                                    ((e.checkListStatus?.isNotEmpty ?? false) ||
+                                        (e.description?.isNotEmpty ?? false)),
+                              );
 
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8),
@@ -296,14 +298,16 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
                                             boxShadow:
                                                 isPrefilled
                                                     ? [
-                                                        BoxShadow(
-                                                          color: AppColors.primary
-                                                              .withOpacity(0.35),
-                                                          blurRadius: 10,
-                                                          offset:
-                                                              const Offset(0, 4),
+                                                      BoxShadow(
+                                                        color: AppColors.primary
+                                                            .withOpacity(0.35),
+                                                        blurRadius: 10,
+                                                        offset: const Offset(
+                                                          0,
+                                                          4,
                                                         ),
-                                                      ]
+                                                      ),
+                                                    ]
                                                     : [],
                                           ),
                                           alignment: Alignment.center,
@@ -318,6 +322,7 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
                                         ),
                                       ),
                                     ),
+
                                     Padding(
                                       padding: const EdgeInsets.fromLTRB(
                                         56,

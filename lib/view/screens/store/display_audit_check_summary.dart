@@ -201,26 +201,26 @@ class _DisplayAuditCheckSummaryState
                         (sum, item) => sum + (item.displayCheckCount),
                       );
 
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x19000000),
-                              blurRadius: 14,
-                              offset: Offset(0, 6),
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color(0x19000000),
+                                  blurRadius: 14,
+                                  offset: Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Column(
@@ -295,124 +295,186 @@ class _DisplayAuditCheckSummaryState
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
-                            Divider(color: Colors.grey.shade300, thickness: 1),
-                            const SizedBox(height: 8),
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: brand.products.length,
-                              separatorBuilder:
-                                  (context, index) =>
-                                      Divider(color: Colors.grey.shade300),
-                              itemBuilder: (context, listIndex) {
-                                final item = brand.products[listIndex];
-                                return GestureDetector(
-                                  onTap: () {
-                                    NavigationService.navigateTo(
-                                      DisplayAuditCheck(
-                                        storeName: widget.storeName,
-                                        checkInTime: widget.checkInTime,
-                                        address: widget.address,
-                                        storeId: widget.storeId,
-                                        categoryId: item.productCategoryId,
-                                        categoryName: item.productCategoryName,
-                                        lastUpdate: item.lastUpdate,
-                                        updateBy: item.updateBy,
-                                        brandId: brand.brandId.toString(),
-                                        visitId: widget.visitId,
+                          ),
+                          const SizedBox(height: 10),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: brand.products.length,
+                            itemBuilder: (context, listIndex) {
+                              final item = brand.products[listIndex];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Color(0x14000000),
+                                        blurRadius: 10,
+                                        offset: Offset(0, 4),
                                       ),
-                                    );
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            right: 8,
+                                    ],
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      Positioned(
+                                        left: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        child: Container(
+                                          width: 30,
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Color(0xFF111827),
+                                                Color(0xFF0B1120),
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(12),
+                                              bottomLeft: Radius.circular(12),
+                                            ),
                                           ),
+                                          alignment: Alignment.center,
                                           child: Text(
-                                            '${listIndex + 1}.',
+                                            '${listIndex + 1}',
                                             style: const TextStyle(
-                                              color: AppColors.blackColor,
+                                              color: AppColors.whiteColor,
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
                                         ),
-                                        Expanded(
-                                          child: Text(
-                                            item.productCategoryName,
-                                            style: TextStyle(
-                                              color: AppColors.blackColor,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500,
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          NavigationService.navigateTo(
+                                            DisplayAuditCheck(
+                                              storeName: widget.storeName,
+                                              checkInTime: widget.checkInTime,
+                                              address: widget.address,
+                                              storeId: widget.storeId,
+                                              categoryId:
+                                                  item.productCategoryId,
+                                              categoryName:
+                                                  item.productCategoryName,
+                                              lastUpdate: item.lastUpdate,
+                                              updateBy: item.updateBy,
+                                              brandId: brand.brandId.toString(),
+                                              visitId: widget.visitId,
                                             ),
+                                          );
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                            40,
+                                            12,
+                                            12,
+                                            12,
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      item.productCategoryName,
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColors.blackColor,
+                                                        fontSize: 15,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      'Updated by: ${item.updateBy}',
+                                                      style: TextStyle(
+                                                        color: Colors
+                                                            .grey.shade600,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  SizedBox(
+                                                    width: 50,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        const SizedBox(
+                                                          height: 4,
+                                                        ),
+                                                        Text(
+                                                          item.modelCount
+                                                              .toString(),
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.black,
+                                                            fontSize: 15,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  SizedBox(
+                                                    width: 60,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        const SizedBox(
+                                                          height: 4,
+                                                        ),
+                                                        Text(
+                                                          item.displayCheckCount
+                                                              .toString(),
+                                                          style:
+                                                              const TextStyle(
+                                                            color:
+                                                                Colors.orange,
+                                                            fontSize: 15,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        Row(
-                                          children: [
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  'Model',
-                                                  style: TextStyle(
-                                                    color: Colors.grey.shade600,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  item.modelCount.toString(),
-                                                  style: const TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(width: 16),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  'Display',
-                                                  style: TextStyle(
-                                                    color: Colors.grey.shade600,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  item.displayCheckCount
-                                                      .toString(),
-                                                  style: const TextStyle(
-                                                    color: Colors.orange,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       );
                     },
                   ),

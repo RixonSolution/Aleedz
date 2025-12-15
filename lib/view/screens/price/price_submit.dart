@@ -125,6 +125,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
 
     Future.microtask(() async {
       final notifier = ref.read(priceModelProvider.notifier);
+      notifier.loader = true;
+      notifier.notifyListeners();
       await notifier.loadUser();
       if (notifier.brandList.isEmpty) {
         await notifier.getBrandDropDown();
@@ -141,6 +143,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
         storeId: widget.storeId.toString(),
         visiteId: widget.visiteId.toString(),
       );
+      notifier.loader = false;
+      notifier.notifyListeners();
     });
   }
 

@@ -62,7 +62,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
     );
   }
 
-  void _showImagePickerDialog() {
+  void _showImagePickerDialog({VoidCallback? onImagesUpdated}) {
     showDialog(
       context: context,
       builder: (context) {
@@ -123,9 +123,8 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                           .read(activityModelProvider.notifier)
                           .beforeActivityImages
                           .add(File(pickedImage.path));
-                      ref
-                          .read(activityModelProvider.notifier)
-                          .notifyListeners();
+                      ref.read(activityModelProvider.notifier).notifyListeners();
+                      onImagesUpdated?.call();
                     }
                   },
                 ),
@@ -153,9 +152,8 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                             .beforeActivityImages
                             .add(File(image.path));
                       }
-                      ref
-                          .read(activityModelProvider.notifier)
-                          .notifyListeners();
+                      ref.read(activityModelProvider.notifier).notifyListeners();
+                      onImagesUpdated?.call();
                     }
                   },
                 ),
@@ -596,9 +594,10 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  if (viewModel.beforeActivityImages.length <
-                                      4) {
-                                    _showImagePickerDialog();
+                                  if (viewModel.beforeActivityImages.length < 4) {
+                                    _showImagePickerDialog(
+                                      onImagesUpdated: () => setModalState(() {}),
+                                    );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(

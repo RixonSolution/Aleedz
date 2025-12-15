@@ -41,9 +41,12 @@ class IssuesViewModel extends ChangeNotifier {
     required String categoryTypeId,
   }) async {
     loader = true;
-
     issueList = [];
     notifyListeners();
+
+    if (user == null) {
+      await loadUser();
+    }
 
     final response = await _activityController.issueList(
       token: user?.apiToken ?? '',
@@ -52,17 +55,14 @@ class IssuesViewModel extends ChangeNotifier {
     );
 
     if (response != null && response["status"] == 200) {
-      final data = response["data"]['data'] as List;
+      final raw = response["data"]?['data'];
+      final data = raw is List ? raw : <dynamic>[];
       issueList = data.map((e) => ActivityCategoryModel.fromJson(e)).toList();
-      loader = false;
-
-      notifyListeners();
     } else {
-      loader = false;
-
-      notifyListeners();
       debugPrint("coverage list Error: ${response?['data']}");
     }
+    loader = false;
+    notifyListeners();
   }
 
   Future<void> removeActivity({
@@ -106,6 +106,10 @@ class IssuesViewModel extends ChangeNotifier {
     beforeActivityImages = [];
     notifyListeners();
 
+    if (user == null) {
+      await loadUser();
+    }
+
     final response = await _activityController.activityList(
       token: user?.apiToken ?? '',
       storeId: storeId,
@@ -116,20 +120,16 @@ class IssuesViewModel extends ChangeNotifier {
     );
 
     if (response != null && response["status"] == 200) {
-      final data = response["data"]['data'] as List;
+      final raw = response["data"]?['data'];
+      final data = raw is List ? raw : <dynamic>[];
       marketActivityList =
           data.map((e) => MarketActivityList.fromJson(e)).toList();
-      loader = false;
-
       print(marketActivityList);
-
-      notifyListeners();
     } else {
-      loader = false;
-
-      notifyListeners();
       debugPrint("activity list Error: ${response?['data']}");
     }
+    loader = false;
+    notifyListeners();
   }
 
   Future<void> marketActivityAdd({
