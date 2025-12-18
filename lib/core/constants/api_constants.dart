@@ -47,7 +47,9 @@ class ApiConstants {
 
   static String get coverageList =>
       "$baseUrl/Storelist.asmx/TeamMemberStoreList";
+  static String get regionList => "$baseUrl/W_WebService.asmx/RegionList";
   static String get coverageDropDown => "$baseUrl/WebService.asmx/ChannelList";
+  static String get signUp => "$baseUrl/W_WebMasterSetup.asmx/User_Add";
 
   static String get brandDropDown =>
       "$baseUrl/WebService.asmx/BrandList_General";

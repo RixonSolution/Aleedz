@@ -283,32 +283,11 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
                                         child: Container(
                                           width: 30,
                                           decoration: BoxDecoration(
-                                            color:
-                                                isPrefilled
-                                                    ? AppColors.primary
-                                                    : null,
-                                            gradient:
-                                                isPrefilled
-                                                    ? null
-                                                    : headerGradient,
+                                            gradient: headerGradient,
                                             borderRadius: BorderRadius.only(
                                               topLeft: Radius.circular(8),
                                               bottomLeft: Radius.circular(8),
                                             ),
-                                            boxShadow:
-                                                isPrefilled
-                                                    ? [
-                                                      BoxShadow(
-                                                        color: AppColors.primary
-                                                            .withOpacity(0.35),
-                                                        blurRadius: 10,
-                                                        offset: const Offset(
-                                                          0,
-                                                          4,
-                                                        ),
-                                                      ),
-                                                    ]
-                                                    : [],
                                           ),
                                           alignment: Alignment.center,
                                           child: Text(
@@ -326,9 +305,9 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
                                     Padding(
                                       padding: const EdgeInsets.fromLTRB(
                                         56,
-                                        6,
+                                        16,
                                         0,
-                                        6,
+                                        16,
                                       ),
                                       child: Column(
                                         crossAxisAlignment:
@@ -340,15 +319,6 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
                                               fontSize: 15,
                                               fontWeight: FontWeight.w800,
                                               color: AppColors.blackColor,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            'Tap to view details',
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              color: Colors.grey.shade700,
-                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ],

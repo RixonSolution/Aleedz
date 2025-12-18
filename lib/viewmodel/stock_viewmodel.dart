@@ -95,6 +95,7 @@ class StockViewModel extends ChangeNotifier {
   Future<void> checkSummary(int storeId, int brandId, int visitId) async {
     loader = true;
     brands = [];
+    await loadUser();
     notifyListeners();
     final response = await _stockController.stockSummary(
       storeId: storeId.toString(),

@@ -123,7 +123,9 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                           .read(activityModelProvider.notifier)
                           .beforeActivityImages
                           .add(File(pickedImage.path));
-                      ref.read(activityModelProvider.notifier).notifyListeners();
+                      ref
+                          .read(activityModelProvider.notifier)
+                          .notifyListeners();
                       onImagesUpdated?.call();
                     }
                   },
@@ -152,7 +154,9 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                             .beforeActivityImages
                             .add(File(image.path));
                       }
-                      ref.read(activityModelProvider.notifier).notifyListeners();
+                      ref
+                          .read(activityModelProvider.notifier)
+                          .notifyListeners();
                       onImagesUpdated?.call();
                     }
                   },
@@ -594,9 +598,11 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  if (viewModel.beforeActivityImages.length < 4) {
+                                  if (viewModel.beforeActivityImages.length <
+                                      4) {
                                     _showImagePickerDialog(
-                                      onImagesUpdated: () => setModalState(() {}),
+                                      onImagesUpdated:
+                                          () => setModalState(() {}),
                                     );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -816,6 +822,151 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
     );
   }
 
+  void _openFilterSheet(ActivityViewModel viewModel) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return AnimatedBuilder(
+              animation: viewModel,
+              builder: (context, _) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Filter Activities',
+                              style: TextStyle(
+                                color: Color(0xFF111827),
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () => Navigator.of(ctx).pop(),
+                              child: Container(
+                                height: 36,
+                                width: 36,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFF2F3F5),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 18,
+                                  color: Color(0xFF111827),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Divider(color: Colors.grey.shade300, height: 1),
+                        const SizedBox(height: 16),
+                        _fieldLabel('Activity Type'),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<int>(
+                          value: _selectedActivityType?.activityTypeID,
+                          decoration: _sheetInputDecoration(
+                            'Select Activity Type',
+                          ),
+                          items:
+                              viewModel.activityType
+                                  .map(
+                                    (type) => DropdownMenuItem<int>(
+                                      value: type.activityTypeID,
+                                      child: Text(type.activityTypeName ?? ''),
+                                    ),
+                                  )
+                                  .toList(),
+                          onChanged: (value) async {
+                            if (value == null) return;
+                            final selected =
+                                viewModel.activityType
+                                    .where((t) => t.activityTypeID == value)
+                                    .toList()
+                                    .first;
+                            setState(() {
+                              _selectedActivityType = selected;
+                              _selectedActivityCategory = null;
+                            });
+                            setModalState(() {});
+                            await _loadCategoriesForType(
+                              selected,
+                              modalRefresh: () => setModalState(() {}),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        _fieldLabel('Activity Category'),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<int>(
+                          value: _selectedActivityCategory?.activityCategoryID,
+                          decoration: _sheetInputDecoration(
+                            'Select Activity Category',
+                          ),
+                          items:
+                              viewModel.activityCategoryId
+                                  .map(
+                                    (cat) => DropdownMenuItem<int>(
+                                      value: cat.activityCategoryID,
+                                      child: Text(
+                                        cat.activityCategoryName ?? '',
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                          onChanged:
+                              (viewModel.activityCategoryId.isEmpty)
+                                  ? null
+                                  : (value) async {
+                                    if (value == null) return;
+                                    final selected =
+                                        viewModel.activityCategoryId
+                                            .where(
+                                              (c) =>
+                                                  c.activityCategoryID == value,
+                                            )
+                                            .toList()
+                                            .first;
+                                    setState(() {
+                                      _selectedActivityCategory = selected;
+                                    });
+                                    setModalState(() {});
+                                    Navigator.of(ctx).pop();
+                                    await _refreshActivityList();
+                                  },
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(ctx).padding.bottom + 24,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _createIssueButton(ActivityViewModel viewModel) {
     return SafeArea(
       child: Align(
@@ -937,6 +1088,38 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                             _headerTag(
                               Icons.check,
                               '${LabelService().getLabel(14)} ${widget.checkInTime}',
+                            ),
+                            InkWell(
+                              onTap: () async {
+                                await _ensureActivityTypesLoaded();
+                                if (_selectedActivityType == null &&
+                                    viewModel.activityType.isNotEmpty) {
+                                  final firstType =
+                                      viewModel.activityType.first;
+                                  setState(() {
+                                    _selectedActivityType = firstType;
+                                  });
+                                  await _loadCategoriesForType(firstType);
+                                } else if (_selectedActivityType != null &&
+                                    viewModel.activityCategoryId.isEmpty) {
+                                  await _loadCategoriesForType(
+                                    _selectedActivityType!,
+                                  );
+                                }
+                                _openFilterSheet(viewModel);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.filter_alt_outlined,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ),
                             ),
                           ],
                         ),

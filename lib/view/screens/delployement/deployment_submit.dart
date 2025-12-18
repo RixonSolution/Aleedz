@@ -1,13 +1,19 @@
 import 'dart:io';
+import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
+import 'package:aleedz/models/activity_category_Id_model.dart';
+import 'package:aleedz/models/market_activity_list.dart';
 import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/viewmodel/deployement_viewmodel.dart';
 import 'package:aleedz/viewmodel/issues_veiwmodel.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:shimmer/shimmer.dart';
 
 class DeployementSubmitView extends ConsumerStatefulWidget {
   String checkInTime, storeName, activityCategoryName;
@@ -31,8 +37,120 @@ class DeployementSubmitView extends ConsumerStatefulWidget {
 class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController barcodeController = TextEditingController();
+  final Map<int, int> _imagePageIndex = {};
+  ActivityCategoryModel? _selectedDeploymentCategory;
+  List<ActivityCategoryModel> _deploymentCategories = [];
+  List<String> _sheetBarcodes = [];
 
-  void _showImagePickerDialog() {
+  List<String> _imageUrls(MarketActivityList item) {
+    final urls = <String>[];
+    if (item.imageActivity != null && item.imageActivity!.isNotEmpty) {
+      urls.add(item.imageActivity!);
+    }
+    if (item.imageActivity2 != null && item.imageActivity2!.isNotEmpty) {
+      urls.add(item.imageActivity2!);
+    }
+    return urls;
+  }
+
+  String _initials(String? name) {
+    if (name == null || name.trim().isEmpty) return '';
+    final parts = name.trim().split(' ');
+    if (parts.length == 1) {
+      return parts.first.substring(0, 1).toUpperCase();
+    }
+    return (parts.first.substring(0, 1) + parts.last.substring(0, 1))
+        .toUpperCase();
+  }
+
+  InputDecoration _sheetInputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      filled: true,
+      fillColor: const Color(0xFFF7F8FA),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: AppColors.secondary),
+      ),
+    );
+  }
+
+  Future<bool> _confirmDeleteDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.transparent,
+          contentPadding: EdgeInsets.zero,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          content: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1f2937), Color(0xFF0f172a)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+            ),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  LabelService().getLabel(100),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  LabelService().getLabel(99),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: Text(LabelService().getLabel(94)),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.redAccent,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: Text(LabelService().getLabel(95)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    return result ?? false;
+  }
+
+  void _showImagePickerDialog({VoidCallback? onImagesUpdated}) {
     showDialog(
       context: context,
       builder: (context) {
@@ -80,8 +198,9 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                   ),
                   onTap: () async {
                     Navigator.pop(context);
-                    final pickedImage =
-                        await ImagePicker().pickImage(source: ImageSource.camera);
+                    final pickedImage = await ImagePicker().pickImage(
+                      source: ImageSource.camera,
+                    );
                     if (pickedImage != null &&
                         ref
                                 .read(issuesModelProvider.notifier)
@@ -93,13 +212,13 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                           .beforeActivityImages
                           .add(File(pickedImage.path));
                       ref.read(issuesModelProvider.notifier).notifyListeners();
+                      onImagesUpdated?.call();
                     }
                   },
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading:
-                      const Icon(Icons.photo_library, color: Colors.white),
+                  leading: const Icon(Icons.photo_library, color: Colors.white),
                   title: Text(
                     LabelService().getLabel(113),
                     style: const TextStyle(color: Colors.white),
@@ -122,6 +241,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                             .add(File(image.path));
                       }
                       ref.read(issuesModelProvider.notifier).notifyListeners();
+                      onImagesUpdated?.call();
                     }
                   },
                 ),
@@ -147,17 +267,54 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
   }
 
   Future<void> loadUserAndFetchActivity() async {
-    await ref.read(issuesModelProvider.notifier).getMarketActivityList(
+    await _fetchActivitiesForCategory(widget.activitiCategoryId);
+  }
+
+  Future<void> _fetchActivitiesForCategory(int categoryId) async {
+    await ref
+        .read(issuesModelProvider.notifier)
+        .getMarketActivityList(
           storeId: widget.storeId.toString(),
-          activityCategoryId: widget.activitiCategoryId.toString(),
-          activityTypeId: widget.activityTypeId.toString(),
-          brandId: '1',
+          activityCategoryId: categoryId.toString(),
+          activityTypeId: '0',
+          brandId: '3',
         );
+    setState(() {
+      widget.activitiCategoryId = categoryId;
+    });
+  }
+
+  Future<void> _ensureDeploymentCategories() async {
+    final deploymentNotifier = ref.read(deploymentModelProvider.notifier);
+    if (deploymentNotifier.user == null) {
+      await deploymentNotifier.loadUser();
+    }
+    if (deploymentNotifier.deploymentList.isEmpty) {
+      await deploymentNotifier.getDeploymentList(
+        divisionId: widget.divisionId.toString(),
+        categoryTypeId: widget.activityTypeId.toString(),
+      );
+    }
+    final loadedList = deploymentNotifier.deploymentList;
+    ActivityCategoryModel? selectedCategory;
+    if (loadedList.isNotEmpty) {
+      selectedCategory =
+          loadedList.firstWhere(
+            (c) => c.activityCategoryID == widget.activitiCategoryId,
+            orElse: () => loadedList.first,
+          );
+    }
+    setState(() {
+      _deploymentCategories = loadedList;
+      _selectedDeploymentCategory ??= selectedCategory;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(issuesModelProvider);
+    final isListLoading =
+        viewModel.loader && viewModel.marketActivityList.isEmpty;
     final labelService = LabelService();
 
     return SafeArea(
@@ -170,8 +327,10 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
               children: [
                 Container(
                   width: double.infinity,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 18,
+                  ),
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [Color(0xFF111827), Color(0xFF0B1120)],
@@ -202,23 +361,6 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                             ),
                           ),
                           const Spacer(),
-                          InkWell(
-                            onTap: () {
-                              _openFilterSheet();
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.08),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.filter_alt_outlined,
-                                size: 18,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -242,52 +384,448 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.access_time_filled,
-                              color: AppColors.primary,
-                              size: 16,
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              '${labelService.getLabel(14)} ${widget.checkInTime}',
-                              style: const TextStyle(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.access_time_filled,
+                                  color: AppColors.primary,
+                                  size: 16,
+                                ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${labelService.getLabel(14)} ${widget.checkInTime}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          InkWell(
+                            onTap: () async {
+                              await _ensureDeploymentCategories();
+                              if (_deploymentCategories.isEmpty) {
+                                AppSnackBar.showError(
+                                  context,
+                                  'No deployment categories found',
+                                );
+                                return;
+                              }
+                              _openFilterSheet();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.08),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.filter_alt_outlined,
+                                size: 18,
                                 color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 10),
                 Expanded(
-                  child: viewModel.loader
-                      ? const Center(child: CircularProgressIndicator())
-                      : ListView(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 90),
-                          children: const [],
-                        ),
+                  child:
+                      isListLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : ListView.builder(
+                            padding: const EdgeInsets.only(bottom: 140, top: 4),
+                            itemCount: viewModel.marketActivityList.length,
+                            itemBuilder: (context, index) {
+                              final item = viewModel.marketActivityList[index];
+                              final itemKey = item.activityID ?? index;
+                              final images = _imageUrls(item);
+                              final statusLabel =
+                                  (item.quantity?.isNotEmpty ?? false)
+                                      ? 'Qty ${item.quantity}'
+                                      : 'Open';
+
+                              return Dismissible(
+                                key: ValueKey(
+                                  'issue_${item.activityID ?? index}',
+                                ),
+                                direction: DismissDirection.endToStart,
+                                background: Container(
+                                  alignment: Alignment.centerRight,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade50,
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  child: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                    size: 28,
+                                  ),
+                                ),
+                                confirmDismiss: (direction) async {
+                                  if (direction !=
+                                      DismissDirection.endToStart) {
+                                    return false;
+                                  }
+                                  final shouldDelete =
+                                      await _confirmDeleteDialog();
+                                  if (!shouldDelete) return false;
+
+                                  await viewModel.removeActivity(
+                                    activityId: item.activityID.toString(),
+                                    activityTypeId:
+                                        item.activityTypeID.toString(),
+                                  );
+                                  return true;
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(18),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Color(0x19000000),
+                                          blurRadius: 18,
+                                          offset: Offset(0, 8),
+                                        ),
+                                      ],
+                                      border: const Border(
+                                        left: BorderSide(
+                                          color: AppColors.primary,
+                                          width: 4,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(14),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      item.activityTypeName ??
+                                                          '',
+                                                      style: const TextStyle(
+                                                        color: Color(
+                                                          0xFF111827,
+                                                        ),
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 6),
+                                                    Text(
+                                                      item.activityCategoryName ??
+                                                          '',
+                                                      style: const TextStyle(
+                                                        color: Color(
+                                                          0xFF111827,
+                                                        ),
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 6),
+                                                    Text(
+                                                      '#${item.activityID ?? '-'} • ${item.storeName ?? widget.storeName}',
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColors.greyText,
+                                                        fontSize: 13,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 6),
+                                                    Text(
+                                                      '${item.activityDateTime ?? ''}',
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColors.greyText,
+                                                        fontSize: 13,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 6,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(
+                                                    0xFFFFF4EC,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                ),
+                                                child: Text(
+                                                  statusLabel,
+                                                  style: const TextStyle(
+                                                    color: Color(0xFFf97316),
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          if (images.isNotEmpty) ...[
+                                            const SizedBox(height: 14),
+                                            SizedBox(
+                                              height: 180,
+                                              child: Stack(
+                                                children: [
+                                                  PageView.builder(
+                                                    controller: PageController(
+                                                      initialPage:
+                                                          _imagePageIndex[itemKey] ??
+                                                          0,
+                                                    ),
+                                                    itemCount: images.length,
+                                                    onPageChanged: (page) {
+                                                      setState(() {
+                                                        _imagePageIndex[itemKey] =
+                                                            page;
+                                                      });
+                                                    },
+                                                    itemBuilder: (
+                                                      context,
+                                                      imgIndex,
+                                                    ) {
+                                                      return ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              12,
+                                                            ),
+                                                        child: CachedNetworkImage(
+                                                          imageUrl:
+                                                              '${ApiConstants.baseUrl}/${images[imgIndex]}',
+                                                          fit: BoxFit.cover,
+                                                          placeholder:
+                                                              (
+                                                                context,
+                                                                url,
+                                                              ) => Shimmer.fromColors(
+                                                                baseColor:
+                                                                    Colors
+                                                                        .grey[300]!,
+                                                                highlightColor:
+                                                                    Colors
+                                                                        .grey[100]!,
+                                                                child: Container(
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                ),
+                                                              ),
+                                                          errorWidget:
+                                                              (
+                                                                context,
+                                                                url,
+                                                                error,
+                                                              ) => const Icon(
+                                                                Icons.error,
+                                                              ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                  Positioned(
+                                                    bottom: 8,
+                                                    left: 0,
+                                                    right: 0,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: List.generate(images.length, (
+                                                        dotIndex,
+                                                      ) {
+                                                        final isActive =
+                                                            (_imagePageIndex[itemKey] ??
+                                                                0) ==
+                                                            dotIndex;
+                                                        return AnimatedContainer(
+                                                          duration:
+                                                              const Duration(
+                                                                milliseconds:
+                                                                    200,
+                                                              ),
+                                                          margin:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 4,
+                                                              ),
+                                                          height: 8,
+                                                          width:
+                                                              isActive ? 16 : 8,
+                                                          decoration: BoxDecoration(
+                                                            color:
+                                                                isActive
+                                                                    ? AppColors
+                                                                        .primary
+                                                                    : Colors
+                                                                        .white
+                                                                        .withOpacity(
+                                                                          0.7,
+                                                                        ),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  4,
+                                                                ),
+                                                            boxShadow:
+                                                                isActive
+                                                                    ? [
+                                                                      BoxShadow(
+                                                                        color: AppColors
+                                                                            .primary
+                                                                            .withOpacity(
+                                                                              0.4,
+                                                                            ),
+                                                                        blurRadius:
+                                                                            6,
+                                                                        offset:
+                                                                            const Offset(
+                                                                              0,
+                                                                              2,
+                                                                            ),
+                                                                      ),
+                                                                    ]
+                                                                    : [],
+                                                          ),
+                                                        );
+                                                      }),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                          const SizedBox(height: 14),
+                                          if ((item.activityDescription ?? '')
+                                              .isNotEmpty)
+                                            Text(
+                                              item.activityDescription ?? '',
+                                              style: const TextStyle(
+                                                color: Color(0xFF4B5563),
+                                                fontSize: 14,
+                                                height: 1.5,
+                                              ),
+                                            ),
+                                          const SizedBox(height: 12),
+                                          Divider(
+                                            color: Colors.grey.shade300,
+                                            height: 1,
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Row(
+                                            children: [
+                                              CircleAvatar(
+                                                radius: 18,
+                                                backgroundColor:
+                                                    AppColors.primary,
+                                                child: Text(
+                                                  _initials(
+                                                    item.teamMemberName,
+                                                  ),
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w800,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Expanded(
+                                                child: Text(
+                                                  item.teamMemberName ?? '',
+                                                  style: const TextStyle(
+                                                    color: Color(0xFF4B5563),
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                ),
+                                              ),
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 6,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(
+                                                    0xFFFFF4EC,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(14),
+                                                ),
+                                                child: const Text(
+                                                  'Open',
+                                                  style: TextStyle(
+                                                    color: Color(0xFFf97316),
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                 ),
               ],
             ),
-            _AddDeploymentButton(onTap: () {
-              _openAddDeploymentSheet(viewModel);
-            }),
+            _AddDeploymentButton(
+              onTap: () {
+                _openAddDeploymentSheet(viewModel);
+              },
+            ),
           ],
         ),
       ),
@@ -297,66 +835,130 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
   void _openFilterSheet() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Deployment Category',
-                    style: TextStyle(
-                      color: Color(0xFF111827),
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      height: 36,
-                      width: 36,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF2F3F5),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.close,
-                        size: 18,
-                        color: Color(0xFF111827),
-                      ),
-                    ),
-                  ),
-                ],
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
               ),
-              const SizedBox(height: 12),
-              Text(
-                widget.activityCategoryName,
-                style: const TextStyle(
-                  color: Color(0xFF111827),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Deployment Category',
+                            style: TextStyle(
+                              color: Color(0xFF111827),
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () => Navigator.of(ctx).pop(),
+                            child: Container(
+                              height: 36,
+                              width: 36,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFF2F3F5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                size: 18,
+                                color: Color(0xFF111827),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        widget.activityCategoryName,
+                        style: const TextStyle(
+                          color: Color(0xFF111827),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Store: ${widget.storeName}',
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Select Category',
+                        style: TextStyle(
+                          color: Color(0xFF111827),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<int>(
+                        value: _selectedDeploymentCategory?.activityCategoryID,
+                        decoration: _sheetInputDecoration(
+                          'Choose deployment category',
+                        ),
+                        items:
+                            _deploymentCategories
+                                .map(
+                                  (cat) => DropdownMenuItem<int>(
+                                    value: cat.activityCategoryID,
+                                    child: Text(
+                                      cat.activityCategoryName ?? '',
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                        onChanged: (value) async {
+                          if (value == null) return;
+                          final selected =
+                              _deploymentCategories.firstWhere(
+                                (c) => c.activityCategoryID == value,
+                              );
+                          setState(() {
+                            _selectedDeploymentCategory = selected;
+                            widget.activitiCategoryId =
+                                selected.activityCategoryID ??
+                                widget.activitiCategoryId;
+                            widget.activityCategoryName =
+                                selected.activityCategoryName ??
+                                widget.activityCategoryName;
+                          });
+                          setModalState(() {});
+                          Navigator.of(ctx).pop();
+                          await _fetchActivitiesForCategory(
+                            selected.activityCategoryID ??
+                            widget.activitiCategoryId,
+                          );
+                        },
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(ctx).padding.bottom + 32,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Store: ${widget.storeName}',
-                style: TextStyle(
-                  color: Colors.grey.shade700,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -367,6 +969,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
     descriptionController.clear();
     barcodeController.clear();
     viewModel.beforeActivityImages.clear();
+    _sheetBarcodes.clear();
 
     showModalBottomSheet(
       context: context,
@@ -377,8 +980,31 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
       ),
       builder: (ctx) {
         bool localSubmitting = false;
+
         return StatefulBuilder(
           builder: (context, setModalState) {
+            void addBarcode(String code) {
+              final value = code.trim();
+              if (value.isEmpty) {
+                AppSnackBar.showError(
+                  context,
+                  'Enter or scan a barcode first',
+                );
+                return;
+              }
+              if (_sheetBarcodes.contains(value)) {
+                AppSnackBar.showError(
+                  context,
+                  'Barcode already added',
+                );
+                return;
+              }
+              setModalState(() {
+                _sheetBarcodes.add(value);
+              });
+              barcodeController.clear();
+            }
+
             return Padding(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(ctx).viewInsets.bottom,
@@ -445,7 +1071,55 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                       const SizedBox(height: 10),
                       BarcodeScannerUI(
                         controller: barcodeController,
+                        onAddBarcode: addBarcode,
                       ),
+                      if (_sheetBarcodes.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (int i = 0; i < _sheetBarcodes.length; i++)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF4E8),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: const Color(0xFFFFD8B2),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      _sheetBarcodes[i],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setModalState(() {
+                                          _sheetBarcodes.removeAt(i);
+                                        });
+                                      },
+                                      child: const Icon(
+                                        Icons.close,
+                                        size: 16,
+                                        color: AppColors.secondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
                       const SizedBox(height: 12),
                       Container(
                         decoration: BoxDecoration(
@@ -467,7 +1141,9 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                             GestureDetector(
                               onTap: () {
                                 if (viewModel.beforeActivityImages.length < 4) {
-                                  _showImagePickerDialog();
+                                  _showImagePickerDialog(
+                                    onImagesUpdated: () => setModalState(() {}),
+                                  );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
@@ -513,78 +1189,90 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                             Expanded(
                               child: SizedBox(
                                 height: 90,
-                                child: viewModel.beforeActivityImages.isEmpty
-                                    ? Center(
-                                        child: Text(
-                                          'No photos added',
-                                          style: TextStyle(
-                                            color: Colors.grey.shade500,
-                                            fontWeight: FontWeight.w600,
+                                child:
+                                    viewModel.beforeActivityImages.isEmpty
+                                        ? Center(
+                                          child: Text(
+                                            'No photos added',
+                                            style: TextStyle(
+                                              color: Colors.grey.shade500,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
+                                        )
+                                        : ListView.builder(
+                                          shrinkWrap: true,
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          scrollDirection: Axis.horizontal,
+                                          itemCount:
+                                              viewModel
+                                                  .beforeActivityImages
+                                                  .length,
+                                          itemBuilder: (context, index) {
+                                            final file =
+                                                viewModel
+                                                    .beforeActivityImages[index];
+                                            return Stack(
+                                              children: [
+                                                Container(
+                                                  margin: const EdgeInsets.only(
+                                                    right: 10,
+                                                  ),
+                                                  height: 90,
+                                                  width: 100,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                    border: Border.all(
+                                                      color: const Color(
+                                                        0xFFFFD8B2,
+                                                      ),
+                                                    ),
+                                                    image: DecorationImage(
+                                                      image: FileImage(file),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Positioned(
+                                                  top: 6,
+                                                  right: 6,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      viewModel
+                                                          .beforeActivityImages
+                                                          .removeAt(index);
+                                                      viewModel
+                                                          .notifyListeners();
+                                                      setModalState(() {});
+                                                    },
+                                                    child: Container(
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                            color:
+                                                                Colors.black54,
+                                                            shape:
+                                                                BoxShape.circle,
+                                                          ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            4,
+                                                          ),
+                                                      child: const Icon(
+                                                        Icons.close,
+                                                        size: 16,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          },
                                         ),
-                                      )
-                                    : ListView.builder(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        scrollDirection: Axis.horizontal,
-                                        itemCount: viewModel
-                                            .beforeActivityImages.length,
-                                        itemBuilder: (context, index) {
-                                          final file = viewModel
-                                              .beforeActivityImages[index];
-                                          return Stack(
-                                            children: [
-                                              Container(
-                                                margin: const EdgeInsets.only(
-                                                  right: 10,
-                                                ),
-                                                height: 90,
-                                                width: 100,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                  border: Border.all(
-                                                    color:
-                                                        const Color(0xFFFFD8B2),
-                                                  ),
-                                                  image: DecorationImage(
-                                                    image: FileImage(file),
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                              ),
-                                              Positioned(
-                                                top: 6,
-                                                right: 6,
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    viewModel
-                                                        .beforeActivityImages
-                                                        .removeAt(index);
-                                                    viewModel.notifyListeners();
-                                                    setModalState(() {});
-                                                  },
-                                                  child: Container(
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      color: Colors.black54,
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    padding:
-                                                        const EdgeInsets.all(4),
-                                                    child: const Icon(
-                                                      Icons.close,
-                                                      size: 16,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      ),
                               ),
                             ),
                           ],
@@ -594,67 +1282,73 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                       SizedBox(
                         width: double.infinity,
                         height: 52,
-                        child: localSubmitting || viewModel.loader
-                            ? const Center(
-                                child: CircularProgressIndicator(),
-                              )
-                            : ElevatedButton(
-                                onPressed: () async {
-                                  if (descriptionController.text.isEmpty) {
-                                    AppSnackBar.showError(
-                                      context,
-                                      LabelService().getLabel(157),
+                        child:
+                            localSubmitting || viewModel.loader
+                                ? const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                                : ElevatedButton(
+                                  onPressed: () async {
+                                    if (descriptionController.text.isEmpty) {
+                                      AppSnackBar.showError(
+                                        context,
+                                        LabelService().getLabel(157),
+                                      );
+                                      return;
+                                    }
+                                    if (viewModel
+                                        .beforeActivityImages
+                                        .isEmpty) {
+                                      AppSnackBar.showError(
+                                        context,
+                                        LabelService().getLabel(115),
+                                      );
+                                      return;
+                                    }
+                                    setModalState(() {
+                                      localSubmitting = true;
+                                    });
+                                    await viewModel.marketActivityAdd(
+                                      storeID: widget.storeId.toString(),
+                                      activityTypeId:
+                                          widget.activityTypeId.toString(),
+                                      activityCategoryId:
+                                          widget.activitiCategoryId.toString(),
+                                      brandId: '3',
+                                      activityDescription:
+                                          descriptionController.text,
+                                      statusId: '1',
+                                      quantity: '1',
+                                      deployementReason: '1',
+                                      beforeActivityPictures:
+                                          viewModel.beforeActivityImages,
                                     );
-                                    return;
-                                  }
-                                  if (viewModel.beforeActivityImages.isEmpty) {
-                                    AppSnackBar.showError(
-                                      context,
-                                      LabelService().getLabel(115),
-                                    );
-                                    return;
-                                  }
-                                  setModalState(() {
-                                    localSubmitting = true;
-                                  });
-                                  await viewModel.marketActivityAdd(
-                                    storeID: widget.storeId.toString(),
-                                    activityTypeId:
-                                        widget.activityTypeId.toString(),
-                                    activityCategoryId:
-                                        widget.activitiCategoryId.toString(),
-                                    brandId: '1',
-                                    activityDescription:
-                                        descriptionController.text,
-                                    statusId: '1',
-                                    quantity: '1',
-                                    deployementReason: '1',
-                                    beforeActivityPictures:
-                                        viewModel.beforeActivityImages,
-                                  );
-                                  descriptionController.clear();
-                                  viewModel.beforeActivityImages.clear();
-                                  setModalState(() {
-                                    localSubmitting = false;
-                                  });
-                                  if (mounted) Navigator.pop(context);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    descriptionController.clear();
+                                    barcodeController.clear();
+                                    viewModel.beforeActivityImages.clear();
+                                    _sheetBarcodes.clear();
+                                    setModalState(() {
+                                      localSubmitting = false;
+                                    });
+                                    if (mounted) Navigator.pop(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Submit",
+                                    style: TextStyle(
+                                      color: AppColors.whiteColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
                                   ),
                                 ),
-                                child: const Text(
-                                  "Submit",
-                                  style: TextStyle(
-                                    color: AppColors.whiteColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
                       ),
+                      SizedBox(height: 40),
                     ],
                   ),
                 ),
@@ -706,7 +1400,12 @@ class _AddDeploymentButton extends StatelessWidget {
 
 class BarcodeScannerUI extends StatefulWidget {
   final TextEditingController controller;
-  const BarcodeScannerUI({Key? key, required this.controller}) : super(key: key);
+  final ValueChanged<String> onAddBarcode;
+  const BarcodeScannerUI({
+    Key? key,
+    required this.controller,
+    required this.onAddBarcode,
+  }) : super(key: key);
 
   @override
   State<BarcodeScannerUI> createState() => _BarcodeScannerUIState();
@@ -721,8 +1420,11 @@ class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
   void _handleScan(String value) {
     widget.controller.text = value;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Barcode: $value')),
+      SnackBar(content: Text('Scanned: $value')),
     );
+    Future.delayed(const Duration(milliseconds: 300), () {
+      hasScanned = false;
+    });
   }
 
   @override
@@ -748,6 +1450,15 @@ class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
                     border: InputBorder.none,
                     isDense: true,
                   ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.add_circle,
+                  color: AppColors.primary,
+                ),
+                onPressed: () => widget.onAddBarcode(
+                  widget.controller.text,
                 ),
               ),
             ],

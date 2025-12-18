@@ -50,6 +50,16 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
     notifier.marketActivityList = [];
     notifier.loader = true;
     notifier.notifyListeners();
+    await ref
+        .read(issuesModelProvider.notifier)
+        .getMarketActivityList(
+          storeId: widget.storeId.toString(),
+          activityCategoryId: '0',
+          // activityCategoryId: categoryId,
+          activityTypeId: '0',
+          // activityTypeId: typeId,
+          brandId: '2',
+        );
 
     await notifier.loadActivity();
     _selectedIssueCategory =
@@ -76,7 +86,7 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
           storeId: widget.storeId.toString(),
           activityCategoryId: categoryId,
           activityTypeId: typeId,
-          brandId: '1',
+          brandId: '2',
         );
   }
 
@@ -675,6 +685,106 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
     );
   }
 
+  void _openFilterSheet(IssuesViewModel viewModel) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return AnimatedBuilder(
+              animation: viewModel,
+              builder: (context, _) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Filter Issues',
+                              style: TextStyle(
+                                color: Color(0xFF111827),
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () => Navigator.of(ctx).pop(),
+                              child: Container(
+                                height: 36,
+                                width: 36,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFF2F3F5),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 18,
+                                  color: Color(0xFF111827),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Divider(color: Colors.grey.shade300, height: 1),
+                        const SizedBox(height: 16),
+                        _fieldLabel('Issue'),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<int>(
+                          value: _selectedIssueCategory?.activityCategoryID,
+                          decoration: _sheetInputDecoration('Select Issue'),
+                          items:
+                              viewModel.issueList
+                                  .map(
+                                    (issue) => DropdownMenuItem<int>(
+                                      value: issue.activityCategoryID,
+                                      child: Text(
+                                        issue.activityCategoryName ?? '',
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                          onChanged: (value) async {
+                            if (value == null) return;
+                            final selected = viewModel.issueList.firstWhere(
+                              (i) => i.activityCategoryID == value,
+                            );
+                            setState(() {
+                              _selectedIssueCategory = selected;
+                            });
+                            setModalState(() {});
+                            Navigator.of(ctx).pop();
+                            await _refreshIssueList();
+                          },
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(ctx).padding.bottom + 24,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _createIssueButton(IssuesViewModel viewModel) {
     return SafeArea(
       child: Align(
@@ -829,6 +939,29 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                                     ),
                                   ),
                                 ],
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () async {
+                                if (viewModel.issueList.isEmpty) {
+                                  await viewModel.getIssueList(
+                                    divisionId: '1',
+                                    categoryTypeId: '0',
+                                  );
+                                }
+                                _openFilterSheet(viewModel);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.filter_alt_outlined,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
                               ),
                             ),
                           ],

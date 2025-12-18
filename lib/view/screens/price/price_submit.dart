@@ -34,6 +34,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
   late int _selectedProductCategoryId;
   late String _currentBrandName;
   late String _currentProductName;
+  bool _hasUnsavedChanges = false;
 
   void _showImagePickerDialog(
     String direction, {
@@ -146,6 +147,73 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
       notifier.loader = false;
       notifier.notifyListeners();
     });
+  }
+
+  void _markUnsavedChange() {
+    if (!_hasUnsavedChanges && mounted) {
+      setState(() {
+        _hasUnsavedChanges = true;
+      });
+    }
+  }
+
+  Future<bool> _confirmExitIfNeeded() async {
+    if (!_hasUnsavedChanges) return true;
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            content: Text(
+              LabelService().getLabel(196),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF111827),
+              ),
+            ),
+            actionsAlignment: MainAxisAlignment.spaceEvenly,
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(
+                  LabelService().getLabel(94),
+                  style: const TextStyle(color: Color(0xFF111827)),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(
+                  LabelService().getLabel(95),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+    );
+
+    if (result == true) {
+      _hasUnsavedChanges = false;
+    }
+    return result ?? false;
+  }
+
+  Future<void> _handleBackNavigation() async {
+    final shouldExit = await _confirmExitIfNeeded();
+    if (shouldExit) {
+      NavigationService.goBack();
+    }
   }
 
   String? getChecklistImagePath(String productId) {
@@ -564,284 +632,476 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
     final viewModel = ref.watch(priceModelProvider);
     final labelService = LabelService();
 
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus(); // Removes focus from any text field
-      },
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: AppColors.whiteColor,
-          body: Stack(
-            children: [
-              viewModel.loader
-                  ? const Center(child: CircularProgressIndicator())
-                  : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 18,
-                        ),
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF111827), Color(0xFF0B1120)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+    return WillPopScope(
+      onWillPop: _confirmExitIfNeeded,
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus(); // Removes focus from any text field
+        },
+        child: SafeArea(
+          child: Scaffold(
+            backgroundColor: AppColors.whiteColor,
+            body: Stack(
+              children: [
+                viewModel.loader
+                    ? const Center(child: CircularProgressIndicator())
+                    : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 18,
                           ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                InkWell(
-                                  onTap: () => NavigationService.goBack(),
-                                  child: const Icon(
-                                    Icons.arrow_back_ios_new_rounded,
-                                    size: 18,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                const Text(
-                                  'Price Promotions',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const Spacer(),
-                                InkWell(
-                                  onTap: () => _openFilterSheet(viewModel),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.08),
-                                      shape: BoxShape.circle,
-                                    ),
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  InkWell(
+                                    onTap: _handleBackNavigation,
                                     child: const Icon(
-                                      Icons.filter_alt_outlined,
+                                      Icons.arrow_back_ios_new_rounded,
                                       size: 18,
                                       color: Colors.white,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              widget.storeName,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              _currentBrandName,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _currentProductName,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.grey.shade300,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.access_time_filled,
-                                    color: AppColors.primary,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    '${labelService.getLabel(14)} ${widget.checkInTime}',
-                                    style: const TextStyle(
+                                  const SizedBox(width: 12),
+                                  const Text(
+                                    'Price Promotions',
+                                    style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  InkWell(
+                                    onTap: () => _openFilterSheet(viewModel),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.08),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.filter_alt_outlined,
+                                        size: 18,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Expanded(
-                        child: ListView.builder(
-                          primary: true,
-                          physics: const ScrollPhysics(),
-                          shrinkWrap: true,
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 88),
-                          itemCount: viewModel.priceList.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final isOutOfStock = getOutOfStock(
-                              viewModel.priceList[index].productID.toString(),
-                            );
-
-                            final priceController = TextEditingController(
-                              text: getPrice(
-                                viewModel.priceList[index].productID.toString(),
+                              const SizedBox(height: 16),
+                              Text(
+                                widget.storeName,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
-                            );
-                            final netPriceController = TextEditingController(
-                              text: getNetPrice(
-                                viewModel.priceList[index].productID.toString(),
+                              const SizedBox(height: 6),
+                              Text(
+                                _currentBrandName,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
-                            );
-
-                            final promotionController = TextEditingController(
-                              text: getPromotiion(
-                                viewModel.priceList[index].productID.toString(),
+                              const SizedBox(height: 4),
+                              Text(
+                                _currentProductName,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.grey.shade300,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            );
-
-                            final product = viewModel.priceList[index];
-                            final imagePath = getChecklistImagePath(
-                              product.productID.toString(),
-                            );
-                            final hasPrice = priceController.text.trim().isNotEmpty &&
-                                priceController.text.trim() != '0';
-                            final hasNetPrice =
-                                netPriceController.text.trim().isNotEmpty &&
-                                netPriceController.text.trim() != '0';
-                            final hasPromotion =
-                                promotionController.text.trim().isNotEmpty;
-                            final hasImage = (imagePath ?? '').isNotEmpty;
-                            final hasOutOfStock = isOutOfStock == true;
-                            final isPrefilled =
-                                hasPrice ||
-                                hasNetPrice ||
-                                hasPromotion ||
-                                hasImage ||
-                                hasOutOfStock;
-
-                            void handleOutOfStockChange(bool? value) {
-                              final newValue = value ?? false;
-                              setState(() {});
-                              viewModel.updateProductEntry(
-                                productId: product.productID.toString(),
-                                storeId: widget.storeId.toString(),
-                                visitId: widget.visiteId.toString(),
-                                token: viewModel.user?.apiToken ?? '',
-                                teamMemberId:
-                                    viewModel.user?.teamMemberID.toString(),
-                                isOutOfStock: newValue,
-                                price: '0',
-                                netPrice: '0',
-                                promotion: '',
-                                imagePath: '',
-                              );
-                            }
-
-                            return Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                              child: Container(
+                              const SizedBox(height: 10),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 8,
+                                ),
                                 decoration: BoxDecoration(
-                                  color:
-                                      isPrefilled
-                                          ? AppColors.primary.withOpacity(0.08)
-                                          : Colors.white,
-                                  borderRadius: BorderRadius.circular(18),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Color(0x14000000),
-                                      blurRadius: 14,
-                                      offset: Offset(0, 6),
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.access_time_filled,
+                                      color: AppColors.primary,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '${labelService.getLabel(14)} ${widget.checkInTime}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ],
-                                  border: Border.all(
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: ListView.builder(
+                            primary: true,
+                            physics: const ScrollPhysics(),
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 88),
+                            itemCount: viewModel.priceList.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final isOutOfStock = getOutOfStock(
+                                viewModel.priceList[index].productID.toString(),
+                              );
+
+                              final priceController = TextEditingController(
+                                text: getPrice(
+                                  viewModel.priceList[index].productID
+                                      .toString(),
+                                ),
+                              );
+                              final netPriceController = TextEditingController(
+                                text: getNetPrice(
+                                  viewModel.priceList[index].productID
+                                      .toString(),
+                                ),
+                              );
+
+                              final promotionController = TextEditingController(
+                                text: getPromotiion(
+                                  viewModel.priceList[index].productID
+                                      .toString(),
+                                ),
+                              );
+
+                              final product = viewModel.priceList[index];
+                              final imagePath = getChecklistImagePath(
+                                product.productID.toString(),
+                              );
+                              final hasPrice =
+                                  priceController.text.trim().isNotEmpty &&
+                                  priceController.text.trim() != '0';
+                              final hasNetPrice =
+                                  netPriceController.text.trim().isNotEmpty &&
+                                  netPriceController.text.trim() != '0';
+                              final hasPromotion =
+                                  promotionController.text.trim().isNotEmpty;
+                              final hasImage = (imagePath ?? '').isNotEmpty;
+                              final hasOutOfStock = isOutOfStock == true;
+                              final isPrefilled =
+                                  hasPrice ||
+                                  hasNetPrice ||
+                                  hasPromotion ||
+                                  hasImage ||
+                                  hasOutOfStock;
+
+                              void handleOutOfStockChange(bool? value) {
+                                final newValue = value ?? false;
+                                _markUnsavedChange();
+                                setState(() {});
+                                viewModel.updateProductEntry(
+                                  productId: product.productID.toString(),
+                                  storeId: widget.storeId.toString(),
+                                  visitId: widget.visiteId.toString(),
+                                  token: viewModel.user?.apiToken ?? '',
+                                  teamMemberId:
+                                      viewModel.user?.teamMemberID.toString(),
+                                  isOutOfStock: newValue,
+                                  price: '0',
+                                  netPrice: '0',
+                                  promotion: '',
+                                  imagePath: '',
+                                );
+                              }
+
+                              return Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  0,
+                                  16,
+                                  12,
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
                                     color:
                                         isPrefilled
                                             ? AppColors.primary.withOpacity(
+                                              0.08,
+                                            )
+                                            : Colors.white,
+                                    borderRadius: BorderRadius.circular(18),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Color(0x14000000),
+                                        blurRadius: 14,
+                                        offset: Offset(0, 6),
+                                      ),
+                                    ],
+                                    border: Border.all(
+                                      color:
+                                          isPrefilled
+                                              ? AppColors.primary.withOpacity(
                                                 0.35,
                                               )
-                                            : Colors.transparent,
+                                              : Colors.transparent,
+                                    ),
                                   ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(14),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  product.productmodelname ??
-                                                      '',
-                                                  style: const TextStyle(
-                                                    color: AppColors.blackColor,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w800,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(14),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    product.productmodelname ??
+                                                        '',
+                                                    style: const TextStyle(
+                                                      color:
+                                                          AppColors.blackColor,
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                    ),
                                                   ),
-                                                ),
-                                                const SizedBox(height: 6),
-                                                Text(
-                                                  'SKU: ${product.productModelCode ?? '-'} • ${product.brandName ?? ''}',
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    color: Colors.grey.shade600,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w500,
+                                                  const SizedBox(height: 6),
+                                                  Text(
+                                                    'SKU: ${product.productModelCode ?? '-'} • ${product.brandName ?? ''}',
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      color:
+                                                          Colors.grey.shade600,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          GestureDetector(
-                                            onTap: () {
-                                              if (getOutOfStock(
-                                                    product.productID
-                                                        .toString(),
-                                                  ) ==
-                                                  false) {
-                                                _showImagePickerDialog(
-                                                  'left',
-                                                  onImageSelected: (
-                                                    String path,
-                                                  ) {
-                                                    setState(() {});
-                                                    viewModel
-                                                        .updateProductEntry(
+                                            const SizedBox(width: 8),
+                                            GestureDetector(
+                                              onTap: () {
+                                                if (getOutOfStock(
+                                                      product.productID
+                                                          .toString(),
+                                                    ) ==
+                                                    false) {
+                                                  _showImagePickerDialog(
+                                                    'left',
+                                                    onImageSelected: (
+                                                      String path,
+                                                    ) {
+                                                      _markUnsavedChange();
+                                                      setState(() {});
+                                                      viewModel.updateProductEntry(
+                                                        productId:
+                                                            product.productID
+                                                                .toString(),
+                                                        storeId:
+                                                            widget.storeId
+                                                                .toString(),
+                                                        visitId:
+                                                            widget.visiteId
+                                                                .toString(),
+                                                        token:
+                                                            viewModel
+                                                                .user
+                                                                ?.apiToken ??
+                                                            '',
+                                                        teamMemberId:
+                                                            viewModel
+                                                                .user
+                                                                ?.teamMemberID
+                                                                .toString(),
+                                                        imagePath: path,
+                                                      );
+                                                    },
+                                                  );
+                                                }
+                                              },
+                                              child: Container(
+                                                width: 70,
+                                                height: 70,
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      AppColors
+                                                          .lightGreyBackground,
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  border: Border.all(
+                                                    color: Colors.grey.shade300,
+                                                  ),
+                                                ),
+                                                child: Builder(
+                                                  builder: (_) {
+                                                    if (imagePath != null &&
+                                                        imagePath.isNotEmpty) {
+                                                      return Stack(
+                                                        children: [
+                                                          ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  12,
+                                                                ),
+                                                            child: Image.file(
+                                                              File(imagePath),
+                                                              width: 70,
+                                                              height: 70,
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                          ),
+                                                          Positioned(
+                                                            top: 4,
+                                                            right: 4,
+                                                            child: GestureDetector(
+                                                              onTap: () {
+                                                                _markUnsavedChange();
+                                                                setState(() {});
+                                                                viewModel.updateProductEntry(
+                                                                  productId:
+                                                                      product
+                                                                          .productID
+                                                                          .toString(),
+                                                                  storeId:
+                                                                      widget
+                                                                          .storeId
+                                                                          .toString(),
+                                                                  visitId:
+                                                                      widget
+                                                                          .visiteId
+                                                                          .toString(),
+                                                                  token:
+                                                                      viewModel
+                                                                          .user
+                                                                          ?.apiToken ??
+                                                                      '',
+                                                                  teamMemberId:
+                                                                      viewModel
+                                                                          .user
+                                                                          ?.teamMemberID
+                                                                          .toString(),
+                                                                  imagePath: '',
+                                                                );
+                                                              },
+                                                              child: Container(
+                                                                decoration: const BoxDecoration(
+                                                                  color:
+                                                                      Colors
+                                                                          .black54,
+                                                                  shape:
+                                                                      BoxShape
+                                                                          .circle,
+                                                                ),
+                                                                padding:
+                                                                    const EdgeInsets.all(
+                                                                      4,
+                                                                    ),
+                                                                child: const Icon(
+                                                                  Icons.close,
+                                                                  size: 16,
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    } else {
+                                                      return const Icon(
+                                                        Icons.camera_alt,
+                                                        size: 28,
+                                                      );
+                                                    }
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 14),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 10,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(
+                                                    0xFFFFF4E8,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  border: Border.all(
+                                                    color: const Color(
+                                                      0xFFFFD8B2,
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'RRP (Retail Price)',
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColors.primary,
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 6),
+                                                    TextField(
+                                                      controller:
+                                                          priceController,
+                                                      enabled:
+                                                          !(isOutOfStock ??
+                                                              false),
+                                                      keyboardType:
+                                                          TextInputType.number,
+                                                      onChanged: (value) {
+                                                        _markUnsavedChange();
+                                                        viewModel.updateProductEntry(
                                                           productId:
                                                               product.productID
                                                                   .toString(),
@@ -861,448 +1121,298 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                                                   .user
                                                                   ?.teamMemberID
                                                                   .toString(),
-                                                          imagePath: path,
+                                                          price: value,
                                                         );
-                                                  },
-                                                );
-                                              }
-                                            },
-                                            child: Container(
-                                              width: 70,
-                                              height: 70,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    AppColors
-                                                        .lightGreyBackground,
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: Colors.grey.shade300,
-                                                ),
-                                              ),
-                                              child: Builder(
-                                                builder: (_) {
-                                                  if (imagePath != null &&
-                                                      imagePath.isNotEmpty) {
-                                                    return Stack(
-                                                      children: [
-                                                        ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                12,
-                                                              ),
-                                                          child: Image.file(
-                                                            File(imagePath),
-                                                            width: 70,
-                                                            height: 70,
-                                                            fit: BoxFit.cover,
+                                                      },
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: const TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color:
+                                                            AppColors
+                                                                .blackColor,
+                                                      ),
+                                                      decoration:
+                                                          const InputDecoration(
+                                                            isDense: true,
+                                                            border:
+                                                                InputBorder
+                                                                    .none,
+                                                            hintText: '0',
                                                           ),
-                                                        ),
-                                                        Positioned(
-                                                          top: 4,
-                                                          right: 4,
-                                                          child: GestureDetector(
-                                                            onTap: () {
-                                                              setState(() {});
-                                                              viewModel.updateProductEntry(
-                                                                productId:
-                                                                    product
-                                                                        .productID
-                                                                        .toString(),
-                                                                storeId:
-                                                                    widget
-                                                                        .storeId
-                                                                        .toString(),
-                                                                visitId:
-                                                                    widget
-                                                                        .visiteId
-                                                                        .toString(),
-                                                                token:
-                                                                    viewModel
-                                                                        .user
-                                                                        ?.apiToken ??
-                                                                    '',
-                                                                teamMemberId:
-                                                                    viewModel
-                                                                        .user
-                                                                        ?.teamMemberID
-                                                                        .toString(),
-                                                                imagePath: '',
-                                                              );
-                                                            },
-                                                            child: Container(
-                                                              decoration: const BoxDecoration(
-                                                                color:
-                                                                    Colors
-                                                                        .black54,
-                                                                shape:
-                                                                    BoxShape
-                                                                        .circle,
-                                                              ),
-                                                              padding:
-                                                                  const EdgeInsets.all(
-                                                                    4,
-                                                                  ),
-                                                              child: const Icon(
-                                                                Icons.close,
-                                                                size: 16,
-                                                                color:
-                                                                    Colors
-                                                                        .white,
-                                                              ),
-                                                            ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 10,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(
+                                                    0xFFFFF4E8,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  border: Border.all(
+                                                    color: const Color(
+                                                      0xFFFFD8B2,
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Net Price',
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppColors.primary,
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 6),
+                                                    TextField(
+                                                      controller:
+                                                          netPriceController,
+                                                      enabled:
+                                                          !(isOutOfStock ??
+                                                              false),
+                                                      keyboardType:
+                                                          TextInputType.number,
+                                                      onChanged: (value) {
+                                                        _markUnsavedChange();
+                                                        viewModel.updateProductEntry(
+                                                          productId:
+                                                              product.productID
+                                                                  .toString(),
+                                                          storeId:
+                                                              widget.storeId
+                                                                  .toString(),
+                                                          visitId:
+                                                              widget.visiteId
+                                                                  .toString(),
+                                                          token:
+                                                              viewModel
+                                                                  .user
+                                                                  ?.apiToken ??
+                                                              '',
+                                                          teamMemberId:
+                                                              viewModel
+                                                                  .user
+                                                                  ?.teamMemberID
+                                                                  .toString(),
+                                                          netPrice: value,
+                                                        );
+                                                      },
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: const TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color:
+                                                            AppColors
+                                                                .blackColor,
+                                                      ),
+                                                      decoration:
+                                                          const InputDecoration(
+                                                            isDense: true,
+                                                            border:
+                                                                InputBorder
+                                                                    .none,
+                                                            hintText: '0',
                                                           ),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  } else {
-                                                    return const Icon(
-                                                      Icons.camera_alt,
-                                                      size: 28,
-                                                    );
-                                                  }
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 14),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 10,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFFFFF4E8),
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: const Color(
-                                                    0xFFFFD8B2,
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    'RRP (Retail Price)',
-                                                    style: TextStyle(
-                                                      color: AppColors.primary,
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  TextField(
-                                                    controller: priceController,
-                                                    enabled:
-                                                        !(isOutOfStock ??
-                                                            false),
-                                                    keyboardType:
-                                                        TextInputType.number,
-                                                    onChanged: (value) {
-                                                      viewModel.updateProductEntry(
-                                                        productId:
-                                                            product.productID
-                                                                .toString(),
-                                                        storeId:
-                                                            widget.storeId
-                                                                .toString(),
-                                                        visitId:
-                                                            widget.visiteId
-                                                                .toString(),
-                                                        token:
-                                                            viewModel
-                                                                .user
-                                                                ?.apiToken ??
-                                                            '',
-                                                        teamMemberId:
-                                                            viewModel
-                                                                .user
-                                                                ?.teamMemberID
-                                                                .toString(),
-                                                        price: value,
-                                                      );
-                                                    },
-                                                    textAlign: TextAlign.center,
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      color:
-                                                          AppColors.blackColor,
-                                                    ),
-                                                    decoration:
-                                                        const InputDecoration(
-                                                          isDense: true,
-                                                          border:
-                                                              InputBorder.none,
-                                                          hintText: '0',
-                                                        ),
-                                                  ),
-                                                ],
-                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 10,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFFFFF4E8),
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: const Color(
-                                                    0xFFFFD8B2,
-                                                  ),
-                                                ),
-                                              ),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    'Net Price',
-                                                    style: TextStyle(
-                                                      color: AppColors.primary,
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  TextField(
-                                                    controller:
-                                                        netPriceController,
-                                                    enabled:
-                                                        !(isOutOfStock ??
-                                                            false),
-                                                    keyboardType:
-                                                        TextInputType.number,
-                                                    onChanged: (value) {
-                                                      viewModel.updateProductEntry(
-                                                        productId:
-                                                            product.productID
-                                                                .toString(),
-                                                        storeId:
-                                                            widget.storeId
-                                                                .toString(),
-                                                        visitId:
-                                                            widget.visiteId
-                                                                .toString(),
-                                                        token:
-                                                            viewModel
-                                                                .user
-                                                                ?.apiToken ??
-                                                            '',
-                                                        teamMemberId:
-                                                            viewModel
-                                                                .user
-                                                                ?.teamMemberID
-                                                                .toString(),
-                                                        netPrice: value,
-                                                      );
-                                                    },
-                                                    textAlign: TextAlign.center,
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      color:
-                                                          AppColors.blackColor,
-                                                    ),
-                                                    decoration:
-                                                        const InputDecoration(
-                                                          isDense: true,
-                                                          border:
-                                                              InputBorder.none,
-                                                          hintText: '0',
-                                                        ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Container(
-                                        width: double.infinity,
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFFFF0E6),
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          border: Border.all(
-                                            color: const Color(0xFFFFC9A3),
-                                          ),
+                                          ],
                                         ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.local_offer_outlined,
-                                                  color: AppColors.primary,
-                                                  size: 18,
-                                                ),
-                                                const SizedBox(width: 6),
-                                                Text(
-                                                  'Active Promotion',
-                                                  style: TextStyle(
+                                        const SizedBox(height: 12),
+                                        Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFFF0E6),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            border: Border.all(
+                                              color: const Color(0xFFFFC9A3),
+                                            ),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.local_offer_outlined,
                                                     color: AppColors.primary,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w800,
+                                                    size: 18,
                                                   ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    'Active Promotion',
+                                                    style: TextStyle(
+                                                      color: AppColors.primary,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 8),
+                                              TextField(
+                                                controller: promotionController,
+                                                enabled:
+                                                    !(isOutOfStock ?? false),
+                                                keyboardType:
+                                                    TextInputType.text,
+                                                maxLines: 2,
+                                                minLines: 1,
+                                                onChanged: (value) {
+                                                  _markUnsavedChange();
+                                                  viewModel.updateProductEntry(
+                                                    productId:
+                                                        product.productID
+                                                            .toString(),
+                                                    storeId:
+                                                        widget.storeId
+                                                            .toString(),
+                                                    visitId:
+                                                        widget.visiteId
+                                                            .toString(),
+                                                    token:
+                                                        viewModel
+                                                            .user
+                                                            ?.apiToken ??
+                                                        '',
+                                                    teamMemberId:
+                                                        viewModel
+                                                            .user
+                                                            ?.teamMemberID
+                                                            .toString(),
+                                                    promotion: value,
+                                                  );
+                                                },
+                                                decoration: const InputDecoration(
+                                                  isDense: true,
+                                                  border: InputBorder.none,
+                                                  hintText:
+                                                      'Add promotion details',
                                                 ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 8),
-                                            TextField(
-                                              controller: promotionController,
-                                              enabled: !(isOutOfStock ?? false),
-                                              keyboardType: TextInputType.text,
-                                              maxLines: 2,
-                                              minLines: 1,
-                                              onChanged: (value) {
-                                                viewModel.updateProductEntry(
-                                                  productId:
-                                                      product.productID
-                                                          .toString(),
-                                                  storeId:
-                                                      widget.storeId.toString(),
-                                                  visitId:
-                                                      widget.visiteId
-                                                          .toString(),
-                                                  token:
-                                                      viewModel
-                                                          .user
-                                                          ?.apiToken ??
-                                                      '',
-                                                  teamMemberId:
-                                                      viewModel
-                                                          .user
-                                                          ?.teamMemberID
-                                                          .toString(),
-                                                  promotion: value,
-                                                );
-                                              },
-                                              decoration: const InputDecoration(
-                                                isDense: true,
-                                                border: InputBorder.none,
-                                                hintText:
-                                                    'Add promotion details',
+                                                style: const TextStyle(
+                                                  color: AppColors.blackColor,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
                                               ),
-                                              style: const TextStyle(
-                                                color: AppColors.blackColor,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 12),
-                                      GestureDetector(
-                                        onTap:
-                                            () => handleOutOfStockChange(
-                                              !(isOutOfStock ?? false),
-                                            ),
-                                        behavior: HitTestBehavior.opaque,
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            SizedBox(
-                                              width: 20,
-                                              height: 25,
-                                              child: Checkbox(
-                                                materialTapTargetSize:
-                                                    MaterialTapTargetSize
-                                                        .shrinkWrap,
-                                                activeColor: AppColors.primary,
-                                                value: isOutOfStock,
-                                                onChanged:
-                                                    handleOutOfStockChange,
+                                        const SizedBox(height: 12),
+                                        GestureDetector(
+                                          onTap:
+                                              () => handleOutOfStockChange(
+                                                !(isOutOfStock ?? false),
                                               ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              'Out of Stock',
-                                              style: TextStyle(
-                                                color: AppColors.blackColor,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w700,
+                                          behavior: HitTestBehavior.opaque,
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              SizedBox(
+                                                width: 20,
+                                                height: 25,
+                                                child: Checkbox(
+                                                  materialTapTargetSize:
+                                                      MaterialTapTargetSize
+                                                          .shrinkWrap,
+                                                  activeColor:
+                                                      AppColors.primary,
+                                                  value: isOutOfStock,
+                                                  onChanged:
+                                                      handleOutOfStockChange,
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                'Out of Stock',
+                                                style: TextStyle(
+                                                  color: AppColors.blackColor,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                if (!viewModel.loader)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: SafeArea(
+                      minimum: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: GestureDetector(
+                        onTap: () async {
+                          _hasUnsavedChanges = false;
+                          await viewModel.submitAllPrices(
+                            widget.storeId,
+                            widget.visiteId.toString(),
+                          );
+                          AppSnackBar.showSuccess(
+                            context,
+                            'Price Promotions submitted}',
+                          );
+                        },
+                        child: Container(
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              LabelService().getLabel(73),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
                               ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-              if (!viewModel.loader)
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: SafeArea(
-                    minimum: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                    child: GestureDetector(
-                      onTap: () async {
-                        await viewModel.submitAllPrices(
-                          widget.storeId,
-                          widget.visiteId.toString(),
-                        );
-                        AppSnackBar.showSuccess(
-                          context,
-                          'Price Promotions submitted}',
-                        );
-                      },
-                      child: Container(
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            LabelService().getLabel(73),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

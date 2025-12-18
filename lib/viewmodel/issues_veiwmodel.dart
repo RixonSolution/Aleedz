@@ -41,12 +41,9 @@ class IssuesViewModel extends ChangeNotifier {
     required String categoryTypeId,
   }) async {
     loader = true;
+
     issueList = [];
     notifyListeners();
-
-    if (user == null) {
-      await loadUser();
-    }
 
     final response = await _activityController.issueList(
       token: user?.apiToken ?? '',
@@ -55,14 +52,17 @@ class IssuesViewModel extends ChangeNotifier {
     );
 
     if (response != null && response["status"] == 200) {
-      final raw = response["data"]?['data'];
-      final data = raw is List ? raw : <dynamic>[];
+      final data = response["data"]['data'] as List;
       issueList = data.map((e) => ActivityCategoryModel.fromJson(e)).toList();
+      loader = false;
+
+      notifyListeners();
     } else {
+      loader = false;
+
+      notifyListeners();
       debugPrint("coverage list Error: ${response?['data']}");
     }
-    loader = false;
-    notifyListeners();
   }
 
   Future<void> removeActivity({
@@ -104,11 +104,8 @@ class IssuesViewModel extends ChangeNotifier {
     loader = true;
     marketActivityList = [];
     beforeActivityImages = [];
+    await loadUser();
     notifyListeners();
-
-    if (user == null) {
-      await loadUser();
-    }
 
     final response = await _activityController.activityList(
       token: user?.apiToken ?? '',
@@ -120,16 +117,20 @@ class IssuesViewModel extends ChangeNotifier {
     );
 
     if (response != null && response["status"] == 200) {
-      final raw = response["data"]?['data'];
-      final data = raw is List ? raw : <dynamic>[];
+      final data = response["data"]['data'] as List;
       marketActivityList =
           data.map((e) => MarketActivityList.fromJson(e)).toList();
+      loader = false;
+
       print(marketActivityList);
+
+      notifyListeners();
     } else {
+      loader = false;
+
+      notifyListeners();
       debugPrint("activity list Error: ${response?['data']}");
     }
-    loader = false;
-    notifyListeners();
   }
 
   Future<void> marketActivityAdd({
@@ -164,8 +165,8 @@ class IssuesViewModel extends ChangeNotifier {
       await getMarketActivityList(
         storeId: storeID,
         activityCategoryId: activityCategoryId,
-        activityTypeId: activityTypeId,
-        brandId: brandId,
+        activityTypeId: '0',
+        brandId: '3',
       );
       loader = false;
       notifyListeners();
@@ -181,7 +182,8 @@ class IssuesViewModel extends ChangeNotifier {
     loader = true;
     notifyListeners();
     await loadUser();
-    await getIssueList(divisionId: '1', categoryTypeId: '20');
+
+    await getIssueList(divisionId: '1', categoryTypeId: '0');
     loader = false;
     notifyListeners();
   }
