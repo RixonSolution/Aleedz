@@ -34,6 +34,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
   ActivityModelType? _selectedActivityType;
   ActivityCategoryModel? _selectedActivityCategory;
   bool _isSubmitting = false;
+  bool _filterApplied = false;
   final Map<int, int> _imagePageIndex = {};
 
   void _showSwipeHintSnack() {
@@ -193,7 +194,12 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
           activityTypeId: typeId,
           brandId: '1',
         );
-    setState(() {});
+    if (mounted) {
+      setState(() {
+        _filterApplied =
+            _selectedActivityType != null || _selectedActivityCategory != null;
+      });
+    }
   }
 
   Future<bool> _confirmDeleteDialog() async {
@@ -1081,9 +1087,10 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          // spacing: 8,
+                          // runSpacing: 8,
                           children: [
                             _headerTag(
                               Icons.check,
@@ -1091,6 +1098,15 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                             ),
                             InkWell(
                               onTap: () async {
+                                if (_filterApplied) {
+                                  setState(() {
+                                    _selectedActivityType = null;
+                                    _selectedActivityCategory = null;
+                                  });
+                                  await _refreshActivityList();
+                                  return;
+                                }
+
                                 await _ensureActivityTypesLoaded();
                                 if (_selectedActivityType == null &&
                                     viewModel.activityType.isNotEmpty) {
@@ -1108,18 +1124,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                 }
                                 _openFilterSheet(viewModel);
                               },
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.filter_alt_outlined,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                              ),
+                              child: _FilterIcon(active: _filterApplied),
                             ),
                           ],
                         ),
@@ -1559,6 +1564,50 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _FilterIcon extends StatelessWidget {
+  final bool active;
+  const _FilterIcon({required this.active});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.filter_alt_outlined,
+            color: active ? AppColors.primary : Colors.white,
+            size: 18,
+          ),
+        ),
+        if (active)
+          Positioned(
+            right: -2,
+            top: -2,
+            child: Container(
+              height: 16,
+              width: 16,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.close,
+                size: 12,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

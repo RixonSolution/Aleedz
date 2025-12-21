@@ -187,6 +187,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
           StockSummaryView(
             storeName: widget.storeName,
             checkInTime: widget.checkInTime,
+            address: widget.address,
             storeId: widget.storeId,
             visitId: viewModel.visitId,
           ),

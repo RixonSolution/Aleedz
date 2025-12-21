@@ -39,6 +39,8 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
   final TextEditingController barcodeController = TextEditingController();
   final Map<int, int> _imagePageIndex = {};
   ActivityCategoryModel? _selectedDeploymentCategory;
+  int? _defaultDeploymentCategoryId;
+  bool _filterApplied = false;
   List<ActivityCategoryModel> _deploymentCategories = [];
   List<String> _sheetBarcodes = [];
 
@@ -256,6 +258,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
   @override
   void initState() {
     super.initState();
+    _defaultDeploymentCategoryId = widget.activitiCategoryId;
     Future.microtask(loadUserAndFetchActivity);
   }
 
@@ -281,7 +284,34 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
         );
     setState(() {
       widget.activitiCategoryId = categoryId;
+      _filterApplied =
+          _defaultDeploymentCategoryId != null &&
+          categoryId != _defaultDeploymentCategoryId;
     });
+  }
+
+  Widget _fieldLabel(String text, {bool required = true}) {
+    return Row(
+      children: [
+        Text(
+          text,
+          style: const TextStyle(
+            color: Color(0xFF111827),
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        if (required)
+          const Text(
+            ' *',
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+      ],
+    );
   }
 
   Future<void> _ensureDeploymentCategories() async {
@@ -298,16 +328,30 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
     final loadedList = deploymentNotifier.deploymentList;
     ActivityCategoryModel? selectedCategory;
     if (loadedList.isNotEmpty) {
-      selectedCategory =
-          loadedList.firstWhere(
-            (c) => c.activityCategoryID == widget.activitiCategoryId,
-            orElse: () => loadedList.first,
-          );
+      selectedCategory = loadedList.firstWhere(
+        (c) => c.activityCategoryID == widget.activitiCategoryId,
+        orElse: () => loadedList.first,
+      );
     }
     setState(() {
       _deploymentCategories = loadedList;
       _selectedDeploymentCategory ??= selectedCategory;
     });
+  }
+
+  Future<void> _clearDeploymentFilters() async {
+    ActivityCategoryModel? defaultCategory;
+    if (_deploymentCategories.isNotEmpty) {
+      defaultCategory = _deploymentCategories.firstWhere(
+        (c) => c.activityCategoryID == _defaultDeploymentCategoryId,
+        orElse: () => _deploymentCategories.first,
+      );
+    }
+    setState(() {
+      _selectedDeploymentCategory = defaultCategory;
+      _filterApplied = false;
+    });
+    await _fetchActivitiesForCategory(_defaultDeploymentCategoryId ?? 0);
   }
 
   @override
@@ -385,6 +429,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                       ),
                       const SizedBox(height: 4),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -403,11 +448,11 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                   color: AppColors.primary,
                                   size: 16,
                                 ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '${labelService.getLabel(14)} ${widget.checkInTime}',
-                            style: const TextStyle(
-                              color: Colors.white,
+                                const SizedBox(width: 6),
+                                Text(
+                                  '${labelService.getLabel(14)} ${widget.checkInTime}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -418,6 +463,10 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                           SizedBox(width: 12),
                           InkWell(
                             onTap: () async {
+                              if (_filterApplied) {
+                                await _clearDeploymentFilters();
+                                return;
+                              }
                               await _ensureDeploymentCategories();
                               if (_deploymentCategories.isEmpty) {
                                 AppSnackBar.showError(
@@ -428,18 +477,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                               }
                               _openFilterSheet();
                             },
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.08),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.filter_alt_outlined,
-                                size: 18,
-                                color: Colors.white,
-                              ),
-                            ),
+                            child: _FilterIcon(active: _filterApplied),
                           ),
                         ],
                       ),
@@ -921,18 +959,15 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                 .map(
                                   (cat) => DropdownMenuItem<int>(
                                     value: cat.activityCategoryID,
-                                    child: Text(
-                                      cat.activityCategoryName ?? '',
-                                    ),
+                                    child: Text(cat.activityCategoryName ?? ''),
                                   ),
                                 )
                                 .toList(),
                         onChanged: (value) async {
                           if (value == null) return;
-                          final selected =
-                              _deploymentCategories.firstWhere(
-                                (c) => c.activityCategoryID == value,
-                              );
+                          final selected = _deploymentCategories.firstWhere(
+                            (c) => c.activityCategoryID == value,
+                          );
                           setState(() {
                             _selectedDeploymentCategory = selected;
                             widget.activitiCategoryId =
@@ -941,18 +976,19 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                             widget.activityCategoryName =
                                 selected.activityCategoryName ??
                                 widget.activityCategoryName;
+                            _filterApplied =
+                                _defaultDeploymentCategoryId !=
+                                selected.activityCategoryID;
                           });
                           setModalState(() {});
                           Navigator.of(ctx).pop();
                           await _fetchActivitiesForCategory(
                             selected.activityCategoryID ??
-                            widget.activitiCategoryId,
+                                widget.activitiCategoryId,
                           );
                         },
                       ),
-                      SizedBox(
-                        height: MediaQuery.of(ctx).padding.bottom + 32,
-                      ),
+                      SizedBox(height: MediaQuery.of(ctx).padding.bottom + 32),
                     ],
                   ),
                 ),
@@ -986,17 +1022,11 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
             void addBarcode(String code) {
               final value = code.trim();
               if (value.isEmpty) {
-                AppSnackBar.showError(
-                  context,
-                  'Enter or scan a barcode first',
-                );
+                AppSnackBar.showError(context, 'Enter or scan a barcode first');
                 return;
               }
               if (_sheetBarcodes.contains(value)) {
-                AppSnackBar.showError(
-                  context,
-                  'Barcode already added',
-                );
+                AppSnackBar.showError(context, 'Barcode already added');
                 return;
               }
               setModalState(() {
@@ -1138,57 +1168,73 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            GestureDetector(
-                              onTap: () {
-                                if (viewModel.beforeActivityImages.length < 4) {
-                                  _showImagePickerDialog(
-                                    onImagesUpdated: () => setModalState(() {}),
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        LabelService().getLabel(114),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Photo',
+                                      style: const TextStyle(
+                                        color: Color(0xFF111827),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800,
                                       ),
                                     ),
-                                  );
-                                }
-                              },
-                              child: Container(
-                                height: 90,
-                                width: 90,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFF4E8),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: const Color(0xFFFFD8B2),
-                                  ),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(
-                                      Icons.camera_alt,
-                                      color: AppColors.primary,
-                                      size: 28,
-                                    ),
-                                    SizedBox(height: 6),
-                                    Text(
-                                      'Add Photo',
+                                    const Text(
+                                      ' *',
                                       style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
+                                        color: Colors.red,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800,
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
+
+                                const SizedBox(height: 8),
+
+                                GestureDetector(
+                                  onTap: () {
+                                    if (viewModel.beforeActivityImages.length <
+                                        4) {
+                                      _showImagePickerDialog(
+                                        onImagesUpdated:
+                                            () => setModalState(() {}),
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            LabelService().getLabel(114),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: Container(
+                                    height: 80,
+                                    width: 80,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: SizedBox(
-                                height: 90,
+                                height: 110,
                                 child:
                                     viewModel.beforeActivityImages.isEmpty
                                         ? Center(
@@ -1200,78 +1246,86 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                             ),
                                           ),
                                         )
-                                        : ListView.builder(
-                                          shrinkWrap: true,
-                                          physics:
-                                              const NeverScrollableScrollPhysics(),
-                                          scrollDirection: Axis.horizontal,
-                                          itemCount:
-                                              viewModel
-                                                  .beforeActivityImages
-                                                  .length,
-                                          itemBuilder: (context, index) {
-                                            final file =
+                                        : Container(
+                                          margin: const EdgeInsets.only(
+                                            top: 30,
+                                          ),
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount:
                                                 viewModel
-                                                    .beforeActivityImages[index];
-                                            return Stack(
-                                              children: [
-                                                Container(
-                                                  margin: const EdgeInsets.only(
-                                                    right: 10,
-                                                  ),
-                                                  height: 90,
-                                                  width: 100,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          12,
+                                                    .beforeActivityImages
+                                                    .length,
+                                            itemBuilder: (context, index) {
+                                              final file =
+                                                  viewModel
+                                                      .beforeActivityImages[index];
+                                              return Stack(
+                                                children: [
+                                                  Container(
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                          right: 10,
                                                         ),
-                                                    border: Border.all(
-                                                      color: const Color(
-                                                        0xFFFFD8B2,
+                                                    height: 120,
+                                                    width: 80,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: const Color(
+                                                          0xFFFFD8B2,
+                                                        ),
                                                       ),
-                                                    ),
-                                                    image: DecorationImage(
-                                                      image: FileImage(file),
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Positioned(
-                                                  top: 6,
-                                                  right: 6,
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      viewModel
-                                                          .beforeActivityImages
-                                                          .removeAt(index);
-                                                      viewModel
-                                                          .notifyListeners();
-                                                      setModalState(() {});
-                                                    },
-                                                    child: Container(
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                            color:
-                                                                Colors.black54,
-                                                            shape:
-                                                                BoxShape.circle,
-                                                          ),
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                            4,
-                                                          ),
-                                                      child: const Icon(
-                                                        Icons.close,
-                                                        size: 16,
-                                                        color: Colors.white,
+                                                      image: DecorationImage(
+                                                        image: FileImage(file),
+                                                        fit: BoxFit.cover,
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
-                                            );
-                                          },
+                                                  Positioned(
+                                                    top: 6,
+                                                    right: 6,
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        viewModel
+                                                            .beforeActivityImages
+                                                            .removeAt(index);
+                                                        viewModel
+                                                            .notifyListeners();
+                                                        setModalState(() {});
+                                                      },
+                                                      child: Container(
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                              color:
+                                                                  Colors
+                                                                      .black54,
+                                                              shape:
+                                                                  BoxShape
+                                                                      .circle,
+                                                            ),
+                                                        padding:
+                                                            const EdgeInsets.all(
+                                                              4,
+                                                            ),
+                                                        child: const Icon(
+                                                          Icons.close,
+                                                          size: 16,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          ),
                                         ),
                               ),
                             ),
@@ -1361,6 +1415,46 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
   }
 }
 
+class _FilterIcon extends StatelessWidget {
+  final bool active;
+  const _FilterIcon({required this.active});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.filter_alt_outlined,
+            color: active ? AppColors.primary : Colors.white,
+            size: 18,
+          ),
+        ),
+        if (active)
+          Positioned(
+            right: -2,
+            top: -2,
+            child: Container(
+              height: 16,
+              width: 16,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.close, size: 12, color: AppColors.primary),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 class _AddDeploymentButton extends StatelessWidget {
   final VoidCallback onTap;
   const _AddDeploymentButton({Key? key, required this.onTap}) : super(key: key);
@@ -1419,9 +1513,9 @@ class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
 
   void _handleScan(String value) {
     widget.controller.text = value;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Scanned: $value')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Scanned: $value')));
     Future.delayed(const Duration(milliseconds: 300), () {
       hasScanned = false;
     });
@@ -1453,13 +1547,8 @@ class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
                 ),
               ),
               IconButton(
-                icon: const Icon(
-                  Icons.add_circle,
-                  color: AppColors.primary,
-                ),
-                onPressed: () => widget.onAddBarcode(
-                  widget.controller.text,
-                ),
+                icon: const Icon(Icons.add_circle, color: AppColors.primary),
+                onPressed: () => widget.onAddBarcode(widget.controller.text),
               ),
             ],
           ),

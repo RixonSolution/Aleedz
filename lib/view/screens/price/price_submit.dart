@@ -34,6 +34,11 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
   late int _selectedProductCategoryId;
   late String _currentBrandName;
   late String _currentProductName;
+  late final int _defaultBrandId;
+  late final int _defaultProductCategoryId;
+  late final String _defaultBrandName;
+  late final String _defaultProductName;
+  bool _filterApplied = false;
   bool _hasUnsavedChanges = false;
 
   void _showImagePickerDialog(
@@ -123,6 +128,10 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
     _selectedProductCategoryId = widget.productCategoryId;
     _currentBrandName = widget.brandName;
     _currentProductName = widget.productName;
+    _defaultBrandId = widget.brandId;
+    _defaultProductCategoryId = widget.productCategoryId;
+    _defaultBrandName = widget.brandName;
+    _defaultProductName = widget.productName;
 
     Future.microtask(() async {
       final notifier = ref.read(priceModelProvider.notifier);
@@ -288,12 +297,15 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
 
   Future<void> _applyFilter(PriceModel item, PriceViewModel viewModel) async {
     Navigator.of(context).pop();
+    final newBrand = item.brandID ?? _selectedBrandId;
+    final newCategory = item.productCategoryID ?? _selectedProductCategoryId;
     setState(() {
-      _selectedBrandId = item.brandID ?? _selectedBrandId;
-      _selectedProductCategoryId =
-          item.productCategoryID ?? _selectedProductCategoryId;
+      _selectedBrandId = newBrand;
+      _selectedProductCategoryId = newCategory;
       _currentBrandName = item.brandName ?? _currentBrandName;
       _currentProductName = item.productCategoryName ?? _currentProductName;
+      _filterApplied = _selectedBrandId != _defaultBrandId ||
+          _selectedProductCategoryId != _defaultProductCategoryId;
     });
     await viewModel.pricePromotionList(
       brandId: _selectedBrandId.toString(),
@@ -303,9 +315,36 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
     );
   }
 
-  void _openFilterSheet(PriceViewModel viewModel) async {
+  Future<void> _resetFilters(PriceViewModel viewModel) async {
+    setState(() {
+      _selectedBrandId = _defaultBrandId;
+      _selectedProductCategoryId = _defaultProductCategoryId;
+      _currentBrandName = _defaultBrandName;
+      _currentProductName = _defaultProductName;
+      _filterApplied = false;
+    });
+    await viewModel.pricePromotionList(
+      brandId: _selectedBrandId.toString(),
+      productCategoryId: _selectedProductCategoryId.toString(),
+      storeId: widget.storeId.toString(),
+      visiteId: widget.visiteId.toString(),
+    );
+  }
+
+  Future<void> _openFilterSheet(PriceViewModel viewModel) async {
+    if (viewModel.user == null) {
+      await viewModel.loadUser();
+    }
     if (viewModel.brandList.isEmpty) {
       await viewModel.getBrandDropDown();
+    }
+    if (viewModel.brands.isEmpty) {
+      await viewModel.pricePromotion(
+        widget.storeId,
+        _selectedBrandId,
+        widget.visiteId.toString(),
+        showLoader: false,
+      );
     }
 
     BrandListModel? selectedBrand =
@@ -683,22 +722,6 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                                  const Spacer(),
-                                  InkWell(
-                                    onTap: () => _openFilterSheet(viewModel),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.08),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.filter_alt_outlined,
-                                        size: 18,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
                                 ],
                               ),
                               const SizedBox(height: 16),
@@ -731,34 +754,50 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.access_time_filled,
-                                      color: AppColors.primary,
-                                      size: 16,
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 8,
                                     ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      '${labelService.getLabel(14)} ${widget.checkInTime}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                  ],
-                                ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.access_time_filled,
+                                          color: AppColors.primary,
+                                          size: 16,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          '${labelService.getLabel(14)} ${widget.checkInTime}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () async {
+                                      if (_filterApplied) {
+                                        await _resetFilters(viewModel);
+                                      } else {
+                                        await _openFilterSheet(viewModel);
+                                      }
+                                    },
+                                    child: _FilterIcon(active: _filterApplied),
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 4),
                             ],
@@ -1416,6 +1455,50 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _FilterIcon extends StatelessWidget {
+  final bool active;
+  const _FilterIcon({required this.active});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.filter_alt_outlined,
+            color: active ? AppColors.primary : Colors.white,
+            size: 18,
+          ),
+        ),
+        if (active)
+          Positioned(
+            right: -2,
+            top: -2,
+            child: Container(
+              height: 16,
+              width: 16,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.close,
+                size: 12,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

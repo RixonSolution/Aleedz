@@ -183,7 +183,7 @@ class IssuesViewModel extends ChangeNotifier {
     notifyListeners();
     await loadUser();
 
-    await getIssueList(divisionId: '1', categoryTypeId: '0');
+    await getIssueList(divisionId: '1', categoryTypeId: '20');
     loader = false;
     notifyListeners();
   }

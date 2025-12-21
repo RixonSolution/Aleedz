@@ -31,7 +31,9 @@ class IssueSubmitView extends ConsumerStatefulWidget {
 
 class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
   ActivityCategoryModel? _selectedIssueCategory;
+  int? _defaultIssueCategoryId;
   bool _isSubmitting = false;
+  bool _filterApplied = false;
   final Map<int, int> _imagePageIndex = {};
 
   final TextEditingController descriptionController = TextEditingController();
@@ -61,16 +63,8 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
           brandId: '2',
         );
 
-    await notifier.loadActivity();
-    _selectedIssueCategory =
-        notifier.issueList.isNotEmpty ? notifier.issueList.first : null;
-
-    if (_selectedIssueCategory != null) {
-      await _refreshIssueList();
-    } else {
-      notifier.loader = false;
-      notifier.notifyListeners();
-    }
+    notifier.loader = false;
+    notifier.notifyListeners();
     if (mounted) setState(() {});
   }
 
@@ -88,6 +82,11 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
           activityTypeId: typeId,
           brandId: '2',
         );
+    if (mounted) {
+      setState(() {
+        _filterApplied = _selectedIssueCategory != null;
+      });
+    }
   }
 
   void _showSwipeHintSnack() {
@@ -685,7 +684,20 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
     );
   }
 
-  void _openFilterSheet(IssuesViewModel viewModel) {
+  Future<void> _openFilterSheet(IssuesViewModel viewModel) async {
+    if (viewModel.user == null) {
+      await viewModel.loadUser();
+    }
+    if (viewModel.issueList.isEmpty && !viewModel.loader) {
+      await viewModel.getIssueList(divisionId: '1', categoryTypeId: '20');
+      if (_selectedIssueCategory == null &&
+          viewModel.issueList.isNotEmpty &&
+          mounted) {
+        setState(() {
+          _selectedIssueCategory = viewModel.issueList.first;
+        });
+      }
+    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -837,6 +849,20 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
     super.dispose();
   }
 
+  Future<void> _clearIssueFilters(IssuesViewModel viewModel) async {
+    setState(() {
+      _selectedIssueCategory = null;
+      _filterApplied = false;
+    });
+
+    await viewModel.getMarketActivityList(
+      storeId: widget.storeId.toString(),
+      activityCategoryId: '0',
+      activityTypeId: '0',
+      brandId: '2',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(issuesModelProvider);
@@ -908,9 +934,10 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
+                        Row(
+                          // spacing: 8,
+                          // runSpacing: 8,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -943,26 +970,13 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                             ),
                             InkWell(
                               onTap: () async {
-                                if (viewModel.issueList.isEmpty) {
-                                  await viewModel.getIssueList(
-                                    divisionId: '1',
-                                    categoryTypeId: '0',
-                                  );
+                                if (_filterApplied) {
+                                  await _clearIssueFilters(viewModel);
+                                  return;
                                 }
-                                _openFilterSheet(viewModel);
+                                await _openFilterSheet(viewModel);
                               },
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.filter_alt_outlined,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                              ),
+                              child: _FilterIcon(active: _filterApplied),
                             ),
                           ],
                         ),
@@ -1364,6 +1378,46 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _FilterIcon extends StatelessWidget {
+  final bool active;
+  const _FilterIcon({required this.active});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.filter_alt_outlined,
+            color: active ? AppColors.primary : Colors.white,
+            size: 18,
+          ),
+        ),
+        if (active)
+          Positioned(
+            right: -2,
+            top: -2,
+            child: Container(
+              height: 16,
+              width: 16,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.close, size: 12, color: AppColors.primary),
+            ),
+          ),
+      ],
     );
   }
 }

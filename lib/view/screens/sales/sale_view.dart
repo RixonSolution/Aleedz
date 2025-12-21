@@ -609,6 +609,12 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
     if (quantityController.text.isEmpty) {
       quantityController.text = '1';
     }
+    viewModel.selectedBrand = null;
+    viewModel.selectedProductCategory = null;
+    viewModel.selectedSaleSearch = null;
+    viewModel.productCategory = [];
+    viewModel.saleSearch = [];
+    viewModel.notifyListeners();
     calculateTotal();
     bool isSubmitting = false;
     final saleDate = DateFormat('yyyy-MM-dd').format(_selectedDate);
