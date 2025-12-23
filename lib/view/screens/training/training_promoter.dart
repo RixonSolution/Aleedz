@@ -367,21 +367,23 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                 ),
                               ),
 
-                              Row(
-                                children: [
-                                  /// ID Field
-                                  Expanded(
-                                    flex: 2,
-                                    child: Container(
-                                      padding: EdgeInsets.only(left: 10),
-                                      margin: EdgeInsets.only(left: 10),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: Colors.grey.shade300,
-                                        ),
-                                      ),
+                              Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    /// ID Field
+                                    Expanded(
+                                      flex: 2,
                                       child: TextField(
                                         controller: idController,
                                         decoration: InputDecoration(
@@ -390,27 +392,15 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                           ),
                                           border: InputBorder.none,
                                           isDense: true,
-                                          contentPadding: EdgeInsets.symmetric(
-                                            vertical: 12,
-                                          ),
+                                          contentPadding:
+                                              EdgeInsets.symmetric(vertical: 8),
                                         ),
                                       ),
                                     ),
-                                  ),
-
-                                  /// Name Field
-                                  Expanded(
-                                    flex: 3,
-                                    child: Container(
-                                      padding: EdgeInsets.only(left: 10),
-                                      margin: EdgeInsets.only(left: 10),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: Colors.grey.shade300,
-                                        ),
-                                      ),
+                                    const SizedBox(width: 10),
+                                    /// Name Field
+                                    Expanded(
+                                      flex: 3,
                                       child: TextField(
                                         controller: nameController,
                                         decoration: InputDecoration(
@@ -419,58 +409,62 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                           ),
                                           border: InputBorder.none,
                                           isDense: true,
-                                          contentPadding: EdgeInsets.symmetric(
-                                            vertical: 12,
-                                          ),
+                                          contentPadding:
+                                              EdgeInsets.symmetric(vertical: 8),
                                         ),
                                       ),
                                     ),
-                                  ),
-
-                                  /// Add Button
-                                  Container(
-                                    margin: EdgeInsets.only(
-                                      left: 10,
-                                      right: 10,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: AppColors.blackColor,
-                                    ),
-                                    child: InkWell(
+                                    const SizedBox(width: 10),
+                                    /// Add Button
+                                    GestureDetector(
                                       onTap: addName,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(3.0),
-                                        child: Icon(
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 10,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: const Icon(
                                           Icons.add,
-                                          color: AppColors.whiteColor,
+                                          color: Colors.white,
+                                          size: 18,
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 12),
 
-                              /// Table Header with Border
+                              /// Table Header
                               Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.black),
-                                  color: Colors.grey[300],
+                                  color: Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
                                 ),
                                 child: Row(
                                   children: [
                                     Expanded(
                                       flex: 1,
                                       child: Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            '#',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
+                                        child: Text(
+                                          '#',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 13,
+                                            color: Colors.grey.shade700,
                                           ),
                                         ),
                                       ),
@@ -478,14 +472,12 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                     Expanded(
                                       flex: 3,
                                       child: Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            'ID',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
+                                        child: Text(
+                                          'ID',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 13,
+                                            color: Colors.grey.shade700,
                                           ),
                                         ),
                                       ),
@@ -493,14 +485,12 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                     Expanded(
                                       flex: 3,
                                       child: Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            ' Name',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
+                                        child: Text(
+                                          'Name',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 13,
+                                            color: Colors.grey.shade700,
                                           ),
                                         ),
                                       ),
@@ -508,14 +498,12 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                     Expanded(
                                       flex: 2,
                                       child: Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            LabelService().getLabel(149),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
+                                        child: Text(
+                                          LabelService().getLabel(149),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 13,
+                                            color: Colors.grey.shade700,
                                           ),
                                         ),
                                       ),
@@ -524,7 +512,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                 ),
                               ),
 
-                              /// List of Entries with Border
+                              /// List of Entries
                               ListView.builder(
                                 shrinkWrap: true,
                                 physics: NeverScrollableScrollPhysics(),
@@ -532,35 +520,54 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                 itemBuilder: (context, index) {
                                   final promoter = promoterList[index];
                                   return Container(
+                                    margin: const EdgeInsets.fromLTRB(
+                                      16,
+                                      8,
+                                      16,
+                                      0,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                    ),
                                     decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.black),
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.grey.shade200,
+                                      ),
                                     ),
                                     child: Row(
                                       children: [
                                         Expanded(
                                           flex: 1,
                                           child: Center(
-                                            child: Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text('${index + 1}'),
+                                            child: Text(
+                                              '${index + 1}',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                             ),
                                           ),
                                         ),
                                         Expanded(
                                           flex: 3,
                                           child: Center(
-                                            child: Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(promoter.id),
+                                            child: Text(
+                                              promoter.id,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
                                           ),
                                         ),
                                         Expanded(
                                           flex: 3,
                                           child: Center(
-                                            child: Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(promoter.name),
+                                            child: Text(
+                                              promoter.name,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -570,7 +577,8 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                             child: InkWell(
                                               onTap: () => removeName(index),
                                               child: Container(
-                                                padding: EdgeInsets.all(4),
+                                                padding:
+                                                    const EdgeInsets.all(6),
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
                                                   border: Border.all(
@@ -578,10 +586,10 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                                     width: 2,
                                                   ),
                                                 ),
-                                                child: Icon(
+                                                child: const Icon(
                                                   Icons.close,
                                                   color: Colors.orange,
-                                                  size: 18,
+                                                  size: 16,
                                                 ),
                                               ),
                                             ),

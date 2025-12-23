@@ -1,5 +1,4 @@
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/transfer/transfer_brand_view.dart';
@@ -47,72 +46,85 @@ class _CoverageViewState extends ConsumerState<TransferView> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      NavigationService.goBack();
-                    },
-                    child: Image.asset(
-                      AppIcons.backArrow,
-                      height: 30,
-                      width: 30,
-                    ),
-                  ),
-                  Text(
-                    LabelService().getLabel(33),
-                    style: TextStyle(
-                      color: AppColors.blackColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Image.asset(AppIcons.locationIcon, height: 30, width: 30),
-                ],
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
-            ),
-            SizedBox(height: 5),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(color: AppColors.primary, height: 0),
-            ),
-            SizedBox(height: 5),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 5),
-                  Center(
-                    child: Text(
-                      widget.storeName,
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () => NavigationService.goBack(),
+                        child: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
                       ),
+                      const SizedBox(width: 12),
+                      Text(
+                        LabelService().getLabel(33),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    widget.storeName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
-                  Center(
-                    child: Text(
-                      '${LabelService().getLabel(14)} ${widget.checkInTime}',
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.check,
+                          color: AppColors.primary,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${LabelService().getLabel(14)} ${widget.checkInTime}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 10),
                 ],
               ),
             ),
+            const SizedBox(height: 16),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
                 onChanged: (value) {
                   viewModel.getTransferList(
@@ -123,42 +135,54 @@ class _CoverageViewState extends ConsumerState<TransferView> {
                 },
                 decoration: InputDecoration(
                   hintText: LabelService().getLabel(18),
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                  hintStyle: TextStyle(
+                    color: AppColors.blackColor.withOpacity(0.45),
+                    fontSize: 14,
                   ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
                   ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.secondary),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 0,
-                    vertical: 0,
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 1.8,
+                    ),
                   ),
                 ),
               ),
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 8),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: DropdownButtonFormField<int>(
                 value: viewModel.selectedChannel?.channelId,
                 decoration: InputDecoration(
                   hintText: LabelService().getLabel(19),
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                  hintStyle: TextStyle(
+                    color: AppColors.blackColor.withOpacity(0.45),
+                    fontSize: 14,
                   ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
                   ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.secondary),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 0,
-                    vertical: 12,
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 1.8,
+                    ),
                   ),
                 ),
 
@@ -178,20 +202,25 @@ class _CoverageViewState extends ConsumerState<TransferView> {
               ),
             ),
 
-            SizedBox(height: 5),
+            const SizedBox(height: 12),
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 10),
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              color: AppColors.lightGreyBackground,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              decoration: BoxDecoration(
+                color: AppColors.whiteColor,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     LabelService().getLabel(59),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.blackColor,
                     ),
                   ),
                   SizedBox(
@@ -201,101 +230,114 @@ class _CoverageViewState extends ConsumerState<TransferView> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-
             viewModel.loader
                 ? Center(
                   child: CircularProgressIndicator(color: AppColors.secondary),
                 )
-                : Flexible(
+                : Expanded(
                   child: ListView.separated(
                     physics: ScrollPhysics(),
                     itemCount: viewModel.transfer.length,
-                    padding: EdgeInsets.zero,
+                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
                     itemBuilder: (context, index) {
+                      final item = viewModel.transfer[index];
                       return GestureDetector(
                         onTap: () {
                           NavigationService.navigateTo(
                             TransferBrandView(
                               storeName: widget.storeName,
                               checkInTime: widget.checkInTime,
-                              storeId: viewModel.transfer[index].storeID!,
-                              transferStore:
-                                  viewModel.transfer[index].storeName ?? '',
-                              transferStoreAddress:
-                                  viewModel.transfer[index].address ?? '',
+                              storeId: item.storeID!,
+                              transferStore: item.storeName ?? '',
+                              transferStoreAddress: item.address ?? '',
                               visiteId: widget.visiteId,
                             ),
                           );
                         },
                         child: Container(
-                          color: AppColors.whiteColor,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 15,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x14000000),
+                                blurRadius: 10,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          margin: EdgeInsets.symmetric(horizontal: 5),
                           child: Stack(
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 5,
-                                ),
-                                child: Text(
-                                  '${index + 1}.',
-                                  style: TextStyle(
-                                    color: AppColors.blackColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                              Positioned(
+                                left: 0,
+                                top: 0,
+                                bottom: 0,
+                                child: Container(
+                                  width: 30,
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Color(0xFF111827),
+                                        Color(0xFF0B1120),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(12),
+                                      bottomLeft: Radius.circular(12),
+                                    ),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    '${index + 1}',
+                                    style: const TextStyle(
+                                      color: AppColors.whiteColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ),
-                              Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 5,
-                                    ),
-                                    child: Text(
-                                      '${index + 1}.',
-                                      style: TextStyle(
-                                        color: Colors.transparent,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(right: 5),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  40,
+                                  12,
+                                  12,
+                                  12,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            viewModel
-                                                    .transfer[index]
-                                                    .storeName ??
-                                                '',
-                                            style: TextStyle(
+                                            item.storeName ?? '',
+                                            style: const TextStyle(
                                               color: AppColors.blackColor,
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                          SizedBox(height: 3),
+                                          const SizedBox(height: 3),
                                           Text(
-                                            viewModel.transfer[index].address ??
-                                                '',
+                                            item.address ?? '',
                                             style: TextStyle(
-                                              color: AppColors.blackColor,
-                                              fontSize: 13,
+                                              color: Colors.grey.shade600,
+                                              fontSize: 12,
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 2,
@@ -303,24 +345,21 @@ class _CoverageViewState extends ConsumerState<TransferView> {
                                         ],
                                       ),
                                     ),
-                                  ),
-
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      right: 30,
-                                      left: 10,
-                                    ),
-                                    child: Text(
-                                      viewModel.transfer[index].transferCount
-                                          .toString(),
-                                      style: TextStyle(
-                                        color: AppColors.secondary,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
+                                    SizedBox(
+                                      width: 60,
+                                      child: Center(
+                                        child: Text(
+                                          item.transferCount.toString(),
+                                          style: const TextStyle(
+                                            color: AppColors.blackColor,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -328,11 +367,7 @@ class _CoverageViewState extends ConsumerState<TransferView> {
                       );
                     },
                     separatorBuilder:
-                        (context, index) => Container(
-                          margin: EdgeInsets.symmetric(horizontal: 5),
-                          color: Colors.grey,
-                          height: 1,
-                        ),
+                        (context, index) => const SizedBox(height: 12),
                   ),
                 ),
           ],

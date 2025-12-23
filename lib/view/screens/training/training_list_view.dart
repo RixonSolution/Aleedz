@@ -181,6 +181,7 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
                             padding: const EdgeInsets.fromLTRB(0, 0, 0, 88),
                             itemCount: viewModel.trainingList.length,
                             itemBuilder: (context, index) {
+                              final item = viewModel.trainingList[index];
                               return GestureDetector(
                                 onTap: () {
                                   NavigationService.navigateTo(
@@ -193,80 +194,143 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
                                     ),
                                   );
                                 },
-
-                                child: Container(
-                                  padding: EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        color: Colors.grey.shade300,
-                                      ),
-                                    ),
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    5,
+                                    16,
+                                    5,
                                   ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '${index + 1} ',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(18),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Color(0x14000000),
+                                          blurRadius: 14,
+                                          offset: Offset(0, 6),
                                         ),
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              '${LabelService().getLabel(140)}: ${viewModel.trainingList[index].trainingID}',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
+                                      ],
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        Positioned(
+                                          left: 0,
+                                          top: 0,
+                                          bottom: 0,
+                                          child: Container(
+                                            width: 30,
+                                            decoration: const BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Color(0xFF111827),
+                                                  Color(0xFF0B1120),
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(18),
+                                                bottomLeft: Radius.circular(18),
                                               ),
                                             ),
-                                            Text(
-                                              LabelService().getLabel(165),
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              '${index + 1}',
+                                              style: const TextStyle(
+                                                color: AppColors.whiteColor,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
                                               ),
-                                            ),
-                                            SizedBox(height: 4),
-                                            Text(
-                                              viewModel
-                                                  .trainingList[index]
-                                                  .description
-                                                  .toString(),
-                                              style: TextStyle(fontSize: 12),
-                                            ),
-                                            SizedBox(height: 4),
-                                            Text(
-                                              '${viewModel.trainingList[index].trainingDateTime.toString()}',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                            right: 8,
-                                          ),
-                                          child: Text(
-                                            '${viewModel.trainingList[index].attendese.toString()}',
-                                            textAlign: TextAlign.end,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                            40,
+                                            14,
+                                            14,
+                                            14,
+                                          ),
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      '${LabelService().getLabel(140)}: ${item.trainingID}',
+                                                      style: const TextStyle(
+                                                        color:
+                                                            AppColors
+                                                                .blackColor,
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      LabelService().getLabel(
+                                                        165,
+                                                      ),
+                                                      style: TextStyle(
+                                                        color:
+                                                            Colors
+                                                                .grey
+                                                                .shade600,
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 6),
+                                                    Text(
+                                                      item.description
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                        color:
+                                                            Colors
+                                                                .grey
+                                                                .shade700,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 6),
+                                                    Text(
+                                                      item.trainingDateTime
+                                                          .toString(),
+                                                      style: const TextStyle(
+                                                        color:
+                                                            AppColors
+                                                                .blackColor,
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                item.attendese.toString(),
+                                                textAlign: TextAlign.end,
+                                                style: const TextStyle(
+                                                  color: AppColors.blackColor,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w800,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               );

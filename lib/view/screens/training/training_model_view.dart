@@ -116,17 +116,15 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: AppColors.primary,
-            ),
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: AppColors.primary),
             timePickerTheme: TimePickerThemeData(
               backgroundColor: Colors.white,
               dayPeriodTextColor: AppColors.blackColor,
               dialTextColor: AppColors.blackColor,
               entryModeIconColor: AppColors.primary,
-              helpTextStyle: const TextStyle(
-                fontWeight: FontWeight.w700,
-              ),
+              helpTextStyle: const TextStyle(fontWeight: FontWeight.w700),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -237,39 +235,60 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            '${LabelService().getLabel(14)} ${widget.checkInTime}',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.grey.shade300,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+
           const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.check, color: AppColors.primary, size: 16),
-                const SizedBox(width: 6),
-                Text(
-                  '${LabelService().getLabel(14)} ${widget.checkInTime}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
                 ),
-              ],
-            ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.check, color: AppColors.primary, size: 16),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${LabelService().getLabel(14)} ${widget.checkInTime}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${widget.promoterList.length + widget.promoterNames1.length}  ${LabelService().getLabel(141)}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -287,49 +306,6 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         header,
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            // horizontal: 16,
-                            vertical: 8,
-                          ),
-
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  padding: EdgeInsets.only(left: 10),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary,
-                                    borderRadius: BorderRadius.circular(0),
-                                  ),
-                                  child: TextField(
-                                    enabled: false,
-                                    style: const TextStyle(
-                                      color: AppColors.blackColor,
-                                    ),
-                                    decoration: InputDecoration(
-                                      hintText:
-                                          '${widget.promoterList.length + widget.promoterNames1.length}  ${LabelService().getLabel(141)}',
-
-                                      hintStyle: TextStyle(
-                                        color: AppColors.whiteColor,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      border: InputBorder.none,
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.symmetric(
-                                        vertical: 12,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
                         Expanded(
                           child: ListView(
                             padding: const EdgeInsets.fromLTRB(5, 5, 5, 88),
