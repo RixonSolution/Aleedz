@@ -4,6 +4,7 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/checklist_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class TrainingSubmit extends ConsumerStatefulWidget {
   String checkInTime, storeName, trainingName;
@@ -140,7 +141,7 @@ class _MyConsumerState extends ConsumerState<TrainingSubmit> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -327,7 +328,7 @@ class _MyConsumerState extends ConsumerState<TrainingSubmit> {
                                               5,
                                             ),
                                             borderSide: const BorderSide(
-                                              color: Colors.black,
+                                              color: AppColors.primary,
                                             ),
                                           ),
                                         ),

@@ -5,8 +5,9 @@ import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/activity/activity_submit_view.dart';
 import 'package:aleedz/view/screens/checklist/checklist_view.dart';
+import 'package:aleedz/view/screens/compliance/display_compliance_view.dart'
+    show DisplayComplianceView;
 import 'package:aleedz/view/screens/delployement/deployment_view.dart';
-import 'package:aleedz/view/screens/issues/issues_list.dart';
 import 'package:aleedz/view/screens/issues/issues_submit.dart';
 import 'package:aleedz/view/screens/price/price_view.dart';
 import 'package:aleedz/view/screens/sales/sale_view.dart';
@@ -21,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class StoreHome extends ConsumerStatefulWidget {
   String grade, address, checkInTime, storeName;
@@ -184,14 +186,23 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
 
       case 39:
         NavigationService.navigateTo(
-          StockSummaryView(
+          DisplayComplianceView(
             storeName: widget.storeName,
             checkInTime: widget.checkInTime,
-            address: widget.address,
             storeId: widget.storeId,
-            visitId: viewModel.visitId,
+            visiteId: viewModel.visitId,
           ),
         );
+
+        // NavigationService.navigateTo(
+        //   StockSummaryView(
+        //     storeName: widget.storeName,
+        //     checkInTime: widget.checkInTime,
+        //     address: widget.address,
+        //     storeId: widget.storeId,
+        //     visitId: viewModel.visitId,
+        //   ),
+        // );
         break;
       case 40:
         NavigationService.navigateTo(
@@ -363,7 +374,12 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

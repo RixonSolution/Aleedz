@@ -9,6 +9,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class DisplayPicture extends ConsumerStatefulWidget {
   String storeName, checkInTime;
@@ -40,7 +41,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: AppColors.secondary),
+        borderSide: BorderSide(color: AppColors.primary),
       ),
     );
   }
@@ -165,10 +166,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
           backgroundColor: Colors.transparent,
           contentPadding: EdgeInsets.zero,
           insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-          title: Text(
-            '',
-            style: TextStyle(color: AppColors.whiteColor),
-          ),
+          title: Text('', style: TextStyle(color: AppColors.whiteColor)),
           content: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -553,8 +551,15 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                             height: 54,
                             child:
                                 viewModel.loader
-                                    ? const Center(
-                                      child: CircularProgressIndicator(),
+                                    ? Center(
+                                      child:
+                                          LoadingAnimationWidget.discreteCircle(
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
+                                            size: 32,
+                                          ),
                                     )
                                     : InkWell(
                                       onTap: () async {

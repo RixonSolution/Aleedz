@@ -6,6 +6,7 @@ import 'package:aleedz/view/screens/activity/activity_submit_view.dart';
 import 'package:aleedz/viewmodel/activity_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class ActivityCategoryView extends ConsumerStatefulWidget {
   String checkInTime, storeName, activityTypeName;
@@ -78,7 +79,7 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? Center(child: CircularProgressIndicator())
+                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -174,7 +175,7 @@ class _MyConsumerState extends ConsumerState<ActivityCategoryView> {
                             borderSide: BorderSide(color: AppColors.greyText),
                           ),
                           focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.greyText),
+                            borderSide: BorderSide(color: AppColors.primary),
                           ),
                         ),
                       ),

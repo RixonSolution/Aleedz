@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:aleedz/models/target_achievement_model.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class HomeChartView extends ConsumerStatefulWidget {
   const HomeChartView({super.key});
@@ -170,13 +171,10 @@ class _TargetAchievementCard extends StatelessWidget {
                   SizedBox(
                     height: 160,
                     width: 160,
-                    child: CircularProgressIndicator(
-                      value: (percent / 100).clamp(0.0, 1.0),
-                      strokeWidth: 14,
-                      backgroundColor: Colors.grey.shade200,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        AppColors.primary,
-                      ),
+                    child: LoadingAnimationWidget.discreteCircle(
+                      color: AppColors.secondary,
+
+                      size: 32,
                     ),
                   ),
                   Column(
@@ -309,10 +307,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
         .updateSelectedMonth(monthName, year: date.year.toString());
   }
 
-  Future<void> _changeDateBy(
-    int days,
-    HomeChartViewModel viewModel,
-  ) async {
+  Future<void> _changeDateBy(int days, HomeChartViewModel viewModel) async {
     final newDate = _selectedDate.add(Duration(days: days));
     if (_isFutureDate(newDate)) return;
     await _updateDate(newDate, viewModel);
@@ -602,7 +597,12 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? Center(child: CircularProgressIndicator())
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -944,17 +944,19 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                       _buildToggleChip(
                                         label: LabelService().getLabel(162),
                                         selected: viewModel.showQty,
-                                        onTap: () => ref
-                                            .read(homeChartMP.notifier)
-                                            .setShowQty(true),
+                                        onTap:
+                                            () => ref
+                                                .read(homeChartMP.notifier)
+                                                .setShowQty(true),
                                         selectedColor: AppColors.secondary,
                                       ),
                                       _buildToggleChip(
                                         label: "Value",
                                         selected: !viewModel.showQty,
-                                        onTap: () => ref
-                                            .read(homeChartMP.notifier)
-                                            .setShowQty(false),
+                                        onTap:
+                                            () => ref
+                                                .read(homeChartMP.notifier)
+                                                .setShowQty(false),
                                         selectedColor: AppColors.secondary,
                                       ),
                                     ],

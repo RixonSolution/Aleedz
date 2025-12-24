@@ -5,6 +5,7 @@ import 'package:aleedz/view/screens/training/training_promoter.dart';
 import 'package:aleedz/viewmodel/training_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class TrainingModelView extends ConsumerStatefulWidget {
   String checkInTime, storeName, trainingName;
@@ -31,8 +32,21 @@ class TrainingModelView extends ConsumerStatefulWidget {
 class _MyConsumerState extends ConsumerState<TrainingModelView> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController titleController = TextEditingController();
+  final FocusNode _titleFocus = FocusNode();
+  final FocusNode _descriptionFocus = FocusNode();
+  bool _isTitleFocused = false;
+  bool _isDescriptionFocused = false;
 
   final Set<int> selectedIndexes = {};
+
+  @override
+  void dispose() {
+    _titleFocus.dispose();
+    _descriptionFocus.dispose();
+    descriptionController.dispose();
+    titleController.dispose();
+    super.dispose();
+  }
 
   void _showImagePickerDialog(String direction) {
     showDialog(
@@ -299,7 +313,12 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Stack(
                   children: [
                     Column(
@@ -468,88 +487,112 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                 },
                               ),
 
-                              Container(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.grey.shade300,
+                              Focus(
+                                onFocusChange: (value) {
+                                  setState(() {
+                                    _isTitleFocused = value;
+                                  });
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 16,
                                   ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextField(
-                                        controller: titleController,
-                                        style: const TextStyle(
-                                          color: AppColors.blackColor,
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText: LabelService().getLabel(
-                                            142,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color:
+                                          _isTitleFocused
+                                              ? AppColors.primary
+                                              : Colors.grey.shade300,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                          controller: titleController,
+                                          focusNode: _titleFocus,
+                                          style: const TextStyle(
+                                            color: AppColors.blackColor,
                                           ),
-                                          hintStyle: TextStyle(
-                                            color: AppColors.greyText,
-                                          ),
-                                          border: InputBorder.none,
-                                          isDense: true,
-                                          contentPadding: EdgeInsets.symmetric(
-                                            vertical: 6,
+                                          decoration: InputDecoration(
+                                            hintText: LabelService().getLabel(
+                                              142,
+                                            ),
+                                            hintStyle: TextStyle(
+                                              color: AppColors.greyText,
+                                            ),
+                                            border: InputBorder.none,
+                                            isDense: true,
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                  vertical: 6,
+                                                ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 10),
 
-                              Container(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.grey.shade300,
+                              Focus(
+                                onFocusChange: (value) {
+                                  setState(() {
+                                    _isDescriptionFocused = value;
+                                  });
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 16,
                                   ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextField(
-                                        controller: descriptionController,
-                                        style: const TextStyle(
-                                          color: AppColors.blackColor,
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText: LabelService().getLabel(
-                                            155,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color:
+                                          _isDescriptionFocused
+                                              ? AppColors.primary
+                                              : Colors.grey.shade300,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                          controller: descriptionController,
+                                          focusNode: _descriptionFocus,
+                                          style: const TextStyle(
+                                            color: AppColors.blackColor,
                                           ),
-                                          hintStyle: TextStyle(
-                                            color: AppColors.greyText,
-                                          ),
-                                          border: InputBorder.none,
-                                          isDense: true,
-                                          contentPadding: EdgeInsets.symmetric(
-                                            vertical: 12,
+                                          decoration: InputDecoration(
+                                            hintText: LabelService().getLabel(
+                                              155,
+                                            ),
+                                            hintStyle: TextStyle(
+                                              color: AppColors.greyText,
+                                            ),
+                                            border: InputBorder.none,
+                                            isDense: true,
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                  vertical: 12,
+                                                ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
 

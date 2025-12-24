@@ -9,6 +9,7 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/price_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class PriceSubmit extends ConsumerStatefulWidget {
   String storeName, checkInTime, brandName, productName;
@@ -463,8 +464,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                         height: MediaQuery.of(context).size.height * 0.45,
                         child:
                             localLoading
-                                ? const Center(
-                                  child: CircularProgressIndicator(),
+                                ? Center(
+                                  child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32),
                                 )
                                 : viewModel.brands.isEmpty
                                 ? Center(
@@ -683,7 +684,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
             body: Stack(
               children: [
                 viewModel.loader
-                    ? const Center(child: CircularProgressIndicator())
+                    ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
                     : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

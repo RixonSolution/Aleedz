@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class TodayPlanView extends ConsumerStatefulWidget {
   const TodayPlanView({super.key});
@@ -212,7 +213,7 @@ class _CoverageViewState extends ConsumerState<TodayPlanView> {
             Expanded(
               child:
                   currentLocation == null
-                      ? Center(child: CircularProgressIndicator())
+                      ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
                       : GoogleMap(
                         zoomControlsEnabled: false, // Removes +/- buttons
                         myLocationButtonEnabled:

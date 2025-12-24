@@ -7,6 +7,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class SaleView extends ConsumerStatefulWidget {
   String storeName, checkInTime, address;
@@ -129,7 +130,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                         foregroundColor: AppColors.whiteColor,
                       ),
                       onPressed:
-                          () => Navigator.of(context).pop(false), // Close dialog
+                          () =>
+                              Navigator.of(context).pop(false), // Close dialog
                       child: const Text('Cancel'),
                     ),
                     TextButton(
@@ -564,7 +566,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: AppColors.secondary),
+        borderSide: BorderSide(color: AppColors.primary),
       ),
     );
   }
@@ -937,16 +939,15 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                 child: Center(
                                   child:
                                       isSubmitting
-                                          ? const SizedBox(
+                                          ? SizedBox(
                                             height: 20,
                                             width: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              valueColor:
-                                                  AlwaysStoppedAnimation(
-                                                    Colors.white,
-                                                  ),
-                                            ),
+                                            child:
+                                                LoadingAnimationWidget.discreteCircle(
+                                                  color: AppColors.secondary,
+
+                                                  size: 32,
+                                                ),
                                           )
                                           : const Text(
                                             'Submit Sale',
@@ -1165,7 +1166,12 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                         SizedBox(height: 5),
 
                         viewModel.loader
-                            ? const Center(child: CircularProgressIndicator())
+                            ? Center(
+                              child: LoadingAnimationWidget.discreteCircle(
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 32,
+                              ),
+                            )
                             : Column(
                               children: [
                                 ...viewModel.saleList

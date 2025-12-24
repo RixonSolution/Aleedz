@@ -12,6 +12,7 @@ import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aleedz/core/constants/assets/app_images.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class LoginView extends ConsumerStatefulWidget {
   const LoginView({super.key});
@@ -201,9 +202,9 @@ class _LoginViewState extends ConsumerState<LoginView> {
                         const SizedBox(height: 24),
                         viewModel.loader
                             ? Center(
-                              child: CircularProgressIndicator(
+                              child: LoadingAnimationWidget.discreteCircle(
                                 color: AppColors.secondary,
-                                strokeWidth: 2,
+                                size: 32,
                               ),
                             )
                             : SizedBox(

@@ -6,6 +6,7 @@ import 'package:aleedz/view/screens/training/training_submit.dart';
 import 'package:aleedz/viewmodel/training_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class TrainingListView extends ConsumerStatefulWidget {
   String checkInTime, storeName;
@@ -126,7 +127,12 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Stack(
                   children: [
                     Column(
@@ -134,42 +140,57 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
                       children: [
                         header,
                         Container(
-                          color: AppColors.primary,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10,
+                          margin: EdgeInsets.only(
+                            top: 10,
+                            bottom: 10,
+                            left: 16,
+                            right: 16,
                           ),
+                          decoration: BoxDecoration(
+                            color: AppColors.whiteColor,
+                            borderRadius: BorderRadius.circular(12),
+
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 20),
                           child: Row(
                             children: [
                               Expanded(
                                 flex: 3,
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      '#   ',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 20),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        '#   ',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      LabelService().getLabel(138),
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
+                                      Text(
+                                        LabelService().getLabel(138),
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                               Expanded(
                                 flex: 1,
-                                child: Text(
-                                  LabelService().getLabel(139),
-                                  textAlign: TextAlign.end,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+                                child: Container(
+                                  margin: EdgeInsets.only(right: 10),
+                                  child: Text(
+                                    LabelService().getLabel(139),
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                    ),
                                   ),
                                 ),
                               ),

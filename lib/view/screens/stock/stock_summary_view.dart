@@ -5,6 +5,7 @@ import 'package:aleedz/view/screens/stock/stock_details.dart';
 import 'package:aleedz/viewmodel/stock_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class StockSummaryView extends ConsumerStatefulWidget {
   String storeName, checkInTime, address;
@@ -179,7 +180,7 @@ class _StockSummaryViewState extends ConsumerState<StockSummaryView> {
             const SizedBox(height: 12),
             viewModel.loader
                 ? Center(
-                  child: CircularProgressIndicator(color: AppColors.secondary),
+                  child: LoadingAnimationWidget.discreteCircle(color: AppColors.secondary, size: 32),
                 )
                 : Expanded(
                   child: ListView.separated(

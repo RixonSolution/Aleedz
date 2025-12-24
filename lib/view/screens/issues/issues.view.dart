@@ -8,6 +8,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class IssuesView extends ConsumerStatefulWidget {
   String storeName, checkInTime;
@@ -232,7 +233,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
 
         body:
             viewModel.loader
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -531,7 +532,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                           if (viewModel.saleSearch.isNotEmpty &&
                               viewModel.productCategory.isNotEmpty)
                             viewModel.loader
-                                ? Center(child: CircularProgressIndicator())
+                                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
                                 : InkWell(
                                   onTap: () async {
                                     if (quantityController.text.isEmpty) {
@@ -1033,7 +1034,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                           ),
                           SizedBox(height: 10),
                           viewModel.loader
-                              ? Center(child: CircularProgressIndicator())
+                              ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
                               : ListView.builder(
                                 itemCount: viewModel.saleList.length,
                                 shrinkWrap: true,

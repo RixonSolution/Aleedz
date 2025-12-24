@@ -8,6 +8,7 @@ import 'package:aleedz/viewmodel/open_issues_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class OpenIssuesScreen extends ConsumerStatefulWidget {
   @override
@@ -120,7 +121,7 @@ class _OpenIssuesScreenState extends ConsumerState<OpenIssuesScreen> {
               child: Divider(color: AppColors.greyText, height: 0),
             ),
             viewModel.loader
-                ? Center(child: CircularProgressIndicator())
+                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
                 : Expanded(
                   child: ListView.builder(
                     physics: ScrollPhysics(),

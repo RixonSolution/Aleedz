@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class CoverageView extends ConsumerStatefulWidget {
   const CoverageView({super.key});
@@ -344,7 +345,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                             borderSide: BorderSide(color: AppColors.blackColor),
                           ),
                           focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.blackColor),
+                            borderSide: BorderSide(color: AppColors.primary),
                           ),
                         ),
                       ),
@@ -920,7 +921,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
             SizedBox(height: 5),
             viewModel.loader
                 ? Center(
-                  child: CircularProgressIndicator(color: AppColors.secondary),
+                  child: LoadingAnimationWidget.discreteCircle(color: AppColors.secondary, size: 32),
                 )
                 : Flexible(
                   child: ListView.separated(

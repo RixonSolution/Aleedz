@@ -5,6 +5,7 @@ import 'package:aleedz/view/screens/transfer/transfer_brand_view.dart';
 import 'package:aleedz/viewmodel/transfer_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class TransferView extends ConsumerStatefulWidget {
   String storeName, checkInTime;
@@ -240,7 +241,7 @@ class _CoverageViewState extends ConsumerState<TransferView> {
             ),
             viewModel.loader
                 ? Center(
-                  child: CircularProgressIndicator(color: AppColors.secondary),
+                  child: LoadingAnimationWidget.discreteCircle(color: AppColors.secondary, size: 32),
                 )
                 : Expanded(
                   child: ListView.separated(

@@ -8,6 +8,7 @@ import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class DisplayAuditCheck extends ConsumerStatefulWidget {
   String storeName,
@@ -351,8 +352,8 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? const Center(
-                  child: CircularProgressIndicator(color: AppColors.secondary),
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(color: AppColors.secondary, size: 32),
                 )
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

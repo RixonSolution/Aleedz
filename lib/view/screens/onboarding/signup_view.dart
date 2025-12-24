@@ -11,6 +11,7 @@ import 'package:aleedz/view/screens/choose_language/choose_language_view.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class SignupView extends StatefulWidget {
   const SignupView({super.key});
@@ -140,17 +141,20 @@ class _SignupViewState extends State<SignupView> {
         }
         return null;
       },
-      compareFn: (item, selectedItem) =>
-          selectedItem != null && item.id == selectedItem.id,
+      compareFn:
+          (item, selectedItem) =>
+              selectedItem != null && item.id == selectedItem.id,
       dropdownBuilder: (context, selectedItem) {
-        final label = selectedItem?.name ??
+        final label =
+            selectedItem?.name ??
             (_regions.isEmpty ? 'No countries available' : 'Select country');
         return Text(
           label,
           style: TextStyle(
-            color: selectedItem == null
-                ? AppColors.blackColor.withOpacity(0.45)
-                : AppColors.blackColor,
+            color:
+                selectedItem == null
+                    ? AppColors.blackColor.withOpacity(0.45)
+                    : AppColors.blackColor,
             fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
@@ -172,17 +176,11 @@ class _SignupViewState extends State<SignupView> {
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: Colors.grey.shade300,
-              width: 1.5,
-            ),
+            borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: AppColors.primary,
-              width: 1.8,
-            ),
+            borderSide: BorderSide(color: AppColors.primary, width: 1.8),
           ),
         ),
       ),
@@ -205,17 +203,11 @@ class _SignupViewState extends State<SignupView> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Colors.grey.shade300,
-                width: 1.2,
-              ),
+              borderSide: BorderSide(color: Colors.grey.shade300, width: 1.2),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: AppColors.primary,
-                width: 1.4,
-              ),
+              borderSide: BorderSide(color: AppColors.primary, width: 1.4),
             ),
           ),
         ),
@@ -232,9 +224,7 @@ class _SignupViewState extends State<SignupView> {
           );
         },
       ),
-      clearButtonProps: const ClearButtonProps(
-        isVisible: false,
-      ),
+      clearButtonProps: const ClearButtonProps(isVisible: false),
       dropdownButtonProps: const DropdownButtonProps(
         icon: Icon(Icons.keyboard_arrow_down_rounded),
       ),
@@ -254,9 +244,9 @@ class _SignupViewState extends State<SignupView> {
                 child: SizedBox(
                   height: 22,
                   width: 22,
-                  child: CircularProgressIndicator(
+                  child: LoadingAnimationWidget.discreteCircle(
                     color: AppColors.primary,
-                    strokeWidth: 2,
+                    size: 32,
                   ),
                 ),
               ),
@@ -274,11 +264,7 @@ class _SignupViewState extends State<SignupView> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Icon(
-                Icons.error_outline,
-                color: Colors.red.shade400,
-                size: 18,
-              ),
+              Icon(Icons.error_outline, color: Colors.red.shade400, size: 18),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -311,9 +297,7 @@ class _SignupViewState extends State<SignupView> {
   Future<void> _handleSignUp() async {
     if (_isRegionsLoading) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please wait for countries to load.'),
-        ),
+        const SnackBar(content: Text('Please wait for countries to load.')),
       );
       return;
     }
@@ -330,19 +314,15 @@ class _SignupViewState extends State<SignupView> {
     }
     if (_completePhone == null || _completePhone!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid contact number.'),
-        ),
+        const SnackBar(content: Text('Please enter a valid contact number.')),
       );
       return;
     }
     final regionId = _selectedRegionId;
     if (regionId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a country.'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a country.')));
       return;
     }
 
@@ -368,13 +348,13 @@ class _SignupViewState extends State<SignupView> {
       if (!mounted) return;
 
       final status = response['status'] as int?;
-      final message = response['message']?.toString() ??
-          'Sign-up completed successfully.';
+      final message =
+          response['message']?.toString() ?? 'Sign-up completed successfully.';
 
       if (status == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
         NavigationService.goBack();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -391,9 +371,7 @@ class _SignupViewState extends State<SignupView> {
       debugPrint('Signup failed: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sign-up failed. Please try again.'),
-        ),
+        const SnackBar(content: Text('Sign-up failed. Please try again.')),
       );
     } finally {
       if (!mounted) return;
@@ -618,8 +596,8 @@ class _SignupViewState extends State<SignupView> {
                                   value == null || value.isEmpty
                                       ? 'Password is required'
                                       : value.length < 6
-                                          ? 'Password must be at least 6 characters'
-                                          : null,
+                                      ? 'Password must be at least 6 characters'
+                                      : null,
                           suffix: IconButton(
                             icon: Icon(
                               _isPasswordVisible
@@ -637,9 +615,9 @@ class _SignupViewState extends State<SignupView> {
                         const SizedBox(height: 24),
                         _isSubmitting
                             ? Center(
-                              child: CircularProgressIndicator(
+                              child: LoadingAnimationWidget.discreteCircle(
                                 color: AppColors.secondary,
-                                strokeWidth: 2,
+                                size: 32,
                               ),
                             )
                             : SizedBox(

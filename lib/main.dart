@@ -65,6 +65,11 @@ class MyApp extends StatelessWidget {
           primary: AppColors.secondary,
           secondary: AppColors.secondary,
         ),
+        inputDecorationTheme: const InputDecorationTheme(
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+          ),
+        ),
         useMaterial3: true,
       ),
       builder: (context, child) {

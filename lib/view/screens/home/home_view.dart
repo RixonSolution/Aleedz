@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
@@ -319,7 +320,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                             borderSide: BorderSide(color: AppColors.blackColor),
                           ),
                           focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.blackColor),
+                            borderSide: BorderSide(color: AppColors.primary),
                           ),
                         ),
                       ),
@@ -513,7 +514,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                             borderSide: BorderSide(color: AppColors.blackColor),
                           ),
                           focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.blackColor),
+                            borderSide: BorderSide(color: AppColors.primary),
                           ),
                         ),
                       ),
@@ -1104,7 +1105,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? Center(child: CircularProgressIndicator())
+                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
                 : Padding(
                   padding: EdgeInsets.zero,
                   child: Column(
@@ -1489,9 +1490,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       const SizedBox(height: 4),
                       viewModel.loader
                           ? Center(
-                            child: CircularProgressIndicator(
+                            child: LoadingAnimationWidget.discreteCircle(
                               color: AppColors.secondary,
-                            ),
+                             size: 32),
                           )
                           : Flexible(
                             child: ListView.separated(

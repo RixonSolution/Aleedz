@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class ActivitySubmitView extends ConsumerStatefulWidget {
   final String checkInTime, storeName;
@@ -370,7 +371,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: AppColors.secondary),
+        borderSide: BorderSide(color: AppColors.primary),
       ),
     );
   }
@@ -702,8 +703,8 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                             height: 52,
                             child:
                                 _isSubmitting
-                                    ? const Center(
-                                      child: CircularProgressIndicator(),
+                                    ? Center(
+                                      child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32),
                                     )
                                     : ElevatedButton(
                                       onPressed: () async {
@@ -1135,7 +1136,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                   Expanded(
                     child:
                         isListLoading
-                            ? const Center(child: CircularProgressIndicator())
+                            ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
                             : ListView(
                               padding: const EdgeInsets.only(
                                 bottom: 140,

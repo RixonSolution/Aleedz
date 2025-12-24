@@ -5,6 +5,7 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/stock_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class StockDetails extends ConsumerStatefulWidget {
   String storeName, checkInTime, lastUpdate, brandName, productName;
@@ -366,112 +367,117 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
                 ),
                 const SizedBox(height: 14),
                 Expanded(
-                  child: _initialLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ListView.separated(
-                          padding: EdgeInsets.fromLTRB(
-                            16,
-                            0,
-                            16,
-                            showSubmitButton ? 100 : 24,
-                          ),
-                          itemCount: filteredList.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final item = filteredList[index];
-                            final currentItemIndex = stockProducts.indexWhere(
-                              (e) => e.productId == item.productID,
-                            );
-                            final currentStock =
-                                currentItemIndex != -1
-                                    ? stockProducts[currentItemIndex].stock
-                                    : 0;
+                  child:
+                      _initialLoading
+                          ? Center(
+                            child: LoadingAnimationWidget.discreteCircle(
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 32,
+                            ),
+                          )
+                          : ListView.separated(
+                            padding: EdgeInsets.fromLTRB(
+                              16,
+                              0,
+                              16,
+                              showSubmitButton ? 100 : 24,
+                            ),
+                            itemCount: filteredList.length,
+                            separatorBuilder:
+                                (_, __) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final item = filteredList[index];
+                              final currentItemIndex = stockProducts.indexWhere(
+                                (e) => e.productId == item.productID,
+                              );
+                              final currentStock =
+                                  currentItemIndex != -1
+                                      ? stockProducts[currentItemIndex].stock
+                                      : 0;
 
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color(0x14000000),
-                                    blurRadius: 10,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Stack(
-                                children: [
-                                  Positioned(
-                                    left: 0,
-                                    top: 0,
-                                    bottom: 0,
-                                    child: Container(
-                                      width: 30,
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Color(0xFF111827),
-                                            Color(0xFF0B1120),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(12),
-                                          bottomLeft: Radius.circular(12),
-                                        ),
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        '${index + 1}',
-                                        style: const TextStyle(
-                                          color: AppColors.whiteColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Color(0x14000000),
+                                      blurRadius: 10,
+                                      offset: Offset(0, 4),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      40,
-                                      12,
-                                      12,
-                                      12,
-                                    ),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                item.productModelCode ?? '',
-                                                style: TextStyle(
-                                                  color: AppColors.blackColor,
-                                                  fontSize: 15,
-                                                  fontWeight:
-                                                      FontWeight.w600,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                item.productModelName ?? '',
-                                                style: TextStyle(
-                                                  color: Colors.grey.shade600,
-                                                  fontSize: 13,
-                                                ),
-                                              ),
+                                  ],
+                                ),
+                                child: Stack(
+                                  children: [
+                                    Positioned(
+                                      left: 0,
+                                      top: 0,
+                                      bottom: 0,
+                                      child: Container(
+                                        width: 30,
+                                        decoration: const BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Color(0xFF111827),
+                                              Color(0xFF0B1120),
                                             ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(12),
+                                            bottomLeft: Radius.circular(12),
                                           ),
                                         ),
-                                        const SizedBox(width: 12),
-                                        item.inputType == 1
-                                            ? Center(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          '${index + 1}',
+                                          style: const TextStyle(
+                                            color: AppColors.whiteColor,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        40,
+                                        12,
+                                        12,
+                                        12,
+                                      ),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  item.productModelCode ?? '',
+                                                  style: TextStyle(
+                                                    color: AppColors.blackColor,
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  item.productModelName ?? '',
+                                                  style: TextStyle(
+                                                    color: Colors.grey.shade600,
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          item.inputType == 1
+                                              ? Center(
                                                 child: GestureDetector(
                                                   onTap: () {
                                                     final newStock =
@@ -489,108 +495,93 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
                                                         ? Icons.check_circle
                                                         : Icons
                                                             .check_circle_outline,
-                                                    color: currentStock == 1
-                                                        ? AppColors.primary
-                                                        : Colors.grey,
+                                                    color:
+                                                        currentStock == 1
+                                                            ? AppColors.primary
+                                                            : Colors.grey,
                                                     size: 28,
                                                   ),
                                                 ),
                                               )
-                                            : item.inputType == 0
-                                                ? Container(
-                                                    constraints:
-                                                        const BoxConstraints(
+                                              : item.inputType == 0
+                                              ? Container(
+                                                constraints:
+                                                    const BoxConstraints(
                                                       minWidth: 60,
                                                     ),
-                                                    alignment: Alignment.center,
-                                                    padding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                          horizontal: 8,
-                                                          vertical: 6,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color: AppColors
+                                                alignment: Alignment.center,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 6,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      AppColors
                                                           .lightGreyBackground,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                        10,
-                                                      ),
-                                                    ),
-                                                    child: Text(
-                                                      item.stock.toString(),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: const TextStyle(
-                                                        fontSize: 15,
-                                                        color: Colors.black,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  )
-                                                : SizedBox(
-                                                    width: 78,
-                                                    child: TextFormField(
-                                                      maxLength: 5,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      initialValue:
-                                                          currentStock == 0
-                                                              ? ''
-                                                              : currentStock
-                                                                  .toString(),
-                                                      decoration:
-                                                          InputDecoration(
-                                                        counterText: '',
-                                                        hintText:
-                                                            LabelService()
-                                                                .getLabel(
-                                                          162,
-                                                        ),
-                                                        contentPadding:
-                                                            const EdgeInsets
-                                                                .symmetric(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Text(
+                                                  item.stock.toString(),
+                                                  textAlign: TextAlign.center,
+                                                  style: const TextStyle(
+                                                    fontSize: 15,
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              )
+                                              : SizedBox(
+                                                width: 78,
+                                                child: TextFormField(
+                                                  maxLength: 5,
+                                                  textAlign: TextAlign.center,
+                                                  initialValue:
+                                                      currentStock == 0
+                                                          ? ''
+                                                          : currentStock
+                                                              .toString(),
+                                                  decoration: InputDecoration(
+                                                    counterText: '',
+                                                    hintText: LabelService()
+                                                        .getLabel(162),
+                                                    contentPadding:
+                                                        const EdgeInsets.symmetric(
                                                           horizontal: 10,
                                                           vertical: 10,
                                                         ),
-                                                        filled: true,
-                                                        fillColor: AppColors
+                                                    filled: true,
+                                                    fillColor:
+                                                        AppColors
                                                             .lightGreyBackground,
-                                                        border:
-                                                            OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                    10,
-                                                                  ),
-                                                          borderSide:
-                                                              BorderSide.none,
-                                                        ),
-                                                      ),
-                                                      keyboardType:
-                                                          TextInputType.number,
-                                                      onChanged: (value) {
-                                                        final qty =
-                                                            int.tryParse(
-                                                                  value,
-                                                                ) ??
-                                                                0;
-                                                        updateStockList(
-                                                          item,
-                                                          qty,
-                                                        );
-                                                      },
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            10,
+                                                          ),
+                                                      borderSide:
+                                                          BorderSide.none,
                                                     ),
                                                   ),
-                                      ],
+                                                  keyboardType:
+                                                      TextInputType.number,
+                                                  onChanged: (value) {
+                                                    final qty =
+                                                        int.tryParse(value) ??
+                                                        0;
+                                                    updateStockList(item, qty);
+                                                  },
+                                                ),
+                                              ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
                 ),
               ],
             ),
@@ -602,8 +593,7 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    disabledBackgroundColor:
-                        AppColors.primary.withOpacity(0.6),
+                    disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
                     elevation: 6,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
@@ -613,25 +603,27 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
                   onPressed: _submitting ? null : submitStockList,
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 150),
-                    child: _submitting
-                        ? const SizedBox(
-                            key: ValueKey('loader'),
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.2,
-                              color: Colors.white,
+                    child:
+                        _submitting
+                            ? SizedBox(
+                              key: ValueKey('loader'),
+                              height: 20,
+                              width: 20,
+                              child: LoadingAnimationWidget.discreteCircle(
+                                size: 32,
+
+                                color: AppColors.secondary,
+                              ),
+                            )
+                            : const Text(
+                              'Submit',
+                              key: ValueKey('text'),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          )
-                        : const Text(
-                            'Submit',
-                            key: ValueKey('text'),
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
                   ),
                 ),
               ),

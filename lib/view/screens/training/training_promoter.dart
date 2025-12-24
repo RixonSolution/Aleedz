@@ -5,6 +5,7 @@ import 'package:aleedz/view/screens/training/training_model_view.dart';
 import 'package:aleedz/viewmodel/training_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class TrainingPromoter extends ConsumerStatefulWidget {
   String checkInTime, storeName, trainingName;
@@ -170,7 +171,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
                 : Stack(
                   children: [
                     Column(
@@ -345,20 +346,27 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                               ),
 
                               Container(
-                                margin: EdgeInsets.symmetric(vertical: 8),
-                                padding: EdgeInsets.symmetric(
+                                margin: EdgeInsets.symmetric(
                                   vertical: 8,
+                                  horizontal: 16,
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 16,
                                   horizontal: 10,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                  color: AppColors.whiteColor,
                                 ),
                                 child: Row(
                                   children: [
                                     Text(
                                       LabelService().getLabel(146),
                                       style: TextStyle(
-                                        color: AppColors.whiteColor,
+                                        color: AppColors.primary,
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -392,12 +400,14 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                           ),
                                           border: InputBorder.none,
                                           isDense: true,
-                                          contentPadding:
-                                              EdgeInsets.symmetric(vertical: 8),
+                                          contentPadding: EdgeInsets.symmetric(
+                                            vertical: 8,
+                                          ),
                                         ),
                                       ),
                                     ),
                                     const SizedBox(width: 10),
+
                                     /// Name Field
                                     Expanded(
                                       flex: 3,
@@ -409,12 +419,14 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                           ),
                                           border: InputBorder.none,
                                           isDense: true,
-                                          contentPadding:
-                                              EdgeInsets.symmetric(vertical: 8),
+                                          contentPadding: EdgeInsets.symmetric(
+                                            vertical: 8,
+                                          ),
                                         ),
                                       ),
                                     ),
                                     const SizedBox(width: 10),
+
                                     /// Add Button
                                     GestureDetector(
                                       onTap: addName,
@@ -425,8 +437,9 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: AppColors.primary,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
                                         ),
                                         child: const Icon(
                                           Icons.add,
@@ -445,8 +458,9 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                 margin: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                 ),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.grey.shade100,
                                   borderRadius: BorderRadius.circular(12),
@@ -577,8 +591,9 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                             child: InkWell(
                                               onTap: () => removeName(index),
                                               child: Container(
-                                                padding:
-                                                    const EdgeInsets.all(6),
+                                                padding: const EdgeInsets.all(
+                                                  6,
+                                                ),
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
                                                   border: Border.all(

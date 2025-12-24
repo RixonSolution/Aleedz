@@ -7,6 +7,7 @@ import 'package:aleedz/view/screens/user_training/user_training_stores.dart';
 import 'package:aleedz/viewmodel/user_training_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class UserTrainingView extends ConsumerStatefulWidget {
   UserTrainingView({Key? key}) : super(key: key);
@@ -68,7 +69,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingView> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -125,7 +126,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingView> {
                             borderSide: BorderSide(color: AppColors.greyText),
                           ),
                           focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.greyText),
+                            borderSide: BorderSide(color: AppColors.primary),
                           ),
                         ),
                       ),

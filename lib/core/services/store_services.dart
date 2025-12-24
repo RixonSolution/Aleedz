@@ -356,6 +356,61 @@ class StoreServices {
     }
   }
 
+  Future<Map<String, dynamic>?> displayComplianceView({
+    required String token,
+    required String storeId,
+    required String displayLocationId,
+    required String brandId,
+    required String visitId,
+    required String teamMemberId,
+  }) async {
+    final encodedToken = Uri.encodeComponent(token);
+    final encodedStoreId = Uri.encodeComponent(storeId);
+    final encodedDisplayLocationId = Uri.encodeComponent(displayLocationId);
+    final encodedBrandId = Uri.encodeComponent(brandId);
+    final encodedVisitId = Uri.encodeComponent(visitId);
+    final encodedTeamMemberId = Uri.encodeComponent(teamMemberId);
+
+    final url = Uri.parse(
+      '${ApiConstants.displayLocationView}?_token=$encodedToken&StoreID=$encodedStoreId&DisplayLocationID=$encodedDisplayLocationId&BrandID=$encodedBrandId&VisitID=$encodedVisitId&TeamMemberID=$encodedTeamMemberId',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> displayLocationList({
+    required String token,
+  }) async {
+    final encodedToken = Uri.encodeComponent(token);
+    final url = Uri.parse(
+      '${ApiConstants.displayLocationList}?_token=$encodedToken',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
   Future<Map<String, dynamic>?> deleteDisplayPicture({
     required String token,
     required String storeId,

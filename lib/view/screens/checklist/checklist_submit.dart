@@ -9,6 +9,7 @@ import 'package:aleedz/viewmodel/checklist_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class ChecklistSubmit extends ConsumerStatefulWidget {
   String checkInTime, storeName, checklistName;
@@ -170,7 +171,9 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
       barrierDismissible: false,
       builder: (ctx) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           content: Text(
             LabelService().getLabel(196),
             textAlign: TextAlign.center,
@@ -510,18 +513,19 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: GestureDetector(
-            onTap: disabled
-                ? null
-                : () async {
-                    _hasUnsavedChanges = false;
-                    await submitChecklistEntries();
-                    if (!mounted) return;
-                    NavigationService.goBack();
-                    AppSnackBar.showSuccess(
-                      context,
-                      LabelService().getLabel(73),
-                    );
-                  },
+            onTap:
+                disabled
+                    ? null
+                    : () async {
+                      _hasUnsavedChanges = false;
+                      await submitChecklistEntries();
+                      if (!mounted) return;
+                      NavigationService.goBack();
+                      AppSnackBar.showSuccess(
+                        context,
+                        LabelService().getLabel(73),
+                      );
+                    },
             child: Container(
               height: 56,
               decoration: BoxDecoration(
@@ -538,12 +542,12 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
               child: Center(
                 child:
                     loader
-                        ? const SizedBox(
+                        ? SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.2,
+                          child: LoadingAnimationWidget.discreteCircle(
                             color: Colors.white,
+                            size: 32,
                           ),
                         )
                         : Text(
@@ -574,7 +578,12 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
           body: Stack(
             children: [
               viewModel.loader
-                  ? const Center(child: CircularProgressIndicator())
+                  ? Center(
+                    child: LoadingAnimationWidget.discreteCircle(
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 32,
+                    ),
+                  )
                   : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -701,7 +710,9 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                               ),
                             );
                             final inputType =
-                                viewModel.checkListSubmitView[index].inputTypeID;
+                                viewModel
+                                    .checkListSubmitView[index]
+                                    .inputTypeID;
                             final String optionLabel =
                                 inputType == 1
                                     ? 'Status'
@@ -735,7 +746,8 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                 ProductCard(
                                   storeId: widget.storeId,
                                   visitId: widget.visiteId,
-                                  initialDescription: descriptionController.text,
+                                  initialDescription:
+                                      descriptionController.text,
                                   optionLabel: optionLabel,
                                   isPrefilled: isPrefilled,
                                   title:
@@ -835,16 +847,17 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                     );
                                     viewModel.notifyListeners();
                                   },
-                                onPickImage: () {
-                                  _showImagePickerDialog(
-                                    'left',
-                                    onImageSelected: (String path) {
-                                      _markUnsavedChange();
-                                      setState(() {});
+                                  onPickImage: () {
+                                    _showImagePickerDialog(
+                                      'left',
+                                      onImageSelected: (String path) {
+                                        _markUnsavedChange();
+                                        setState(() {});
 
-                                      viewModel.addOrUpdateChecklistEntry(
-                                        ChecklistEntry(
-                                            token: viewModel.user?.apiToken ?? '',
+                                        viewModel.addOrUpdateChecklistEntry(
+                                          ChecklistEntry(
+                                            token:
+                                                viewModel.user?.apiToken ?? '',
                                             checklistAuditID:
                                                 viewModel
                                                             .checkListSubmitView[index]

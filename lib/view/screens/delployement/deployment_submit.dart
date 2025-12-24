@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class DeployementSubmitView extends ConsumerStatefulWidget {
   String checkInTime, storeName, activityCategoryName;
@@ -77,7 +78,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: AppColors.secondary),
+        borderSide: BorderSide(color: AppColors.primary),
       ),
     );
   }
@@ -488,7 +489,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                 Expanded(
                   child:
                       isListLoading
-                          ? const Center(child: CircularProgressIndicator())
+                          ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
                           : ListView.builder(
                             padding: const EdgeInsets.only(bottom: 140, top: 4),
                             itemCount: viewModel.marketActivityList.length,
@@ -1338,8 +1339,8 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                         height: 52,
                         child:
                             localSubmitting || viewModel.loader
-                                ? const Center(
-                                  child: CircularProgressIndicator(),
+                                ? Center(
+                                  child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32),
                                 )
                                 : ElevatedButton(
                                   onPressed: () async {

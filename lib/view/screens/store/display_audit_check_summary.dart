@@ -5,6 +5,7 @@ import 'package:aleedz/view/screens/store/display_audit_check.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class DisplayAuditCheckSummary extends ConsumerStatefulWidget {
   String storeName, checkInTime, address;
@@ -183,7 +184,7 @@ class _DisplayAuditCheckSummaryState
             SizedBox(height: 12),
             viewModel.loader
                 ? Center(
-                  child: CircularProgressIndicator(color: AppColors.secondary),
+                  child: LoadingAnimationWidget.discreteCircle(color: AppColors.secondary, size: 32),
                 )
                 : Expanded(
                   child: ListView.separated(

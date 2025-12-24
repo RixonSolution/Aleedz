@@ -117,6 +117,30 @@ class StoreController {
     );
   }
 
+  Future<Map<String, dynamic>?> displayComplianceView({
+    required String token,
+    required String storeId,
+    required String displayLocationId,
+    required String brandId,
+    required String visitId,
+    required String teamMemberId,
+  }) async {
+    return await _apiService.displayComplianceView(
+      token: token,
+      storeId: storeId,
+      displayLocationId: displayLocationId,
+      brandId: brandId,
+      visitId: visitId,
+      teamMemberId: teamMemberId,
+    );
+  }
+
+  Future<Map<String, dynamic>?> displayLocationList({
+    required String token,
+  }) async {
+    return await _apiService.displayLocationList(token: token);
+  }
+
   Future<Map<String, dynamic>?> deleteDisplayPicture({
     required String token,
     required String storeId,

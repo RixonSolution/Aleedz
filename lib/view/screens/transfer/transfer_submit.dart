@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class TransferSubmit extends ConsumerStatefulWidget {
   String storeName,
@@ -83,7 +84,7 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
               ),
               const SizedBox(width: 12),
               Text(
-                LabelService().getLabel(130),
+                'Product Transfer',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -161,7 +162,10 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
         bottomNavigationBar:
             viewModel.loader
                 ? Center(
-                  child: CircularProgressIndicator(color: AppColors.secondary),
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: AppColors.secondary,
+                    size: 32,
+                  ),
                 )
                 : Padding(
                   padding: const EdgeInsets.all(12),
@@ -200,8 +204,11 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
             header,
             const SizedBox(height: 12),
             viewModel.loader
-                ? const Center(
-                  child: CircularProgressIndicator(color: AppColors.secondary),
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: AppColors.secondary,
+                    size: 32,
+                  ),
                 )
                 : Expanded(
                   child: Builder(
@@ -531,7 +538,8 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                                       e.displayCheck ==
                                                                           1,
                                                                 )
-                                                                ? Colors.black
+                                                                ? AppColors
+                                                                    .primary
                                                                 : Colors
                                                                     .grey
                                                                     .shade400,
@@ -765,8 +773,7 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                                 borderSide:
                                                                     BorderSide(
                                                                       color:
-                                                                          Colors
-                                                                              .black,
+                                                                          AppColors.primary,
                                                                     ),
                                                                 borderRadius:
                                                                     BorderRadius.circular(

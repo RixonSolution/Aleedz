@@ -7,6 +7,7 @@ import 'package:aleedz/viewmodel/transfer_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class TransferBrandView extends ConsumerStatefulWidget {
   String storeName, checkInTime, transferStore, transferStoreAddress;
@@ -221,7 +222,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
             const SizedBox(height: 12),
             viewModel.loader
                 ? Center(
-                  child: CircularProgressIndicator(color: AppColors.secondary),
+                  child: LoadingAnimationWidget.discreteCircle(color: AppColors.secondary, size: 32),
                 )
                 : Expanded(
                   child: ListView.builder(

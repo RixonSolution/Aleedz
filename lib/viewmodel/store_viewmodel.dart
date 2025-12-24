@@ -7,7 +7,9 @@ import 'package:aleedz/models/audit_model.dart';
 import 'package:aleedz/models/brand_list_model.dart';
 import 'package:aleedz/models/brand_model.dart';
 import 'package:aleedz/models/dashboard_model.dart';
+import 'package:aleedz/models/display_compliance_model.dart';
 import 'package:aleedz/models/display_check_model.dart';
+import 'package:aleedz/models/display_location_model.dart';
 import 'package:aleedz/models/picture_view_model.dart';
 import 'package:aleedz/models/product_selection_model.dart';
 import 'package:aleedz/models/ros_label.dart';
@@ -32,6 +34,8 @@ class StoreViewModel extends ChangeNotifier {
   UserPermission? permission;
 
   List<PictureViewModel> viewPicture = [];
+  List<DisplayComplianceModel> displayComplianceList = [];
+  List<DisplayLocationModel> displayLocationList = [];
 
   List<DashboardModel> dashBoardList = [];
   int visitId = 0;
@@ -590,6 +594,61 @@ class StoreViewModel extends ChangeNotifier {
       loader = false;
       notifyListeners();
       debugPrint("Error fetching ROS Labels: ${response?['data']}");
+    }
+  }
+
+  Future<void> getDisplayComplianceList({
+    required String storeId,
+    required String displayLocationId,
+    required String brandId,
+    required String visitId,
+  }) async {
+    displayComplianceList = [];
+    loader = true;
+    notifyListeners();
+    await loadUser();
+
+    final response = await _storeController.displayComplianceView(
+      token: user?.apiToken ?? '',
+      storeId: storeId,
+      displayLocationId: displayLocationId,
+      brandId: brandId,
+      visitId: visitId,
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"];
+      final list = data is Map ? data["data"] : data;
+      if (list is List && list.isNotEmpty) {
+        displayComplianceList =
+            list
+                .map<DisplayComplianceModel>(
+                  (item) => DisplayComplianceModel.fromJson(item),
+                )
+                .toList();
+      }
+      loader = false;
+      notifyListeners();
+    } else {
+      loader = false;
+      notifyListeners();
+      debugPrint("display compliance Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> getDisplayLocationList() async {
+    final response = await _storeController.displayLocationList(
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final data = response["data"]['data'] as List;
+      displayLocationList =
+          data.map((e) => DisplayLocationModel.fromJson(e)).toList();
+      notifyListeners();
+    } else {
+      debugPrint("display location list Error: ${response?['data']}");
     }
   }
 

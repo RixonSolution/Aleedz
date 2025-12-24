@@ -79,6 +79,10 @@ class ApiConstants {
       "$baseUrl/WebService.asmx/RemoveGeneralPicture";
   static String get checkMasterDisplay =>
       "$baseUrl/DisplayCount.asmx/DisplayCheckMasterView";
+  static String get displayLocationView =>
+      "$baseUrl/WebService.asmx/DisplayLocationView";
+  static String get displayLocationList =>
+      "$baseUrl/WebService.asmx/DisplayLocationList";
   static String get dashboardApi => "$baseUrl/JourneyPlan.asmx/TeamJourneyPlan";
   static String get activityTypeList =>
       "$baseUrl/Activity.asmx/ActivityTypeList";

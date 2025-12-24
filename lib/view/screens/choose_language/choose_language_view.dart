@@ -9,6 +9,7 @@ import 'package:aleedz/view/screens/onboarding/login_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class ChooseLanguageView extends ConsumerStatefulWidget {
   @override
@@ -206,9 +207,9 @@ class _ChooseLanguageViewState extends ConsumerState<ChooseLanguageView> {
                       const SizedBox(height: 24),
                       viewModel.loader || _isSaving
                           ? Center(
-                            child: CircularProgressIndicator(
+                            child: LoadingAnimationWidget.discreteCircle(
                               color: AppColors.secondary,
-                              strokeWidth: 2,
+                              size: 32,
                             ),
                           )
                           : SizedBox(

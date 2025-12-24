@@ -6,6 +6,7 @@ import 'package:aleedz/view/screens/price/price_submit.dart';
 import 'package:aleedz/viewmodel/price_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class PriceView extends ConsumerStatefulWidget {
   String storeName, checkInTime;
@@ -239,9 +240,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
               child:
                   viewModel.loader
                       ? Center(
-                        child: CircularProgressIndicator(
+                        child: LoadingAnimationWidget.discreteCircle(
                           color: AppColors.secondary,
-                        ),
+                         size: 32),
                       )
                       : brandEntries.isEmpty
                       ? Center(
