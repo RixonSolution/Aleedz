@@ -76,6 +76,7 @@ class StoreViewModel extends ChangeNotifier {
   File? rightImage;
   List<File> leftImages = []; // instead of File? leftImage;
   List<File> rightImages = []; // instead of File? rightImage;
+  List<File> displayComplianceImages = [];
   final ImagePicker picker = ImagePicker();
   BrandListModel? selectedBrand;
   PictureListModel? selectedPictureModel;
@@ -444,6 +445,11 @@ class StoreViewModel extends ChangeNotifier {
         final dataList1 = response1["data"]['data'];
 
         if (dataList is List && dataList1 is List) {
+          final Map<int, ROSLabel> labelsById = {};
+          for (final item in dataList) {
+            final label = ROSLabel.fromJson(item);
+            labelsById[label.rosLabelID] = label;
+          }
           List<ROSLabel> updatedLabels = [];
 
           for (var permissionItem in dataList1) {
@@ -451,14 +457,14 @@ class StoreViewModel extends ChangeNotifier {
             final String? permissionValue = permissionItem["Permission"];
 
             if (permissionId != null &&
-                permissionId >= 28 &&
-                permissionId <= 40 &&
+                ((permissionId >= 28 && permissionId <= 40) ||
+                    permissionId == 47) &&
                 permissionValue == "Y") {
-              final int dataIndex = permissionId - 1;
-
-              if (dataIndex >= 0 && dataIndex < dataList.length) {
-                final rosLabelItem = dataList[dataIndex];
-                updatedLabels.add(ROSLabel.fromJson(rosLabelItem));
+              final int labelId =
+                  permissionId == 47 ? 197 : permissionId;
+              final label = labelsById[labelId];
+              if (label != null) {
+                updatedLabels.add(label);
               }
             }
           }
@@ -635,6 +641,73 @@ class StoreViewModel extends ChangeNotifier {
       notifyListeners();
       debugPrint("display compliance Error: ${response?['data']}");
     }
+  }
+
+  Future<bool> submitDisplayCompliance({
+    required String storeId,
+    required String productId,
+    required String displayLocationId,
+    required int display,
+    required int displayGuidlineId,
+    required int posmAvailable,
+    required String quantity,
+    required String remarks,
+    required String visitId,
+    required String pictureId,
+    required List<File> images,
+  }) async {
+    loader = true;
+    notifyListeners();
+    await loadUser();
+
+    final response = await _storeController.displayComplianceAdd(
+      token: user?.apiToken ?? '',
+      storeId: storeId,
+      productId: productId,
+      displayLocationId: displayLocationId,
+      display: display.toString(),
+      displayGuidlineId: displayGuidlineId.toString(),
+      posmAvailable: posmAvailable.toString(),
+      quantity: quantity,
+      remarks: remarks,
+      teamMemberId: user?.teamMemberID.toString() ?? '',
+      visitId: visitId,
+      pictureId: pictureId,
+      displayComplianceImages: images,
+    );
+
+    loader = false;
+    notifyListeners();
+
+    if (response != null && response["status"] == 200) {
+      return true;
+    }
+
+    debugPrint("displayComplianceAdd Error: ${response?['data']}");
+    return false;
+  }
+
+  Future<bool> deleteDisplayCompliance({
+    required String displayComplianceId,
+  }) async {
+    loader = true;
+    notifyListeners();
+    await loadUser();
+
+    final response = await _storeController.displayComplianceRemove(
+      token: user?.apiToken ?? '',
+      displayComplianceId: displayComplianceId,
+    );
+
+    loader = false;
+    notifyListeners();
+
+    if (response != null && response["status"] == 200) {
+      return true;
+    }
+
+    debugPrint("displayComplianceRemove Error: ${response?['data']}");
+    return false;
   }
 
   Future<void> getDisplayLocationList() async {

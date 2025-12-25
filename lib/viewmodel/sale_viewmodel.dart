@@ -48,6 +48,11 @@ class SaleViewModel extends ChangeNotifier {
     notifyListeners();
     print("Selected Product ID: ${category?.productCategoryID}");
     if (category != null) {
+      debugPrint(
+        'Fetching model search: storeId=$storeId, '
+        'brandId=${selectedBrand?.brandId}, '
+        'categoryId=${selectedProductCategory?.productCategoryID}',
+      );
       getModelSearch(
         storeId: storeId.toString(),
         brandId: selectedBrand?.brandId.toString(),
@@ -125,6 +130,10 @@ class SaleViewModel extends ChangeNotifier {
     selectedSaleSearch = null;
     notifyListeners();
 
+    debugPrint(
+      'getModelSearch request: storeId=$storeId, '
+      'brandId=$brandId, productCategoryId=$productCateId',
+    );
     final response = await _saleController.getModelSearchDP(
       token: user?.apiToken ?? '',
       brandId: brandId ?? '',
@@ -135,6 +144,7 @@ class SaleViewModel extends ChangeNotifier {
     if (response != null && response["status"] == 200) {
       final data = response["data"]['data'] as List;
       saleSearch = data.map((e) => SaleSearchModel.fromJson(e)).toList();
+      debugPrint('getModelSearch success: ${saleSearch.length} items');
 
       notifyListeners();
     } else {

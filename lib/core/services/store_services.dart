@@ -411,6 +411,109 @@ class StoreServices {
     }
   }
 
+  Future<Map<String, dynamic>?> displayComplianceRemove({
+    required String token,
+    required String displayComplianceId,
+  }) async {
+    final encodedToken = Uri.encodeComponent(token);
+    final encodedId = Uri.encodeComponent(displayComplianceId);
+    final url = Uri.parse(
+      '${ApiConstants.displayComplianceRemove}?_token=$encodedToken&DisplayComplianceID=$encodedId',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> displayComplianceAdd({
+    required String token,
+    required String storeId,
+    required String productId,
+    required String displayLocationId,
+    required String display,
+    required String displayGuidlineId,
+    required String posmAvailable,
+    required String quantity,
+    required String remarks,
+    required String teamMemberId,
+    required String visitId,
+    required String pictureId,
+    List<File>? displayComplianceImages,
+  }) async {
+    try {
+      Future<File?> compressImage(File file) async {
+        final dir = await getTemporaryDirectory();
+        final targetPath = path.join(
+          dir.path,
+          '${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
+
+        final result = await FlutterImageCompress.compressAndGetFile(
+          file.absolute.path,
+          targetPath,
+          quality: 30,
+        );
+
+        return result != null ? File(result.path) : null;
+      }
+
+      final url = Uri.parse(ApiConstants.displayComplianceAdd);
+      var request = http.MultipartRequest('POST', url);
+
+      request.headers.addAll({'Accept': 'application/json'});
+      request.fields['_token'] = token;
+      request.fields['StoreID'] = storeId;
+      request.fields['ProductID'] = productId;
+      request.fields['DisplayLocationID'] = displayLocationId;
+      request.fields['Display'] = display;
+      request.fields['DisplayGuidlineID'] = displayGuidlineId;
+      request.fields['POSMAvailable'] = posmAvailable;
+      request.fields['Quantity'] = quantity;
+      request.fields['Remarks'] = remarks;
+      request.fields['TeamMemberID'] = teamMemberId;
+      request.fields['VisitID'] = visitId;
+      request.fields['PictureID'] = pictureId;
+
+      if (displayComplianceImages != null &&
+          displayComplianceImages.isNotEmpty) {
+        for (int i = 0;
+            i < displayComplianceImages.length && i < 4;
+            i++) {
+          final compressedImage = await compressImage(
+            displayComplianceImages[i],
+          );
+          if (compressedImage != null) {
+            request.files.add(
+              await http.MultipartFile.fromPath(
+                'DisplayComplainceImg',
+                compressedImage.path,
+              ),
+            );
+          }
+        }
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Error during displayComplianceAdd: $e');
+      return null;
+    }
+  }
+
   Future<Map<String, dynamic>?> deleteDisplayPicture({
     required String token,
     required String storeId,

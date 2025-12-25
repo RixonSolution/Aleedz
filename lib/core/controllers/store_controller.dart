@@ -141,6 +141,48 @@ class StoreController {
     return await _apiService.displayLocationList(token: token);
   }
 
+  Future<Map<String, dynamic>?> displayComplianceRemove({
+    required String token,
+    required String displayComplianceId,
+  }) async {
+    return await _apiService.displayComplianceRemove(
+      token: token,
+      displayComplianceId: displayComplianceId,
+    );
+  }
+
+  Future<Map<String, dynamic>?> displayComplianceAdd({
+    required String token,
+    required String storeId,
+    required String productId,
+    required String displayLocationId,
+    required String display,
+    required String displayGuidlineId,
+    required String posmAvailable,
+    required String quantity,
+    required String remarks,
+    required String teamMemberId,
+    required String visitId,
+    required String pictureId,
+    List<File>? displayComplianceImages,
+  }) async {
+    return await _apiService.displayComplianceAdd(
+      token: token,
+      storeId: storeId,
+      productId: productId,
+      displayLocationId: displayLocationId,
+      display: display,
+      displayGuidlineId: displayGuidlineId,
+      posmAvailable: posmAvailable,
+      quantity: quantity,
+      remarks: remarks,
+      teamMemberId: teamMemberId,
+      visitId: visitId,
+      pictureId: pictureId,
+      displayComplianceImages: displayComplianceImages,
+    );
+  }
+
   Future<Map<String, dynamic>?> deleteDisplayPicture({
     required String token,
     required String storeId,

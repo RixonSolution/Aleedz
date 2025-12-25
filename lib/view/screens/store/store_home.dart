@@ -186,6 +186,17 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
 
       case 39:
         NavigationService.navigateTo(
+          StockSummaryView(
+            storeName: widget.storeName,
+            checkInTime: widget.checkInTime,
+            address: widget.address,
+            storeId: widget.storeId,
+            visitId: viewModel.visitId,
+          ),
+        );
+        break;
+      case 197:
+        NavigationService.navigateTo(
           DisplayComplianceView(
             storeName: widget.storeName,
             checkInTime: widget.checkInTime,
@@ -193,16 +204,6 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
             visiteId: viewModel.visitId,
           ),
         );
-
-        // NavigationService.navigateTo(
-        //   StockSummaryView(
-        //     storeName: widget.storeName,
-        //     checkInTime: widget.checkInTime,
-        //     address: widget.address,
-        //     storeId: widget.storeId,
-        //     visitId: viewModel.visitId,
-        //   ),
-        // );
         break;
       case 40:
         NavigationService.navigateTo(
@@ -236,6 +237,8 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
         return Colors.indigo;
       case 39:
         return Colors.teal;
+      case 47:
+        return Colors.teal;
       case 34:
         return Colors.pink;
       case 40:
@@ -262,6 +265,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
       37: 'assets/icons/actions/price_promo.svg', // Price & Promo
       38: 'assets/icons/actions/sales.svg', // Sales
       39: 'assets/icons/actions/stock_track.svg', // Stock Track
+      47: 'assets/icons/actions/stock_track.svg', // Display Compliance
       40: 'assets/icons/actions/investment.svg', // Investment
     };
     return assetMap[id];
@@ -556,125 +560,3 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
     );
   }
 }
-
-// InkWell(
-//                           onTap: () {
-//                             if (viewModel.rosLabels[index].rosLabelID == 29) {
-//                               NavigationService.navigateTo(
-//                                 ChecklistView(
-//                                   storeName: widget.storeName,
-//                                   checkInTime: widget.checkInTime,
-//                                   storeId: widget.storeId,
-//                                   visiteId: 1,
-//                                 ),
-//                               );
-//                             } else if (viewModel.rosLabels[index].rosLabelID ==
-//                                 30) {
-//                               NavigationService.navigateTo(
-//                                 TrainingListView(
-//                                   storeName: widget.storeName,
-//                                   checkInTime: widget.checkInTime,
-//                                   storeId: widget.storeId,
-//                                 ),
-//                               );
-//                             } else if (viewModel.rosLabels[index].rosLabelID ==
-//                                 31) {
-//                               NavigationService.navigateTo(
-//                                 DisplayPicture(
-//                                   storeName: widget.storeName,
-//                                   checkInTime: widget.checkInTime,
-//                                   storeId: widget.storeId,
-//                                 ),
-//                               );
-//                             } else if (viewModel.rosLabels[index].rosLabelID ==
-//                                 32) {
-//                               if (isChecked == false) {
-//                                 AppSnackBar.showError(
-//                                   context,
-//                                   'Select the checkbox if you updated the store stock.',
-//                                 );
-//                               } else {
-//                                 NavigationService.navigateTo(
-//                                   DisplayAuditCheckSummary(
-//                                     storeName: widget.storeName,
-//                                     checkInTime: widget.checkInTime,
-//                                     storeId: widget.storeId,
-//                                   ),
-//                                 );
-//                               }
-//                             } else if (viewModel.rosLabels[index].rosLabelID ==
-//                                 33) {
-//                               if (widget.checkInTime != '0' &&
-//                                   widget.checkInTime != '') {
-//                                 NavigationService.navigateTo(
-//                                   TransferView(
-//                                     storeName: widget.storeName,
-//                                     checkInTime: widget.checkInTime,
-//                                     storeId: widget.storeId,
-//                                   ),
-//                                 );
-//                               } else {
-//                                 AppSnackBar.showError(
-//                                   context,
-//                                   'Please check in before transferring the products.',
-//                                 );
-//                               }
-//                             } else if (viewModel.rosLabels[index].rosLabelID ==
-//                                 35) {
-//                               NavigationService.navigateTo(
-//                                 ActivityView(
-//                                   storeName: widget.storeName,
-//                                   checkInTime: widget.checkInTime,
-//                                   storeId: widget.storeId,
-//                                 ),
-//                               );
-//                             } else if (viewModel.rosLabels[index].rosLabelID ==
-//                                 37) {
-//                               NavigationService.navigateTo(
-//                                 PriceView(
-//                                   storeName: widget.storeName,
-//                                   checkInTime: widget.checkInTime,
-//                                   storeId: widget.storeId,
-//                                   visiteId: 0,
-//                                 ),
-//                               );
-//                             } else if (viewModel.rosLabels[index].rosLabelID ==
-//                                 38) {
-//                               NavigationService.navigateTo(
-//                                 SaleView(
-//                                   storeName: widget.storeName,
-//                                   checkInTime: widget.checkInTime,
-//                                   storeId: widget.storeId,
-//                                 ),
-//                               );
-//                             } else {}
-//                           },
-//                           child: Container(
-//                             margin: EdgeInsets.symmetric(horizontal: 5),
-//                             padding: EdgeInsets.only(top: 15, bottom: 15),
-//                             decoration: BoxDecoration(
-//                               border: Border.all(color: AppColors.blackColor),
-//                               borderRadius: BorderRadius.circular(12),
-//                             ),
-//                             child: Column(
-//                               mainAxisAlignment: MainAxisAlignment.center,
-//                               children: [
-//                                 Image.network(
-//                                   '${ApiConstants.baseUrl}${viewModel.rosLabels[index].imageLocation}',
-//                                   height: 60,
-//                                   width: 60,
-//                                   fit: BoxFit.cover,
-//                                 ),
-//                                 SizedBox(height: 3),
-//                                 Text(
-//                                   viewModel.rosLabels[index].rosLabelName,
-//                                   style: TextStyle(
-//                                     color: AppColors.blackColor,
-//                                     fontSize: 14,
-//                                     fontWeight: FontWeight.bold,
-//                                   ),
-//                                 ),
-//                               ],
-//                             ),
-//                           ),
-//                         );
