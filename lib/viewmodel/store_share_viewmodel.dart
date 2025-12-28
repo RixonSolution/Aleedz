@@ -4,6 +4,8 @@ import 'package:aleedz/models/brand_list_model.dart';
 import 'package:aleedz/models/brand_store_share_model.dart';
 import 'package:aleedz/models/category_store_share_model.dart';
 import 'package:aleedz/models/product_store_share_model.dart';
+import 'package:aleedz/models/store_share_element_type_model.dart';
+import 'package:aleedz/models/store_share_summary_model.dart';
 import 'package:aleedz/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,6 +23,8 @@ class StoreShareViewModel extends ChangeNotifier {
   List<BrandStoreShareModel> brandShareList = [];
   List<CategoryStoreShareModel> categoryShareList = [];
   List<ProductStoreShareModel> productShareList = [];
+  List<StoreShareElementTypeModel> elementTypeList = [];
+  List<StoreShareSummaryModel> summaryList = [];
 
   List<BrandListModel> brandList = [];
   BrandListModel? selectedBrand;
@@ -28,14 +32,7 @@ class StoreShareViewModel extends ChangeNotifier {
   bool loader = false;
 
   void selectBrand(int storeId, BrandListModel? brand) async {
-    loader = true;
-    notifyListeners();
     selectedBrand = brand;
-    notifyListeners();
-    print("Selected Channel ID: ${brand?.brandId}");
-
-    if (brand != null) {}
-    loader = false;
     notifyListeners();
   }
 
@@ -135,17 +132,83 @@ class StoreShareViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> getElementTypeList() async {
+    notifyListeners();
+
+    final response = await _shareController.elementTypeList(
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final payload = response["data"];
+      final rawList =
+          payload is List ? payload : (payload is Map ? payload["data"] : null);
+
+      if (rawList is List) {
+        elementTypeList =
+            rawList.map((e) => StoreShareElementTypeModel.fromJson(e)).toList();
+      } else {
+        elementTypeList = [];
+      }
+
+      notifyListeners();
+    } else {
+      debugPrint("store share element type Error: ${response?['data']}");
+    }
+  }
+
   Future loadShare() async {
     brandShareList = [];
     categoryShareList = [];
     productShareList = [];
+    elementTypeList = [];
     loader = true;
     notifyListeners();
     await loadUser();
     await getBrandDropDown();
-    await getBrandList();
-    await getCategoryList();
-    await getProductList();
+    await getElementTypeList();
+    loader = false;
+    notifyListeners();
+  }
+
+  Future<void> getStoreShareSummary({
+    required String storeId,
+    required String brandId,
+    required String storeShareElementTypeId,
+    required String storeShareElementId,
+    required String visitId,
+  }) async {
+    if (user == null) {
+      await loadUser();
+    }
+    loader = true;
+    summaryList = [];
+    notifyListeners();
+
+    final response = await _shareController.storeShareSummary(
+      token: user?.apiToken ?? '',
+      storeId: storeId,
+      brandId: brandId,
+      storeShareElementTypeId: storeShareElementTypeId,
+      storeShareElementId: storeShareElementId,
+      visitId: visitId,
+    );
+
+    if (response != null && response["status"] == 200) {
+      final payload = response["data"];
+      final rawList =
+          payload is List ? payload : (payload is Map ? payload["data"] : null);
+
+      if (rawList is List) {
+        summaryList =
+            rawList.map((e) => StoreShareSummaryModel.fromJson(e)).toList();
+      } else {
+        summaryList = [];
+      }
+    } else {
+      debugPrint("store share summary Error: ${response?['data']}");
+    }
+
     loader = false;
     notifyListeners();
   }

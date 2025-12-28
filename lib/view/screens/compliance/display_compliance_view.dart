@@ -7,6 +7,7 @@ import 'package:aleedz/viewmodel/sale_viewmodel.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -28,6 +29,30 @@ class DisplayComplianceView extends ConsumerStatefulWidget {
   @override
   ConsumerState<DisplayComplianceView> createState() =>
       _DisplayComplianceViewState();
+}
+
+class _WordLimitFormatter extends TextInputFormatter {
+  _WordLimitFormatter(this.maxWords);
+
+  final int maxWords;
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final words = RegExp(r'\S+').allMatches(newValue.text).toList();
+    if (words.length <= maxWords) {
+      return newValue;
+    }
+
+    final endIndex = words[maxWords - 1].end;
+    final truncated = newValue.text.substring(0, endIndex).trimRight();
+    return TextEditingValue(
+      text: truncated,
+      selection: TextSelection.collapsed(offset: truncated.length),
+    );
+  }
 }
 
 class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
@@ -60,7 +85,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
   }
 
   Widget _optionButtons({
-    required bool value,
+    required bool? value,
     required void Function(bool) onChanged,
   }) {
     return Container(
@@ -72,12 +97,12 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
         children: [
           _optionButton(
             label: 'Yes',
-            selected: value,
+            selected: value == true,
             onTap: () => onChanged(true),
           ),
           _optionButton(
             label: 'No',
-            selected: !value,
+            selected: value == false,
             onTap: () => onChanged(false),
           ),
         ],
@@ -231,9 +256,9 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
     StoreViewModel viewModel,
     SaleViewModel saleViewModel,
   ) {
-    bool displayYes = true;
-    bool guidelineYes = true;
-    bool posmYes = true;
+    bool? displayYes;
+    bool? guidelineYes;
+    bool? posmYes;
     int? selectedLocationId;
     final quantityController = TextEditingController(text: '1');
     _remarksController.clear();
@@ -255,30 +280,59 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return AnimatedBuilder(
-              animation: Listenable.merge([saleViewModel, viewModel]),
-              builder: (context, _) {
-                final locationOptions =
-                    viewModel.displayLocationList
-                        .where(
-                          (item) =>
-                              item.displayLocationId != null &&
-                              (item.displayLocationName ?? '').isNotEmpty,
-                        )
-                        .toList();
-                return Padding(
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(ctx).viewInsets.bottom,
-                  ),
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 36),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+        return ScaffoldMessenger(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            resizeToAvoidBottomInset: false,
+            body: Builder(
+              builder: (sheetContext) {
+                void showSheetError(String message) {
+                  final messenger = ScaffoldMessenger.of(sheetContext);
+                  messenger.hideCurrentSnackBar();
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(message),
+                      backgroundColor: AppColors.error,
+                      behavior: SnackBarBehavior.floating,
+                      margin: const EdgeInsets.all(16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                }
+
+                return StatefulBuilder(
+                  builder: (context, setModalState) {
+                    return AnimatedBuilder(
+                      animation: Listenable.merge([saleViewModel, viewModel]),
+                      builder: (context, _) {
+                        final locationOptions =
+                            viewModel.displayLocationList
+                                .where(
+                                  (item) =>
+                                      item.displayLocationId != null &&
+                                      (item.displayLocationName ?? '')
+                                          .isNotEmpty,
+                                )
+                                .toList();
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                          ),
+                          child: SingleChildScrollView(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                20,
+                                16,
+                                20,
+                                36,
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -568,6 +622,10 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                 child: TextField(
                                   controller: quantityController,
                                   keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    LengthLimitingTextInputFormatter(3),
+                                  ],
                                   decoration: _sheetInputDecoration('1'),
                                   textAlign: TextAlign.center,
                                 ),
@@ -588,6 +646,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                         controller: _remarksController,
                         maxLines: 2,
                         minLines: 1,
+                        inputFormatters: [_WordLimitFormatter(100)],
                         decoration: _sheetInputDecoration('Remarks'),
                       ),
                       const SizedBox(height: 12),
@@ -608,11 +667,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                   4) {
                                 _showImagePickerDialog(viewModel);
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(LabelService().getLabel(114)),
-                                  ),
-                                );
+                                showSheetError(LabelService().getLabel(114));
                               }
                             },
                             child: Container(
@@ -712,57 +767,48 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                   ),
                                   onPressed: () async {
                                     if (saleViewModel.selectedBrand == null) {
-                                      AppSnackBar.showError(
-                                        context,
-                                        'Please select brand',
-                                      );
+                                      showSheetError('Please select brand');
                                       return;
                                     }
                                     if (saleViewModel
                                             .selectedProductCategory ==
                                         null) {
-                                      AppSnackBar.showError(
-                                        context,
-                                        'Please select category',
-                                      );
+                                      showSheetError('Please select category');
                                       return;
                                     }
                                     if (saleViewModel.selectedSaleSearch ==
                                         null) {
-                                      AppSnackBar.showError(
-                                        context,
-                                        'Please select model',
-                                      );
+                                      showSheetError('Please select model');
                                       return;
                                     }
                                     if (selectedLocationId == null) {
-                                      AppSnackBar.showError(
-                                        context,
-                                        'Please select location',
-                                      );
+                                      showSheetError('Please select location');
+                                      return;
+                                    }
+                                    if (displayYes == null) {
+                                      showSheetError('Please select display');
+                                      return;
+                                    }
+                                    if (guidelineYes == null) {
+                                      showSheetError('Please select guideline');
+                                      return;
+                                    }
+                                    if (posmYes == null) {
+                                      showSheetError('Please select POSM');
                                       return;
                                     }
                                     if (quantityController.text.isEmpty) {
-                                      AppSnackBar.showError(
-                                        context,
-                                        'Please enter quantity',
-                                      );
+                                      showSheetError('Please enter quantity');
                                       return;
                                     }
                                     if (_remarksController.text.isEmpty) {
-                                      AppSnackBar.showError(
-                                        context,
-                                        'Please enter remarks',
-                                      );
+                                      showSheetError('Please enter remarks');
                                       return;
                                     }
                                     if (viewModel
                                         .displayComplianceImages
                                         .isEmpty) {
-                                      AppSnackBar.showError(
-                                        context,
-                                        'Please add picture',
-                                      );
+                                      showSheetError('Please add picture');
                                       return;
                                     }
 
@@ -783,11 +829,11 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                                     .toString() ??
                                                 '0',
                                             displayLocationId:
-                                                selectedLocationId.toString(),
-                                            display: displayYes ? 1 : 0,
+                                            selectedLocationId.toString(),
+                                            display: displayYes == true ? 1 : 0,
                                             displayGuidlineId:
-                                                guidelineYes ? 1 : 0,
-                                            posmAvailable: posmYes ? 1 : 0,
+                                                guidelineYes == true ? 1 : 0,
+                                            posmAvailable: posmYes == true ? 1 : 0,
                                             quantity: quantityController.text,
                                             remarks: _remarksController.text,
                                             visitId:
@@ -798,8 +844,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                           );
 
                                       if (!success) {
-                                        AppSnackBar.showError(
-                                          context,
+                                        showSheetError(
                                           'Unable to submit display compliance',
                                         );
                                         return;
@@ -841,15 +886,19 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                   ),
                                 ),
                       ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 24),
                         ],
-                      ),
-                    ),
-                  ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 );
               },
-            );
-          },
+            ),
+          ),
         );
       },
     );

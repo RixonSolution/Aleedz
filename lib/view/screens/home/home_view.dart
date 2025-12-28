@@ -24,6 +24,7 @@ class HomeView extends ConsumerStatefulWidget {
 
 class _HomeViewState extends ConsumerState<HomeView> {
   DateTime _selectedDate = DateTime.now();
+  bool _isInitialLoad = true;
 
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
@@ -151,7 +152,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final storeNotifier = ref.read(storeModelProvider.notifier);
     final store = ref.read(storeModelProvider);
 
-    await coverageNotifier.loadDashboard(context, planDate: _selectedDate);
+    try {
+      await coverageNotifier.loadDashboard(context, planDate: _selectedDate);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isInitialLoad = false;
+        });
+      }
+    }
     if (!mounted) return;
 
     await store.getROSLabels();
@@ -792,10 +801,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     required store, // DashboardModel
   }) async {
     if (store.visitId == 0) {
-      AppSnackBar.showError(
-        context,
-        'Visit not available for this store.',
-      );
+      AppSnackBar.showError(context, LabelService().getLabel(195));
       return;
     }
 
@@ -826,7 +832,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
     );
 
     if (isAlreadyCheckedIn) {
-      AppSnackBar.showError(context, LabelService().getLabel(106));
+      AppSnackBar.showError(
+        context,
+        'You are already checked in at another store.',
+      );
       return;
     }
 
@@ -1104,8 +1113,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
         body:
-            viewModel.loader
-                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+            _isInitialLoad && viewModel.loader
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Padding(
                   padding: EdgeInsets.zero,
                   child: Column(
@@ -1492,7 +1506,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           ? Center(
                             child: LoadingAnimationWidget.discreteCircle(
                               color: AppColors.secondary,
-                             size: 32),
+                              size: 32,
+                            ),
                           )
                           : Flexible(
                             child: ListView.separated(
@@ -1520,8 +1535,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                     store.visitStatus.isNotEmpty
                                         ? store.visitStatus
                                         : 'Plan';
-                                String trailingText =
-                                    'Plan Date: ${store.planDate}';
+                                String trailingText = ' ${store.planDate}';
                                 Color trailingColor = AppColors.greyText;
                                 Color statusBg = badgeBg;
                                 Color statusText = badgeTextColor;
@@ -1569,7 +1583,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                   numberBg = AppColors.success;
                                   numberText = AppColors.whiteColor;
                                   trailingText =
-                                      'In: ${store.checkInTime.isNotEmpty ? store.checkInTime : '--'}';
+                                      '${store.checkInTime.isNotEmpty ? store.planDate : '--'}';
                                 } else if (visitStatusId == 4) {
                                   badgeBg = AppColors.error.withOpacity(0.12);
                                   badgeTextColor = AppColors.error;

@@ -1,8 +1,8 @@
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
-import 'package:aleedz/models/category_store_share_model.dart';
+import 'package:aleedz/models/store_share_element_type_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/view/screens/store_share/store_share_summary_view.dart';
 import 'package:aleedz/viewmodel/store_share_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,12 +11,14 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 class StoreShareView extends ConsumerStatefulWidget {
   String checkInTime, storeName;
   int storeId;
+  int visitId;
 
   StoreShareView({
     Key? key,
     required this.checkInTime,
     required this.storeName,
     required this.storeId,
+    required this.visitId,
   }) : super(key: key);
 
   @override
@@ -37,256 +39,182 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
     await notifier.loadShare();
   }
 
-  int selectedTab = 0;
-
-  // Temporary hardcoded permissions
-  final Map<int, String> permissions = {
-    44: 'Y', // For Brand
-    45: 'N', // For Category
-    46: 'Y', // For Product
-  };
-
-  bool showCheckIcon(int tabIndex) {
-    if (tabIndex == 0) return permissions[44] == 'Y';
-    if (tabIndex == 1) return permissions[45] == 'Y';
-    if (tabIndex == 2) return permissions[46] == 'Y';
-    return false;
-  }
-
-  Widget _buildTabButton(String label, int index) {
-    final bool isSelected = selectedTab == index;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => selectedTab = index),
-        child: Container(
-          margin: EdgeInsets.only(right: 1),
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          color: isSelected ? AppColors.secondary : Colors.grey[300],
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.white : Colors.black87,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Map<String, List<CategoryStoreShareModel>> groupByBrand(
-    List<CategoryStoreShareModel> list,
+  Map<String, List<StoreShareElementTypeModel>> _groupByElementType(
+    List<StoreShareElementTypeModel> list,
   ) {
-    final Map<String, List<CategoryStoreShareModel>> grouped = {};
-    for (var item in list) {
-      if (item.brandName == null) continue;
-      grouped.putIfAbsent(item.brandName!, () => []).add(item);
+    final Map<String, List<StoreShareElementTypeModel>> grouped = {};
+    for (final item in list) {
+      final key = (item.storeShareElementTypeName ?? '').trim();
+      final safeKey = key.isEmpty ? 'Other' : key;
+      grouped.putIfAbsent(safeKey, () => []).add(item);
     }
     return grouped;
   }
 
-  Widget _buildGroupedList() {
-    final viewModel = ref.watch(storeShareModelProvider);
+  Widget _buildElementTypeList(StoreShareViewModel viewModel) {
+    final groupedData = _groupByElementType(viewModel.elementTypeList);
+    final entries = groupedData.entries.toList();
 
-    final groupedData = groupByBrand(viewModel.categoryShareList);
+    if (entries.isEmpty) {
+      return const Center(
+        child: Text(
+          'No store share data found',
+          style: TextStyle(color: Colors.black54, fontSize: 14),
+        ),
+      );
+    }
 
-    return ListView(
-      children:
-          groupedData.entries.map((entry) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Brand Header
-                Container(
-                  color: Colors.grey[200],
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        entry.key,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        showCheckIcon(selectedTab) ? "Available" : "Count",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
+    final List<Widget> children = [];
+    for (final entry in entries) {
+      children.add(
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                entry.key,
+                style: const TextStyle(
+                  color: Color(0xFF111827),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
                 ),
-                // List of Categories under this Brand
-                ...entry.value.map(
-                  (item) => Column(
+              ),
+              const Text(
+                'Quantity',
+                style: TextStyle(
+                  color: Color(0xFF6B7280),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      for (var i = 0; i < entry.value.length; i++) {
+        final item = entry.value[i];
+        final lastUpdate =
+            (item.lastUpdate ?? '').trim().isEmpty
+                ? 'Last update: --'
+                : item.lastUpdate!;
+        final quantityText = item.quantity?.toString() ?? '0';
+
+        children.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(18),
+              onTap: () {
+                NavigationService.navigateTo(
+                  StoreShareSummaryView(
+                    storeName: widget.storeName,
+                    checkInTime: widget.checkInTime,
+                    storeId: widget.storeId,
+                    visitId: widget.visitId,
+                    brandId: viewModel.selectedBrand?.brandId ?? 0,
+                    elementTypeId: item.storeShareElementTypeId ?? 0,
+                    elementId: item.storeShareElementId ?? 0,
+                    elementTypeName: entry.key,
+                  ),
+                );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x19000000),
+                      blurRadius: 14,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 14,
+                      Container(
+                        width: 35,
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF1D2B4A), Color(0xFF1D2B4A)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(18),
+                            bottomLeft: Radius.circular(18),
+                          ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              item.productCategoryName ?? '',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
+                        child: Center(
+                          child: Text(
+                            '${i + 1}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
                             ),
-                            showCheckIcon(selectedTab)
-                                ? const Icon(
-                                  Icons.check_circle,
-                                  color: AppColors.greyText,
-                                  size: 26,
-                                )
-                                : SizedBox(
-                                  width: 100,
-                                  height: 40,
-                                  child: TextField(
-                                    controller: TextEditingController(
-                                      text: (item.count ?? '').toString(),
-                                    ),
-                                    onChanged: (value) {
-                                      item.count = int.tryParse(value) ?? 0;
-                                    },
-                                    decoration: const InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 0,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.storeShareElementName ?? '',
+                                      style: const TextStyle(
+                                        color: Color(0xFF111827),
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w800,
                                       ),
                                     ),
-                                  ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      lastUpdate,
+                                      style: const TextStyle(
+                                        color: Color(0xFF9CA3AF),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                          ],
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                quantityText,
+                                style: const TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const Divider(height: 0),
                     ],
                   ),
                 ),
-              ],
-            );
-          }).toList(),
-    );
-  }
-
-  Widget _buildBrandList() {
-    final viewModel = ref.watch(storeShareModelProvider);
-
-    return ListView.builder(
-      itemCount: viewModel.brandShareList.length,
-      itemBuilder: (context, index) {
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 14,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${index + 1}.  ${viewModel.brandShareList[index].brandName.toString()}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  showCheckIcon(0)
-                      ? const Icon(
-                        Icons.check_circle,
-                        color: AppColors.greyText,
-                        size: 28,
-                      )
-                      : SizedBox(
-                        width: 100,
-                        height: 40,
-                        child: TextField(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 0,
-                            ),
-                          ),
-                        ),
-                      ),
-                ],
               ),
             ),
-            if (index != viewModel.brandShareList.length - 1)
-              const Divider(height: 0),
-          ],
+          ),
         );
-      },
-    );
-  }
+      }
+    }
 
-  Widget _buildProductList() {
-    final viewModel = ref.watch(storeShareModelProvider);
-
-    return ListView.builder(
-      itemCount: viewModel.productShareList.length,
-      itemBuilder: (context, index) {
-        final product = viewModel.productShareList[index];
-
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 14,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Product Name
-                  SizedBox(
-                    width: 250,
-                    child: Text(
-                      product.productModelName ?? '',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  // Count or Check Icon
-                  showCheckIcon(selectedTab)
-                      ? const Icon(
-                        Icons.check_circle,
-                        color: AppColors.greyText,
-                        size: 26,
-                      )
-                      : SizedBox(
-                        width: 100,
-                        height: 40,
-                        child: TextField(
-                          controller: TextEditingController(
-                            text: (product.count ?? '').toString(),
-                          ),
-                          onChanged: (value) {
-                            product.count = int.tryParse(value) ?? 0;
-                          },
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 0,
-                            ),
-                          ),
-                        ),
-                      ),
-                ],
-              ),
-            ),
-            const Divider(height: 0),
-          ],
-        );
-      },
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 12),
+      children: children,
     );
   }
 
@@ -296,157 +224,148 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
 
     return SafeArea(
       child: Scaffold(
-        backgroundColor: AppColors.whiteColor,
+        backgroundColor: Colors.grey.shade100,
         body:
             viewModel.loader
-                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 18,
+                      ),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF1f2937), Color(0xFF0f172a)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          InkWell(
-                            onTap: () {
-                              NavigationService.goBack();
-                            },
-                            child: Image.asset(
-                              AppIcons.backArrow,
-                              height: 30,
-                              width: 30,
-                            ),
+                          Row(
+                            children: [
+                              InkWell(
+                                onTap: () => NavigationService.goBack(),
+                                child: const Icon(
+                                  Icons.arrow_back_ios_new_rounded,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                LabelService().getLabel(184),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const Spacer(),
+                              const SizedBox(height: 40, width: 40),
+                            ],
                           ),
+                          const SizedBox(height: 12),
                           Text(
-                            LabelService().getLabel(184),
-                            style: TextStyle(
-                              color: AppColors.blackColor,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                            widget.storeName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
-                          Image.asset(
-                            AppIcons.locationIcon,
-                            height: 30,
-                            width: 30,
-                            color: AppColors.whiteColor,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Divider(color: AppColors.primary, height: 0),
-                    ),
-                    const SizedBox(height: 5),
-                    Center(
-                      child: Text(
-                        widget.storeName,
-                        style: const TextStyle(
-                          color: AppColors.blackColor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        '${LabelService().getLabel(14)} ${widget.checkInTime}',
-                        style: const TextStyle(
-                          color: AppColors.blackColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    // Top Tab Buttons
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Row(
-                        children: [
-                          _buildTabButton('Brand', 0),
-                          _buildTabButton('Category', 1),
-                          _buildTabButton('Product', 2),
-                        ],
-                      ),
-                    ),
-                    Divider(thickness: 1, indent: 12, endIndent: 12),
-                    // Table Headers
-                    selectedTab == 0
-                        ? Container(
-                          decoration: BoxDecoration(color: Colors.grey[200]),
-                          child: Padding(
+                          const SizedBox(height: 10),
+                          Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
+                              horizontal: 10,
                               vertical: 8,
                             ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: const [
-                                Text(
-                                  '  Brand',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.check,
+                                  color: AppColors.primary,
+                                  size: 16,
                                 ),
+                                const SizedBox(width: 6),
                                 Text(
-                                  'Available',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  '${LabelService().getLabel(14)} ${widget.checkInTime}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                        )
-                        : Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: DropdownButtonFormField<int>(
-                            value: viewModel.selectedBrand?.brandId,
-                            decoration: InputDecoration(
-                              hintText: 'All Brands ',
-                              border: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.grey),
-                              ),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.grey),
-                              ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 12,
-                              ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: DropdownButtonFormField<int>(
+                        value: viewModel.selectedBrand?.brandId,
+                        decoration: InputDecoration(
+                          hintText: 'All Brands',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: AppColors.primary,
+                              width: 1.5,
                             ),
-                            items:
-                                viewModel.brandList.map((brand) {
-                                  return DropdownMenuItem<int>(
-                                    value: brand.brandId,
-                                    child: Text(brand.brandName),
-                                  );
-                                }).toList(),
-                            onChanged: (int? branddlId) {
-                              final selected = viewModel.brandList.firstWhere(
-                                (c) => c.brandId == branddlId,
-                              );
-                              viewModel.selectBrand(widget.storeId, selected);
-                            },
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
                           ),
                         ),
-
-                    // Divider(thickness: 1, indent: 12, endIndent: 12),
-                    // List Items
-                    Expanded(
-                      child:
-                          selectedTab == 0
-                              ? _buildBrandList()
-                              : selectedTab == 1
-                              ? _buildGroupedList()
-                              : _buildProductList(),
+                        items:
+                            viewModel.brandList.map((brand) {
+                              return DropdownMenuItem<int>(
+                                value: brand.brandId,
+                                child: Text(brand.brandName),
+                              );
+                            }).toList(),
+                        onChanged:
+                            viewModel.brandList.isEmpty
+                                ? null
+                                : (int? brandId) {
+                                  if (brandId == null) return;
+                                  final selected = viewModel.brandList
+                                      .firstWhere((c) => c.brandId == brandId);
+                                  viewModel.selectBrand(
+                                    widget.storeId,
+                                    selected,
+                                  );
+                                },
+                      ),
                     ),
+                    const SizedBox(height: 6),
+                    Expanded(child: _buildElementTypeList(viewModel)),
                   ],
                 ),
       ),

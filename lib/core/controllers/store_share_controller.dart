@@ -55,4 +55,26 @@ class StoreShareController {
   Future<Map<String, dynamic>?> brandDropDown({required String token}) async {
     return await _apiService.getBrandDropDown(token: token);
   }
+
+  Future<Map<String, dynamic>?> elementTypeList({required String token}) async {
+    return await _apiService.elementTypeList(token: token);
+  }
+
+  Future<Map<String, dynamic>?> storeShareSummary({
+    required String token,
+    required String storeId,
+    required String brandId,
+    required String storeShareElementTypeId,
+    required String storeShareElementId,
+    required String visitId,
+  }) async {
+    return await _apiService.storeShareSummary(
+      token: token,
+      storeId: storeId,
+      brandId: brandId,
+      storeShareElementTypeId: storeShareElementTypeId,
+      storeShareElementId: storeShareElementId,
+      visitId: visitId,
+    );
+  }
 }

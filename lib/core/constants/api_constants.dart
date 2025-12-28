@@ -158,6 +158,10 @@ class ApiConstants {
 
   static String get productStoreShare =>
       "$baseUrl/StoreShare.asmx/StoreShareView_ByProduct";
+  static String get storeShareElementType =>
+      "$baseUrl/Store_Share.asmx/StoreShare_ElementType";
+  static String get storeShareSummary =>
+      "$baseUrl/Store_Share.asmx/StoreShare_Summary";
 
   static String get openIssues =>
       "$baseUrl/OperMarketActivities.asmx/openIssues";
