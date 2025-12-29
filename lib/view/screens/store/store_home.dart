@@ -238,7 +238,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
         return Colors.indigo;
       case 39:
         return Colors.teal;
-      case 47:
+      case 197:
         return Colors.teal;
       case 34:
         return Colors.pink;
@@ -266,7 +266,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
       37: 'assets/icons/actions/price_promo.svg', // Price & Promo
       38: 'assets/icons/actions/sales.svg', // Sales
       39: 'assets/icons/actions/stock_track.svg', // Stock Track
-      47: 'assets/icons/actions/stock_track.svg', // Display Compliance
+      197: 'assets/icons/actions/stock_track.svg', // Display Compliance
       40: 'assets/icons/actions/investment.svg', // Investment
     };
     return assetMap[id];

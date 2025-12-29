@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aleedz/core/controllers/store_share_controller.dart';
 import 'package:aleedz/core/utils/store_local_data.dart';
 import 'package:aleedz/models/brand_list_model.dart';
@@ -211,5 +213,31 @@ class StoreShareViewModel extends ChangeNotifier {
 
     loader = false;
     notifyListeners();
+  }
+
+  Future<bool> submitStoreShareAdd({
+    required String storeId,
+    required String storeShareElementId,
+    required String brandId,
+    required String visitId,
+    required String count,
+    File? storeShareImage,
+  }) async {
+    if (user == null) {
+      await loadUser();
+    }
+
+    final response = await _shareController.storeShareAdd(
+      token: user?.apiToken ?? '',
+      storeId: storeId,
+      storeShareElementId: storeShareElementId,
+      brandId: brandId,
+      teamMemberId: user?.teamMemberID.toString() ?? '0',
+      visitId: visitId,
+      count: count,
+      storeShareImage: storeShareImage,
+    );
+
+    return response != null && response["status"] == 200;
   }
 }

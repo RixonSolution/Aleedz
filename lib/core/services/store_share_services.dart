@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:http/http.dart' as http;
 
@@ -168,6 +169,49 @@ class StoreShareServices {
       return {"status": response.statusCode, "data": data};
     } catch (e) {
       print('Unhandled error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> storeShareAdd({
+    required String token,
+    required String storeId,
+    required String storeShareElementId,
+    required String brandId,
+    required String teamMemberId,
+    required String visitId,
+    required String count,
+    File? storeShareImage,
+  }) async {
+    try {
+      final url = Uri.parse(ApiConstants.storeShareAdd);
+      var request = http.MultipartRequest('POST', url);
+
+      request.headers.addAll({'Accept': 'application/json'});
+      request.fields['_token'] = token;
+      request.fields['StoreID'] = storeId;
+      request.fields['StoreShareElementID'] = storeShareElementId;
+      request.fields['BrandID'] = brandId;
+      request.fields['TeamMemberID'] = teamMemberId;
+      request.fields['VisitID'] = visitId;
+      request.fields['Count'] = count;
+
+      if (storeShareImage != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'StoreShareImage',
+            storeShareImage.path,
+          ),
+        );
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Error during storeShareAdd: $e');
       return null;
     }
   }

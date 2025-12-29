@@ -93,7 +93,19 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     final viewModel = ref.watch(coverageModelProvider);
 
     return WillPopScope(
-      onWillPop: () async => false,
+      onWillPop: () async {
+        if (_showProfileDrawer) {
+          _closeDrawer();
+          return false;
+        }
+        if (_selectedIndex != 0) {
+          setState(() {
+            _selectedIndex = 0;
+          });
+          return false;
+        }
+        return true;
+      },
       child: SafeArea(
         child: Stack(
           children: [

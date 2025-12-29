@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aleedz/core/services/store_share_services.dart';
 
 class StoreShareController {
@@ -75,6 +77,28 @@ class StoreShareController {
       storeShareElementTypeId: storeShareElementTypeId,
       storeShareElementId: storeShareElementId,
       visitId: visitId,
+    );
+  }
+
+  Future<Map<String, dynamic>?> storeShareAdd({
+    required String token,
+    required String storeId,
+    required String storeShareElementId,
+    required String brandId,
+    required String teamMemberId,
+    required String visitId,
+    required String count,
+    File? storeShareImage,
+  }) async {
+    return await _apiService.storeShareAdd(
+      token: token,
+      storeId: storeId,
+      storeShareElementId: storeShareElementId,
+      brandId: brandId,
+      teamMemberId: teamMemberId,
+      visitId: visitId,
+      count: count,
+      storeShareImage: storeShareImage,
     );
   }
 }

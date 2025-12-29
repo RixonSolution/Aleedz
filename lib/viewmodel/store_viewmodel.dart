@@ -458,10 +458,9 @@ class StoreViewModel extends ChangeNotifier {
 
             if (permissionId != null &&
                 ((permissionId >= 28 && permissionId <= 40) ||
-                    permissionId == 47) &&
+                    permissionId == 197) &&
                 permissionValue == "Y") {
-              final int labelId =
-                  permissionId == 47 ? 197 : permissionId;
+              final int labelId = permissionId;
               final label = labelsById[labelId];
               if (label != null) {
                 updatedLabels.add(label);

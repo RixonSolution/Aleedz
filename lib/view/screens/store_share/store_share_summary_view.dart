@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:aleedz/core/constants/app_colors.dart';
+import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/models/store_share_summary_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
@@ -42,6 +43,10 @@ class _StoreShareSummaryViewState
     extends ConsumerState<StoreShareSummaryView> {
   final ImagePicker _imagePicker = ImagePicker();
   final Map<String, File> _localImages = {};
+  final Set<String> _dirtyKeys = {};
+  int? _selectedBrandId;
+  bool _isLoading = true;
+  bool _isSubmitting = false;
 
   String _keyForItem(StoreShareSummaryModel item) {
     final brand = item.brandId ?? 0;
@@ -53,9 +58,64 @@ class _StoreShareSummaryViewState
   Future<void> _pickImage(StoreShareSummaryModel item) async {
     final picked = await _imagePicker.pickImage(source: ImageSource.camera);
     if (picked == null) return;
+    final key = _keyForItem(item);
     setState(() {
-      _localImages[_keyForItem(item)] = File(picked.path);
+      _localImages[key] = File(picked.path);
+      _dirtyKeys.add(key);
     });
+  }
+
+  Future<void> _submitAll(StoreShareViewModel viewModel) async {
+    if (_isSubmitting) return;
+
+    final items =
+        viewModel.summaryList
+            .where((item) => _dirtyKeys.contains(_keyForItem(item)))
+            .toList();
+    if (items.isEmpty) {
+      AppSnackBar.showError(context, 'Please update any item to submit.');
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      for (final item in items) {
+        final key = _keyForItem(item);
+        final image = _localImages[key];
+        final success = await viewModel.submitStoreShareAdd(
+          storeId: widget.storeId.toString(),
+          storeShareElementId:
+              (item.storeShareElementId ?? 0).toString(),
+          brandId: (item.brandId ?? 0).toString(),
+          visitId: widget.visitId.toString(),
+          count: (item.quantity ?? 0).toString(),
+          storeShareImage: image,
+        );
+
+        if (!success) {
+          AppSnackBar.showError(
+            context,
+            'Unable to submit ${item.storeShareElementName ?? "item"}.',
+          );
+          return;
+        }
+        _dirtyKeys.remove(key);
+        _localImages.remove(key);
+      }
+
+      AppSnackBar.showSuccess(context, 'Store share submitted successfully.');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      } else {
+        _isSubmitting = false;
+      }
+    }
   }
 
   @override
@@ -63,13 +123,26 @@ class _StoreShareSummaryViewState
     super.initState();
     Future.microtask(() async {
       final notifier = ref.read(storeShareModelProvider.notifier);
-      await notifier.getStoreShareSummary(
-        storeId: widget.storeId.toString(),
-        brandId: widget.brandId.toString(),
-        storeShareElementTypeId: widget.elementTypeId.toString(),
-        storeShareElementId: widget.elementId.toString(),
-        visitId: widget.visitId.toString(),
-      );
+      try {
+        await notifier.loadUser();
+        await notifier.getBrandDropDown();
+        _selectedBrandId = widget.brandId == 0 ? null : widget.brandId;
+        await notifier.getStoreShareSummary(
+          storeId: widget.storeId.toString(),
+          brandId: (_selectedBrandId ?? 0).toString(),
+          storeShareElementTypeId: widget.elementTypeId.toString(),
+          storeShareElementId: widget.elementId.toString(),
+          visitId: widget.visitId.toString(),
+        );
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        } else {
+          _isLoading = false;
+        }
+      }
     });
   }
 
@@ -77,6 +150,7 @@ class _StoreShareSummaryViewState
   Widget build(BuildContext context) {
     final viewModel = ref.watch(storeShareModelProvider);
     final items = viewModel.summaryList;
+    final brandOptions = viewModel.brandList;
     final Map<String, List<StoreShareSummaryModel>> grouped = {};
     for (final item in items) {
       final name = (item.brandName ?? '').trim();
@@ -87,8 +161,9 @@ class _StoreShareSummaryViewState
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.grey.shade100,
-        body:
-            viewModel.loader
+        body: Stack(
+          children: [
+            _isLoading
                 ? Center(
                   child: LoadingAnimationWidget.discreteCircle(
                     color: Theme.of(context).colorScheme.primary,
@@ -191,6 +266,76 @@ class _StoreShareSummaryViewState
                         ],
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: DropdownButtonFormField<int>(
+                        value: _selectedBrandId,
+                        decoration: InputDecoration(
+                          hintText: 'All Brands',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: AppColors.primary,
+                              width: 1.5,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                        ),
+                        items: [
+                          const DropdownMenuItem<int>(
+                            value: null,
+                            child: Text('All Brands'),
+                          ),
+                          ...brandOptions.map((brand) {
+                            return DropdownMenuItem<int>(
+                              value: brand.brandId,
+                              child: Text(brand.brandName),
+                            );
+                          }).toList(),
+                        ],
+                        onChanged:
+                            brandOptions.isEmpty
+                                ? null
+                                : (int? brandId) async {
+                                  setState(() {
+                                    _isLoading = true;
+                                    _selectedBrandId = brandId;
+                                    _localImages.clear();
+                                    _dirtyKeys.clear();
+                                  });
+                                  await ref
+                                      .read(storeShareModelProvider.notifier)
+                                      .getStoreShareSummary(
+                                        storeId: widget.storeId.toString(),
+                                        brandId:
+                                            (_selectedBrandId ?? 0).toString(),
+                                        storeShareElementTypeId:
+                                            widget.elementTypeId.toString(),
+                                        storeShareElementId:
+                                            widget.elementId.toString(),
+                                        visitId: widget.visitId.toString(),
+                                      );
+                                  if (mounted) {
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                  } else {
+                                    _isLoading = false;
+                                  }
+                                },
+                      ),
+                    ),
                     Expanded(
                       child:
                           items.isEmpty
@@ -208,7 +353,7 @@ class _StoreShareSummaryViewState
                                   16,
                                   16,
                                   16,
-                                  90,
+                                  120,
                                 ),
                                 children:
                                     grouped.entries.map((entry) {
@@ -338,22 +483,30 @@ class _StoreShareSummaryViewState
                                                                   ),
                                                                   SizedBox(
                                                                     width: 120,
-                                                                    child:
-                                                                        TextFormField(
-                                                                      initialValue:
-                                                                          qtyText,
-                                                                      keyboardType:
-                                                                          TextInputType
-                                                                              .number,
-                                                                      inputFormatters: [
-                                                                        FilteringTextInputFormatter
-                                                                            .digitsOnly,
-                                                                        LengthLimitingTextInputFormatter(
+                                                            child:
+                                                                TextFormField(
+                                                              initialValue:
+                                                                  qtyText,
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .number,
+                                                              enabled:
+                                                                  _selectedBrandId !=
+                                                                  null,
+                                                              inputFormatters: [
+                                                                FilteringTextInputFormatter
+                                                                    .digitsOnly,
+                                                                LengthLimitingTextInputFormatter(
                                                                           3,
                                                                         ),
                                                                       ],
                                                                       onChanged:
                                                                           (value) {
+                                                                        _dirtyKeys.add(
+                                                                          _keyForItem(
+                                                                            item,
+                                                                          ),
+                                                                        );
                                                                         item.quantity =
                                                                             int.tryParse(
                                                                           value,
@@ -402,18 +555,28 @@ class _StoreShareSummaryViewState
                                                               width: 12,
                                                             ),
                                                             GestureDetector(
-                                                              onTap: () =>
-                                                                  _pickImage(
-                                                                    item,
-                                                                  ),
+                                                              onTap:
+                                                                  _selectedBrandId ==
+                                                                          null
+                                                                      ? null
+                                                                      : () =>
+                                                                          _pickImage(
+                                                                            item,
+                                                                          ),
                                                               child: Container(
                                                                 width: 80,
                                                                 height: 80,
                                                                 decoration:
                                                                     BoxDecoration(
-                                                                  color: Colors
-                                                                      .grey
-                                                                      .shade100,
+                                                                  color:
+                                                                      _selectedBrandId ==
+                                                                              null
+                                                                          ? Colors
+                                                                              .grey
+                                                                              .shade200
+                                                                          : Colors
+                                                                              .grey
+                                                                              .shade100,
                                                                   borderRadius:
                                                                       BorderRadius
                                                                           .circular(
@@ -464,6 +627,48 @@ class _StoreShareSummaryViewState
                     ),
                   ],
                 ),
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 12,
+              child:
+                  (!_isSubmitting &&
+                          (_isLoading ||
+                              _selectedBrandId == null ||
+                              _dirtyKeys.isEmpty))
+                      ? const SizedBox.shrink()
+                      : SizedBox(
+                        height: 52,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed:
+                              _isSubmitting
+                                  ? null
+                                  : () => _submitAll(viewModel),
+                          child:
+                              _isSubmitting
+                                  ? LoadingAnimationWidget.discreteCircle(
+                                    color: Colors.white,
+                                    size: 24,
+                                  )
+                                  : const Text(
+                                    'Submit',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                        ),
+                      ),
+            ),
+          ],
+        ),
       ),
     );
   }

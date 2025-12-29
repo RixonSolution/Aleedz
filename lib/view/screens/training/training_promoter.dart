@@ -171,7 +171,12 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Stack(
                   children: [
                     Column(
@@ -347,18 +352,18 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
 
                               Container(
                                 margin: EdgeInsets.symmetric(
-                                  vertical: 8,
+                                  vertical: 5,
                                   horizontal: 16,
                                 ),
                                 padding: EdgeInsets.symmetric(
-                                  vertical: 16,
+                                  vertical: 5,
                                   horizontal: 10,
                                 ),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.grey.shade300,
-                                  ),
+                                  // border: Border.all(
+                                  //   color: Colors.grey.shade300,
+                                  // ),
                                   color: AppColors.whiteColor,
                                 ),
                                 child: Row(

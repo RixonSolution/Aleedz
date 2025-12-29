@@ -318,53 +318,6 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: DropdownButtonFormField<int>(
-                        value: viewModel.selectedBrand?.brandId,
-                        decoration: InputDecoration(
-                          hintText: 'All Brands',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: AppColors.primary,
-                              width: 1.5,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                        ),
-                        items:
-                            viewModel.brandList.map((brand) {
-                              return DropdownMenuItem<int>(
-                                value: brand.brandId,
-                                child: Text(brand.brandName),
-                              );
-                            }).toList(),
-                        onChanged:
-                            viewModel.brandList.isEmpty
-                                ? null
-                                : (int? brandId) {
-                                  if (brandId == null) return;
-                                  final selected = viewModel.brandList
-                                      .firstWhere((c) => c.brandId == brandId);
-                                  viewModel.selectBrand(
-                                    widget.storeId,
-                                    selected,
-                                  );
-                                },
-                      ),
-                    ),
-                    const SizedBox(height: 6),
                     Expanded(child: _buildElementTypeList(viewModel)),
                   ],
                 ),

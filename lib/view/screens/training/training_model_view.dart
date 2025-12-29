@@ -506,7 +506,10 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
                                       color:
-                                          _isTitleFocused
+                                          _isTitleFocused ||
+                                                  titleController.text
+                                                      .trim()
+                                                      .isNotEmpty
                                               ? AppColors.primary
                                               : Colors.grey.shade300,
                                     ),
@@ -517,6 +520,7 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                         child: TextField(
                                           controller: titleController,
                                           focusNode: _titleFocus,
+                                          onChanged: (_) => setState(() {}),
                                           style: const TextStyle(
                                             color: AppColors.blackColor,
                                           ),
@@ -528,6 +532,12 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                               color: AppColors.greyText,
                                             ),
                                             border: InputBorder.none,
+                                            enabledBorder: InputBorder.none,
+                                            focusedBorder: InputBorder.none,
+                                            disabledBorder: InputBorder.none,
+                                            errorBorder: InputBorder.none,
+                                            focusedErrorBorder:
+                                                InputBorder.none,
                                             isDense: true,
                                             contentPadding:
                                                 EdgeInsets.symmetric(
@@ -561,7 +571,10 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
                                       color:
-                                          _isDescriptionFocused
+                                          _isDescriptionFocused ||
+                                                  descriptionController.text
+                                                      .trim()
+                                                      .isNotEmpty
                                               ? AppColors.primary
                                               : Colors.grey.shade300,
                                     ),
@@ -572,6 +585,7 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                         child: TextField(
                                           controller: descriptionController,
                                           focusNode: _descriptionFocus,
+                                          onChanged: (_) => setState(() {}),
                                           style: const TextStyle(
                                             color: AppColors.blackColor,
                                           ),
@@ -583,6 +597,12 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                               color: AppColors.greyText,
                                             ),
                                             border: InputBorder.none,
+                                            enabledBorder: InputBorder.none,
+                                            focusedBorder: InputBorder.none,
+                                            disabledBorder: InputBorder.none,
+                                            errorBorder: InputBorder.none,
+                                            focusedErrorBorder:
+                                                InputBorder.none,
                                             isDense: true,
                                             contentPadding:
                                                 EdgeInsets.symmetric(
@@ -860,6 +880,9 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                   trainingModel:
                                       selectedTraining.join(',').trim(),
                                 );
+                                await ref
+                                    .read(trainingModelProvider.notifier)
+                                    .loadTraining(widget.storeId.toString());
                                 NavigationService.goBack();
                                 NavigationService.goBack();
                               },

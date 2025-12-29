@@ -84,17 +84,7 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            '${LabelService().getLabel(14)} ${widget.checkInTime}',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.grey.shade300,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -150,9 +140,9 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
                             color: AppColors.whiteColor,
                             borderRadius: BorderRadius.circular(12),
 
-                            border: Border.all(color: Colors.grey.shade300),
+                            // border: Border.all(color: Colors.grey.shade300),
                           ),
-                          padding: EdgeInsets.symmetric(vertical: 20),
+                          padding: EdgeInsets.symmetric(vertical: 10),
                           child: Row(
                             children: [
                               Expanded(
@@ -210,7 +200,10 @@ class _MyConsumerState extends ConsumerState<TrainingListView> {
                                       storeName: widget.storeName,
                                       checkInTime: widget.checkInTime,
                                       storeId: widget.storeId,
-                                      trainingName: '',
+                                      trainingName:
+                                          item.trainingModelTitle ?? '',
+                                      trainingId:
+                                          item.trainingID?.toString() ?? '-',
                                       storeCount: 0,
                                     ),
                                   );
