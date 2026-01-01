@@ -1,5 +1,4 @@
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/models/store_model.dart';
 import 'package:aleedz/routes/navigation_services.dart';
@@ -20,7 +19,7 @@ class UserTrainingStores extends ConsumerStatefulWidget {
 
 class _MyConsumerState extends ConsumerState<UserTrainingStores> {
   TextEditingController searchController = TextEditingController();
-  final Set<int> selectedStoreIds = {}; // Use storeId, not index
+  final Set<int> selectedStoreIds = {};
   List<StoreModel> filteredStores = [];
 
   List<int> storeIds = [];
@@ -79,274 +78,299 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(userTrainingModelProvider);
+    final header = Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF111827), Color(0xFF0B1120)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              InkWell(
+                onTap: () => NavigationService.goBack(),
+                child: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 18,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Trainings',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            widget.trainingName,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
 
     return SafeArea(
       child: Scaffold(
-        bottomNavigationBar: Container(
-          margin: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-          color: Colors.white,
-          child: ElevatedButton(
-            onPressed: () async {
-              NavigationService.navigateTo(
-                UserTrainingPromoter(
-                  trainingName: widget.trainingName,
-                  trainingId: widget.trainingId,
-                  storeIds: storeIds.join(','),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.secondary,
-              padding: EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(0),
-              ),
-            ),
-            child: Text(
-              LabelService().getLabel(145),
-              style: TextStyle(fontSize: 14, color: AppColors.whiteColor),
-            ),
-          ),
-        ),
-
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
-                : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
+                : Stack(
                   children: [
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              NavigationService.goBack();
-                            },
-                            child: Image.asset(
-                              AppIcons.backArrow,
-                              height: 30,
-                              width: 30,
-                            ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        header,
+                        const SizedBox(height: 12),
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
                           ),
-                          const Text(
-                            'Trainings',
-                            style: TextStyle(
-                              color: AppColors.blackColor,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          Image.asset(
-                            AppIcons.locationIcon,
-                            height: 30,
-                            width: 30,
-                            color: AppColors.whiteColor,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Divider(color: AppColors.primary, height: 0),
-                    ),
-                    const SizedBox(height: 5),
-                    Container(
-                      margin: EdgeInsets.symmetric(vertical: 8),
-                      padding: EdgeInsets.symmetric(vertical: 12),
-
-                      decoration: BoxDecoration(color: AppColors.secondary),
-                      child: Center(
-                        child: Text(
-                          widget.trainingName,
-                          style: TextStyle(
-                            color: AppColors.whiteColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: searchController,
+                                  style: const TextStyle(
+                                    color: AppColors.blackColor,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: LabelService().getLabel(135),
+                                    hintStyle: TextStyle(
+                                      color: AppColors.greyText,
+                                    ),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      vertical: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  '${selectedStoreIds.length}',
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ),
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 88),
+                            itemCount: filteredStores.length,
+                            itemBuilder: (context, index) {
+                              final store = filteredStores[index];
+                              final isSelected = selectedStoreIds.contains(
+                                store.storeId,
+                              );
 
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200], // Light grey background
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          /// Search TextField
-                          Expanded(
-                            child: TextField(
-                              controller: searchController,
-                              style: const TextStyle(
-                                color: AppColors.blackColor,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: LabelService().getLabel(135),
-                                hintStyle: TextStyle(color: AppColors.greyText),
-                                border: InputBorder.none,
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 5,
+                              return Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  0,
+                                  16,
+                                  12,
                                 ),
-                              ),
-                            ),
-                          ),
-
-                          /// Selected Count
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 5,
-                            ),
-                            decoration: BoxDecoration(
-                              // color: Colors.grey[500],
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                            child: Text(
-                              "${selectedStoreIds.length}", // <- Use your selected count
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(5),
-                        itemCount: filteredStores.length,
-                        itemBuilder: (context, index) {
-                          final isSelected = selectedStoreIds.contains(
-                            filteredStores[index].storeId,
-                          );
-
-                          return Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    /// Text Info
-                                    Expanded(
-                                      child: Column(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                '${index + 1}.  ',
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 14,
-                                                  color: AppColors.blackColor,
-                                                ),
-                                              ),
-                                              Column(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(18),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Color(0x14000000),
+                                        blurRadius: 14,
+                                        offset: Offset(0, 6),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      Positioned(
+                                        left: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        child: Container(
+                                          width: 30,
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Color(0xFF111827),
+                                                Color(0xFF0B1120),
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(18),
+                                              bottomLeft: Radius.circular(18),
+                                            ),
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            '${index + 1}',
+                                            style: const TextStyle(
+                                              color: AppColors.whiteColor,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          40,
+                                          14,
+                                          14,
+                                          14,
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  SizedBox(
-                                                    width: 200,
-                                                    child: Text(
-                                                      filteredStores[index]
-                                                          .storeName,
-                                                      style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w700,
-                                                        fontSize: 14,
-                                                        color:
-                                                            AppColors
-                                                                .blackColor,
-                                                      ),
+                                                  Text(
+                                                    store.storeName,
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                      fontSize: 14,
+                                                      color:
+                                                          AppColors.blackColor,
                                                     ),
                                                   ),
-                                                  SizedBox(
-                                                    width: 200,
-                                                    child: Text(
-                                                      filteredStores[index]
-                                                          .address,
-                                                      style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color:
-                                                            AppColors
-                                                                .blackColor,
-                                                      ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    store.address,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                          Colors.grey.shade600,
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-
-                                    /// Custom Circular Checkbox
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          final storeId =
-                                              filteredStores[index].storeId;
-                                          if (isSelected) {
-                                            selectedStoreIds.remove(storeId);
-                                          } else {
-                                            selectedStoreIds.add(storeId);
-                                          }
-                                          addStoreIds(
-                                            filteredStores[index].storeId,
-                                          );
-                                        });
-                                      },
-                                      child: Container(
-                                        width: 24,
-                                        height: 24,
-                                        margin: const EdgeInsets.only(
-                                          right: 10,
-                                          top: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color:
-                                              isSelected
-                                                  ? Colors.black
-                                                  : Colors.grey[400],
-                                        ),
-                                        child: const Icon(
-                                          Icons.check,
-                                          color: Colors.white,
-                                          size: 16,
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  if (isSelected) {
+                                                    selectedStoreIds.remove(
+                                                      store.storeId,
+                                                    );
+                                                  } else {
+                                                    selectedStoreIds.add(
+                                                      store.storeId,
+                                                    );
+                                                  }
+                                                  addStoreIds(store.storeId);
+                                                });
+                                              },
+                                              child: Icon(
+                                                isSelected
+                                                    ? Icons.check_circle
+                                                    : Icons
+                                                        .check_circle_outline,
+                                                size: 32,
+                                                color:
+                                                    isSelected
+                                                        ? AppColors.primary
+                                                        : Colors
+                                                            .grey
+                                                            .shade400,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SafeArea(
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                          child: GestureDetector(
+                            onTap: () async {
+                              NavigationService.navigateTo(
+                                UserTrainingPromoter(
+                                  trainingName: widget.trainingName,
+                                  trainingId: widget.trainingId,
+                                  storeIds: storeIds.join(','),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  LabelService().getLabel(145),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
-                              const Divider(height: 25),
-                            ],
-                          );
-                        },
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],

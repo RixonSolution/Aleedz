@@ -7,6 +7,7 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -245,7 +246,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
   Widget build(BuildContext context) {
     final viewModel = ref.watch(storeModelProvider);
     const double availableColWidth = 60;
-    const double lessThanTwoColWidth = 70;
+    const double lessThanTwoColWidth = 60;
 
     String cameraPermission =
         viewModel.permission?.getPermissionValue(
@@ -353,7 +354,10 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
         body:
             viewModel.loader
                 ? Center(
-                  child: LoadingAnimationWidget.discreteCircle(color: AppColors.secondary, size: 32),
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: AppColors.secondary,
+                    size: 32,
+                  ),
                 )
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -494,7 +498,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                     vertical: 10,
                                                   ),
                                               child: Row(
-                                                children: const [
+                                                children: [
                                                   Expanded(
                                                     child: Text(
                                                       'Products',
@@ -508,7 +512,9 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                   SizedBox(
                                                     width: availableColWidth,
                                                     child: Text(
-                                                      'Available',
+                                                      LabelService().getLabel(
+                                                        187,
+                                                      ),
                                                       textAlign:
                                                           TextAlign.center,
                                                       style: TextStyle(
@@ -521,7 +527,9 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                   SizedBox(
                                                     width: lessThanTwoColWidth,
                                                     child: Text(
-                                                      'Less than 2?',
+                                                      LabelService().getLabel(
+                                                        188,
+                                                      ),
                                                       textAlign:
                                                           TextAlign.center,
                                                       style: TextStyle(
@@ -687,94 +695,213 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                             SizedBox(
                                                               width:
                                                                   lessThanTwoColWidth,
-                                                              child: GestureDetector(
-                                                                onTap: () {
-                                                                  final existing = viewModel
-                                                                      .selectedProducts
-                                                                      .firstWhereOrNull(
-                                                                        (e) =>
-                                                                            e.productId ==
-                                                                            item.productId,
-                                                                      );
-                                                                  final isAvailable =
-                                                                      existing
-                                                                          ?.displayCheck ==
-                                                                      1;
-                                                                  if (!isAvailable) {
-                                                                    ScaffoldMessenger.of(
-                                                                      context,
-                                                                    ).showSnackBar(
-                                                                      SnackBar(
-                                                                        content: Text(
-                                                                          LabelService().getLabel(
-                                                                            189,
-                                                                          ),
-                                                                        ),
-                                                                        backgroundColor:
-                                                                            Colors.red,
-                                                                      ),
-                                                                    );
-                                                                    return;
-                                                                  }
-
-                                                                  if (existing !=
-                                                                      null) {
-                                                                    existing.displayCheckCount =
-                                                                        existing.displayCheckCount ==
-                                                                                1
-                                                                            ? 0
-                                                                            : 1;
-                                                                  } else {
-                                                                    viewModel.selectedProducts.add(
-                                                                      ProductSelection(
-                                                                        productId:
-                                                                            item.productId,
-                                                                        displayCheckCount:
-                                                                            1,
-                                                                        displayCheck:
-                                                                            0,
-                                                                        token:
-                                                                            viewModel.user!.apiToken.toString(),
-                                                                        storeId:
-                                                                            widget.storeId.toString(),
-                                                                        teamMemberId:
-                                                                            viewModel.user!.teamMemberID.toString(),
-                                                                      ),
-                                                                    );
-                                                                  }
-                                                                  viewModel
-                                                                      .notifyListeners();
-                                                                },
-                                                                child: Icon(
-                                                                  viewModel.selectedProducts.any(
-                                                                        (e) =>
-                                                                            e.productId ==
-                                                                                item.productId &&
-                                                                            e.displayCheckCount ==
-                                                                                1,
-                                                                      )
-                                                                      ? Icons
-                                                                          .check_circle
-                                                                      : Icons
-                                                                          .check_circle_outline,
-                                                                  size: 35,
-                                                                  color:
-                                                                      viewModel.selectedProducts.any(
+                                                              child:
+                                                                  item.inputType ==
+                                                                          1
+                                                                      ? Builder(
+                                                                        builder: (
+                                                                          context,
+                                                                        ) {
+                                                                          final existing = viewModel.selectedProducts.firstWhereOrNull(
                                                                             (
                                                                               e,
                                                                             ) =>
                                                                                 e.productId ==
-                                                                                    item.productId &&
-                                                                                e.displayCheckCount ==
+                                                                                item.productId,
+                                                                          );
+                                                                          final isAvailable =
+                                                                              existing?.displayCheck ==
+                                                                              1;
+                                                                          final currentCount =
+                                                                              existing?.displayCheckCount ??
+                                                                              0;
+
+                                                                          return TextFormField(
+                                                                            key: ValueKey(
+                                                                              'qty-${item.productId}',
+                                                                            ),
+                                                                            initialValue:
+                                                                                currentCount ==
+                                                                                        0
+                                                                                    ? ''
+                                                                                    : currentCount.toString(),
+                                                                            maxLength:
+                                                                                3,
+                                                                            readOnly:
+                                                                                !isAvailable,
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            keyboardType:
+                                                                                TextInputType.number,
+                                                                            inputFormatters: [
+                                                                              FilteringTextInputFormatter.digitsOnly,
+                                                                              LengthLimitingTextInputFormatter(
+                                                                                3,
+                                                                              ),
+                                                                            ],
+                                                                            decoration: InputDecoration(
+                                                                              counterText:
+                                                                                  '',
+                                                                              hintText:
+                                                                                  'QTY',
+                                                                              contentPadding: const EdgeInsets.symmetric(
+                                                                                horizontal:
+                                                                                    6,
+                                                                                vertical:
+                                                                                    8,
+                                                                              ),
+                                                                              filled:
+                                                                                  true,
+                                                                              fillColor:
+                                                                                  AppColors.lightGreyBackground,
+                                                                              border: OutlineInputBorder(
+                                                                                borderRadius: BorderRadius.circular(
+                                                                                  8,
+                                                                                ),
+                                                                                borderSide:
+                                                                                    BorderSide.none,
+                                                                              ),
+                                                                            ),
+                                                                            onTap: () {
+                                                                              if (isAvailable) {
+                                                                                return;
+                                                                              }
+                                                                              ScaffoldMessenger.of(
+                                                                                context,
+                                                                              ).showSnackBar(
+                                                                                SnackBar(
+                                                                                  content: Text(
+                                                                                    LabelService().getLabel(
+                                                                                      189,
+                                                                                    ),
+                                                                                  ),
+                                                                                  backgroundColor:
+                                                                                      Colors.red,
+                                                                                ),
+                                                                              );
+                                                                            },
+                                                                            onChanged: (
+                                                                              value,
+                                                                            ) {
+                                                                              if (!isAvailable) {
+                                                                                return;
+                                                                              }
+                                                                              final qty =
+                                                                                  int.tryParse(
+                                                                                    value,
+                                                                                  ) ??
+                                                                                  0;
+                                                                              if (existing !=
+                                                                                  null) {
+                                                                                existing.displayCheckCount = qty;
+                                                                              } else {
+                                                                                viewModel.selectedProducts.add(
+                                                                                  ProductSelection(
+                                                                                    productId:
+                                                                                        item.productId,
+                                                                                    displayCheckCount:
+                                                                                        qty,
+                                                                                    displayCheck:
+                                                                                        0,
+                                                                                    token:
+                                                                                        viewModel.user!.apiToken.toString(),
+                                                                                    storeId:
+                                                                                        widget.storeId.toString(),
+                                                                                    teamMemberId:
+                                                                                        viewModel.user!.teamMemberID.toString(),
+                                                                                  ),
+                                                                                );
+                                                                              }
+                                                                              viewModel.notifyListeners();
+                                                                            },
+                                                                          );
+                                                                        },
+                                                                      )
+                                                                      : GestureDetector(
+                                                                        onTap: () {
+                                                                          final existing = viewModel.selectedProducts.firstWhereOrNull(
+                                                                            (
+                                                                              e,
+                                                                            ) =>
+                                                                                e.productId ==
+                                                                                item.productId,
+                                                                          );
+                                                                          final isAvailable =
+                                                                              existing?.displayCheck ==
+                                                                              1;
+                                                                          if (!isAvailable) {
+                                                                            ScaffoldMessenger.of(
+                                                                              context,
+                                                                            ).showSnackBar(
+                                                                              SnackBar(
+                                                                                content: Text(
+                                                                                  LabelService().getLabel(
+                                                                                    189,
+                                                                                  ),
+                                                                                ),
+                                                                                backgroundColor:
+                                                                                    Colors.red,
+                                                                              ),
+                                                                            );
+                                                                            return;
+                                                                          }
+
+                                                                          if (existing !=
+                                                                              null) {
+                                                                            existing.displayCheckCount =
+                                                                                existing.displayCheckCount ==
+                                                                                        1
+                                                                                    ? 0
+                                                                                    : 1;
+                                                                          } else {
+                                                                            viewModel.selectedProducts.add(
+                                                                              ProductSelection(
+                                                                                productId:
+                                                                                    item.productId,
+                                                                                displayCheckCount:
                                                                                     1,
-                                                                          )
-                                                                          ? AppColors
-                                                                              .primary
-                                                                          : Colors
-                                                                              .grey
-                                                                              .shade400,
-                                                                ),
-                                                              ),
+                                                                                displayCheck:
+                                                                                    0,
+                                                                                token:
+                                                                                    viewModel.user!.apiToken.toString(),
+                                                                                storeId:
+                                                                                    widget.storeId.toString(),
+                                                                                teamMemberId:
+                                                                                    viewModel.user!.teamMemberID.toString(),
+                                                                              ),
+                                                                            );
+                                                                          }
+                                                                          viewModel
+                                                                              .notifyListeners();
+                                                                        },
+                                                                        child: Icon(
+                                                                          viewModel.selectedProducts.any(
+                                                                                (
+                                                                                  e,
+                                                                                ) =>
+                                                                                    e.productId ==
+                                                                                        item.productId &&
+                                                                                    e.displayCheckCount ==
+                                                                                        1,
+                                                                              )
+                                                                              ? Icons.check_circle
+                                                                              : Icons.check_circle_outline,
+                                                                          size:
+                                                                              35,
+                                                                          color:
+                                                                              viewModel.selectedProducts.any(
+                                                                                    (
+                                                                                      e,
+                                                                                    ) =>
+                                                                                        e.productId ==
+                                                                                            item.productId &&
+                                                                                        e.displayCheckCount ==
+                                                                                            1,
+                                                                                  )
+                                                                                  ? AppColors.primary
+                                                                                  : Colors.grey.shade400,
+                                                                        ),
+                                                                      ),
                                                             ),
                                                           ],
                                                         ),
@@ -1216,17 +1343,41 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                       .rightImages,
                                                             );
 
-                                                        List<
-                                                          Map<String, dynamic>
-                                                        >
-                                                        dataList =
-                                                            viewModel
-                                                                .selectedProducts
-                                                                .map(
-                                                                  (product) =>
-                                                                      product
-                                                                          .toJson(),
-                                                                )
+                                                        final dataList =
+                                                            viewModel.auditList
+                                                                .map((item) {
+                                                                  final existing = viewModel
+                                                                      .selectedProducts
+                                                                      .firstWhereOrNull(
+                                                                        (e) =>
+                                                                            e.productId ==
+                                                                            item.productId,
+                                                                      );
+                                                                  return ProductSelection(
+                                                                    productId:
+                                                                        item.productId,
+                                                                    displayCheck:
+                                                                        existing
+                                                                            ?.displayCheck ??
+                                                                            0,
+                                                                    displayCheckCount:
+                                                                        existing
+                                                                            ?.displayCheckCount ??
+                                                                            0,
+                                                                    token: viewModel
+                                                                        .user!
+                                                                        .apiToken
+                                                                        .toString(),
+                                                                    storeId: widget
+                                                                        .storeId
+                                                                        .toString(),
+                                                                    teamMemberId:
+                                                                        viewModel
+                                                                            .user!
+                                                                            .teamMemberID
+                                                                            .toString(),
+                                                                  ).toJson();
+                                                                })
                                                                 .toList();
 
                                                         await viewModel

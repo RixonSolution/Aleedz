@@ -1,5 +1,4 @@
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/viewmodel/user_training_viewmodel.dart';
@@ -29,111 +28,103 @@ class _MyConsumerState extends ConsumerState<UserTrainingSubmit> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(userTrainingModelProvider);
+    final header = Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF111827), Color(0xFF0B1120)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              InkWell(
+                onTap: () => NavigationService.goBack(),
+                child: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 18,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Trainings',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            widget.trainingName,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
 
     return SafeArea(
       child: Scaffold(
-        bottomNavigationBar: Container(
-          margin: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-          color: Colors.white,
-          child: ElevatedButton(
-            onPressed: () async {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.secondary,
-              padding: EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(0),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: SizedBox(
+              height: 56,
+              child: ElevatedButton(
+                onPressed: () async {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  elevation: 4,
+                  shadowColor: AppColors.primary.withOpacity(0.3),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Submit',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.whiteColor,
+                  ),
+                ),
               ),
-            ),
-            child: Text(
-              'Submit',
-              style: TextStyle(fontSize: 14, color: AppColors.whiteColor),
             ),
           ),
         ),
-
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              NavigationService.goBack();
-                            },
-                            child: Image.asset(
-                              AppIcons.backArrow,
-                              height: 30,
-                              width: 30,
-                            ),
-                          ),
-                          const Text(
-                            'Trainings',
-                            style: TextStyle(
-                              color: AppColors.blackColor,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Image.asset(
-                            AppIcons.locationIcon,
-                            height: 30,
-                            width: 30,
-                            color: AppColors.whiteColor,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Divider(color: AppColors.primary, height: 0),
-                    ),
+                    header,
                     const SizedBox(height: 5),
 
-                    Container(
-                      margin: EdgeInsets.symmetric(vertical: 8),
-                      padding: EdgeInsets.symmetric(vertical: 12),
-
-                      decoration: BoxDecoration(color: AppColors.secondary),
-                      child: Column(
-                        children: [
-                          Center(
-                            child: Text(
-                              '${LabelService().getLabel(140)} : 3030',
-                              style: TextStyle(
-                                color: AppColors.whiteColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Center(
-                            child: Text(
-                              widget.trainingName,
-                              style: TextStyle(
-                                color: AppColors.whiteColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
+                        horizontal: 30,
                         vertical: 8,
                       ),
-                      decoration: BoxDecoration(color: AppColors.secondary),
+                      decoration: BoxDecoration(color: AppColors.whiteColor),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -141,10 +132,10 @@ class _MyConsumerState extends ConsumerState<UserTrainingSubmit> {
                             children: [
                               Text(
                                 '#   ',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14,
-                                  color: AppColors.whiteColor,
+                                  color: AppColors.primary,
                                 ),
                               ),
                               Text(
@@ -152,7 +143,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingSubmit> {
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14,
-                                  color: AppColors.whiteColor,
+                                  color: AppColors.primary,
                                 ),
                               ),
                             ],
@@ -162,52 +153,73 @@ class _MyConsumerState extends ConsumerState<UserTrainingSubmit> {
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
-                              color: AppColors.whiteColor,
+                              color: AppColors.primary,
                             ),
                           ),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 20),
-
                     Expanded(
                       child: ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.all(5),
+                        physics: ScrollPhysics(),
                         itemCount: trainings.length,
                         itemBuilder: (context, index) {
                           final training = trainings[index];
-                          final isSelected = selectedIndexes.contains(index);
 
-                          return Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                ),
+                          return Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(18),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color(0x19000000),
+                                    blurRadius: 14,
+                                    offset: Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: IntrinsicHeight(
                                 child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    /// Text Info
+                                    Container(
+                                      width: 32,
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Color(0xFF111827),
+                                            Color(0xFF0B1120),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(18),
+                                          bottomLeft: Radius.circular(18),
+                                        ),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        '${index + 1}',
+                                        style: const TextStyle(
+                                          color: AppColors.whiteColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
                                     Expanded(
-                                      child: Column(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                '${index + 1}.  ',
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 14,
-                                                  color: AppColors.blackColor,
-                                                ),
-                                              ),
-                                              Column(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(14),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Expanded(
+                                              child: Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
@@ -221,75 +233,85 @@ class _MyConsumerState extends ConsumerState<UserTrainingSubmit> {
                                                           AppColors.blackColor,
                                                     ),
                                                   ),
+                                                  const SizedBox(height: 6),
                                                   Text(
                                                     training['address'],
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                       fontSize: 12,
                                                       color:
-                                                          AppColors.blackColor,
+                                                          Colors.grey.shade600,
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-
-                                    SizedBox(
-                                      width: 50,
-                                      height: 24,
-                                      child: TextField(
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: AppColors.blackColor,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                vertical: 0,
-                                                horizontal: 4,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            SizedBox(
+                                              width: 56,
+                                              child: TextField(
+                                                textAlign: TextAlign.center,
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: AppColors.blackColor,
+                                                ),
+                                                decoration: InputDecoration(
+                                                  contentPadding:
+                                                      const EdgeInsets.symmetric(
+                                                        vertical: 8,
+                                                        horizontal: 4,
+                                                      ),
+                                                  hintText: '0',
+                                                  hintStyle: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                  ),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                    borderSide:
+                                                        const BorderSide(
+                                                          color: Colors.grey,
+                                                        ),
+                                                  ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              8,
+                                                            ),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                              color: Colors.grey,
+                                                            ),
+                                                      ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              8,
+                                                            ),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                              color:
+                                                                  AppColors
+                                                                      .primary,
+                                                            ),
+                                                      ),
+                                                ),
+                                                keyboardType:
+                                                    TextInputType.number,
                                               ),
-                                          hintText: '0',
-                                          hintStyle: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey,
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              5,
-                                            ), // Circular like checkbox
-                                            borderSide: const BorderSide(
-                                              color: Colors.grey,
                                             ),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              5,
-                                            ),
-                                            borderSide: const BorderSide(
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              5,
-                                            ),
-                                            borderSide: const BorderSide(
-                                              color: AppColors.primary,
-                                            ),
-                                          ),
+                                          ],
                                         ),
-                                        keyboardType: TextInputType.number,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              const Divider(height: 25),
-                            ],
+                            ),
                           );
                         },
                       ),

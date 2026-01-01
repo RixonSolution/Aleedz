@@ -9,6 +9,7 @@ class AuditItem {
   final int storeId;
   final int displayCheck;
   final int displayCheckCount;
+  final int inputType;
 
   AuditItem({
     required this.brandId,
@@ -21,6 +22,7 @@ class AuditItem {
     required this.storeId,
     required this.displayCheck,
     required this.displayCheckCount,
+    required this.inputType,
   });
 
   factory AuditItem.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class AuditItem {
       storeId: json["Storeid"],
       displayCheck: json["DisplayCheck"],
       displayCheckCount: json["DisplayCheckCount"],
+      inputType: json["inputType"] ?? json["InputType"] ?? 0,
     );
   }
 }

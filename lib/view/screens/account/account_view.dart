@@ -6,6 +6,7 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/onboarding/login_view.dart';
 import 'package:aleedz/view/screens/change_pwd/change_pwd_view.dart';
 import 'package:aleedz/view/screens/user_profile/user_profile_view.dart';
+import 'package:aleedz/view/screens/user_training/user_training_list_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -134,18 +135,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         },
       },
 
-      // {
-      //   'title': LabelService().getLabel(81),
-      //   'icon': Icons.school,
-      //   'onTap': () async {
-      //     if (widget.onClose != null) widget.onClose!(); // Hide drawer
-      //     await Future.delayed(
-      //       Duration(milliseconds: 300),
-      //     ); // Wait for animation
-      //     NavigationService.navigateTo(UserTrainingListView());
-      //   },
-      //   'visible': hasRosLabel(30),
-      // },
+      {
+        'title': LabelService().getLabel(81),
+        'icon': Icons.school,
+        'onTap': () async {
+          if (widget.onClose != null) widget.onClose!(); // Hide drawer
+          await Future.delayed(
+            Duration(milliseconds: 300),
+          ); // Wait for animation
+          NavigationService.navigateTo(UserTrainingListView());
+        },
+        'visible': hasRosLabel(30),
+      },
       // {
       //   'title': LabelService().getLabel(82),
       //   'icon': Icons.school,

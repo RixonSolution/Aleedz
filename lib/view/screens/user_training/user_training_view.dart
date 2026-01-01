@@ -1,5 +1,4 @@
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/models/user_training_type.dart';
 import 'package:aleedz/routes/navigation_services.dart';
@@ -63,56 +62,69 @@ class _MyConsumerState extends ConsumerState<UserTrainingView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(userTrainingModelProvider);
+    final header = Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF111827), Color(0xFF0B1120)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              InkWell(
+                onTap: () => NavigationService.goBack(),
+                child: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 18,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Trainings',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            LabelService().getLabel(137),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
 
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              NavigationService.goBack();
-                            },
-                            child: Image.asset(
-                              AppIcons.backArrow,
-                              height: 30,
-                              width: 30,
-                            ),
-                          ),
-                          const Text(
-                            'Trainings',
-                            style: TextStyle(
-                              color: AppColors.blackColor,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Image.asset(
-                            AppIcons.locationIcon,
-                            height: 30,
-                            width: 30,
-                            color: AppColors.whiteColor,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Divider(color: AppColors.primary, height: 0),
-                    ),
-                    const SizedBox(height: 5),
-
+                    header,
+                    const SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: TextField(
@@ -131,75 +143,108 @@ class _MyConsumerState extends ConsumerState<UserTrainingView> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
 
                     Expanded(
                       child: ListView.builder(
-                        padding: const EdgeInsets.all(5),
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
                         itemCount: filteredTrainingList.length,
                         itemBuilder: (context, index) {
-                          return Column(
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  NavigationService.navigateTo(
-                                    UserTrainingStores(
-                                      trainingName:
-                                          viewModel
-                                              .trainingTypeList[index]
-                                              .trainingTypeName
-                                              .toString(),
-                                      trainingId:
-                                          viewModel
-                                              .trainingTypeList[index]
-                                              .trainingTypeID
-                                              .toString(),
+                          final item = filteredTrainingList[index];
+                          return GestureDetector(
+                            onTap: () {
+                              NavigationService.navigateTo(
+                                UserTrainingStores(
+                                  trainingName:
+                                      item.trainingTypeName.toString(),
+                                  trainingId: item.trainingTypeID.toString(),
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                16,
+                                5,
+                                16,
+                                5,
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(18),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Color(0x14000000),
+                                      blurRadius: 14,
+                                      offset: Offset(0, 6),
                                     ),
-                                  );
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        width: 24,
-                                        child: Text(
-                                          '${index + 1}.',
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            color: AppColors.blackColor,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          viewModel
-                                              .trainingTypeList[index]
-                                              .trainingTypeName
-                                              .toString(),
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                            color: AppColors.blackColor,
-                                          ),
-                                        ),
-                                      ),
-                                      Image.asset(
-                                        'assets/icons/arrow_right.jpeg',
-                                        height: 30,
+                                  ],
+                                ),
+                                child: Stack(
+                                  children: [
+                                    Positioned(
+                                      left: 0,
+                                      top: 0,
+                                      bottom: 0,
+                                      child: Container(
                                         width: 30,
+                                        decoration: const BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Color(0xFF111827),
+                                              Color(0xFF0B1120),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(18),
+                                            bottomLeft: Radius.circular(18),
+                                          ),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          '${index + 1}',
+                                          style: const TextStyle(
+                                            color: AppColors.whiteColor,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        40,
+                                        14,
+                                        14,
+                                        14,
+                                      ),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              item.trainingTypeName.toString(),
+                                              style: const TextStyle(
+                                                color: AppColors.blackColor,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w800,
+                                              ),
+                                            ),
+                                          ),
+                                          const Icon(
+                                            Icons.chevron_right,
+                                            color: Colors.grey,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const Divider(height: 25),
-                            ],
+                            ),
                           );
                         },
                       ),
