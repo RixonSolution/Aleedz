@@ -1,8 +1,10 @@
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/view/screens/account/account_view.dart';
+import 'package:aleedz/view/screens/alert/alert_view.dart';
 import 'package:aleedz/view/screens/coverage_details/coverage_view.dart';
 import 'package:aleedz/view/screens/home/home_view.dart';
 import 'package:aleedz/view/screens/home_chart/home_chart.dart';
+import 'package:aleedz/view/screens/home_chart/home_chart_team_view.dart';
 import 'package:aleedz/viewmodel/coverage_viewmodel.dart';
 import 'package:aleedz/viewmodel/home_chart_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -56,12 +58,22 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
 
     final user = coverageVM.user ?? homeChartVM.user;
 
+    final teamTypeId = user?.teamTypeID;
+    final useTeamChart =
+        teamTypeId == 1 || teamTypeId == 2 || teamTypeId == 3;
+    final useDefaultChart = teamTypeId == 6;
+    final homeScreen =
+        useTeamChart
+            ? HomeChartTeamView()
+            : useDefaultChart
+            ? HomeChartView()
+            : HomeView();
+
     setState(() {
       _screens = [
-        user?.teamTypeID == 6 ? HomeChartView() : HomeView(),
+        homeScreen,
         CoverageView(),
-        user?.teamTypeID == 6 ? HomeChartView() : HomeView(),
-
+        AlertView(),
         SizedBox(), // Drawer placeholder
       ];
     });

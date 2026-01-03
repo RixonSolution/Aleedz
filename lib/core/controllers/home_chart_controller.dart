@@ -104,4 +104,44 @@ class HomeChartController {
       managerId: managerId,
     );
   }
+
+  Future<Map<String, dynamic>?> getManagementTargetAchievementValue({
+    required int brandId,
+    required String month,
+    required String year,
+    required int teamMemberId,
+    required String token,
+    int managerId = 0,
+  }) async {
+    return await _apiService.getManagementTargetAchievementValue(
+      brandId: brandId,
+      month: month,
+      year: year,
+      teamMemberId: teamMemberId,
+      token: token,
+      managerId: managerId,
+    );
+  }
+
+  Future<Map<String, dynamic>?> getManagementTargetAchievementQty({
+    required int brandId,
+    required String month,
+    required String year,
+    required int teamMemberId,
+    required String token,
+    int managerId = 0,
+  }) async {
+    return await _apiService.getManagementTargetAchievementQty(
+      brandId: brandId,
+      month: month,
+      year: year,
+      teamMemberId: teamMemberId,
+      token: token,
+      managerId: managerId,
+    );
+  }
+
+  Future<Map<String, dynamic>?> getFieldUsers({required String token}) async {
+    return await _apiService.getFieldUsers(token: token);
+  }
 }

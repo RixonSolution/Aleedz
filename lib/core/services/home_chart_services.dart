@@ -253,4 +253,89 @@ class HomeChartServices {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>?> getManagementTargetAchievementValue({
+    required int brandId,
+    required String month,
+    required String year,
+    required int teamMemberId,
+    required String token,
+    int managerId = 0,
+  }) async {
+    final encodedBrandId = Uri.encodeComponent(brandId.toString());
+    final encodedMonth = Uri.encodeComponent(month);
+    final encodedYear = Uri.encodeComponent(year);
+    final encodedTeamId = Uri.encodeComponent(teamMemberId.toString());
+    final encodedToken = Uri.encodeComponent(token);
+    final encodedManagerId = Uri.encodeComponent(managerId.toString());
+
+    final url = Uri.parse(
+      '${ApiConstants.managementTargetAchievementValue}?BrandID=$encodedBrandId&Month=$encodedMonth&Year=$encodedYear&TeamMemberID=$encodedTeamId&_token=$encodedToken&ManagerID=$encodedManagerId',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getManagementTargetAchievementQty({
+    required int brandId,
+    required String month,
+    required String year,
+    required int teamMemberId,
+    required String token,
+    int managerId = 0,
+  }) async {
+    final encodedBrandId = Uri.encodeComponent(brandId.toString());
+    final encodedMonth = Uri.encodeComponent(month);
+    final encodedYear = Uri.encodeComponent(year);
+    final encodedTeamId = Uri.encodeComponent(teamMemberId.toString());
+    final encodedToken = Uri.encodeComponent(token);
+    final encodedManagerId = Uri.encodeComponent(managerId.toString());
+
+    final url = Uri.parse(
+      '${ApiConstants.managementTargetAchievementQty}?BrandID=$encodedBrandId&Month=$encodedMonth&Year=$encodedYear&TeamMemberID=$encodedTeamId&_token=$encodedToken&ManagerID=$encodedManagerId',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getFieldUsers({required String token}) async {
+    final encodedToken = Uri.encodeComponent(token);
+
+    final url = Uri.parse('${ApiConstants.fieldUsers}?_token=$encodedToken');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Accept': 'application/json'},
+      );
+
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
 }

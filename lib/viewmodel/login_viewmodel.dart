@@ -54,7 +54,14 @@ class LoginViewModel extends ChangeNotifier {
 
       if (response != null && response["status"] == 200) {
         final store = StoreLocalData();
-        final dataList = response["data"]["data"];
+        final rawData = response["data"];
+        final nested = rawData is Map<String, dynamic> ? rawData["data"] : null;
+        final dataList =
+            rawData is List
+                ? rawData
+                : nested is List
+                ? nested
+                : null;
 
         if (dataList != null && dataList.isNotEmpty) {
           final userData = UserModel.fromJson(dataList[0]);

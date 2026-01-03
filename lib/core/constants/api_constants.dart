@@ -185,6 +185,13 @@ class ApiConstants {
       "$baseUrl/WebService.asmx/TargetAchievement_All_Value";
   static String get targetAchievementQty =>
       "$baseUrl/WebService.asmx/TargetAchievement_All_Qty";
+  static String get managementTargetAchievementValue =>
+      "$baseUrl/WebService.asmx/WEB_Management_TargetAchievement_All_Value";
+  static String get managementTargetAchievementQty =>
+      "$baseUrl/WebService.asmx/WEB_Management_TargetAchievement_All_Qty";
+  static String get managementAlert =>
+      "$baseUrl/W_WebSettings.asmx/Web_SP_Management_Alert";
+  static String get fieldUsers => "$baseUrl/W_WebService.asmx/SP_FieldUsers";
 
   static String get stockSummary => "$baseUrl/Stock.asmx/StockSummary";
   static String get stockView => "$baseUrl/Stock.asmx/DailyStock_View";
