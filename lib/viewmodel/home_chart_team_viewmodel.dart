@@ -57,6 +57,8 @@ class HomeChartTeamViewModel extends ChangeNotifier {
   String selectedYear = DateTime.now().year.toString();
 
   int get _activeTeamMemberId => selectedFieldUser?.teamMemberId ?? 0;
+  int get _coverageTeamMemberId =>
+      selectedFieldUser?.teamMemberId ?? user?.teamMemberID ?? 0;
 
   Future<UserPermission?> loadStoredPermissions() async {
     final prefs = await SharedPreferences.getInstance();
@@ -86,7 +88,7 @@ class HomeChartTeamViewModel extends ChangeNotifier {
     notifyListeners();
 
     final response = await _homeChartController.coverageCount(
-      teamMemberId: _activeTeamMemberId,
+      teamMemberId: _coverageTeamMemberId,
       token: user?.apiToken ?? '',
     );
 
@@ -247,8 +249,14 @@ class HomeChartTeamViewModel extends ChangeNotifier {
     if (year != null) {
       selectedYear = year;
     }
-    await getMonthlyTargetValue(targetMonth: selectedMonthNumber);
-    await getMonthlySale(targetMonth: selectedMonthNumber);
+    await getMonthlyTargetValue(
+      targetMonth: selectedMonthNumber,
+      targetYear: selectedYear,
+    );
+    await getMonthlySale(
+      targetMonth: selectedMonthNumber,
+      targetYear: selectedYear,
+    );
     await fetchTargetAchievements(month: selectedMonthNumber);
     loader = false;
     notifyListeners();

@@ -851,7 +851,7 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: const Icon(
-                                        Icons.access_time,
+                                        Icons.store_mall_directory_outlined,
                                         color: AppColors.primary,
                                       ),
                                     ),
@@ -861,7 +861,7 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          viewModel.storeTimeSpend,
+                                          viewModel.storeCount ?? '0',
                                           style: const TextStyle(
                                             color: AppColors.blackColor,
                                             fontSize: 18,
@@ -869,7 +869,7 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                           ),
                                         ),
                                         const Text(
-                                          'Time in Store',
+                                          'Coverage',
                                           style: TextStyle(
                                             color: AppColors.greyText,
                                             fontSize: 12,
@@ -891,7 +891,7 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: const Icon(
-                                        Icons.map_outlined,
+                                        Icons.people_outline,
                                         color: Color(0xFF2563EB),
                                       ),
                                     ),
@@ -901,7 +901,8 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          viewModel.storeTotalTravel,
+                                          viewModel.fieldUsers.length
+                                              .toString(),
                                           style: const TextStyle(
                                             color: AppColors.blackColor,
                                             fontSize: 18,
@@ -909,7 +910,7 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                           ),
                                         ),
                                         const Text(
-                                          'Total Travel',
+                                          'User',
                                           style: TextStyle(
                                             color: AppColors.greyText,
                                             fontSize: 12,
