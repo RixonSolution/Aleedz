@@ -96,7 +96,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Pick an image',
+                    LabelService().getLabel(111),
                     style: TextStyle(color: AppColors.whiteColor),
                   ),
                   const SizedBox(height: 12),
@@ -230,11 +230,11 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                   ),
                 );
               },
-              child: const Text('Open Full Screen'),
+              child: Text(LabelService().getLabel(278)),
             ),
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Close'),
+              child: Text(LabelService().getLabel(279)),
             ),
           ],
         );
@@ -279,8 +279,8 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Display Audit Check',
+              Text(
+                LabelService().getLabel(280),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -443,7 +443,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                       ),
                                                       const SizedBox(height: 4),
                                                       Text(
-                                                        'last update ${widget.lastUpdate}',
+                                                        '${LabelService().getLabel(182)} ${widget.lastUpdate}',
                                                         style: TextStyle(
                                                           fontSize: 12,
                                                           color:
@@ -501,7 +501,9 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                 children: [
                                                   Expanded(
                                                     child: Text(
-                                                      'Products',
+                                                      LabelService().getLabel(
+                                                        281,
+                                                      ),
                                                       style: TextStyle(
                                                         fontSize: 14,
                                                         fontWeight:
@@ -742,8 +744,9 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                             decoration: InputDecoration(
                                                                               counterText:
                                                                                   '',
-                                                                              hintText:
-                                                                                  'QTY',
+                                                                              hintText: LabelService().getLabel(
+                                                                                221,
+                                                                              ),
                                                                               contentPadding: const EdgeInsets.symmetric(
                                                                                 horizontal:
                                                                                     6,
@@ -1344,41 +1347,43 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                             );
 
                                                         final dataList =
-                                                            viewModel.auditList
-                                                                .map((item) {
-                                                                  final existing = viewModel
-                                                                      .selectedProducts
-                                                                      .firstWhereOrNull(
-                                                                        (e) =>
-                                                                            e.productId ==
-                                                                            item.productId,
-                                                                      );
-                                                                  return ProductSelection(
-                                                                    productId:
+                                                            viewModel.auditList.map((
+                                                              item,
+                                                            ) {
+                                                              final existing = viewModel
+                                                                  .selectedProducts
+                                                                  .firstWhereOrNull(
+                                                                    (e) =>
+                                                                        e.productId ==
                                                                         item.productId,
-                                                                    displayCheck:
-                                                                        existing
-                                                                            ?.displayCheck ??
-                                                                            0,
-                                                                    displayCheckCount:
-                                                                        existing
-                                                                            ?.displayCheckCount ??
-                                                                            0,
-                                                                    token: viewModel
+                                                                  );
+                                                              return ProductSelection(
+                                                                productId:
+                                                                    item.productId,
+                                                                displayCheck:
+                                                                    existing
+                                                                        ?.displayCheck ??
+                                                                    0,
+                                                                displayCheckCount:
+                                                                    existing
+                                                                        ?.displayCheckCount ??
+                                                                    0,
+                                                                token:
+                                                                    viewModel
                                                                         .user!
                                                                         .apiToken
                                                                         .toString(),
-                                                                    storeId: widget
+                                                                storeId:
+                                                                    widget
                                                                         .storeId
                                                                         .toString(),
-                                                                    teamMemberId:
-                                                                        viewModel
-                                                                            .user!
-                                                                            .teamMemberID
-                                                                            .toString(),
-                                                                  ).toJson();
-                                                                })
-                                                                .toList();
+                                                                teamMemberId:
+                                                                    viewModel
+                                                                        .user!
+                                                                        .teamMemberID
+                                                                        .toString(),
+                                                              ).toJson();
+                                                            }).toList();
 
                                                         await viewModel
                                                             .addDisplayCheck(
@@ -1414,8 +1419,10 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                             ),
                                                       ),
                                                     ),
-                                                    child: const Text(
-                                                      "Submit",
+                                                    child: Text(
+                                                      LabelService().getLabel(
+                                                        24,
+                                                      ),
                                                       style: TextStyle(
                                                         color:
                                                             AppColors

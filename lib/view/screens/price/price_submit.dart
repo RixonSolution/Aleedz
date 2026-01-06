@@ -305,7 +305,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
       _selectedProductCategoryId = newCategory;
       _currentBrandName = item.brandName ?? _currentBrandName;
       _currentProductName = item.productCategoryName ?? _currentProductName;
-      _filterApplied = _selectedBrandId != _defaultBrandId ||
+      _filterApplied =
+          _selectedBrandId != _defaultBrandId ||
           _selectedProductCategoryId != _defaultProductCategoryId;
     });
     await viewModel.pricePromotionList(
@@ -381,8 +382,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Filter Price Promotions',
+                          Text(
+                            LabelService().getLabel(292),
                             style: TextStyle(
                               color: Color(0xFF111827),
                               fontSize: 20,
@@ -410,8 +411,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                       const SizedBox(height: 12),
                       Divider(color: Colors.grey.shade300, height: 1),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Brand',
+                      Text(
+                        LabelService().getLabel(49),
                         style: TextStyle(
                           color: Color(0xFF111827),
                           fontSize: 14,
@@ -429,7 +430,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                             horizontal: 12,
                             vertical: 10,
                           ),
-                          hintText: 'Select brand',
+                          hintText: LabelService().getLabel(133),
                         ),
                         items:
                             viewModel.brandList
@@ -465,12 +466,16 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                         child:
                             localLoading
                                 ? Center(
-                                  child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32),
+                                  child: LoadingAnimationWidget.discreteCircle(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 32,
+                                  ),
                                 )
                                 : viewModel.brands.isEmpty
                                 ? Center(
                                   child: Text(
-                                    'No categories found for this brand',
+                                    LabelService().getLabel(293),
                                     style: TextStyle(
                                       color: Colors.grey.shade600,
                                       fontWeight: FontWeight.w600,
@@ -684,7 +689,12 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
             body: Stack(
               children: [
                 viewModel.loader
-                    ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                    ? Center(
+                      child: LoadingAnimationWidget.discreteCircle(
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 32,
+                      ),
+                    )
                     : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -715,8 +725,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                     ),
                                   ),
                                   const SizedBox(width: 12),
-                                  const Text(
-                                    'Price Promotions',
+                                  Text(
+                                    LabelService().getLabel(294),
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 18,
@@ -937,7 +947,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                                   ),
                                                   const SizedBox(height: 6),
                                                   Text(
-                                                    'SKU: ${product.productModelCode ?? '-'} • ${product.brandName ?? ''}',
+                                                    '${labelService.getLabel(267)} ${product.productModelCode ?? '-'} • ${product.brandName ?? ''}',
                                                     maxLines: 2,
                                                     overflow:
                                                         TextOverflow.ellipsis,
@@ -1121,7 +1131,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      'RRP (Retail Price)',
+                                                      LabelService().getLabel(
+                                                        296,
+                                                      ),
                                                       style: TextStyle(
                                                         color:
                                                             AppColors.primary,
@@ -1212,7 +1224,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      'Net Price',
+                                                      LabelService().getLabel(
+                                                        70,
+                                                      ),
                                                       style: TextStyle(
                                                         color:
                                                             AppColors.primary,
@@ -1306,7 +1320,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                                   ),
                                                   const SizedBox(width: 6),
                                                   Text(
-                                                    'Active Promotion',
+                                                    LabelService().getLabel(
+                                                      297,
+                                                    ),
                                                     style: TextStyle(
                                                       color: AppColors.primary,
                                                       fontSize: 12,
@@ -1392,7 +1408,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                               ),
                                               const SizedBox(width: 8),
                                               Text(
-                                                'Out of Stock',
+                                                LabelService().getLabel(72),
                                                 style: TextStyle(
                                                   color: AppColors.blackColor,
                                                   fontSize: 14,
@@ -1428,7 +1444,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                           );
                           AppSnackBar.showSuccess(
                             context,
-                            'Price Promotions submitted}',
+                            'Price Promotions submitted',
                           );
                         },
                         child: Container(
@@ -1492,11 +1508,7 @@ class _FilterIcon extends StatelessWidget {
                 color: Colors.white,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.close,
-                size: 12,
-                color: AppColors.primary,
-              ),
+              child: Icon(Icons.close, size: 12, color: AppColors.primary),
             ),
           ),
       ],

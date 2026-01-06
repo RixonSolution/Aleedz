@@ -84,7 +84,7 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Product Transfer',
+                LabelService().getLabel(33),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -144,7 +144,7 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              'Transfer: $formattedDate • ${widget.transferStore}',
+              '${LabelService().getLabel(59)}: $formattedDate • ${widget.transferStore}',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 13,
@@ -186,8 +186,8 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                         ),
                         backgroundColor: AppColors.primary,
                       ),
-                      child: const Text(
-                        "Submit",
+                      child: Text(
+                        LabelService().getLabel(24),
                         style: TextStyle(
                           color: AppColors.whiteColor,
                           fontWeight: FontWeight.bold,
@@ -296,7 +296,7 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                             SizedBox(
                                               width: 60,
                                               child: Text(
-                                                "Available",
+                                                LabelService().getLabel(43),
                                                 textAlign: TextAlign.center,
                                                 style: TextStyle(
                                                   fontSize: 12,
@@ -770,11 +770,11 @@ class _DisplayAuditCheckState extends ConsumerState<TransferSubmit> {
                                                                     ),
                                                               ),
                                                               focusedBorder: OutlineInputBorder(
-                                                                borderSide:
-                                                                    BorderSide(
-                                                                      color:
-                                                                          AppColors.primary,
-                                                                    ),
+                                                                borderSide: BorderSide(
+                                                                  color:
+                                                                      AppColors
+                                                                          .primary,
+                                                                ),
                                                                 borderRadius:
                                                                     BorderRadius.circular(
                                                                       4,

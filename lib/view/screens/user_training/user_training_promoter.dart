@@ -106,8 +106,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Trainings',
+              Text(
+                LabelService().getLabel(291),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -135,8 +135,11 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.confirmation_number,
-                    color: AppColors.primary, size: 16),
+                const Icon(
+                  Icons.confirmation_number,
+                  color: AppColors.primary,
+                  size: 16,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   '${LabelService().getLabel(140)} ${widget.trainingId}',
@@ -194,10 +197,10 @@ class _MyConsumerState extends ConsumerState<UserTrainingPromoter> {
                                     });
                                     addPromoterName(
                                       viewModel
-                                          .promoterList[index].teamMemberName
+                                          .promoterList[index]
+                                          .teamMemberName
                                           .toString(),
-                                      viewModel
-                                          .promoterList[index].teamMemberID
+                                      viewModel.promoterList[index].teamMemberID
                                           .toString(),
                                     );
                                   }

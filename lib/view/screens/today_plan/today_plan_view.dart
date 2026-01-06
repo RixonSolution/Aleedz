@@ -195,8 +195,7 @@ class _CoverageViewState extends ConsumerState<TodayPlanView> {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
-                          'Daily Plan',
+                        child: Text(LabelService().getLabel(289),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,

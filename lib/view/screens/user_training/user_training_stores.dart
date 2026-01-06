@@ -102,8 +102,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Trainings',
+              Text(
+                LabelService().getLabel(291),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -320,9 +320,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingStores> {
                                                 color:
                                                     isSelected
                                                         ? AppColors.primary
-                                                        : Colors
-                                                            .grey
-                                                            .shade400,
+                                                        : Colors.grey.shade400,
                                               ),
                                             ),
                                           ],

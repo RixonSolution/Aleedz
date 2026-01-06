@@ -152,9 +152,9 @@ class _StockSummaryViewState extends ConsumerState<StockSummaryView> {
                   child: DropdownButtonFormField<int>(
                     value: viewModel.selectedBrand?.brandId,
                     isDense: true,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'All Brands',
+                      hintText: LabelService().getLabel(286),
                       contentPadding: EdgeInsets.symmetric(vertical: 10),
                     ),
                     items:
@@ -180,7 +180,10 @@ class _StockSummaryViewState extends ConsumerState<StockSummaryView> {
             const SizedBox(height: 12),
             viewModel.loader
                 ? Center(
-                  child: LoadingAnimationWidget.discreteCircle(color: AppColors.secondary, size: 32),
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: AppColors.secondary,
+                    size: 32,
+                  ),
                 )
                 : Expanded(
                   child: ListView.separated(
@@ -233,7 +236,7 @@ class _StockSummaryViewState extends ConsumerState<StockSummaryView> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Last update: ${widget.checkInTime}',
+                                      '${LabelService().getLabel(182)} ${widget.checkInTime}',
                                       style: TextStyle(
                                         color: Colors.grey.shade600,
                                         fontSize: 12,
@@ -248,7 +251,7 @@ class _StockSummaryViewState extends ConsumerState<StockSummaryView> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         Text(
-                                          'Model',
+                                          LabelService().getLabel(277),
                                           style: TextStyle(
                                             color: AppColors.primary,
                                             fontSize: 13,
@@ -271,7 +274,7 @@ class _StockSummaryViewState extends ConsumerState<StockSummaryView> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         Text(
-                                          'Display',
+                                          LabelService().getLabel(198),
                                           style: TextStyle(
                                             color: AppColors.primary,
                                             fontSize: 13,
@@ -399,7 +402,7 @@ class _StockSummaryViewState extends ConsumerState<StockSummaryView> {
                                                     Text(
                                                       item.updateBy.isNotEmpty
                                                           ? 'Updated by: ${item.updateBy}'
-                                                          : 'Last update: ${item.lastUpdate}',
+                                                          : '${LabelService().getLabel(182)}: ${item.lastUpdate}',
                                                       style: TextStyle(
                                                         color:
                                                             Colors

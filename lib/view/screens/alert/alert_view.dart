@@ -168,7 +168,7 @@ class _AlertViewState extends ConsumerState<AlertView> {
   Widget build(BuildContext context) {
     final viewModel = ref.watch(alertProvider);
 
-    const alertTypes = [
+    final alertTypes = [
       {'label': 'Activity', 'type': 1},
       {'label': 'Issue', 'type': 2},
       {'label': 'Deployment', 'type': 3},
@@ -315,7 +315,7 @@ class _AlertViewState extends ConsumerState<AlertView> {
                         fontSize: 14,
                       ),
                       hint: Text(
-                        'Select Channel',
+                        LabelService().getLabel(207),
                         style: TextStyle(
                           color: AppColors.blackColor.withOpacity(0.45),
                           fontSize: 14,
@@ -352,9 +352,9 @@ class _AlertViewState extends ConsumerState<AlertView> {
                                 ),
                               )
                               : viewModel.alerts.isEmpty
-                              ? const Center(
+                              ? Center(
                                 child: Text(
-                                  'No alerts found for this range.',
+                                  LabelService().getLabel(208),
                                   style: TextStyle(
                                     color: AppColors.greyText,
                                     fontSize: 14,
@@ -372,8 +372,8 @@ class _AlertViewState extends ConsumerState<AlertView> {
                                   );
                                   final statusLabel =
                                       (alert.quantity?.isNotEmpty ?? false)
-                                          ? 'Qty ${alert.quantity}'
-                                          : 'Open';
+                                          ? '${LabelService().getLabel(221)} ${alert.quantity}'
+                                          : '${LabelService().getLabel(206)}';
                                   final itemKey = alert.activityId ?? index;
 
                                   return Padding(
@@ -688,8 +688,10 @@ class _AlertViewState extends ConsumerState<AlertView> {
                                                           14,
                                                         ),
                                                   ),
-                                                  child: const Text(
-                                                    'Open',
+                                                  child: Text(
+                                                    LabelService().getLabel(
+                                                      209,
+                                                    ),
                                                     style: TextStyle(
                                                       color: Color(0xFFf97316),
                                                       fontWeight:

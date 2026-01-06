@@ -73,7 +73,7 @@ class _DailySaleState extends State<DailySale> {
                     ),
                   ),
                   Text(
-                    'Daily Sale',
+                    LabelService().getLabel(273),
                     style: TextStyle(
                       color: AppColors.blackColor,
                       fontSize: 20,
@@ -123,17 +123,29 @@ class _DailySaleState extends State<DailySale> {
               color: AppColors.secondary,
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
               child: Row(
-                children: const [
+                children: [
                   Expanded(flex: 1, child: Text("#", style: headerStyle)),
                   Expanded(
                     flex: 5,
-                    child: Text("Sales Description", style: headerStyle),
+                    child: Text(
+                      LabelService().getLabel(177),
+                      style: headerStyle,
+                    ),
                   ),
                   Expanded(
                     flex: 2,
-                    child: Text("Quantity", style: headerStyle),
+                    child: Text(
+                      LabelService().getLabel(201),
+                      style: headerStyle,
+                    ),
                   ),
-                  Expanded(flex: 2, child: Text("Total", style: headerStyle)),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      LabelService().getLabel(77),
+                      style: headerStyle,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -169,7 +181,7 @@ class _DailySaleState extends State<DailySale> {
                           Text(sale.name),
                           SizedBox(height: 4),
                           Text(
-                            "Price: ${sale.unitPrice}",
+                            "${LabelService().getLabel(268)} ${sale.unitPrice}",
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ],

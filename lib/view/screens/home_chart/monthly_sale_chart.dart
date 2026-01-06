@@ -50,10 +50,7 @@ class MonthlySalesChart extends StatelessWidget {
           children: [
             Text(
               _getPercentageText(ratio),
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             Text(
               LabelService().getLabel(91),

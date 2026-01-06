@@ -196,7 +196,8 @@ class _MyConsumerState extends ConsumerState<DeploymentView> {
                       ? Center(
                         child: LoadingAnimationWidget.discreteCircle(
                           color: AppColors.secondary,
-                         size: 32),
+                          size: 32,
+                        ),
                       )
                       : filteredDeploymentList.isEmpty
                       ? Center(
@@ -268,10 +269,13 @@ class _MyConsumerState extends ConsumerState<DeploymentView> {
                                           width: 30,
                                           decoration: BoxDecoration(
                                             gradient: headerGradient,
-                                            borderRadius: const BorderRadius.only(
-                                              topLeft: Radius.circular(8),
-                                              bottomLeft: Radius.circular(8),
-                                            ),
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                  topLeft: Radius.circular(8),
+                                                  bottomLeft: Radius.circular(
+                                                    8,
+                                                  ),
+                                                ),
                                           ),
                                           alignment: Alignment.center,
                                           child: Text(
@@ -306,7 +310,7 @@ class _MyConsumerState extends ConsumerState<DeploymentView> {
                                           ),
                                           const SizedBox(height: 6),
                                           Text(
-                                            'Tap to view details',
+                                            LabelService().getLabel(230),
                                             style: TextStyle(
                                               fontSize: 13,
                                               color: Colors.grey.shade700,

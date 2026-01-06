@@ -56,8 +56,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingListView> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Trainings',
+              Text(
+                LabelService().getLabel(291),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -236,7 +236,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingListView> {
                                                       '${LabelService().getLabel(140)}: ${item.trainingID}',
                                                       style: const TextStyle(
                                                         color:
-                                                            AppColors.blackColor,
+                                                            AppColors
+                                                                .blackColor,
                                                         fontSize: 16,
                                                         fontWeight:
                                                             FontWeight.w800,
@@ -275,7 +276,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingListView> {
                                                           .toString(),
                                                       style: const TextStyle(
                                                         color:
-                                                            AppColors.blackColor,
+                                                            AppColors
+                                                                .blackColor,
                                                         fontSize: 12,
                                                         fontWeight:
                                                             FontWeight.w700,

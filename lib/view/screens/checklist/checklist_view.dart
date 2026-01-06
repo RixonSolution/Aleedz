@@ -102,8 +102,8 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Checklist',
+                      Text(
+                        labelService.getLabel(65),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -203,7 +203,8 @@ class _MyConsumerState extends ConsumerState<ChecklistView> {
                       ? Center(
                         child: LoadingAnimationWidget.discreteCircle(
                           color: AppColors.secondary,
-                         size: 32),
+                          size: 32,
+                        ),
                       )
                       : filteredActivityType.isEmpty
                       ? Center(

@@ -130,8 +130,8 @@ class _TargetAchievementCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Target Achievement',
+              Text(
+                LabelService().getLabel(235),
                 style: TextStyle(
                   color: AppColors.blackColor,
                   fontSize: 16,
@@ -150,7 +150,9 @@ class _TargetAchievementCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    isQty ? 'Qty' : 'Value',
+                    isQty
+                        ? LabelService().getLabel(162)
+                        : LabelService().getLabel(163),
                     style: const TextStyle(
                       color: AppColors.greyText,
                       fontSize: 12,
@@ -180,8 +182,8 @@ class _TargetAchievementCard extends StatelessWidget {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'Achievement',
+                      Text(
+                        LabelService().getLabel(163),
                         style: TextStyle(
                           color: AppColors.greyText,
                           fontSize: 12,
@@ -207,8 +209,8 @@ class _TargetAchievementCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: [
-                    const Text(
-                      'Target',
+                    Text(
+                      LabelService().getLabel(236),
                       style: TextStyle(
                         color: AppColors.blackColor,
                         fontSize: 13,
@@ -230,8 +232,8 @@ class _TargetAchievementCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: [
-                    const Text(
-                      'Achieved',
+                    Text(
+                      LabelService().getLabel(237),
                       style: TextStyle(
                         color: AppColors.blackColor,
                         fontSize: 13,
@@ -502,8 +504,8 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const Text(
-                    'Achievement',
+                  Text(
+                    LabelService().getLabel(237),
                     style: TextStyle(
                       color: AppColors.greyText,
                       fontSize: 12,
@@ -519,7 +521,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Target: ${_formatValue(entry.target)}',
+                '${LabelService().getLabel(236)}: ${_formatValue(entry.target)}',
                 style: const TextStyle(
                   color: AppColors.blackColor,
                   fontSize: 13,
@@ -527,7 +529,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                 ),
               ),
               Text(
-                'Achieved: ${_formatValue(entry.achieved)}',
+                '${LabelService().getLabel(237)}: ${_formatValue(entry.achieved)}',
                 style: TextStyle(
                   color: color,
                   fontSize: 13,
@@ -712,7 +714,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
-                                              'Performance',
+                                              LabelService().getLabel(238),
                                               style: const TextStyle(
                                                 color: Color(0xFFFBBF24),
                                                 fontSize: 12,
@@ -800,8 +802,8 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                         ),
                                       ),
                                       const SizedBox(height: 8),
-                                      const Text(
-                                        'Sales Achieved',
+                                      Text(
+                                        LabelService().getLabel(239),
                                         style: TextStyle(
                                           color: Color(0xFFcbd5e1),
                                           fontSize: 11,
@@ -864,8 +866,8 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        const Text(
-                                          'Time in Store',
+                                        Text(
+                                          LabelService().getLabel(234),
                                           style: TextStyle(
                                             color: AppColors.greyText,
                                             fontSize: 12,
@@ -904,8 +906,8 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        const Text(
-                                          'Total Travel',
+                                        Text(
+                                          LabelService().getLabel(46),
                                           style: TextStyle(
                                             color: AppColors.greyText,
                                             fontSize: 12,
@@ -951,7 +953,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                         selectedColor: AppColors.secondary,
                                       ),
                                       _buildToggleChip(
-                                        label: "Value",
+                                        label: LabelService().getLabel(163),
                                         selected: !viewModel.showQty,
                                         onTap:
                                             () => ref
@@ -974,8 +976,8 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
-                                      'Target vs Achievement',
+                                    Text(
+                                      LabelService().getLabel(240),
                                       style: TextStyle(
                                         color: AppColors.blackColor,
                                         fontSize: 16,
@@ -983,7 +985,9 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                       ),
                                     ),
                                     Text(
-                                      viewModel.showQty ? 'Qty' : 'Value',
+                                      viewModel.showQty
+                                          ? LabelService().getLabel(162)
+                                          : LabelService().getLabel(163),
                                       style: const TextStyle(
                                         color: AppColors.blackColor,
                                         fontSize: 14,
@@ -1020,8 +1024,8 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                       color: Colors.grey.shade200,
                                     ),
                                   ),
-                                  child: const Text(
-                                    'No target achievement data available.',
+                                  child: Text(
+                                    LabelService().getLabel(241),
                                     style: TextStyle(
                                       color: AppColors.blackColor,
                                       fontSize: 14,

@@ -96,12 +96,12 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
       child: Row(
         children: [
           _optionButton(
-            label: 'Yes',
+            label: LabelService().getLabel(95),
             selected: value == true,
             onTap: () => onChanged(true),
           ),
           _optionButton(
-            label: 'No',
+            label: LabelService().getLabel(94),
             selected: value == false,
             onTap: () => onChanged(false),
           ),
@@ -196,8 +196,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading:
-                      const Icon(Icons.photo_library, color: Colors.white),
+                  leading: const Icon(Icons.photo_library, color: Colors.white),
                   title: Text(
                     LabelService().getLabel(113),
                     style: const TextStyle(color: Colors.white),
@@ -210,9 +209,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                         if (viewModel.displayComplianceImages.length >= 4) {
                           break;
                         }
-                        viewModel.displayComplianceImages.add(
-                          File(image.path),
-                        );
+                        viewModel.displayComplianceImages.add(File(image.path));
                       }
                       viewModel.notifyListeners();
                     }
@@ -232,12 +229,12 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
     messenger.showSnackBar(
       SnackBar(
         content: Row(
-          children: const [
+          children: [
             Icon(Icons.swipe_left, color: Colors.white),
             SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Swipe left to delete the record',
+                LabelService().getLabel(202),
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
@@ -333,561 +330,676 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                LabelService().getLabel(197),
-                                style: const TextStyle(
-                                  color: Color(0xFF111827),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () => Navigator.of(ctx).pop(),
-                                child: Container(
-                                  height: 36,
-                                  width: 36,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFF2F3F5),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    size: 18,
-                                    color: Color(0xFF111827),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Divider(color: Colors.grey.shade300, height: 1),
-                          const SizedBox(height: 16),
-
-                          const Text(
-                            'Select Brand',
-                            style: TextStyle(
-                              color: Color(0xFF111827),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          DropdownButtonFormField<int>(
-                            value: saleViewModel.selectedBrand?.brandId,
-                            decoration: _sheetInputDecoration('Select Brand'),
-                            items:
-                                saleViewModel.brandList
-                                    .map(
-                                      (brand) => DropdownMenuItem<int>(
-                                        value: brand.brandId,
-                                        child: Text(brand.brandName),
-                                      ),
-                                    )
-                                    .toList(),
-                            onChanged:
-                                saleViewModel.brandList.isEmpty
-                                    ? null
-                                    : (int? brandId) async {
-                                      if (brandId == null) return;
-                                      final selected = saleViewModel.brandList
-                                          .firstWhere(
-                                            (c) => c.brandId == brandId,
-                                          );
-                                      await saleViewModel.selectBrand(
-                                        widget.storeId,
-                                        selected,
-                                      );
-                                      if (!ctx.mounted) return;
-                                      setModalState(() {});
-                                    },
-                          ),
-                          const SizedBox(height: 14),
-
-                          const Text(
-                            'Select Category',
-                            style: TextStyle(
-                              color: Color(0xFF111827),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          DropdownButtonFormField<int>(
-                            value:
-                                saleViewModel
-                                    .selectedProductCategory
-                                    ?.productCategoryID,
-                            isExpanded: true,
-                            decoration: _sheetInputDecoration(
-                              'Select Category',
-                            ),
-                            items:
-                                saleViewModel.productCategory
-                                    .map(
-                                      (category) => DropdownMenuItem<int>(
-                                        value: category.productCategoryID,
-                                        child: Text(
-                                          category.productCategoryName ?? '',
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                            onChanged:
-                                saleViewModel.productCategory.isEmpty
-                                    ? null
-                                    : (int? categoryId) async {
-                                      if (categoryId == null) return;
-                                      final selected = saleViewModel
-                                          .productCategory
-                                          .firstWhere(
-                                            (c) =>
-                                                c.productCategoryID ==
-                                                categoryId,
-                                          );
-                                      await saleViewModel.selectProductCategory(
-                                        widget.storeId,
-                                        selected,
-                                      );
-                                      if (!ctx.mounted) return;
-                                      setModalState(() {});
-                                    },
-                          ),
-                          const SizedBox(height: 14),
-
-                          const Text(
-                            'Select Model',
-                            style: TextStyle(
-                              color: Color(0xFF111827),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          DropdownSearch<int>(
-                            items:
-                                saleViewModel.saleSearch
-                                    .map((model) => model.productID!)
-                                    .toList(),
-                            selectedItem:
-                                saleViewModel.selectedSaleSearch?.productID,
-                            itemAsString: (int id) {
-                              final model = saleViewModel.saleSearch.firstWhere(
-                                (m) => m.productID == id,
-                              );
-                              return model.productModelName ?? '';
-                            },
-                            dropdownDecoratorProps: DropDownDecoratorProps(
-                              dropdownSearchDecoration: _sheetInputDecoration(
-                                'Type to search products...',
-                                prefixIcon: const Icon(Icons.search),
-                              ),
-                            ),
-                            popupProps: PopupProps.menu(
-                              showSearchBox: true,
-                              searchFieldProps: TextFieldProps(
-                                decoration: _sheetInputDecoration('Search'),
-                              ),
-                            ),
-                            onChanged:
-                                saleViewModel.saleSearch.isEmpty
-                                    ? null
-                                    : (int? id) {
-                                      if (id == null) return;
-                                      final selected = saleViewModel.saleSearch
-                                          .firstWhere((m) => m.productID == id);
-                                      saleViewModel.selectSearchModel(selected);
-                                      setModalState(() {});
-                                    },
-                          ),
-                          const SizedBox(height: 14),
-
-                          const Text(
-                            'Select Location',
-                            style: TextStyle(
-                              color: Color(0xFF111827),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          DropdownButtonFormField<int>(
-                            value: selectedLocationId,
-                            decoration: _sheetInputDecoration(
-                              'Select Location',
-                            ),
-                            items:
-                                locationOptions
-                                    .map(
-                                      (item) => DropdownMenuItem<int>(
-                                        value: item.displayLocationId,
-                                        child: Text(
-                                          item.displayLocationName ?? '',
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                            onChanged:
-                                locationOptions.isEmpty
-                                    ? null
-                                    : (int? locationId) {
-                                      setModalState(() {
-                                        selectedLocationId = locationId;
-                                      });
-                                    },
-                          ),
-                          const SizedBox(height: 18),
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                LabelService().getLabel(198),
-                                style: const TextStyle(
-                                  color: Color(0xFF111827),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              _optionButtons(
-                                value: displayYes,
-                                onChanged: (value) {
-                                  setModalState(() {
-                                    displayYes = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                LabelService().getLabel(199),
-                                style: const TextStyle(
-                                  color: Color(0xFF111827),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              _optionButtons(
-                                value: guidelineYes,
-                                onChanged: (value) {
-                                  setModalState(() {
-                                    guidelineYes = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                LabelService().getLabel(200),
-                                style: const TextStyle(
-                                  color: Color(0xFF111827),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              _optionButtons(
-                                value: posmYes,
-                                onChanged: (value) {
-                                  setModalState(() {
-                                    posmYes = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            LabelService().getLabel(201),
-                                style: const TextStyle(
-                                  color: Color(0xFF111827),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              SizedBox(
-                                width: 80,
-                                child: TextField(
-                                  controller: quantityController,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                    LengthLimitingTextInputFormatter(3),
-                                  ],
-                                  decoration: _sheetInputDecoration('1'),
-                                  textAlign: TextAlign.center,
-                                ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Remarks',
-                        style: TextStyle(
-                          color: Color(0xFF111827),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _remarksController,
-                        maxLines: 2,
-                        minLines: 1,
-                        inputFormatters: [_WordLimitFormatter(100)],
-                        decoration: _sheetInputDecoration('Remarks'),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Picture',
-                        style: TextStyle(
-                          color: Color(0xFF111827),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              if (viewModel.displayComplianceImages.length <
-                                  4) {
-                                _showImagePickerDialog(viewModel);
-                              } else {
-                                showSheetError(LabelService().getLabel(114));
-                              }
-                            },
-                            child: Container(
-                              height: 80,
-                              width: 80,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: SizedBox(
-                              height: 80,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount:
-                                    viewModel.displayComplianceImages.length,
-                                itemBuilder: (context, index) {
-                                  final file =
-                                      viewModel.displayComplianceImages[index];
-                                  return Stack(
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Container(
-                                        margin: const EdgeInsets.only(
-                                          right: 10,
-                                        ),
-                                        height: 70,
-                                        width: 80,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          image: DecorationImage(
-                                            image: FileImage(file),
-                                            fit: BoxFit.cover,
-                                          ),
+                                      Text(
+                                        LabelService().getLabel(197),
+                                        style: const TextStyle(
+                                          color: Color(0xFF111827),
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w800,
                                         ),
                                       ),
-                                      Positioned(
-                                        top: 4,
-                                        right: 4,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            viewModel.displayComplianceImages
-                                                .removeAt(index);
-                                            viewModel.notifyListeners();
-                                          },
-                                          child: Container(
-                                            decoration: const BoxDecoration(
-                                              color: AppColors.secondary,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            padding: const EdgeInsets.all(4),
-                                            child: const Icon(
-                                              Icons.close,
-                                              size: 16,
-                                              color: Colors.white,
-                                            ),
+                                      InkWell(
+                                        onTap: () => Navigator.of(ctx).pop(),
+                                        child: Container(
+                                          height: 36,
+                                          width: 36,
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xFFF2F3F5),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.close,
+                                            size: 18,
+                                            color: Color(0xFF111827),
                                           ),
                                         ),
                                       ),
                                     ],
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                          const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 46,
-                        child:
-                            _isSubmitting
-                                ? Center(
-                                  child: LoadingAnimationWidget.discreteCircle(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    size: 32,
                                   ),
-                                )
-                                : ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                                  const SizedBox(height: 12),
+                                  Divider(
+                                    color: Colors.grey.shade300,
+                                    height: 1,
                                   ),
-                                  onPressed: () async {
-                                    if (saleViewModel.selectedBrand == null) {
-                                      showSheetError('Please select brand');
-                                      return;
-                                    }
-                                    if (saleViewModel
-                                            .selectedProductCategory ==
-                                        null) {
-                                      showSheetError('Please select category');
-                                      return;
-                                    }
-                                    if (saleViewModel.selectedSaleSearch ==
-                                        null) {
-                                      showSheetError('Please select model');
-                                      return;
-                                    }
-                                    if (selectedLocationId == null) {
-                                      showSheetError('Please select location');
-                                      return;
-                                    }
-                                    if (displayYes == null) {
-                                      showSheetError('Please select display');
-                                      return;
-                                    }
-                                    if (guidelineYes == null) {
-                                      showSheetError('Please select guideline');
-                                      return;
-                                    }
-                                    if (posmYes == null) {
-                                      showSheetError('Please select POSM');
-                                      return;
-                                    }
-                                    if (quantityController.text.isEmpty) {
-                                      showSheetError('Please enter quantity');
-                                      return;
-                                    }
-                                    if (_remarksController.text.isEmpty) {
-                                      showSheetError('Please enter remarks');
-                                      return;
-                                    }
-                                    if (viewModel
-                                        .displayComplianceImages
-                                        .isEmpty) {
-                                      showSheetError('Please add picture');
-                                      return;
-                                    }
+                                  const SizedBox(height: 16),
 
-                                    bool sheetClosed = false;
-                                    setState(() {
-                                      _isSubmitting = true;
-                                    });
-                                    setModalState(() {});
-
-                                    try {
-                                      final success =
-                                          await viewModel.submitDisplayCompliance(
-                                            storeId: widget.storeId.toString(),
-                                            productId:
-                                                saleViewModel
-                                                    .selectedSaleSearch
-                                                    ?.productID
-                                                    .toString() ??
-                                                '0',
-                                            displayLocationId:
-                                            selectedLocationId.toString(),
-                                            display: displayYes == true ? 1 : 0,
-                                            displayGuidlineId:
-                                                guidelineYes == true ? 1 : 0,
-                                            posmAvailable: posmYes == true ? 1 : 0,
-                                            quantity: quantityController.text,
-                                            remarks: _remarksController.text,
-                                            visitId:
-                                                widget.visiteId.toString(),
-                                            pictureId: '1',
-                                            images:
-                                                viewModel.displayComplianceImages,
-                                          );
-
-                                      if (!success) {
-                                        showSheetError(
-                                          'Unable to submit display compliance',
-                                        );
-                                        return;
-                                      }
-
-                                      _remarksController.clear();
-                                      quantityController.text = '1';
-                                      viewModel.displayComplianceImages.clear();
-                                      await viewModel.getDisplayComplianceList(
-                                        storeId: widget.storeId.toString(),
-                                        displayLocationId: '0',
-                                        brandId: '0',
-                                        visitId: widget.visiteId.toString(),
-                                      );
-
-                                      if (mounted) {
-                                        sheetClosed = true;
-                                        Navigator.of(ctx).pop();
-                                      }
-                                    } finally {
-                                      if (mounted) {
-                                        setState(() {
-                                          _isSubmitting = false;
-                                        });
-                                        if (!sheetClosed) {
-                                          setModalState(() {});
-                                        }
-                                      } else {
-                                        _isSubmitting = false;
-                                      }
-                                    }
-                                  },
-                                  child: const Text(
-                                    'Submit',
+                                  Text(
+                                    LabelService().getLabel(133),
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      color: Color(0xFF111827),
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                                ),
-                      ),
-                          const SizedBox(height: 24),
-                        ],
+                                  const SizedBox(height: 8),
+                                  DropdownButtonFormField<int>(
+                                    value: saleViewModel.selectedBrand?.brandId,
+                                    decoration: _sheetInputDecoration(
+                                      LabelService().getLabel(133),
+                                    ),
+                                    items:
+                                        saleViewModel.brandList
+                                            .map(
+                                              (brand) => DropdownMenuItem<int>(
+                                                value: brand.brandId,
+                                                child: Text(brand.brandName),
+                                              ),
+                                            )
+                                            .toList(),
+                                    onChanged:
+                                        saleViewModel.brandList.isEmpty
+                                            ? null
+                                            : (int? brandId) async {
+                                              if (brandId == null) return;
+                                              final selected = saleViewModel
+                                                  .brandList
+                                                  .firstWhere(
+                                                    (c) => c.brandId == brandId,
+                                                  );
+                                              await saleViewModel.selectBrand(
+                                                widget.storeId,
+                                                selected,
+                                              );
+                                              if (!ctx.mounted) return;
+                                              setModalState(() {});
+                                            },
+                                  ),
+                                  const SizedBox(height: 14),
+
+                                  Text(
+                                    LabelService().getLabel(214),
+                                    style: TextStyle(
+                                      color: Color(0xFF111827),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  DropdownButtonFormField<int>(
+                                    value:
+                                        saleViewModel
+                                            .selectedProductCategory
+                                            ?.productCategoryID,
+                                    isExpanded: true,
+                                    decoration: _sheetInputDecoration(
+                                      LabelService().getLabel(214),
+                                    ),
+                                    items:
+                                        saleViewModel.productCategory
+                                            .map(
+                                              (
+                                                category,
+                                              ) => DropdownMenuItem<int>(
+                                                value:
+                                                    category.productCategoryID,
+                                                child: Text(
+                                                  category.productCategoryName ??
+                                                      '',
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                    onChanged:
+                                        saleViewModel.productCategory.isEmpty
+                                            ? null
+                                            : (int? categoryId) async {
+                                              if (categoryId == null) return;
+                                              final selected = saleViewModel
+                                                  .productCategory
+                                                  .firstWhere(
+                                                    (c) =>
+                                                        c.productCategoryID ==
+                                                        categoryId,
+                                                  );
+                                              await saleViewModel
+                                                  .selectProductCategory(
+                                                    widget.storeId,
+                                                    selected,
+                                                  );
+                                              if (!ctx.mounted) return;
+                                              setModalState(() {});
+                                            },
+                                  ),
+                                  const SizedBox(height: 14),
+
+                                  Text(
+                                    LabelService().getLabel(215),
+                                    style: TextStyle(
+                                      color: Color(0xFF111827),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  DropdownSearch<int>(
+                                    items:
+                                        saleViewModel.saleSearch
+                                            .map((model) => model.productID!)
+                                            .toList(),
+                                    selectedItem:
+                                        saleViewModel
+                                            .selectedSaleSearch
+                                            ?.productID,
+                                    itemAsString: (int id) {
+                                      final model = saleViewModel.saleSearch
+                                          .firstWhere((m) => m.productID == id);
+                                      return model.productModelName ?? '';
+                                    },
+                                    dropdownDecoratorProps:
+                                        DropDownDecoratorProps(
+                                          dropdownSearchDecoration:
+                                              _sheetInputDecoration(
+                                                'Type to search products...',
+                                                prefixIcon: const Icon(
+                                                  Icons.search,
+                                                ),
+                                              ),
+                                        ),
+                                    popupProps: PopupProps.menu(
+                                      showSearchBox: true,
+                                      searchFieldProps: TextFieldProps(
+                                        decoration: _sheetInputDecoration(
+                                          LabelService().getLabel(135),
+                                        ),
+                                      ),
+                                    ),
+                                    onChanged:
+                                        saleViewModel.saleSearch.isEmpty
+                                            ? null
+                                            : (int? id) {
+                                              if (id == null) return;
+                                              final selected = saleViewModel
+                                                  .saleSearch
+                                                  .firstWhere(
+                                                    (m) => m.productID == id,
+                                                  );
+                                              saleViewModel.selectSearchModel(
+                                                selected,
+                                              );
+                                              setModalState(() {});
+                                            },
+                                  ),
+                                  const SizedBox(height: 14),
+
+                                  Text(
+                                    LabelService().getLabel(216),
+                                    style: TextStyle(
+                                      color: Color(0xFF111827),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  DropdownButtonFormField<int>(
+                                    value: selectedLocationId,
+                                    decoration: _sheetInputDecoration(
+                                      LabelService().getLabel(216),
+                                    ),
+                                    items:
+                                        locationOptions
+                                            .map(
+                                              (item) => DropdownMenuItem<int>(
+                                                value: item.displayLocationId,
+                                                child: Text(
+                                                  item.displayLocationName ??
+                                                      '',
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                    onChanged:
+                                        locationOptions.isEmpty
+                                            ? null
+                                            : (int? locationId) {
+                                              setModalState(() {
+                                                selectedLocationId = locationId;
+                                              });
+                                            },
+                                  ),
+                                  const SizedBox(height: 18),
+
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        LabelService().getLabel(198),
+                                        style: const TextStyle(
+                                          color: Color(0xFF111827),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      _optionButtons(
+                                        value: displayYes,
+                                        onChanged: (value) {
+                                          setModalState(() {
+                                            displayYes = value;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        LabelService().getLabel(199),
+                                        style: const TextStyle(
+                                          color: Color(0xFF111827),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      _optionButtons(
+                                        value: guidelineYes,
+                                        onChanged: (value) {
+                                          setModalState(() {
+                                            guidelineYes = value;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        LabelService().getLabel(200),
+                                        style: const TextStyle(
+                                          color: Color(0xFF111827),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      _optionButtons(
+                                        value: posmYes,
+                                        onChanged: (value) {
+                                          setModalState(() {
+                                            posmYes = value;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        LabelService().getLabel(201),
+                                        style: const TextStyle(
+                                          color: Color(0xFF111827),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 80,
+                                        child: TextField(
+                                          controller: quantityController,
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter
+                                                .digitsOnly,
+                                            LengthLimitingTextInputFormatter(3),
+                                          ],
+                                          decoration: _sheetInputDecoration(
+                                            '1',
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    LabelService().getLabel(217),
+                                    style: TextStyle(
+                                      color: Color(0xFF111827),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  TextField(
+                                    controller: _remarksController,
+                                    maxLines: 2,
+                                    minLines: 1,
+                                    inputFormatters: [_WordLimitFormatter(100)],
+                                    decoration: _sheetInputDecoration(
+                                      LabelService().getLabel(217),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    LabelService().getLabel(218),
+                                    style: TextStyle(
+                                      color: Color(0xFF111827),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          if (viewModel
+                                                  .displayComplianceImages
+                                                  .length <
+                                              4) {
+                                            _showImagePickerDialog(viewModel);
+                                          } else {
+                                            showSheetError(
+                                              LabelService().getLabel(114),
+                                            );
+                                          }
+                                        },
+                                        child: Container(
+                                          height: 80,
+                                          width: 80,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey.shade100,
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: const Center(
+                                            child: Icon(
+                                              Icons.camera_alt,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: SizedBox(
+                                          height: 80,
+                                          child: ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount:
+                                                viewModel
+                                                    .displayComplianceImages
+                                                    .length,
+                                            itemBuilder: (context, index) {
+                                              final file =
+                                                  viewModel
+                                                      .displayComplianceImages[index];
+                                              return Stack(
+                                                children: [
+                                                  Container(
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                          right: 10,
+                                                        ),
+                                                    height: 70,
+                                                    width: 80,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                      image: DecorationImage(
+                                                        image: FileImage(file),
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Positioned(
+                                                    top: 4,
+                                                    right: 4,
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        viewModel
+                                                            .displayComplianceImages
+                                                            .removeAt(index);
+                                                        viewModel
+                                                            .notifyListeners();
+                                                      },
+                                                      child: Container(
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                              color:
+                                                                  AppColors
+                                                                      .secondary,
+                                                              shape:
+                                                                  BoxShape
+                                                                      .circle,
+                                                            ),
+                                                        padding:
+                                                            const EdgeInsets.all(
+                                                              4,
+                                                            ),
+                                                        child: const Icon(
+                                                          Icons.close,
+                                                          size: 16,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 46,
+                                    child:
+                                        _isSubmitting
+                                            ? Center(
+                                              child:
+                                                  LoadingAnimationWidget.discreteCircle(
+                                                    color:
+                                                        Theme.of(
+                                                          context,
+                                                        ).colorScheme.primary,
+                                                    size: 32,
+                                                  ),
+                                            )
+                                            : ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    AppColors.primary,
+                                                foregroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                              ),
+                                              onPressed: () async {
+                                                if (saleViewModel
+                                                        .selectedBrand ==
+                                                    null) {
+                                                  showSheetError(
+                                                    'Please select brand',
+                                                  );
+                                                  return;
+                                                }
+                                                if (saleViewModel
+                                                        .selectedProductCategory ==
+                                                    null) {
+                                                  showSheetError(
+                                                    'Please select category',
+                                                  );
+                                                  return;
+                                                }
+                                                if (saleViewModel
+                                                        .selectedSaleSearch ==
+                                                    null) {
+                                                  showSheetError(
+                                                    'Please select model',
+                                                  );
+                                                  return;
+                                                }
+                                                if (selectedLocationId ==
+                                                    null) {
+                                                  showSheetError(
+                                                    'Please select location',
+                                                  );
+                                                  return;
+                                                }
+                                                if (displayYes == null) {
+                                                  showSheetError(
+                                                    'Please select display',
+                                                  );
+                                                  return;
+                                                }
+                                                if (guidelineYes == null) {
+                                                  showSheetError(
+                                                    'Please select guideline',
+                                                  );
+                                                  return;
+                                                }
+                                                if (posmYes == null) {
+                                                  showSheetError(
+                                                    'Please select POSM',
+                                                  );
+                                                  return;
+                                                }
+                                                if (quantityController
+                                                    .text
+                                                    .isEmpty) {
+                                                  showSheetError(
+                                                    'Please enter quantity',
+                                                  );
+                                                  return;
+                                                }
+                                                if (_remarksController
+                                                    .text
+                                                    .isEmpty) {
+                                                  showSheetError(
+                                                    'Please enter remarks',
+                                                  );
+                                                  return;
+                                                }
+                                                if (viewModel
+                                                    .displayComplianceImages
+                                                    .isEmpty) {
+                                                  showSheetError(
+                                                    LabelService().getLabel(
+                                                      115,
+                                                    ),
+                                                  );
+                                                  return;
+                                                }
+
+                                                bool sheetClosed = false;
+                                                setState(() {
+                                                  _isSubmitting = true;
+                                                });
+                                                setModalState(() {});
+
+                                                try {
+                                                  final success = await viewModel
+                                                      .submitDisplayCompliance(
+                                                        storeId:
+                                                            widget.storeId
+                                                                .toString(),
+                                                        productId:
+                                                            saleViewModel
+                                                                .selectedSaleSearch
+                                                                ?.productID
+                                                                .toString() ??
+                                                            '0',
+                                                        displayLocationId:
+                                                            selectedLocationId
+                                                                .toString(),
+                                                        display:
+                                                            displayYes == true
+                                                                ? 1
+                                                                : 0,
+                                                        displayGuidlineId:
+                                                            guidelineYes == true
+                                                                ? 1
+                                                                : 0,
+                                                        posmAvailable:
+                                                            posmYes == true
+                                                                ? 1
+                                                                : 0,
+                                                        quantity:
+                                                            quantityController
+                                                                .text,
+                                                        remarks:
+                                                            _remarksController
+                                                                .text,
+                                                        visitId:
+                                                            widget.visiteId
+                                                                .toString(),
+                                                        pictureId: '1',
+                                                        images:
+                                                            viewModel
+                                                                .displayComplianceImages,
+                                                      );
+
+                                                  if (!success) {
+                                                    showSheetError(
+                                                      'Unable to submit display compliance',
+                                                    );
+                                                    return;
+                                                  }
+
+                                                  _remarksController.clear();
+                                                  quantityController.text = '1';
+                                                  viewModel
+                                                      .displayComplianceImages
+                                                      .clear();
+                                                  await viewModel
+                                                      .getDisplayComplianceList(
+                                                        storeId:
+                                                            widget.storeId
+                                                                .toString(),
+                                                        displayLocationId: '0',
+                                                        brandId: '0',
+                                                        visitId:
+                                                            widget.visiteId
+                                                                .toString(),
+                                                      );
+
+                                                  if (mounted) {
+                                                    sheetClosed = true;
+                                                    Navigator.of(ctx).pop();
+                                                  }
+                                                } finally {
+                                                  if (mounted) {
+                                                    setState(() {
+                                                      _isSubmitting = false;
+                                                    });
+                                                    if (!sheetClosed) {
+                                                      setModalState(() {});
+                                                    }
+                                                  } else {
+                                                    _isSubmitting = false;
+                                                  }
+                                                }
+                                              },
+                                              child: Text(
+                                                LabelService().getLabel(24),
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                ],
                               ),
                             ),
                           ),
@@ -921,9 +1033,9 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                 color: AppColors.primary,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'Add Display Picture',
+                  LabelService().getLabel(219),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -1072,9 +1184,9 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                             padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
                             children: [
                               if (items.isEmpty)
-                                const Center(
+                                Center(
                                   child: Text(
-                                    'No display compliance found',
+                                    LabelService().getLabel(220),
                                     style: TextStyle(
                                       color: Colors.black54,
                                       fontSize: 14,
@@ -1102,7 +1214,8 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                           return false;
                                         }
                                         final id =
-                                            item.displayComplianceId?.toString();
+                                            item.displayComplianceId
+                                                ?.toString();
                                         if (id == null) {
                                           AppSnackBar.showError(
                                             context,
@@ -1113,8 +1226,8 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
 
                                         final success = await viewModel
                                             .deleteDisplayCompliance(
-                                          displayComplianceId: id,
-                                        );
+                                              displayComplianceId: id,
+                                            );
                                         if (!success) {
                                           AppSnackBar.showError(
                                             context,
@@ -1122,12 +1235,15 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                           );
                                           return false;
                                         }
-                                        await viewModel.getDisplayComplianceList(
-                                          storeId: widget.storeId.toString(),
-                                          displayLocationId: '0',
-                                          brandId: '0',
-                                          visitId: widget.visiteId.toString(),
-                                        );
+                                        await viewModel
+                                            .getDisplayComplianceList(
+                                              storeId:
+                                                  widget.storeId.toString(),
+                                              displayLocationId: '0',
+                                              brandId: '0',
+                                              visitId:
+                                                  widget.visiteId.toString(),
+                                            );
                                         return true;
                                       },
                                       background: Container(
@@ -1167,8 +1283,9 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(18),
+                                          borderRadius: BorderRadius.circular(
+                                            18,
+                                          ),
                                           boxShadow: const [
                                             BoxShadow(
                                               color: Color(0x19000000),
@@ -1195,13 +1312,11 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                                   ),
                                                   borderRadius:
                                                       BorderRadius.only(
-                                                    topLeft: Radius.circular(
-                                                      18,
-                                                    ),
-                                                    bottomLeft: Radius.circular(
-                                                      18,
-                                                    ),
-                                                  ),
+                                                        topLeft:
+                                                            Radius.circular(18),
+                                                        bottomLeft:
+                                                            Radius.circular(18),
+                                                      ),
                                                 ),
                                                 child: Center(
                                                   child: Text(
@@ -1217,8 +1332,9 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                               ),
                                               Expanded(
                                                 child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(14),
+                                                  padding: const EdgeInsets.all(
+                                                    14,
+                                                  ),
                                                   child: Row(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
@@ -1233,8 +1349,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                                             Text(
                                                               item.brandName ??
                                                                   '',
-                                                              style:
-                                                                  const TextStyle(
+                                                              style: const TextStyle(
                                                                 color: Color(
                                                                   0xFF111827,
                                                                 ),
@@ -1282,7 +1397,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                                               height: 4,
                                                             ),
                                                             Text(
-                                                              'Qty: ${item.quantity ?? 0}',
+                                                              '${LabelService().getLabel(162)}: ${item.quantity ?? 0}',
                                                               style: TextStyle(
                                                                 color:
                                                                     Colors
@@ -1302,20 +1417,21 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                                               Container(
                                                                 padding:
                                                                     const EdgeInsets.symmetric(
-                                                                  horizontal:
-                                                                      10,
-                                                                  vertical: 6,
-                                                                ),
+                                                                      horizontal:
+                                                                          10,
+                                                                      vertical:
+                                                                          6,
+                                                                    ),
                                                                 decoration: BoxDecoration(
                                                                   color: AppColors
                                                                       .secondary
                                                                       .withOpacity(
-                                                                    0.08,
-                                                                  ),
+                                                                        0.08,
+                                                                      ),
                                                                   borderRadius:
                                                                       BorderRadius.circular(
-                                                                    12,
-                                                                  ),
+                                                                        12,
+                                                                      ),
                                                                 ),
                                                                 child: Text(
                                                                   dateLabel,
@@ -1334,24 +1450,23 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                                           ],
                                                         ),
                                                       ),
-                                                      const SizedBox(
-                                                        width: 12,
-                                                      ),
+                                                      const SizedBox(width: 12),
                                                       Container(
                                                         width: 90,
                                                         height: 100,
                                                         decoration: BoxDecoration(
-                                                          color: Colors
-                                                              .grey.shade200,
+                                                          color:
+                                                              Colors
+                                                                  .grey
+                                                                  .shade200,
                                                           borderRadius:
                                                               BorderRadius.circular(
-                                                            12,
-                                                          ),
+                                                                12,
+                                                              ),
                                                         ),
                                                         child: const Icon(
                                                           Icons.image_outlined,
-                                                          color:
-                                                              Colors.black45,
+                                                          color: Colors.black45,
                                                         ),
                                                       ),
                                                     ],

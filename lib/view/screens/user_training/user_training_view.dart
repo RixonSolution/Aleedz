@@ -86,8 +86,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingView> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Trainings',
+              Text(
+                LabelService().getLabel(291),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -162,12 +162,7 @@ class _MyConsumerState extends ConsumerState<UserTrainingView> {
                               );
                             },
                             child: Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                16,
-                                5,
-                                16,
-                                5,
-                              ),
+                              padding: const EdgeInsets.fromLTRB(16, 5, 16, 5),
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,

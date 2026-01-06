@@ -105,7 +105,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Confirm Delete',
+                  LabelService().getLabel(265),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -114,7 +114,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Delete this sale record?',
+                  LabelService().getLabel(266),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 15,
@@ -132,14 +132,14 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                       onPressed:
                           () =>
                               Navigator.of(context).pop(false), // Close dialog
-                      child: const Text('Cancel'),
+                      child: Text(LabelService().getLabel(102)),
                     ),
                     TextButton(
                       style: TextButton.styleFrom(
                         foregroundColor: Colors.redAccent,
                       ),
                       onPressed: () => Navigator.of(context).pop(true),
-                      child: const Text('Delete'),
+                      child: Text(LabelService().getLabel(100)),
                     ),
                   ],
                 ),
@@ -425,7 +425,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'SKU: ${item.productModelCode ?? '-'}',
+                                '${LabelService().getLabel(267)} ${item.productModelCode ?? '-'}',
                                 style: TextStyle(
                                   color: Colors.grey.shade600,
                                   fontSize: 13,
@@ -434,7 +434,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Price: ${_formatAmount(price)}',
+                                '${LabelService().getLabel(268)} ${_formatAmount(price)}',
                                 style: TextStyle(
                                   color: Colors.grey.shade600,
                                   fontSize: 13,
@@ -448,7 +448,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              'Qty: ${_formatAmount(qty)}',
+                              '${LabelService().getLabel(269)} ${_formatAmount(qty)}',
                               style: TextStyle(
                                 color: Colors.grey.shade600,
                                 fontSize: 13,
@@ -524,7 +524,11 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
             _formatAmount(viewModel.saleList.length),
           ),
           Divider(color: Colors.white.withOpacity(0.16), height: 18),
-          _summaryRow('Total Amount', _formatAmount(totalPrice), isBold: true),
+          _summaryRow(
+            LabelService().getLabel(270),
+            _formatAmount(totalPrice),
+            isBold: true,
+          ),
         ],
       ),
     );
@@ -586,7 +590,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
       child: Column(
         children: [
           Text(
-            'Total Amount',
+            LabelService().getLabel(270),
             style: TextStyle(
               color: Colors.white.withOpacity(0.8),
               fontSize: 14,
@@ -652,8 +656,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Add New Sale',
+                              Text(
+                                LabelService().getLabel(271),
                                 style: TextStyle(
                                   color: Color(0xFF111827),
                                   fontSize: 20,
@@ -682,11 +686,13 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                           Divider(color: Colors.grey.shade300, height: 1),
                           const SizedBox(height: 16),
 
-                          _fieldLabel('Brand'),
+                          _fieldLabel(LabelService().getLabel(49)),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<int>(
                             value: viewModel.selectedBrand?.brandId,
-                            decoration: _sheetInputDecoration('Select Brand'),
+                            decoration: _sheetInputDecoration(
+                              LabelService().getLabel(133),
+                            ),
                             items:
                                 viewModel.brandList
                                     .map(
@@ -723,7 +729,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                     ?.productCategoryID,
                             isExpanded: true,
                             decoration: _sheetInputDecoration(
-                              'Select Category',
+                              LabelService().getLabel(255),
                             ),
                             items:
                                 viewModel.productCategory
@@ -782,7 +788,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                             popupProps: PopupProps.menu(
                               showSearchBox: true,
                               searchFieldProps: TextFieldProps(
-                                decoration: _sheetInputDecoration('Search'),
+                                decoration: _sheetInputDecoration(
+                                  LabelService().getLabel(135),
+                                ),
                               ),
                             ),
                             onChanged:
@@ -807,7 +815,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _fieldLabel('Quantity'),
+                                    _fieldLabel(LabelService().getLabel(160)),
                                     const SizedBox(height: 8),
                                     TextField(
                                       controller: quantityController,
@@ -829,7 +837,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _fieldLabel('Price'),
+                                    _fieldLabel(LabelService().getLabel(171)),
                                     const SizedBox(height: 8),
                                     TextField(
                                       controller: priceController,
@@ -949,8 +957,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                                   size: 32,
                                                 ),
                                           )
-                                          : const Text(
-                                            'Submit Sale',
+                                          : Text(
+                                            LabelService().getLabel(272),
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 16,
@@ -989,9 +997,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                 color: AppColors.primary,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'Add New Sale',
+                  LabelService().getLabel(271),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -1012,12 +1020,12 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
     messenger.showSnackBar(
       SnackBar(
         content: Row(
-          children: const [
+          children: [
             Icon(Icons.swipe_left, color: Colors.white),
             SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Swipe left to delete the record',
+                LabelService().getLabel(202),
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),

@@ -121,7 +121,12 @@ class _OpenIssuesScreenState extends ConsumerState<OpenIssuesScreen> {
               child: Divider(color: AppColors.greyText, height: 0),
             ),
             viewModel.loader
-                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Expanded(
                   child: ListView.builder(
                     physics: ScrollPhysics(),

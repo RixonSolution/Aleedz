@@ -283,8 +283,8 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Filter Checklist',
+                          Text(
+                            LabelService().getLabel(213),
                             style: TextStyle(
                               color: Color(0xFF111827),
                               fontSize: 20,
@@ -614,8 +614,8 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                   ),
                                 ),
                                 const SizedBox(width: 12),
-                                const Text(
-                                  'Checklist',
+                                Text(
+                                  LabelService().getLabel(29),
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 18,
@@ -717,10 +717,10 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                 inputType == 1
                                     ? 'Status'
                                     : inputType == 2
-                                    ? 'Quantity'
+                                    ? LabelService().getLabel(75)
                                     : inputType == 3
-                                    ? 'Date'
-                                    : 'Value';
+                                    ? LabelService().getLabel(64)
+                                    : LabelService().getLabel(163);
                             final hasStatus =
                                 (viewModel
                                         .checkListSubmitView[index]
@@ -1539,7 +1539,8 @@ class _DateBoxState extends ConsumerState<DateBox> {
   @override
   Widget build(BuildContext context) {
     String formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
-    final displayText = hasValue ? formattedDate : (widget.hint ?? 'Date');
+    final displayText =
+        hasValue ? formattedDate : (widget.hint ?? LabelService().getLabel(64));
 
     return GestureDetector(
       onTap: () => _selectDate(context, widget.index),

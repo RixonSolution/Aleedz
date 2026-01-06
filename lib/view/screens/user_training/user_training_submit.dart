@@ -52,8 +52,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingSubmit> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Trainings',
+              Text(
+                LabelService().getLabel(291),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -92,8 +92,9 @@ class _MyConsumerState extends ConsumerState<UserTrainingSubmit> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Submit',
+                child: Text(
+                  LabelService().getLabel(24),
+
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -183,7 +184,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingSubmit> {
                               ),
                               child: IntrinsicHeight(
                                 child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
                                   children: [
                                     Container(
                                       width: 32,
@@ -283,7 +285,8 @@ class _MyConsumerState extends ConsumerState<UserTrainingSubmit> {
                                                             ),
                                                         borderSide:
                                                             const BorderSide(
-                                                              color: Colors.grey,
+                                                              color:
+                                                                  Colors.grey,
                                                             ),
                                                       ),
                                                   focusedBorder:

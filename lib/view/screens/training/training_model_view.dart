@@ -230,8 +230,8 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Trainings',
+              Text(
+                LabelService().getLabel(291),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -894,7 +894,7 @@ class _MyConsumerState extends ConsumerState<TrainingModelView> {
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  'Submit',
+                                  LabelService().getLabel(24),
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,

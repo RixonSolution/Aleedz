@@ -70,7 +70,12 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -90,8 +95,8 @@ class _MyConsumerState extends ConsumerState<ActivityView> {
                               width: 30,
                             ),
                           ),
-                          const Text(
-                            'Activity',
+                          Text(
+                            LabelService().getLabel(35),
                             style: TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 20,

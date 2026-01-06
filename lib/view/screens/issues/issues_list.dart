@@ -70,7 +70,12 @@ class _MyConsumerState extends ConsumerState<IssuesList> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -90,8 +95,8 @@ class _MyConsumerState extends ConsumerState<IssuesList> {
                               width: 30,
                             ),
                           ),
-                          const Text(
-                            'Issues',
+                          Text(
+                            LabelService().getLabel(36),
                             style: TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 20,

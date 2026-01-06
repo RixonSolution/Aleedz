@@ -851,7 +851,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'Total Store Coverage ${viewModel.storeCount ?? 0}',
+                          '${LabelService().getLabel(17)} ${viewModel.storeCount ?? 0}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 13,
@@ -921,7 +921,10 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
             SizedBox(height: 5),
             viewModel.loader
                 ? Center(
-                  child: LoadingAnimationWidget.discreteCircle(color: AppColors.secondary, size: 32),
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: AppColors.secondary,
+                    size: 32,
+                  ),
                 )
                 : Flexible(
                   child: ListView.separated(
@@ -955,12 +958,14 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                         cardBg = AppColors.primary.withOpacity(0.08);
                         borderColor = AppColors.primary;
                         numberColor = AppColors.primary;
-                        statusBg = store.visitStatusId == 2
-                            ? AppColors.primary
-                            : AppColors.primary.withOpacity(0.12);
-                        statusTextColor = store.visitStatusId == 2
-                            ? AppColors.whiteColor
-                            : AppColors.primary;
+                        statusBg =
+                            store.visitStatusId == 2
+                                ? AppColors.primary
+                                : AppColors.primary.withOpacity(0.12);
+                        statusTextColor =
+                            store.visitStatusId == 2
+                                ? AppColors.whiteColor
+                                : AppColors.primary;
                         statusLabel = LabelService().getLabel(15);
                       }
 
@@ -999,7 +1004,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                                   offset: Offset(0, 2),
                                 ),
                               ],
-                                ),
+                            ),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [

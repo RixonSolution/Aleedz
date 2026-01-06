@@ -124,8 +124,8 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: const Text(
-              "Stock successfully submitted",
+            child: Text(
+              LabelService().getLabel(275),
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
@@ -338,7 +338,7 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Last update: ${widget.lastUpdate}',
+                                '${LabelService().getLabel(276)} ${widget.lastUpdate}',
                                 style: TextStyle(
                                   color: Colors.grey.shade600,
                                   fontSize: 12,
@@ -615,8 +615,8 @@ class _StockDetailsState extends ConsumerState<StockDetails> {
                                 color: AppColors.secondary,
                               ),
                             )
-                            : const Text(
-                              'Submit',
+                            : Text(
+                              LabelService().getLabel(24),
                               key: ValueKey('text'),
                               style: TextStyle(
                                 fontSize: 16,

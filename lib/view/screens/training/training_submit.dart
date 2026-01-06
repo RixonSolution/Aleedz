@@ -61,8 +61,8 @@ class _MyConsumerState extends ConsumerState<TrainingSubmit> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Trainings',
+              Text(
+                LabelService().getLabel(291),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -164,8 +164,8 @@ class _MyConsumerState extends ConsumerState<TrainingSubmit> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Submit',
+                child: Text(
+                  LabelService().getLabel(24),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,

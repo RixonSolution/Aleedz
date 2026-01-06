@@ -188,7 +188,7 @@ class _SignupViewState extends State<SignupView> {
         showSearchBox: true,
         fit: FlexFit.loose,
         emptyBuilder:
-            (context, _) => const Center(child: Text('No countries found')),
+            (context, _) => Center(child: Text(LabelService().getLabel(250))),
         searchFieldProps: TextFieldProps(
           decoration: InputDecoration(
             hintText: 'Search country',
@@ -283,7 +283,7 @@ class _SignupViewState extends State<SignupView> {
                 ),
                 onPressed: _fetchRegions,
                 icon: const Icon(Icons.refresh, size: 16),
-                label: const Text('Retry'),
+                label: Text(LabelService().getLabel(251)),
               ),
             ],
           ),
@@ -297,14 +297,14 @@ class _SignupViewState extends State<SignupView> {
   Future<void> _handleSignUp() async {
     if (_isRegionsLoading) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please wait for countries to load.')),
+        SnackBar(content: Text(LabelService().getLabel(252))),
       );
       return;
     }
     if (_regionError != null || _regions.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Country list unavailable. Please retry.'),
+        SnackBar(
+          content: Text(LabelService().getLabel(253)),
         ),
       );
       return;
@@ -314,7 +314,7 @@ class _SignupViewState extends State<SignupView> {
     }
     if (_completePhone == null || _completePhone!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid contact number.')),
+        SnackBar(content: Text(LabelService().getLabel(254))),
       );
       return;
     }
@@ -322,7 +322,7 @@ class _SignupViewState extends State<SignupView> {
     if (regionId == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Please select a country.')));
+      ).showSnackBar(SnackBar(content: Text(LabelService().getLabel(255))));
       return;
     }
 
@@ -371,7 +371,7 @@ class _SignupViewState extends State<SignupView> {
       debugPrint('Signup failed: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sign-up failed. Please try again.')),
+        SnackBar(content: Text(LabelService().getLabel(256))),
       );
     } finally {
       if (!mounted) return;
@@ -451,8 +451,7 @@ class _SignupViewState extends State<SignupView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Name*',
+                        Text(LabelService().getLabel(257),
                           style: TextStyle(
                             color: AppColors.blackColor,
                             fontSize: 14,
@@ -471,8 +470,7 @@ class _SignupViewState extends State<SignupView> {
                                       : null,
                         ),
                         const SizedBox(height: 18),
-                        Text(
-                          'Email*',
+                        Text(LabelService().getLabel(258),
                           style: TextStyle(
                             color: AppColors.blackColor,
                             fontSize: 14,
@@ -492,8 +490,7 @@ class _SignupViewState extends State<SignupView> {
                                       : null,
                         ),
                         const SizedBox(height: 18),
-                        Text(
-                          'Country*',
+                        Text(LabelService().getLabel(259),
                           style: TextStyle(
                             color: AppColors.blackColor,
                             fontSize: 14,
@@ -503,8 +500,7 @@ class _SignupViewState extends State<SignupView> {
                         const SizedBox(height: 10),
                         _buildCountryDropdown(),
                         const SizedBox(height: 18),
-                        Text(
-                          'Contact Number',
+                        Text(LabelService().getLabel(260),
                           style: TextStyle(
                             color: AppColors.blackColor,
                             fontSize: 14,
@@ -562,8 +558,7 @@ class _SignupViewState extends State<SignupView> {
                           },
                         ),
                         const SizedBox(height: 18),
-                        Text(
-                          'Company Name',
+                        Text(LabelService().getLabel(261),
                           style: TextStyle(
                             color: AppColors.blackColor,
                             fontSize: 14,
@@ -577,8 +572,7 @@ class _SignupViewState extends State<SignupView> {
                           hint: 'Enter company name',
                         ),
                         const SizedBox(height: 18),
-                        Text(
-                          'Password*',
+                        Text(LabelService().getLabel(262),
                           style: TextStyle(
                             color: AppColors.blackColor,
                             fontSize: 14,
@@ -651,8 +645,7 @@ class _SignupViewState extends State<SignupView> {
                                       }),
                                 ),
                                 onPressed: _handleSignUp,
-                                child: Text(
-                                  'Sign Up',
+                                child: Text(LabelService().getLabel(263),
                                   style: TextStyle(
                                     color: AppColors.whiteColor,
                                     fontSize: 15,
@@ -666,8 +659,7 @@ class _SignupViewState extends State<SignupView> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                'Already have an account?',
+                              Text(LabelService().getLabel(264),
                                 style: TextStyle(
                                   color: AppColors.blackColor.withOpacity(0.65),
                                   fontSize: 12,

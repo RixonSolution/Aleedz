@@ -1251,8 +1251,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                             ),
                                           ),
                                           const SizedBox(height: 2),
-                                          const Text(
-                                            "Total Stores",
+                                          Text(
+                                            LabelService().getLabel(231),
                                             style: TextStyle(
                                               color: Color(0xFF9ca3af),
                                               fontSize: 11,
@@ -1293,7 +1293,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                               ),
                                               const SizedBox(width: 6),
                                               Text(
-                                                "Today's Plan",
+                                                LabelService().getLabel(232),
                                                 style: TextStyle(
                                                   color: Color(0xFFfbbf24),
                                                   fontSize: 12,
@@ -1326,8 +1326,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                             ),
                                           ),
                                           const SizedBox(height: 2),
-                                          const Text(
-                                            "Visits Completed",
+                                          Text(
+                                            LabelService().getLabel(233),
                                             style: TextStyle(
                                               color: Color(0xFF9ca3af),
                                               fontSize: 11,
@@ -1393,8 +1393,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          const Text(
-                                            'Time in Store',
+                                          Text(
+                                            LabelService().getLabel(234),
                                             style: TextStyle(
                                               color: AppColors.greyText,
                                               fontSize: 12,
@@ -1436,8 +1436,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          const Text(
-                                            'Total Travel',
+                                          Text(
+                                            LabelService().getLabel(46),
                                             style: TextStyle(
                                               color: AppColors.greyText,
                                               fontSize: 12,

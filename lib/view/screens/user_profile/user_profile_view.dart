@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
+import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -92,8 +93,8 @@ class _UserProfileState extends State<UserProfile> {
                       width: 30,
                     ),
                   ),
-                  const Text(
-                    'Profile',
+                  Text(
+                    LabelService().getLabel(154),
                     style: TextStyle(
                       color: AppColors.blackColor,
                       fontSize: 20,

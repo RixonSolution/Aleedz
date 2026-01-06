@@ -1,6 +1,5 @@
 import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
@@ -111,8 +110,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Confirm Delete',
+                Text(
+                  LabelService().getLabel(282),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -120,8 +119,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Delete this display picture record?',
+                Text(
+                  LabelService().getLabel(283),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15,
@@ -336,8 +335,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Add Display Picture',
+                              Text(
+                                LabelService().getLabel(284),
                                 style: TextStyle(
                                   color: Color(0xFF111827),
                                   fontSize: 20,
@@ -366,11 +365,13 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                           Divider(color: Colors.grey.shade300, height: 1),
                           const SizedBox(height: 16),
 
-                          _fieldLabel('Brand'),
+                          _fieldLabel(LabelService().getLabel(49)),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<int>(
                             value: viewModel.selectedBrand?.brandId,
-                            decoration: _sheetInputDecoration('Select Brand'),
+                            decoration: _sheetInputDecoration(
+                              LabelService().getLabel(133),
+                            ),
                             items:
                                 viewModel.brandList
                                     .map(
@@ -469,14 +470,16 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                           ),
 
                           const SizedBox(height: 16),
-                          _fieldLabel('Remarks'),
+                          _fieldLabel(LabelService().getLabel(217)),
                           const SizedBox(height: 8),
                           TextField(
                             focusNode: remarksFocus,
                             controller: remarksControll,
                             maxLines: 3,
                             minLines: 2,
-                            decoration: _sheetInputDecoration('Remarks'),
+                            decoration: _sheetInputDecoration(
+                              LabelService().getLabel(217),
+                            ),
                           ),
 
                           const SizedBox(height: 16),
@@ -628,9 +631,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                             12,
                                           ),
                                         ),
-                                        child: const Center(
+                                        child: Center(
                                           child: Text(
-                                            'Submit',
+                                            LabelService().getLabel(24),
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 16,
@@ -669,9 +672,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                 color: AppColors.primary,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'Add Display Picture',
+                  LabelService().getLabel(284),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -692,12 +695,12 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
     messenger.showSnackBar(
       SnackBar(
         content: Row(
-          children: const [
+          children: [
             Icon(Icons.swipe_left, color: Colors.white),
             SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Swipe left to delete the record',
+                LabelService().getLabel(202),
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),

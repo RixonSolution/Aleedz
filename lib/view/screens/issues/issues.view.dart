@@ -233,7 +233,12 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
 
         body:
             viewModel.loader
-                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -532,7 +537,13 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                           if (viewModel.saleSearch.isNotEmpty &&
                               viewModel.productCategory.isNotEmpty)
                             viewModel.loader
-                                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                                ? Center(
+                                  child: LoadingAnimationWidget.discreteCircle(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 32,
+                                  ),
+                                )
                                 : InkWell(
                                   onTap: () async {
                                     if (quantityController.text.isEmpty) {
@@ -672,7 +683,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                           Expanded(
                                             flex: 1,
                                             child: Text(
-                                              'Delete',
+                                              LabelService().getLabel(100),
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 12,
@@ -994,7 +1005,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                       ),
                                       SizedBox(width: 20),
                                       Text(
-                                        'Sales Description',
+                                        LabelService().getLabel(177),
                                         style: TextStyle(
                                           color: AppColors.whiteColor,
                                           fontSize: 14,
@@ -1034,7 +1045,12 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                           ),
                           SizedBox(height: 10),
                           viewModel.loader
-                              ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                              ? Center(
+                                child: LoadingAnimationWidget.discreteCircle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 32,
+                                ),
+                              )
                               : ListView.builder(
                                 itemCount: viewModel.saleList.length,
                                 shrinkWrap: true,
@@ -1169,7 +1185,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                                               width: 190,
                                                               // color: Colors.red,
                                                               child: Text(
-                                                                'Price: ${viewModel.saleList[index].saleValue}',
+                                                                '${LabelService().getLabel(77)} ${viewModel.saleList[index].saleValue}',
                                                                 style: TextStyle(
                                                                   color:
                                                                       AppColors

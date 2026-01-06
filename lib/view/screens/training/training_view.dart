@@ -42,7 +42,12 @@ class _MyConsumerState extends ConsumerState<TrainingView> {
         backgroundColor: AppColors.whiteColor,
         body:
             viewModel.loader
-                ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
                 : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -62,8 +67,8 @@ class _MyConsumerState extends ConsumerState<TrainingView> {
                               width: 30,
                             ),
                           ),
-                          const Text(
-                            'Trainings',
+                          Text(
+                            LabelService().getLabel(291),
                             style: TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 20,

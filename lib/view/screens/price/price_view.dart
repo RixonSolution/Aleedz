@@ -100,8 +100,8 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Price Promotions',
+                      Text(
+                        LabelService().getLabel(298),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -172,9 +172,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                   child: DropdownButtonFormField<int>(
                     value: viewModel.selectedBrand?.brandId,
                     isDense: true,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'All Brands',
+                      hintText: labelService.getLabel(286),
                       contentPadding: EdgeInsets.symmetric(vertical: 10),
                     ),
                     items:
@@ -224,7 +224,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                         }),
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'Search',
+                      hintText: labelService.getLabel(135),
                       prefixIcon: Icon(
                         Icons.search,
                         color: Colors.grey.shade600,
@@ -242,12 +242,13 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                       ? Center(
                         child: LoadingAnimationWidget.discreteCircle(
                           color: AppColors.secondary,
-                         size: 32),
+                          size: 32,
+                        ),
                       )
                       : brandEntries.isEmpty
                       ? Center(
                         child: Text(
-                          'No brand data available',
+                          LabelService().getLabel(301),
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontWeight: FontWeight.w600,
@@ -257,7 +258,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                       : filteredBrandEntries.isEmpty
                       ? Center(
                         child: Text(
-                          'No results found',
+                          LabelService().getLabel(299),
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontWeight: FontWeight.w600,
@@ -322,7 +323,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            'Visit time: ${widget.checkInTime}',
+                                            '${LabelService().getLabel(300)}: ${widget.checkInTime}',
                                             style: TextStyle(
                                               color: Colors.grey.shade600,
                                               fontSize: 12,
@@ -405,13 +406,11 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                       item.updatedBy?.toString() == '1';
 
                                   return Padding(
-                                    padding:
-                                        const EdgeInsets.only(bottom: 10),
+                                    padding: const EdgeInsets.only(bottom: 10),
                                     child: Container(
                                       decoration: BoxDecoration(
                                         color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(12),
                                         boxShadow: const [
                                           BoxShadow(
                                             color: Color(0x14000000),
@@ -437,11 +436,11 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                                   begin: Alignment.topLeft,
                                                   end: Alignment.bottomRight,
                                                 ),
-                                                borderRadius:
-                                                    BorderRadius.only(
+                                                borderRadius: BorderRadius.only(
                                                   topLeft: Radius.circular(12),
-                                                  bottomLeft:
-                                                      Radius.circular(12),
+                                                  bottomLeft: Radius.circular(
+                                                    12,
+                                                  ),
                                                 ),
                                               ),
                                               alignment: Alignment.center,
@@ -465,25 +464,25 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                                   storeId: widget.storeId,
                                                   brandId: item.brandID ?? 0,
                                                   visiteId: widget.visiteId,
-                                                  productCategoryId: item
-                                                          .productCategoryID ??
+                                                  productCategoryId:
+                                                      item.productCategoryID ??
                                                       0,
-                                                  productName: item
-                                                      .productCategoryName
-                                                      .toString(),
-                                                  brandName: item.brandName
-                                                      .toString(),
+                                                  productName:
+                                                      item.productCategoryName
+                                                          .toString(),
+                                                  brandName:
+                                                      item.brandName.toString(),
                                                 ),
                                               );
                                             },
                                             child: Padding(
                                               padding:
                                                   const EdgeInsets.fromLTRB(
-                                                40,
-                                                12,
-                                                12,
-                                                12,
-                                              ),
+                                                    40,
+                                                    12,
+                                                    12,
+                                                    12,
+                                                  ),
                                               child: Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment
@@ -502,8 +501,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                                                   ?.toString() ??
                                                               '',
                                                           style: TextStyle(
-                                                            color: AppColors
-                                                                .blackColor,
+                                                            color:
+                                                                AppColors
+                                                                    .blackColor,
                                                             fontSize: 15,
                                                             fontWeight:
                                                                 FontWeight.w500,
@@ -514,37 +514,38 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                                         ),
                                                         Container(
                                                           padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                            horizontal: 8,
-                                                            vertical: 4,
-                                                          ),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: isUpdated
-                                                                ? AppColors
-                                                                    .primary
-                                                                    .withOpacity(
-                                                                      0.12,
-                                                                    )
-                                                                : Colors.grey
-                                                                    .shade200,
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 8,
+                                                                vertical: 4,
+                                                              ),
+                                                          decoration: BoxDecoration(
+                                                            color:
+                                                                isUpdated
+                                                                    ? AppColors
+                                                                        .primary
+                                                                        .withOpacity(
+                                                                          0.12,
+                                                                        )
+                                                                    : Colors
+                                                                        .grey
+                                                                        .shade200,
                                                             borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                              8,
-                                                            ),
+                                                                BorderRadius.circular(
+                                                                  8,
+                                                                ),
                                                           ),
                                                           child: Text(
                                                             isUpdated
                                                                 ? 'Updated'
                                                                 : 'Pending',
                                                             style: TextStyle(
-                                                              color: isUpdated
-                                                                  ? AppColors
-                                                                      .primary
-                                                                  : Colors.grey
-                                                                      .shade600,
+                                                              color:
+                                                                  isUpdated
+                                                                      ? AppColors
+                                                                          .primary
+                                                                      : Colors
+                                                                          .grey
+                                                                          .shade600,
                                                               fontSize: 11,
                                                               fontWeight:
                                                                   FontWeight
@@ -573,10 +574,10 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                                               item.noOfModels
                                                                       ?.toString() ??
                                                                   '0',
-                                                              style:
-                                                                  const TextStyle(
+                                                              style: const TextStyle(
                                                                 color:
-                                                                    Colors.black,
+                                                                    Colors
+                                                                        .black,
                                                                 fontSize: 15,
                                                                 fontWeight:
                                                                     FontWeight
@@ -586,9 +587,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                                           ],
                                                         ),
                                                       ),
-                                                      const SizedBox(
-                                                        width: 12,
-                                                      ),
+                                                      const SizedBox(width: 12),
                                                       SizedBox(
                                                         width: 60,
                                                         child: Column(
@@ -602,10 +601,10 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                                             Text(
                                                               item.nofModelUpdated ??
                                                                   '0',
-                                                              style:
-                                                                  const TextStyle(
-                                                                color: Colors
-                                                                    .orange,
+                                                              style: const TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .orange,
                                                                 fontSize: 15,
                                                                 fontWeight:
                                                                     FontWeight

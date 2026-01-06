@@ -415,8 +415,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              const Text(
-                                'Store Actions',
+                              Text(LabelService().getLabel(285),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,

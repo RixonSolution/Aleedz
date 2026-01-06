@@ -159,7 +159,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      'Transfer: $formattedDate • ${widget.transferStore}',
+                      '${LabelService().getLabel(153)}: $formattedDate • ${widget.transferStore}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 13,
@@ -190,9 +190,9 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                   child: DropdownButtonFormField<int>(
                     value: viewModel.selectedBrand?.brandId,
                     isDense: true,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'All Brands',
+                      hintText: LabelService().getLabel(286),
                       contentPadding: EdgeInsets.symmetric(vertical: 10),
                     ),
                     items:
@@ -222,7 +222,10 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
             const SizedBox(height: 12),
             viewModel.loader
                 ? Center(
-                  child: LoadingAnimationWidget.discreteCircle(color: AppColors.secondary, size: 32),
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: AppColors.secondary,
+                    size: 32,
+                  ),
                 )
                 : Expanded(
                   child: ListView.builder(
@@ -267,7 +270,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Last update: ${widget.checkInTime}',
+                                      '${LabelService().getLabel(182)}: ${widget.checkInTime}',
                                       style: TextStyle(
                                         color: Colors.grey.shade600,
                                         fontSize: 12,

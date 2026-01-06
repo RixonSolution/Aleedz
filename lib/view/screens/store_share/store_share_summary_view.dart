@@ -39,8 +39,7 @@ class StoreShareSummaryView extends ConsumerStatefulWidget {
       _StoreShareSummaryViewState();
 }
 
-class _StoreShareSummaryViewState
-    extends ConsumerState<StoreShareSummaryView> {
+class _StoreShareSummaryViewState extends ConsumerState<StoreShareSummaryView> {
   final ImagePicker _imagePicker = ImagePicker();
   final Map<String, File> _localImages = {};
   final Set<String> _dirtyKeys = {};
@@ -87,8 +86,7 @@ class _StoreShareSummaryViewState
         final image = _localImages[key];
         final success = await viewModel.submitStoreShareAdd(
           storeId: widget.storeId.toString(),
-          storeShareElementId:
-              (item.storeShareElementId ?? 0).toString(),
+          storeShareElementId: (item.storeShareElementId ?? 0).toString(),
           brandId: (item.brandId ?? 0).toString(),
           visitId: widget.visitId.toString(),
           count: (item.quantity ?? 0).toString(),
@@ -209,10 +207,7 @@ class _StoreShareSummaryViewState
                                 ),
                               ),
                               const Spacer(),
-                              const SizedBox(
-                                height: 40,
-                                width: 40,
-                              ),
+                              const SizedBox(height: 40, width: 40),
                             ],
                           ),
                           const SizedBox(height: 12),
@@ -272,7 +267,7 @@ class _StoreShareSummaryViewState
                       child: DropdownButtonFormField<int>(
                         value: _selectedBrandId,
                         decoration: InputDecoration(
-                          hintText: 'All Brands',
+                          hintText: LabelService().getLabel(286),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -293,9 +288,9 @@ class _StoreShareSummaryViewState
                           ),
                         ),
                         items: [
-                          const DropdownMenuItem<int>(
+                          DropdownMenuItem<int>(
                             value: null,
-                            child: Text('All Brands'),
+                            child: Text(LabelService().getLabel(286)),
                           ),
                           ...brandOptions.map((brand) {
                             return DropdownMenuItem<int>(
@@ -339,9 +334,9 @@ class _StoreShareSummaryViewState
                     Expanded(
                       child:
                           items.isEmpty
-                              ? const Center(
+                              ? Center(
                                 child: Text(
-                                  'No store share summary found',
+                                  LabelService().getLabel(287),
                                   style: TextStyle(
                                     color: Colors.black54,
                                     fontSize: 14,
@@ -360,8 +355,9 @@ class _StoreShareSummaryViewState
                                       final brandItems = entry.value;
                                       final List<Widget> section = [
                                         Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 8),
+                                          padding: const EdgeInsets.only(
+                                            bottom: 8,
+                                          ),
                                           child: Text(
                                             entry.key,
                                             style: const TextStyle(
@@ -373,9 +369,11 @@ class _StoreShareSummaryViewState
                                         ),
                                       ];
 
-                                      for (var i = 0;
-                                          i < brandItems.length;
-                                          i++) {
+                                      for (
+                                        var i = 0;
+                                        i < brandItems.length;
+                                        i++
+                                      ) {
                                         final item = brandItems[i];
                                         final itemKey = _keyForItem(item);
                                         final localImage =
@@ -409,49 +407,52 @@ class _StoreShareSummaryViewState
                                                   children: [
                                                     Container(
                                                       width: 35,
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                        gradient:
-                                                            LinearGradient(
+                                                      decoration: const BoxDecoration(
+                                                        gradient: LinearGradient(
                                                           colors: [
                                                             Color(0xFF1D2B4A),
                                                             Color(0xFF1D2B4A),
                                                           ],
                                                           begin:
                                                               Alignment.topLeft,
-                                                          end: Alignment
-                                                              .bottomRight,
+                                                          end:
+                                                              Alignment
+                                                                  .bottomRight,
                                                         ),
                                                         borderRadius:
                                                             BorderRadius.only(
-                                                          topLeft:
-                                                              Radius.circular(
-                                                            18,
-                                                          ),
-                                                          bottomLeft:
-                                                              Radius.circular(
-                                                            18,
-                                                          ),
-                                                        ),
+                                                              topLeft:
+                                                                  Radius.circular(
+                                                                    18,
+                                                                  ),
+                                                              bottomLeft:
+                                                                  Radius.circular(
+                                                                    18,
+                                                                  ),
+                                                            ),
                                                       ),
                                                       child: Center(
                                                         child: Text(
                                                           '${i + 1}',
                                                           style:
                                                               const TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w800,
-                                                          ),
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                fontSize: 14,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w800,
+                                                              ),
                                                         ),
                                                       ),
                                                     ),
                                                     Expanded(
                                                       child: Padding(
                                                         padding:
-                                                            const EdgeInsets
-                                                                .all(14),
+                                                            const EdgeInsets.all(
+                                                              14,
+                                                            ),
                                                         child: Row(
                                                           crossAxisAlignment:
                                                               CrossAxisAlignment
@@ -466,8 +467,7 @@ class _StoreShareSummaryViewState
                                                                   Text(
                                                                     item.storeShareElementName ??
                                                                         '',
-                                                                    style:
-                                                                        const TextStyle(
+                                                                    style: const TextStyle(
                                                                       color: Color(
                                                                         0xFF111827,
                                                                       ),
@@ -483,25 +483,25 @@ class _StoreShareSummaryViewState
                                                                   ),
                                                                   SizedBox(
                                                                     width: 120,
-                                                            child:
-                                                                TextFormField(
-                                                              initialValue:
-                                                                  qtyText,
-                                                              keyboardType:
-                                                                  TextInputType
-                                                                      .number,
-                                                              enabled:
-                                                                  _selectedBrandId !=
-                                                                  null,
-                                                              inputFormatters: [
-                                                                FilteringTextInputFormatter
-                                                                    .digitsOnly,
-                                                                LengthLimitingTextInputFormatter(
+                                                                    child: TextFormField(
+                                                                      initialValue:
+                                                                          qtyText,
+                                                                      keyboardType:
+                                                                          TextInputType
+                                                                              .number,
+                                                                      enabled:
+                                                                          _selectedBrandId !=
+                                                                          null,
+                                                                      inputFormatters: [
+                                                                        FilteringTextInputFormatter
+                                                                            .digitsOnly,
+                                                                        LengthLimitingTextInputFormatter(
                                                                           3,
                                                                         ),
                                                                       ],
-                                                                      onChanged:
-                                                                          (value) {
+                                                                      onChanged: (
+                                                                        value,
+                                                                      ) {
                                                                         _dirtyKeys.add(
                                                                           _keyForItem(
                                                                             item,
@@ -509,38 +509,30 @@ class _StoreShareSummaryViewState
                                                                         );
                                                                         item.quantity =
                                                                             int.tryParse(
-                                                                          value,
-                                                                        );
+                                                                              value,
+                                                                            );
                                                                       },
-                                                                      decoration:
-                                                                          InputDecoration(
+                                                                      decoration: InputDecoration(
                                                                         hintText:
                                                                             'Qty',
                                                                         isDense:
                                                                             true,
-                                                                        contentPadding:
-                                                                            const EdgeInsets
-                                                                                .symmetric(
+                                                                        contentPadding: const EdgeInsets.symmetric(
                                                                           horizontal:
                                                                               10,
                                                                           vertical:
                                                                               10,
                                                                         ),
-                                                                        border:
-                                                                            OutlineInputBorder(
-                                                                          borderRadius:
-                                                                              BorderRadius.circular(
+                                                                        border: OutlineInputBorder(
+                                                                          borderRadius: BorderRadius.circular(
                                                                             10,
                                                                           ),
                                                                         ),
-                                                                        enabledBorder:
-                                                                            OutlineInputBorder(
-                                                                          borderRadius:
-                                                                              BorderRadius.circular(
+                                                                        enabledBorder: OutlineInputBorder(
+                                                                          borderRadius: BorderRadius.circular(
                                                                             10,
                                                                           ),
-                                                                          borderSide:
-                                                                              BorderSide(
+                                                                          borderSide: BorderSide(
                                                                             color:
                                                                                 Colors.grey.shade300,
                                                                           ),
@@ -566,8 +558,7 @@ class _StoreShareSummaryViewState
                                                               child: Container(
                                                                 width: 80,
                                                                 height: 80,
-                                                                decoration:
-                                                                    BoxDecoration(
+                                                                decoration: BoxDecoration(
                                                                   color:
                                                                       _selectedBrandId ==
                                                                               null
@@ -578,20 +569,20 @@ class _StoreShareSummaryViewState
                                                                               .grey
                                                                               .shade100,
                                                                   borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                    12,
-                                                                  ),
-                                                                  image: localImage !=
-                                                                          null
-                                                                      ? DecorationImage(
-                                                                        image: FileImage(
-                                                                          localImage,
-                                                                        ),
-                                                                        fit: BoxFit
-                                                                            .cover,
-                                                                      )
-                                                                      : null,
+                                                                      BorderRadius.circular(
+                                                                        12,
+                                                                      ),
+                                                                  image:
+                                                                      localImage !=
+                                                                              null
+                                                                          ? DecorationImage(
+                                                                            image: FileImage(
+                                                                              localImage,
+                                                                            ),
+                                                                            fit:
+                                                                                BoxFit.cover,
+                                                                          )
+                                                                          : null,
                                                                 ),
                                                                 child:
                                                                     localImage ==
@@ -657,8 +648,8 @@ class _StoreShareSummaryViewState
                                     color: Colors.white,
                                     size: 24,
                                   )
-                                  : const Text(
-                                    'Submit',
+                                  : Text(
+                                    LabelService().getLabel(24),
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,

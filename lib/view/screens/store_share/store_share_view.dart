@@ -56,9 +56,9 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
     final entries = groupedData.entries.toList();
 
     if (entries.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          'No store share data found',
+          LabelService().getLabel(288),
           style: TextStyle(color: Colors.black54, fontSize: 14),
         ),
       );
@@ -80,8 +80,8 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const Text(
-                'Quantity',
+              Text(
+                LabelService().getLabel(160),
                 style: TextStyle(
                   color: Color(0xFF6B7280),
                   fontSize: 12,
@@ -97,7 +97,7 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
         final item = entry.value[i];
         final lastUpdate =
             (item.lastUpdate ?? '').trim().isEmpty
-                ? 'Last update: --'
+                ? '${LabelService().getLabel(182)}: --'
                 : item.lastUpdate!;
         final quantityText = item.quantity?.toString() ?? '0';
 

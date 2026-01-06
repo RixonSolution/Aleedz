@@ -109,8 +109,8 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Trainings',
+              Text(
+                LabelService().getLabel(291),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,

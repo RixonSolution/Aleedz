@@ -96,12 +96,12 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
     messenger.showSnackBar(
       SnackBar(
         content: Row(
-          children: const [
+          children: [
             Icon(Icons.swipe_left, color: Colors.white),
             SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Swipe left to delete the record',
+                LabelService().getLabel(202),
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
@@ -383,8 +383,8 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Create New Issue',
+                              Text(
+                                LabelService().getLabel(244),
                                 style: TextStyle(
                                   color: Color(0xFF111827),
                                   fontSize: 20,
@@ -413,7 +413,7 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                           Divider(color: Colors.grey.shade300, height: 1),
                           const SizedBox(height: 16),
 
-                          _fieldLabel('Issue'),
+                          _fieldLabel(LabelService().getLabel(36)),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<int>(
                             value: _selectedIssueCategory?.activityCategoryID,
@@ -441,7 +441,7 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                             },
                           ),
                           const SizedBox(height: 16),
-                          _fieldLabel('Description'),
+                          _fieldLabel(LabelService().getLabel(66)),
                           const SizedBox(height: 8),
                           TextField(
                             controller: descriptionController,
@@ -452,7 +452,7 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          _fieldLabel('Quantity'),
+                          _fieldLabel(LabelService().getLabel(75)),
                           const SizedBox(height: 8),
                           TextField(
                             keyboardType: TextInputType.number,
@@ -566,7 +566,14 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                             child:
                                 _isSubmitting
                                     ? Center(
-                                      child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32),
+                                      child:
+                                          LoadingAnimationWidget.discreteCircle(
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
+                                            size: 32,
+                                          ),
                                     )
                                     : ElevatedButton(
                                       onPressed: () async {
@@ -661,8 +668,8 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                                           ),
                                         ),
                                       ),
-                                      child: const Text(
-                                        'Create Issue',
+                                      child: Text(
+                                        LabelService().getLabel(245),
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
@@ -725,8 +732,8 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Filter Issues',
+                            Text(
+                              LabelService().getLabel(246),
                               style: TextStyle(
                                 color: Color(0xFF111827),
                                 fontSize: 20,
@@ -754,7 +761,7 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                         const SizedBox(height: 12),
                         Divider(color: Colors.grey.shade300, height: 1),
                         const SizedBox(height: 16),
-                        _fieldLabel('Issue'),
+                        _fieldLabel(LabelService().getLabel(36)),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<int>(
                           value: _selectedIssueCategory?.activityCategoryID,
@@ -826,9 +833,9 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                 color: AppColors.primary,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'Create New Issue',
+                  LabelService().getLabel(244),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -907,8 +914,8 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            const Text(
-                              'Issues',
+                            Text(
+                              LabelService().getLabel(36),
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -988,7 +995,12 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                   Expanded(
                     child:
                         isListLoading
-                            ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                            ? Center(
+                              child: LoadingAnimationWidget.discreteCircle(
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 32,
+                              ),
+                            )
                             : ListView.builder(
                               padding: const EdgeInsets.only(
                                 bottom: 140,
@@ -1002,8 +1014,8 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                                 final images = _imageUrls(item);
                                 final statusLabel =
                                     (item.quantity?.isNotEmpty ?? false)
-                                        ? 'Qty ${item.quantity}'
-                                        : 'Open';
+                                        ? '${LabelService().getLabel(162)} ${item.quantity}'
+                                        : '${LabelService().getLabel(163)}';
 
                                 return Dismissible(
                                   key: ValueKey(
@@ -1351,8 +1363,10 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                                                           14,
                                                         ),
                                                   ),
-                                                  child: const Text(
-                                                    'Open',
+                                                  child: Text(
+                                                    LabelService().getLabel(
+                                                      247,
+                                                    ),
                                                     style: TextStyle(
                                                       color: Color(0xFFf97316),
                                                       fontWeight:

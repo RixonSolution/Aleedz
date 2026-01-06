@@ -1,6 +1,4 @@
 import 'package:aleedz/core/constants/app_colors.dart';
-import 'package:aleedz/core/constants/app_text_style.dart';
-import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/dashboard/dashboard_view.dart';
@@ -131,8 +129,8 @@ class _TargetAchievementCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Target Achievement',
+              Text(
+                LabelService().getLabel(235),
                 style: TextStyle(
                   color: AppColors.blackColor,
                   fontSize: 16,
@@ -151,7 +149,9 @@ class _TargetAchievementCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    isQty ? 'Qty' : 'Value',
+                    isQty
+                        ? '${LabelService().getLabel(162)}'
+                        : '${LabelService().getLabel(163)}',
                     style: const TextStyle(
                       color: AppColors.greyText,
                       fontSize: 12,
@@ -181,8 +181,8 @@ class _TargetAchievementCard extends StatelessWidget {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'Achievement',
+                      Text(
+                        LabelService().getLabel(92),
                         style: TextStyle(
                           color: AppColors.greyText,
                           fontSize: 12,
@@ -208,8 +208,8 @@ class _TargetAchievementCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: [
-                    const Text(
-                      'Target',
+                    Text(
+                      LabelService().getLabel(236),
                       style: TextStyle(
                         color: AppColors.blackColor,
                         fontSize: 13,
@@ -231,8 +231,8 @@ class _TargetAchievementCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: [
-                    const Text(
-                      'Achieved',
+                    Text(
+                      LabelService().getLabel(237),
                       style: TextStyle(
                         color: AppColors.blackColor,
                         fontSize: 13,
@@ -506,8 +506,8 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const Text(
-                    'Achievement',
+                  Text(
+                    LabelService().getLabel(92),
                     style: TextStyle(
                       color: AppColors.greyText,
                       fontSize: 12,
@@ -523,7 +523,7 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Target: ${_formatValue(entry.target)}',
+                '${LabelService().getLabel(236)}: ${_formatValue(entry.target)}',
                 style: const TextStyle(
                   color: AppColors.blackColor,
                   fontSize: 13,
@@ -531,7 +531,7 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                 ),
               ),
               Text(
-                'Achieved: ${_formatValue(entry.achieved)}',
+                '${LabelService().getLabel(237)}: ${_formatValue(entry.achieved)}',
                 style: TextStyle(
                   color: color,
                   fontSize: 13,
@@ -716,7 +716,7 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
-                                              'Performance',
+                                              LabelService().getLabel(238),
                                               style: const TextStyle(
                                                 color: Color(0xFFFBBF24),
                                                 fontSize: 12,
@@ -804,8 +804,8 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                         ),
                                       ),
                                       const SizedBox(height: 8),
-                                      const Text(
-                                        'Sales Achieved',
+                                      Text(
+                                        LabelService().getLabel(239),
                                         style: TextStyle(
                                           color: Color(0xFFcbd5e1),
                                           fontSize: 11,
@@ -868,8 +868,8 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        const Text(
-                                          'Coverage',
+                                        Text(
+                                          LabelService().getLabel(8),
                                           style: TextStyle(
                                             color: AppColors.greyText,
                                             fontSize: 12,
@@ -909,8 +909,8 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        const Text(
-                                          'User',
+                                        Text(
+                                          LabelService().getLabel(242),
                                           style: TextStyle(
                                             color: AppColors.greyText,
                                             fontSize: 12,
@@ -939,8 +939,8 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    'Select User',
+                                  Text(
+                                    LabelService().getLabel(243),
                                     style: TextStyle(
                                       color: AppColors.blackColor,
                                       fontSize: 14,
@@ -965,7 +965,9 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                       child: DropdownButton<FieldUserModel>(
                                         isExpanded: true,
                                         value: viewModel.selectedFieldUser,
-                                        hint: const Text('Select User'),
+                                        hint: Text(
+                                          LabelService().getLabel(243),
+                                        ),
                                         items:
                                             viewModel.fieldUsers
                                                 .map(
@@ -1002,10 +1004,10 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Align(
+                                  Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      'Target vs Achievement',
+                                      LabelService().getLabel(240),
                                       style: TextStyle(
                                         color: AppColors.blackColor,
                                         fontSize: 16,
@@ -1027,7 +1029,7 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           _buildToggleChip(
-                                            label: 'Value',
+                                            label: LabelService().getLabel(163),
                                             selected: !viewModel.showQty,
                                             onTap:
                                                 () => ref
@@ -1084,8 +1086,8 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                       color: Colors.grey.shade200,
                                     ),
                                   ),
-                                  child: const Text(
-                                    'No target achievement data available.',
+                                  child: Text(
+                                    LabelService().getLabel(241),
                                     style: TextStyle(
                                       color: AppColors.blackColor,
                                       fontSize: 14,
@@ -1126,9 +1128,9 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                                     Wrap(
                                       spacing: 12,
                                       runSpacing: 8,
-                                      children: const [
+                                      children: [
                                         _LegendDot(
-                                          label: 'Sales',
+                                          label: LabelService().getLabel(74),
                                           color: AppColors.primary,
                                         ),
                                       ],

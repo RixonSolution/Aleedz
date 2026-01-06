@@ -12,7 +12,7 @@ class CheckInView extends ConsumerWidget {
     final viewModel = ref.read(checkInProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Check-In')),
+      appBar: AppBar(title: Text(LabelService().getLabel(212))),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

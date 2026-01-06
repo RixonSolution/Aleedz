@@ -71,8 +71,8 @@ class _DisplayAuditCheckSummaryState
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Display Audit',
+                      Text(
+                        LabelService().getLabel(130),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -155,9 +155,9 @@ class _DisplayAuditCheckSummaryState
                   child: DropdownButtonFormField<int>(
                     value: viewModel.selectedBrand?.brandId,
                     isDense: true,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'All Brands',
+                      hintText: LabelService().getLabel(286),
                       contentPadding: EdgeInsets.symmetric(vertical: 10),
                     ),
                     items:
@@ -184,7 +184,10 @@ class _DisplayAuditCheckSummaryState
             SizedBox(height: 12),
             viewModel.loader
                 ? Center(
-                  child: LoadingAnimationWidget.discreteCircle(color: AppColors.secondary, size: 32),
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: AppColors.secondary,
+                    size: 32,
+                  ),
                 )
                 : Expanded(
                   child: ListView.separated(
@@ -237,7 +240,7 @@ class _DisplayAuditCheckSummaryState
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Last update: ${widget.checkInTime}',
+                                      '${LabelService().getLabel(182)}: ${widget.checkInTime}',
                                       style: TextStyle(
                                         color: Colors.grey.shade600,
                                         fontSize: 12,
@@ -252,7 +255,7 @@ class _DisplayAuditCheckSummaryState
                                           CrossAxisAlignment.center,
                                       children: [
                                         Text(
-                                          'Model',
+                                          LabelService().getLabel(277),
                                           style: TextStyle(
                                             color: AppColors.primary,
                                             fontSize: 13,
@@ -392,7 +395,8 @@ class _DisplayAuditCheckSummaryState
                                                       item.productCategoryName,
                                                       style: TextStyle(
                                                         color:
-                                                            AppColors.blackColor,
+                                                            AppColors
+                                                                .blackColor,
                                                         fontSize: 15,
                                                         fontWeight:
                                                             FontWeight.w500,
@@ -402,8 +406,10 @@ class _DisplayAuditCheckSummaryState
                                                     Text(
                                                       'Updated by: ${item.updateBy}',
                                                       style: TextStyle(
-                                                        color: Colors
-                                                            .grey.shade600,
+                                                        color:
+                                                            Colors
+                                                                .grey
+                                                                .shade600,
                                                         fontSize: 12,
                                                       ),
                                                     ),
@@ -428,11 +434,14 @@ class _DisplayAuditCheckSummaryState
                                                               .toString(),
                                                           style:
                                                               const TextStyle(
-                                                            color: Colors.black,
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
+                                                                color:
+                                                                    Colors
+                                                                        .black,
+                                                                fontSize: 15,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
                                                         ),
                                                       ],
                                                     ),
@@ -453,12 +462,14 @@ class _DisplayAuditCheckSummaryState
                                                               .toString(),
                                                           style:
                                                               const TextStyle(
-                                                            color:
-                                                                Colors.orange,
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
+                                                                color:
+                                                                    Colors
+                                                                        .orange,
+                                                                fontSize: 15,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
                                                         ),
                                                       ],
                                                     ),

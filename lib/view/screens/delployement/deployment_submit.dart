@@ -489,7 +489,12 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                 Expanded(
                   child:
                       isListLoading
-                          ? Center(child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32))
+                          ? Center(
+                            child: LoadingAnimationWidget.discreteCircle(
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 32,
+                            ),
+                          )
                           : ListView.builder(
                             padding: const EdgeInsets.only(bottom: 140, top: 4),
                             itemCount: viewModel.marketActivityList.length,
@@ -499,8 +504,8 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                               final images = _imageUrls(item);
                               final statusLabel =
                                   (item.quantity?.isNotEmpty ?? false)
-                                      ? 'Qty ${item.quantity}'
-                                      : 'Open';
+                                      ? '${labelService.getLabel(162)} ${item.quantity}'
+                                      : '${labelService.getLabel(206)}';
 
                               return Dismissible(
                                 key: ValueKey(
@@ -838,8 +843,8 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                                   borderRadius:
                                                       BorderRadius.circular(14),
                                                 ),
-                                                child: const Text(
-                                                  'Open',
+                                                child: Text(
+                                                  LabelService().getLabel(222),
                                                   style: TextStyle(
                                                     color: Color(0xFFf97316),
                                                     fontWeight: FontWeight.w700,
@@ -896,8 +901,8 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Deployment Category',
+                          Text(
+                            LabelService().getLabel(223),
                             style: TextStyle(
                               color: Color(0xFF111827),
                               fontSize: 18,
@@ -933,7 +938,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Store: ${widget.storeName}',
+                        '${LabelService().getLabel(224)}: ${widget.storeName}',
                         style: TextStyle(
                           color: Colors.grey.shade700,
                           fontSize: 13,
@@ -941,8 +946,8 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Select Category',
+                      Text(
+                        LabelService().getLabel(225),
                         style: TextStyle(
                           color: Color(0xFF111827),
                           fontSize: 14,
@@ -1050,8 +1055,8 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Add New Deployment',
+                          Text(
+                            LabelService().getLabel(226),
                             style: TextStyle(
                               color: Color(0xFF111827),
                               fontSize: 20,
@@ -1175,7 +1180,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                 Row(
                                   children: [
                                     Text(
-                                      'Photo',
+                                      LabelService().getLabel(227),
                                       style: const TextStyle(
                                         color: Color(0xFF111827),
                                         fontSize: 14,
@@ -1240,7 +1245,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                     viewModel.beforeActivityImages.isEmpty
                                         ? Center(
                                           child: Text(
-                                            'No photos added',
+                                            LabelService().getLabel(228),
                                             style: TextStyle(
                                               color: Colors.grey.shade500,
                                               fontWeight: FontWeight.w600,
@@ -1340,7 +1345,11 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                         child:
                             localSubmitting || viewModel.loader
                                 ? Center(
-                                  child: LoadingAnimationWidget.discreteCircle(color: Theme.of(context).colorScheme.primary, size: 32),
+                                  child: LoadingAnimationWidget.discreteCircle(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 32,
+                                  ),
                                 )
                                 : ElevatedButton(
                                   onPressed: () async {
@@ -1393,8 +1402,8 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
-                                  child: const Text(
-                                    "Submit",
+                                  child: Text(
+                                    LabelService().getLabel(24),
                                     style: TextStyle(
                                       color: AppColors.whiteColor,
                                       fontWeight: FontWeight.bold,
@@ -1475,9 +1484,9 @@ class _AddDeploymentButton extends StatelessWidget {
                 color: AppColors.primary,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'Add New Deployment',
+                  LabelService().getLabel(226),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -1516,7 +1525,7 @@ class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
     widget.controller.text = value;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('Scanned: $value')));
+    ).showSnackBar(SnackBar(content: Text(LabelService().getLabel(229))));
     Future.delayed(const Duration(milliseconds: 300), () {
       hasScanned = false;
     });

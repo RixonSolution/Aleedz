@@ -144,8 +144,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
                         ),
                         // const SizedBox(height: 26),
                         Text(
-                          // LabelService().getLabel(2),
-                          'Username',
+                          LabelService().getLabel(3),
+                          // 'Username',
                           style: TextStyle(
                             color: AppColors.blackColor,
                             fontSize: 14,
@@ -332,7 +332,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                   );
                                 },
                                 child: Text(
-                                  '  | Sign Up ',
+                                  LabelService().getLabel(248),
                                   style: TextStyle(
                                     color: AppColors.primary,
                                     fontSize: 12,
@@ -415,7 +415,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                   // ),
                   const SizedBox(height: 12),
                   Text(
-                    'Copyright 2025 @Aleedz Solutions',
+                    LabelService().getLabel(249),
                     style: TextStyle(
                       color: AppColors.blackColor.withOpacity(0.55),
                       fontSize: 12,

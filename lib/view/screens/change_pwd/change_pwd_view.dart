@@ -2,6 +2,7 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/constants/assets/app_icons.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:flutter/material.dart';
+import 'package:aleedz/core/services/label_services.dart';
 
 class ChangePassword extends StatefulWidget {
   const ChangePassword({Key? key}) : super(key: key);
@@ -27,9 +28,9 @@ class _ChangePasswordState extends State<ChangePassword> {
   void _handleChangePassword() {
     if (_formKey.currentState?.validate() ?? false) {
       // Perform password change logic here
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password Changed Successfully')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(LabelService().getLabel(210))));
     }
   }
 
@@ -60,7 +61,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                       ),
                     ),
                     Text(
-                      'Change Password',
+                      LabelService().getLabel(211),
                       style: TextStyle(
                         color: AppColors.blackColor,
                         fontSize: 20,
@@ -144,7 +145,7 @@ class _ChangePasswordState extends State<ChangePassword> {
 
                     ElevatedButton(
                       onPressed: _handleChangePassword,
-                      child: const Text('Change Password'),
+                      child: Text(LabelService().getLabel(211)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
                             AppColors
