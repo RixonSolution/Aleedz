@@ -110,7 +110,7 @@ class _OpenIssuesScreenState extends ConsumerState<OpenIssuesScreen> {
                   });
                 },
                 decoration: InputDecoration(
-                  hintText: 'Search by Store, Category, or Type',
+                  hintText: LabelService().getLabel(377),
                   border: InputBorder.none,
                   prefixIcon: Icon(Icons.search),
                 ),

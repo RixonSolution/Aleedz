@@ -487,7 +487,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                     Text(
                       entry.targetDescription.isNotEmpty
                           ? entry.targetDescription
-                          : 'Achievement progress',
+                          : LabelService().getLabel(371),
                       style: TextStyle(color: AppColors.greyText, fontSize: 12),
                     ),
                   ],
@@ -1066,9 +1066,9 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                                     Wrap(
                                       spacing: 12,
                                       runSpacing: 8,
-                                      children: const [
+                                      children: [
                                         _LegendDot(
-                                          label: 'Sales',
+                                          label: LabelService().getLabel(372),
                                           color: AppColors.primary,
                                         ),
                                       ],

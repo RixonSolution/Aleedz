@@ -408,7 +408,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<TransferBrandView> {
                                                   ),
                                                   const SizedBox(height: 4),
                                                   Text(
-                                                    'Updated by: ${item.updatedBy ?? '-'}',
+                                                    '${LabelService().getLabel(391)}: ${item.updatedBy ?? '-'}',
                                                     style: TextStyle(
                                                       color:
                                                           Colors.grey.shade600,

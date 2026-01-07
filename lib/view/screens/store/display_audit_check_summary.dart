@@ -404,7 +404,7 @@ class _DisplayAuditCheckSummaryState
                                                     ),
                                                     const SizedBox(height: 4),
                                                     Text(
-                                                      'Updated by: ${item.updateBy}',
+                                                      '${LabelService().getLabel(391)}: ${item.updateBy}',
                                                       style: TextStyle(
                                                         color:
                                                             Colors

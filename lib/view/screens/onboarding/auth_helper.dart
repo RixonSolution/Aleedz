@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:aleedz/core/services/label_services.dart';
 
 class AuthHelper {
   static final _storage = FlutterSecureStorage();
@@ -11,7 +12,7 @@ class AuthHelper {
 
   static Future<bool> authenticateWithBiometrics() async {
     return await _auth.authenticate(
-      localizedReason: 'Use fingerprint to login',
+      localizedReason: LabelService().getLabel(331),
       options: const AuthenticationOptions(
         stickyAuth: true,
         biometricOnly: true,

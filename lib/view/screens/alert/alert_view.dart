@@ -251,7 +251,7 @@ class _AlertViewState extends ConsumerState<AlertView> {
                         children: [
                           Expanded(
                             child: _dateField(
-                              label: 'From',
+                              label: LabelService().getLabel(302),
                               value: viewModel.formattedStartDate,
                               onTap:
                                   () => _pickDate(
@@ -267,7 +267,7 @@ class _AlertViewState extends ConsumerState<AlertView> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: _dateField(
-                              label: 'To',
+                              label: LabelService().getLabel(303),
                               value: viewModel.formattedEndDate,
                               onTap:
                                   () => _pickDate(

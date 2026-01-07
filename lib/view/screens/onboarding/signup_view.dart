@@ -128,16 +128,16 @@ class _SignupViewState extends State<SignupView> {
       },
       validator: (value) {
         if (_isRegionsLoading) {
-          return 'Loading countries...';
+          return LabelService().getLabel(315);
         }
         if (_regionError != null) {
-          return 'Country list unavailable';
+          return LabelService().getLabel(314);
         }
         if (_regions.isEmpty) {
-          return 'No countries available';
+          return LabelService().getLabel(313);
         }
         if (value == null) {
-          return 'Country is required';
+          return LabelService().getLabel(312);
         }
         return null;
       },
@@ -147,7 +147,9 @@ class _SignupViewState extends State<SignupView> {
       dropdownBuilder: (context, selectedItem) {
         final label =
             selectedItem?.name ??
-            (_regions.isEmpty ? 'No countries available' : 'Select country');
+            (_regions.isEmpty
+                ? LabelService().getLabel(313)
+                : LabelService().getLabel(316));
         return Text(
           label,
           style: TextStyle(
@@ -162,7 +164,7 @@ class _SignupViewState extends State<SignupView> {
       },
       dropdownDecoratorProps: DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
-          hintText: 'Select country',
+          hintText: LabelService().getLabel(316),
           hintStyle: TextStyle(
             color: AppColors.blackColor.withOpacity(0.45),
             fontSize: 14,
@@ -191,7 +193,7 @@ class _SignupViewState extends State<SignupView> {
             (context, _) => Center(child: Text(LabelService().getLabel(250))),
         searchFieldProps: TextFieldProps(
           decoration: InputDecoration(
-            hintText: 'Search country',
+            hintText: LabelService().getLabel(317),
             hintStyle: TextStyle(
               color: AppColors.blackColor.withOpacity(0.45),
               fontSize: 14,
@@ -349,7 +351,7 @@ class _SignupViewState extends State<SignupView> {
 
       final status = response['status'] as int?;
       final message =
-          response['message']?.toString() ?? 'Sign-up completed successfully.';
+          response['message']?.toString() ?? LabelService().getLabel(318);
 
       if (status == 200) {
         ScaffoldMessenger.of(
@@ -362,7 +364,7 @@ class _SignupViewState extends State<SignupView> {
             content: Text(
               message.isNotEmpty
                   ? message
-                  : 'Unable to sign up. Please try again.',
+                  : LabelService().getLabel(319),
             ),
           ),
         );
@@ -462,11 +464,11 @@ class _SignupViewState extends State<SignupView> {
                         _StyledField(
                           controller: _nameController,
                           focusNode: _nameFocusNode,
-                          hint: 'Enter name',
+                          hint: LabelService().getLabel(320),
                           validator:
                               (value) =>
                                   value == null || value.trim().isEmpty
-                                      ? 'Name is required'
+                                      ? LabelService().getLabel(321)
                                       : null,
                         ),
                         const SizedBox(height: 18),
@@ -481,12 +483,12 @@ class _SignupViewState extends State<SignupView> {
                         _StyledField(
                           controller: _emailController,
                           focusNode: _emailFocusNode,
-                          hint: 'Enter email',
+                          hint: LabelService().getLabel(322),
                           keyboardType: TextInputType.emailAddress,
                           validator:
                               (value) =>
                                   value == null || value.trim().isEmpty
-                                      ? 'Email is required'
+                                      ? LabelService().getLabel(323)
                                       : null,
                         ),
                         const SizedBox(height: 18),
@@ -516,7 +518,7 @@ class _SignupViewState extends State<SignupView> {
                             color: Colors.black54,
                           ),
                           decoration: InputDecoration(
-                            hintText: 'Enter contact number',
+                            hintText: LabelService().getLabel(324),
                             hintStyle: TextStyle(
                               color: AppColors.blackColor.withOpacity(0.45),
                               fontSize: 14,
@@ -549,10 +551,10 @@ class _SignupViewState extends State<SignupView> {
                           },
                           validator: (phone) {
                             if (phone == null || phone.number.isEmpty) {
-                              return 'Contact number is required';
+                              return LabelService().getLabel(325);
                             }
                             if (phone.number.length < 6) {
-                              return 'Enter a valid number';
+                              return LabelService().getLabel(326);
                             }
                             return null;
                           },
@@ -569,7 +571,7 @@ class _SignupViewState extends State<SignupView> {
                         _StyledField(
                           controller: _companyController,
                           focusNode: _companyFocusNode,
-                          hint: 'Enter company name',
+                          hint: LabelService().getLabel(327),
                         ),
                         const SizedBox(height: 18),
                         Text(LabelService().getLabel(262),
@@ -583,14 +585,14 @@ class _SignupViewState extends State<SignupView> {
                         _StyledField(
                           controller: _passwordController,
                           focusNode: _passwordFocusNode,
-                          hint: 'Enter password',
+                          hint: LabelService().getLabel(328),
                           obscureText: !_isPasswordVisible,
                           validator:
                               (value) =>
                                   value == null || value.isEmpty
-                                      ? 'Password is required'
+                                      ? LabelService().getLabel(329)
                                       : value.length < 6
-                                      ? 'Password must be at least 6 characters'
+                                      ? LabelService().getLabel(330)
                                       : null,
                           suffix: IconButton(
                             icon: Icon(

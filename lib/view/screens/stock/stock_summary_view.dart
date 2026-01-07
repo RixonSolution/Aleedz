@@ -401,7 +401,7 @@ class _StockSummaryViewState extends ConsumerState<StockSummaryView> {
                                                     const SizedBox(height: 4),
                                                     Text(
                                                       item.updateBy.isNotEmpty
-                                                          ? 'Updated by: ${item.updateBy}'
+                                                          ? '${LabelService().getLabel(391)}: ${item.updateBy}'
                                                           : '${LabelService().getLabel(182)}: ${item.lastUpdate}',
                                                       style: TextStyle(
                                                         color:

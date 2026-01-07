@@ -304,7 +304,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           ),
                           child: Center(
                             child: Text(
-                              'Camera will open and taken image will\nappear here.',
+                              LabelService().getLabel(304),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: AppColors.whiteColor,
@@ -806,7 +806,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     }
 
     if (!_isTodaySelected) {
-      AppSnackBar.showError(context, 'Actions are only available for today.');
+      AppSnackBar.showError(context, LabelService().getLabel(305));
       return;
     }
     if (allowWithoutCheckIn == 'N' && store.visitStatusId == 1) {
@@ -834,7 +834,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     if (isAlreadyCheckedIn) {
       AppSnackBar.showError(
         context,
-        'You are already checked in at another store.',
+        LabelService().getLabel(306),
       );
       return;
     }
@@ -858,12 +858,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
     String checkInCamera,
   ) async {
     if (!_isTodaySelected) {
-      AppSnackBar.showError(context, 'Actions are only available for today.');
+      AppSnackBar.showError(context, LabelService().getLabel(305));
       return;
     }
     await _ensureLocation(viewModel);
     if (viewModel.latitude == 0.0 && viewModel.longitude == 0.0) {
-      AppSnackBar.showError(context, 'Location unavailable');
+      AppSnackBar.showError(context, LabelService().getLabel(307));
       return;
     }
 
@@ -979,12 +979,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
     String checkoutCamera,
   ) async {
     if (!_isTodaySelected) {
-      AppSnackBar.showError(context, 'Actions are only available for today.');
+      AppSnackBar.showError(context, LabelService().getLabel(305));
       return;
     }
     await _ensureLocation(viewModel);
     if (viewModel.latitude == 0.0 && viewModel.longitude == 0.0) {
-      AppSnackBar.showError(context, 'Location unavailable');
+      AppSnackBar.showError(context, LabelService().getLabel(307));
       return;
     }
 
@@ -1534,7 +1534,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 String badgeLabel =
                                     store.visitStatus.isNotEmpty
                                         ? store.visitStatus
-                                        : 'Plan';
+                                        : LabelService().getLabel(308);
                                 String trailingText = ' ${store.planDate}';
                                 Color trailingColor = AppColors.greyText;
                                 Color statusBg = badgeBg;
@@ -1561,7 +1561,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                   numberBg = AppColors.primary;
                                   numberText = AppColors.whiteColor;
                                   trailingText =
-                                      'In: ${store.checkInTime.isEmpty ? '--' : store.checkInTime}';
+                                      '${LabelService().getLabel(309)} ${store.checkInTime.isEmpty ? '--' : store.checkInTime}';
                                   trailingColor = AppColors.primary;
                                   statusTap =
                                       () => _handleCheckOut(
@@ -1579,7 +1579,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                   badgeLabel =
                                       store.visitStatus.isNotEmpty
                                           ? store.visitStatus
-                                          : 'Visited';
+                                          : LabelService().getLabel(310);
                                   numberBg = AppColors.success;
                                   numberText = AppColors.whiteColor;
                                   trailingText =
@@ -1592,7 +1592,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                   badgeLabel =
                                       store.visitStatus.isNotEmpty
                                           ? store.visitStatus
-                                          : 'Cancelled';
+                                          : LabelService().getLabel(311);
                                   numberBg = AppColors.error;
                                   numberText = AppColors.whiteColor;
                                   cardOpacity = 0.55;

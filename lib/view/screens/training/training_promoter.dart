@@ -492,7 +492,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                       flex: 3,
                                       child: Center(
                                         child: Text(
-                                          'ID',
+                                          LabelService().getLabel(401),
                                           style: TextStyle(
                                             fontWeight: FontWeight.w700,
                                             fontSize: 13,
@@ -505,7 +505,7 @@ class _MyConsumerState extends ConsumerState<TrainingPromoter> {
                                       flex: 3,
                                       child: Center(
                                         child: Text(
-                                          'Name',
+                                          LabelService().getLabel(402),
                                           style: TextStyle(
                                             fontWeight: FontWeight.w700,
                                             fontSize: 13,

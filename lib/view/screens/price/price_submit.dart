@@ -567,8 +567,10 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                                     ),
                                                     child: Text(
                                                       isUpdated
-                                                          ? 'Updated'
-                                                          : 'Pending',
+                                                          ? LabelService()
+                                                              .getLabel(379)
+                                                          : LabelService()
+                                                              .getLabel(380),
                                                       style: TextStyle(
                                                         color:
                                                             isUpdated
@@ -1366,11 +1368,11 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                                                     promotion: value,
                                                   );
                                                 },
-                                                decoration: const InputDecoration(
+                                                decoration: InputDecoration(
                                                   isDense: true,
                                                   border: InputBorder.none,
-                                                  hintText:
-                                                      'Add promotion details',
+                                                  hintText: LabelService()
+                                                      .getLabel(381),
                                                 ),
                                                 style: const TextStyle(
                                                   color: AppColors.blackColor,
@@ -1444,7 +1446,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceSubmit> {
                           );
                           AppSnackBar.showSuccess(
                             context,
-                            'Price Promotions submitted',
+                            LabelService().getLabel(382),
                           );
                         },
                         child: Container(

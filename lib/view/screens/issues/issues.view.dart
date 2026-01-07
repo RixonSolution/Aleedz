@@ -175,7 +175,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
     setState(() {
       pendingSales.clear(); // Clear after submitting
     });
-    AppSnackBar.showSuccess(context, 'Sale submitted.');
+    AppSnackBar.showSuccess(context, LabelService().getLabel(374));
   }
 
   final TextEditingController _searchController = TextEditingController();
@@ -259,8 +259,8 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                               width: 30,
                             ),
                           ),
-                          const Text(
-                            'Sellout',
+                          Text(
+                            LabelService().getLabel(375),
                             style: TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 20,
@@ -653,7 +653,7 @@ class _MyConsumerState extends ConsumerState<IssuesView> {
                                           Expanded(
                                             flex: 4,
                                             child: Text(
-                                              'Product ID',
+                                              LabelService().getLabel(376),
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 12,

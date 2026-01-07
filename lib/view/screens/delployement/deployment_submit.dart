@@ -472,7 +472,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                               if (_deploymentCategories.isEmpty) {
                                 AppSnackBar.showError(
                                   context,
-                                  'No deployment categories found',
+                                  LabelService().getLabel(362),
                                 );
                                 return;
                               }
@@ -958,7 +958,7 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
                       DropdownButtonFormField<int>(
                         value: _selectedDeploymentCategory?.activityCategoryID,
                         decoration: _sheetInputDecoration(
-                          'Choose deployment category',
+                          LabelService().getLabel(363),
                         ),
                         items:
                             _deploymentCategories
@@ -1028,11 +1028,11 @@ class _MyConsumerState extends ConsumerState<DeployementSubmitView> {
             void addBarcode(String code) {
               final value = code.trim();
               if (value.isEmpty) {
-                AppSnackBar.showError(context, 'Enter or scan a barcode first');
+                AppSnackBar.showError(context, LabelService().getLabel(364));
                 return;
               }
               if (_sheetBarcodes.contains(value)) {
-                AppSnackBar.showError(context, 'Barcode already added');
+                AppSnackBar.showError(context, LabelService().getLabel(365));
                 return;
               }
               setModalState(() {
@@ -1549,8 +1549,8 @@ class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
               Expanded(
                 child: TextField(
                   controller: widget.controller,
-                  decoration: const InputDecoration(
-                    hintText: 'Enter / Scan Barcode',
+                  decoration: InputDecoration(
+                    hintText: LabelService().getLabel(366),
                     border: InputBorder.none,
                     isDense: true,
                   ),
@@ -1581,7 +1581,9 @@ class _BarcodeScannerUIState extends State<BarcodeScannerUI> {
               ),
             ),
             child: Text(
-              _showScanner ? 'Hide Scanner' : 'Scan Barcode',
+              _showScanner
+                  ? LabelService().getLabel(367)
+                  : LabelService().getLabel(368),
               style: const TextStyle(color: Colors.white),
             ),
           ),

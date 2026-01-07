@@ -177,7 +177,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                         _StyledField(
                           controller: viewModel.passwordController,
                           focusNode: viewModel.passwordFocusNode,
-                          hint: 'Enter password',
+                          hint: LabelService().getLabel(328),
                           // hint: LabelService().getLabel(4),
                           obscureText: !viewModel.isPasswordVisible,
                           validator:

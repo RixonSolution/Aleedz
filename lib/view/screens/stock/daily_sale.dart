@@ -23,7 +23,7 @@ class _DailySaleState extends State<DailySale> {
   final List<ProductSale> sales = [
     ProductSale(
       sku: '981-001219',
-      category: 'Category',
+      category: LabelService().getLabel(385),
       name: 'Zone Vibe 100 wireless headphones - OFF WHITE',
       quantity: 1,
       unitPrice: 1521,
@@ -31,7 +31,7 @@ class _DailySaleState extends State<DailySale> {
     ),
     ProductSale(
       sku: '981-001219',
-      category: 'Category',
+      category: LabelService().getLabel(385),
       name: 'Zone Vibe 100 wireless headphones - OFF WHITE',
       quantity: 1,
       unitPrice: 1521,
@@ -39,7 +39,7 @@ class _DailySaleState extends State<DailySale> {
     ),
     ProductSale(
       sku: '981-001219',
-      category: 'Category',
+      category: LabelService().getLabel(385),
       name: 'Zone Vibe 100 wireless headphones - OFF WHITE',
       quantity: 1,
       unitPrice: 1521,

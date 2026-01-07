@@ -153,7 +153,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
     await _ensureLocation(viewModel);
 
     if (viewModel.latitude == 0.0 && viewModel.longitude == 0.0) {
-      AppSnackBar.showError(context, 'Location unavailable');
+      AppSnackBar.showError(context, LabelService().getLabel(307));
       return;
     }
 
@@ -321,7 +321,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
                           ),
                           child: Center(
                             child: Text(
-                              'Camera will open and taken image will\nappear here.',
+                              LabelService().getLabel(304),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: AppColors.whiteColor,
@@ -676,7 +676,7 @@ class _CoverageViewState extends ConsumerState<CoverageView> {
       final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
       if (pickedFile == null) {
-        AppSnackBar.showError(context, "No image captured.");
+        AppSnackBar.showError(context, LabelService().getLabel(361));
         return;
       }
 

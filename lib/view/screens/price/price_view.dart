@@ -536,8 +536,14 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<PriceView> {
                                                           ),
                                                           child: Text(
                                                             isUpdated
-                                                                ? 'Updated'
-                                                                : 'Pending',
+                                                                ? LabelService()
+                                                                    .getLabel(
+                                                                      379,
+                                                                    )
+                                                                : LabelService()
+                                                                    .getLabel(
+                                                                      380,
+                                                                    ),
                                                             style: TextStyle(
                                                               color:
                                                                   isUpdated

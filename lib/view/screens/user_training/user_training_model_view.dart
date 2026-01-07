@@ -819,9 +819,9 @@ class _MyConsumerState extends ConsumerState<UserTrainingModelView> {
                               onTap: () async {
                                 if (startTime == null || endTime == null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                       content: Text(
-                                        'Please select start and end time.',
+                                        LabelService().getLabel(403),
                                       ),
                                       backgroundColor: Colors.red,
                                     ),

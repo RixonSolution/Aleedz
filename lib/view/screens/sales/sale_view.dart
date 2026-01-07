@@ -517,10 +517,13 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _summaryRow('Total Items', _formatAmount(totalQuantity)),
+          _summaryRow(
+            LabelService().getLabel(383),
+            _formatAmount(totalQuantity),
+          ),
           Divider(color: Colors.white.withOpacity(0.16), height: 18),
           _summaryRow(
-            'Products Sold',
+            LabelService().getLabel(384),
             _formatAmount(viewModel.saleList.length),
           ),
           Divider(color: Colors.white.withOpacity(0.16), height: 18),
@@ -720,7 +723,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                           ),
 
                           const SizedBox(height: 16),
-                          _fieldLabel('Category'),
+                          _fieldLabel(LabelService().getLabel(385)),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<int>(
                             value:
@@ -764,7 +767,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                           ),
 
                           const SizedBox(height: 16),
-                          _fieldLabel('Search Product'),
+                          _fieldLabel(LabelService().getLabel(386)),
                           const SizedBox(height: 8),
                           DropdownSearch<int>(
                             items:
@@ -781,7 +784,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                             },
                             dropdownDecoratorProps: DropDownDecoratorProps(
                               dropdownSearchDecoration: _sheetInputDecoration(
-                                'Type to search products...',
+                                LabelService().getLabel(387),
                                 prefix: const Icon(Icons.search),
                               ),
                             ),
@@ -872,7 +875,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                         if (viewModel.selectedBrand == null) {
                                           AppSnackBar.showError(
                                             context,
-                                            'Please select a brand',
+                                            LabelService().getLabel(388),
                                           );
                                           return;
                                         }
@@ -880,7 +883,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                             null) {
                                           AppSnackBar.showError(
                                             context,
-                                            'Please select a category',
+                                            LabelService().getLabel(389),
                                           );
                                           return;
                                         }
@@ -888,7 +891,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<SaleView> {
                                             null) {
                                           AppSnackBar.showError(
                                             context,
-                                            'Please select a product',
+                                            LabelService().getLabel(390),
                                           );
                                           return;
                                         }

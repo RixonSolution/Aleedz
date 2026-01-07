@@ -91,14 +91,14 @@ class _ChangePasswordState extends State<ChangePassword> {
                     TextFormField(
                       controller: _currentPasswordController,
                       obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Current Password',
+                      decoration: InputDecoration(
+                        labelText: LabelService().getLabel(338),
                         border: OutlineInputBorder(),
                       ),
                       validator:
                           (value) =>
                               (value == null || value.isEmpty)
-                                  ? 'Enter current password'
+                                  ? LabelService().getLabel(339)
                                   : null,
                     ),
                     const SizedBox(height: 12),
@@ -107,16 +107,16 @@ class _ChangePasswordState extends State<ChangePassword> {
                     TextFormField(
                       controller: _newPasswordController,
                       obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'New Password',
+                      decoration: InputDecoration(
+                        labelText: LabelService().getLabel(340),
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Enter new password';
+                          return LabelService().getLabel(341);
                         }
                         if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
+                          return LabelService().getLabel(330);
                         }
                         return null;
                       },
@@ -127,16 +127,16 @@ class _ChangePasswordState extends State<ChangePassword> {
                     TextFormField(
                       controller: _confirmPasswordController,
                       obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Confirm Password',
+                      decoration: InputDecoration(
+                        labelText: LabelService().getLabel(342),
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Confirm your new password';
+                          return LabelService().getLabel(343);
                         }
                         if (value != _newPasswordController.text) {
-                          return 'Passwords do not match';
+                          return LabelService().getLabel(344);
                         }
                         return null;
                       },

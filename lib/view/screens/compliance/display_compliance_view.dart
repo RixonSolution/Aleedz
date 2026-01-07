@@ -493,7 +493,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                         DropDownDecoratorProps(
                                           dropdownSearchDecoration:
                                               _sheetInputDecoration(
-                                                'Type to search products...',
+                                                LabelService().getLabel(387),
                                                 prefixIcon: const Icon(
                                                   Icons.search,
                                                 ),
@@ -828,7 +828,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                                         .selectedBrand ==
                                                     null) {
                                                   showSheetError(
-                                                    'Please select brand',
+                                                    LabelService().getLabel(350),
                                                   );
                                                   return;
                                                 }
@@ -836,7 +836,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                                         .selectedProductCategory ==
                                                     null) {
                                                   showSheetError(
-                                                    'Please select category',
+                                                    LabelService().getLabel(351),
                                                   );
                                                   return;
                                                 }
@@ -844,32 +844,32 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                                         .selectedSaleSearch ==
                                                     null) {
                                                   showSheetError(
-                                                    'Please select model',
+                                                    LabelService().getLabel(352),
                                                   );
                                                   return;
                                                 }
                                                 if (selectedLocationId ==
                                                     null) {
                                                   showSheetError(
-                                                    'Please select location',
+                                                    LabelService().getLabel(353),
                                                   );
                                                   return;
                                                 }
                                                 if (displayYes == null) {
                                                   showSheetError(
-                                                    'Please select display',
+                                                    LabelService().getLabel(354),
                                                   );
                                                   return;
                                                 }
                                                 if (guidelineYes == null) {
                                                   showSheetError(
-                                                    'Please select guideline',
+                                                    LabelService().getLabel(355),
                                                   );
                                                   return;
                                                 }
                                                 if (posmYes == null) {
                                                   showSheetError(
-                                                    'Please select POSM',
+                                                    LabelService().getLabel(356),
                                                   );
                                                   return;
                                                 }
@@ -877,7 +877,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                                     .text
                                                     .isEmpty) {
                                                   showSheetError(
-                                                    'Please enter quantity',
+                                                    LabelService().getLabel(357),
                                                   );
                                                   return;
                                                 }
@@ -885,7 +885,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                                     .text
                                                     .isEmpty) {
                                                   showSheetError(
-                                                    'Please enter remarks',
+                                                    LabelService().getLabel(358),
                                                   );
                                                   return;
                                                 }
@@ -950,7 +950,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
 
                                                   if (!success) {
                                                     showSheetError(
-                                                      'Unable to submit display compliance',
+                                                      LabelService().getLabel(359),
                                                     );
                                                     return;
                                                   }
@@ -1219,7 +1219,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                         if (id == null) {
                                           AppSnackBar.showError(
                                             context,
-                                            'Unable to remove this record',
+                                            LabelService().getLabel(360),
                                           );
                                           return false;
                                         }
@@ -1231,7 +1231,7 @@ class _DisplayComplianceViewState extends ConsumerState<DisplayComplianceView> {
                                         if (!success) {
                                           AppSnackBar.showError(
                                             context,
-                                            'Unable to remove this record',
+                                            LabelService().getLabel(360),
                                           );
                                           return false;
                                         }

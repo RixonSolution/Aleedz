@@ -45,7 +45,7 @@ class _MyConsumerState extends ConsumerState<StoreShareView> {
     final Map<String, List<StoreShareElementTypeModel>> grouped = {};
     for (final item in list) {
       final key = (item.storeShareElementTypeName ?? '').trim();
-      final safeKey = key.isEmpty ? 'Other' : key;
+      final safeKey = key.isEmpty ? LabelService().getLabel(400) : key;
       grouped.putIfAbsent(safeKey, () => []).add(item);
     }
     return grouped;

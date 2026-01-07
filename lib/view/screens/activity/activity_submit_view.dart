@@ -498,12 +498,12 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                           Divider(color: Colors.grey.shade300, height: 1),
                           const SizedBox(height: 16),
 
-                          _fieldLabel('Activity Type'),
+                          _fieldLabel(LabelService().getLabel(333)),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<int>(
                             value: _selectedActivityType?.activityTypeID,
                             decoration: _sheetInputDecoration(
-                              'Select Activity Type',
+                              LabelService().getLabel(332),
                             ),
                             items:
                                 viewModel.activityType
@@ -541,7 +541,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                             value:
                                 _selectedActivityCategory?.activityCategoryID,
                             decoration: _sheetInputDecoration(
-                              'Select Activity Category',
+                              LabelService().getLabel(334),
                             ),
                             items:
                                 viewModel.activityCategoryId
@@ -599,7 +599,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          _fieldLabel('Photos'),
+                          _fieldLabel(LabelService().getLabel(335)),
                           const SizedBox(height: 8),
                           Row(
                             children: [
@@ -718,14 +718,14 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                                         if (_selectedActivityType == null) {
                                           AppSnackBar.showError(
                                             context,
-                                            'Please select activity type',
+                                            LabelService().getLabel(336),
                                           );
                                           return;
                                         }
                                         if (_selectedActivityCategory == null) {
                                           AppSnackBar.showError(
                                             context,
-                                            'Please select activity category',
+                                            LabelService().getLabel(337),
                                           );
                                           return;
                                         }
@@ -892,12 +892,12 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                         const SizedBox(height: 12),
                         Divider(color: Colors.grey.shade300, height: 1),
                         const SizedBox(height: 16),
-                        _fieldLabel('Activity Type'),
+                        _fieldLabel(LabelService().getLabel(333)),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<int>(
                           value: _selectedActivityType?.activityTypeID,
                           decoration: _sheetInputDecoration(
-                            'Select Activity Type',
+                            LabelService().getLabel(332),
                           ),
                           items:
                               viewModel.activityType
@@ -932,7 +932,7 @@ class _MyConsumerState extends ConsumerState<ActivitySubmitView> {
                         DropdownButtonFormField<int>(
                           value: _selectedActivityCategory?.activityCategoryID,
                           decoration: _sheetInputDecoration(
-                            'Select Activity Category',
+                            LabelService().getLabel(334),
                           ),
                           items:
                               viewModel.activityCategoryId

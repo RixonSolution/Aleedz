@@ -72,7 +72,7 @@ class _StoreShareSummaryViewState extends ConsumerState<StoreShareSummaryView> {
             .where((item) => _dirtyKeys.contains(_keyForItem(item)))
             .toList();
     if (items.isEmpty) {
-      AppSnackBar.showError(context, 'Please update any item to submit.');
+      AppSnackBar.showError(context, LabelService().getLabel(397));
       return;
     }
 
@@ -96,7 +96,7 @@ class _StoreShareSummaryViewState extends ConsumerState<StoreShareSummaryView> {
         if (!success) {
           AppSnackBar.showError(
             context,
-            'Unable to submit ${item.storeShareElementName ?? "item"}.',
+            '${LabelService().getLabel(398)} ${item.storeShareElementName ?? "item"}.',
           );
           return;
         }
@@ -104,7 +104,7 @@ class _StoreShareSummaryViewState extends ConsumerState<StoreShareSummaryView> {
         _localImages.remove(key);
       }
 
-      AppSnackBar.showSuccess(context, 'Store share submitted successfully.');
+      AppSnackBar.showSuccess(context, LabelService().getLabel(399));
     } finally {
       if (mounted) {
         setState(() {

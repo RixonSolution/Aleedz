@@ -41,6 +41,40 @@ class DisplayAuditCheck extends ConsumerStatefulWidget {
 class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
   TextEditingController remarksController = TextEditingController();
 
+  Widget _yesNoToggle({
+    required bool isYes,
+    required bool isNo,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return ToggleButtons(
+      borderRadius: BorderRadius.circular(10),
+      constraints: const BoxConstraints(minHeight: 36, minWidth: 36),
+      isSelected: [isYes, isNo],
+      onPressed: (index) => onChanged(index == 0),
+      color: Colors.black87,
+      selectedColor: Colors.white,
+      fillColor: AppColors.primary,
+      borderColor: Colors.grey.shade300,
+      selectedBorderColor: AppColors.primary,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Text(
+            LabelService().getLabel(95),
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Text(
+            LabelService().getLabel(94),
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -144,7 +178,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
     if (matchedBrand == null) {
       AppSnackBar.showError(
         context,
-        'No planogram images found for $brandName.',
+        '${LabelService().getLabel(392)} $brandName.',
       );
       return;
     }
@@ -166,7 +200,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
     if (planogramImages.isEmpty) {
       AppSnackBar.showError(
         context,
-        'No planogram images found for $brandName.',
+        '${LabelService().getLabel(392)} $brandName.',
       );
       return;
     }
@@ -245,8 +279,8 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(storeModelProvider);
-    const double availableColWidth = 60;
-    const double lessThanTwoColWidth = 60;
+    const double availableColWidth = 80;
+    const double lessThanTwoColWidth = 80;
 
     String cameraPermission =
         viewModel.permission?.getPermissionValue(
@@ -309,17 +343,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            '${LabelService().getLabel(14)} ${widget.checkInTime}',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.grey.shade300,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -443,7 +467,7 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                       ),
                                                       const SizedBox(height: 4),
                                                       Text(
-                                                        '${LabelService().getLabel(182)} ${widget.lastUpdate}',
+                                                        '${widget.lastUpdate}',
                                                         style: TextStyle(
                                                           fontSize: 12,
                                                           color:
@@ -619,8 +643,10 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                             SizedBox(
                                                               width:
                                                                   availableColWidth,
-                                                              child: GestureDetector(
-                                                                onTap: () {
+                                                              child: Builder(
+                                                                builder: (
+                                                                  context,
+                                                                ) {
                                                                   final existing = viewModel
                                                                       .selectedProducts
                                                                       .firstWhereOrNull(
@@ -628,70 +654,63 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                             e.productId ==
                                                                             item.productId,
                                                                       );
-
-                                                                  if (existing !=
-                                                                      null) {
-                                                                    existing.displayCheck =
-                                                                        existing.displayCheck ==
-                                                                                1
-                                                                            ? 0
-                                                                            : 1;
-                                                                    if (existing
-                                                                            .displayCheck ==
-                                                                        0) {
+                                                                  final isYes =
                                                                       existing
-                                                                          .displayCheckCount = 0;
-                                                                    }
-                                                                  } else {
-                                                                    viewModel.selectedProducts.add(
-                                                                      ProductSelection(
-                                                                        productId:
-                                                                            item.productId,
-                                                                        displayCheck:
-                                                                            1,
-                                                                        displayCheckCount:
-                                                                            0,
-                                                                        token:
-                                                                            viewModel.user!.apiToken.toString(),
-                                                                        storeId:
-                                                                            widget.storeId.toString(),
-                                                                        teamMemberId:
-                                                                            viewModel.user!.teamMemberID.toString(),
-                                                                      ),
-                                                                    );
-                                                                  }
-                                                                  viewModel
-                                                                      .notifyListeners();
+                                                                          ?.displayCheck ==
+                                                                      1;
+                                                                  final isNo =
+                                                                      existing !=
+                                                                          null &&
+                                                                      existing
+                                                                              .displayCheck ==
+                                                                          0;
+
+                                                                  return Center(
+                                                                    child: _yesNoToggle(
+                                                                      isYes:
+                                                                          isYes,
+                                                                      isNo: isNo,
+                                                                      onChanged: (
+                                                                        value,
+                                                                      ) {
+                                                                        if (existing !=
+                                                                            null) {
+                                                                          existing.displayCheck =
+                                                                              value
+                                                                                  ? 1
+                                                                                  : 0;
+                                                                          if (!value) {
+                                                                            existing.displayCheckCount =
+                                                                                0;
+                                                                          }
+                                                                        } else {
+                                                                          viewModel
+                                                                              .selectedProducts
+                                                                              .add(
+                                                                                ProductSelection(
+                                                                                  productId:
+                                                                                      item.productId,
+                                                                                  displayCheck:
+                                                                                      value
+                                                                                          ? 1
+                                                                                          : 0,
+                                                                                  displayCheckCount:
+                                                                                      0,
+                                                                                  token:
+                                                                                      viewModel.user!.apiToken.toString(),
+                                                                                  storeId:
+                                                                                      widget.storeId.toString(),
+                                                                                  teamMemberId:
+                                                                                      viewModel.user!.teamMemberID.toString(),
+                                                                                ),
+                                                                              );
+                                                                        }
+                                                                        viewModel
+                                                                            .notifyListeners();
+                                                                      },
+                                                                    ),
+                                                                  );
                                                                 },
-                                                                child: Icon(
-                                                                  viewModel.selectedProducts.any(
-                                                                        (e) =>
-                                                                            e.productId ==
-                                                                                item.productId &&
-                                                                            e.displayCheck ==
-                                                                                1,
-                                                                      )
-                                                                      ? Icons
-                                                                          .check_circle
-                                                                      : Icons
-                                                                          .check_circle_outline,
-                                                                  size: 35,
-                                                                  color:
-                                                                      viewModel.selectedProducts.any(
-                                                                            (
-                                                                              e,
-                                                                            ) =>
-                                                                                e.productId ==
-                                                                                    item.productId &&
-                                                                                e.displayCheck ==
-                                                                                    1,
-                                                                          )
-                                                                          ? AppColors
-                                                                              .primary
-                                                                          : Colors
-                                                                              .grey
-                                                                              .shade400,
-                                                                ),
                                                               ),
                                                             ),
                                                             SizedBox(
@@ -700,10 +719,11 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                               child:
                                                                   item.inputType ==
                                                                           1
-                                                                      ? Builder(
-                                                                        builder: (
-                                                                          context,
-                                                                        ) {
+                                                                      ? Center(
+                                                                        child: Builder(
+                                                                          builder: (
+                                                                            context,
+                                                                          ) {
                                                                           final existing = viewModel.selectedProducts.firstWhereOrNull(
                                                                             (
                                                                               e,
@@ -718,191 +738,199 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                               existing?.displayCheckCount ??
                                                                               0;
 
-                                                                          return TextFormField(
-                                                                            key: ValueKey(
-                                                                              'qty-${item.productId}',
-                                                                            ),
-                                                                            initialValue:
-                                                                                currentCount ==
-                                                                                        0
-                                                                                    ? ''
-                                                                                    : currentCount.toString(),
-                                                                            maxLength:
-                                                                                3,
-                                                                            readOnly:
-                                                                                !isAvailable,
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                            keyboardType:
-                                                                                TextInputType.number,
-                                                                            inputFormatters: [
-                                                                              FilteringTextInputFormatter.digitsOnly,
-                                                                              LengthLimitingTextInputFormatter(
-                                                                                3,
+                                                                          return SizedBox(
+                                                                            height:
+                                                                                36,
+                                                                            child: TextFormField(
+                                                                              key: ValueKey(
+                                                                                'qty-${item.productId}',
                                                                               ),
-                                                                            ],
-                                                                            decoration: InputDecoration(
-                                                                              counterText:
-                                                                                  '',
-                                                                              hintText: LabelService().getLabel(
-                                                                                221,
-                                                                              ),
-                                                                              contentPadding: const EdgeInsets.symmetric(
-                                                                                horizontal:
-                                                                                    6,
-                                                                                vertical:
+                                                                              initialValue:
+                                                                                  currentCount ==
+                                                                                          0
+                                                                                      ? ''
+                                                                                      : currentCount.toString(),
+                                                                              maxLength:
+                                                                                  3,
+                                                                              readOnly:
+                                                                                  !isAvailable,
+                                                                              textAlign:
+                                                                                  TextAlign.center,
+                                                                              textAlignVertical:
+                                                                                  TextAlignVertical.center,
+                                                                              keyboardType:
+                                                                                  TextInputType.number,
+                                                                              inputFormatters: [
+                                                                                FilteringTextInputFormatter.digitsOnly,
+                                                                                LengthLimitingTextInputFormatter(
+                                                                                  3,
+                                                                                ),
+                                                                              ],
+                                                                              decoration: InputDecoration(
+                                                                                counterText:
+                                                                                    '',
+                                                                                hintText: LabelService().getLabel(
+                                                                                  221,
+                                                                                ),
+                                                                                isDense:
+                                                                                    true,
+                                                                                contentPadding: const EdgeInsets.symmetric(
+                                                                                  horizontal:
+                                                                                      6,
+                                                                                  vertical:
+                                                                                      10,
+                                                                                ),
+                                                                                filled:
+                                                                                    true,
+                                                                                fillColor:
+                                                                                    AppColors.lightGreyBackground,
+                                                                                border: OutlineInputBorder(
+                                                                                  borderRadius: BorderRadius.circular(
                                                                                     8,
-                                                                              ),
-                                                                              filled:
-                                                                                  true,
-                                                                              fillColor:
-                                                                                  AppColors.lightGreyBackground,
-                                                                              border: OutlineInputBorder(
-                                                                                borderRadius: BorderRadius.circular(
-                                                                                  8,
-                                                                                ),
-                                                                                borderSide:
-                                                                                    BorderSide.none,
-                                                                              ),
-                                                                            ),
-                                                                            onTap: () {
-                                                                              if (isAvailable) {
-                                                                                return;
-                                                                              }
-                                                                              ScaffoldMessenger.of(
-                                                                                context,
-                                                                              ).showSnackBar(
-                                                                                SnackBar(
-                                                                                  content: Text(
-                                                                                    LabelService().getLabel(
-                                                                                      189,
-                                                                                    ),
                                                                                   ),
-                                                                                  backgroundColor:
-                                                                                      Colors.red,
+                                                                                  borderSide:
+                                                                                      BorderSide.none,
                                                                                 ),
-                                                                              );
-                                                                            },
-                                                                            onChanged: (
-                                                                              value,
-                                                                            ) {
-                                                                              if (!isAvailable) {
-                                                                                return;
-                                                                              }
-                                                                              final qty =
-                                                                                  int.tryParse(
-                                                                                    value,
-                                                                                  ) ??
-                                                                                  0;
-                                                                              if (existing !=
-                                                                                  null) {
-                                                                                existing.displayCheckCount = qty;
-                                                                              } else {
-                                                                                viewModel.selectedProducts.add(
-                                                                                  ProductSelection(
-                                                                                    productId:
-                                                                                        item.productId,
-                                                                                    displayCheckCount:
-                                                                                        qty,
-                                                                                    displayCheck:
-                                                                                        0,
-                                                                                    token:
-                                                                                        viewModel.user!.apiToken.toString(),
-                                                                                    storeId:
-                                                                                        widget.storeId.toString(),
-                                                                                    teamMemberId:
-                                                                                        viewModel.user!.teamMemberID.toString(),
+                                                                              ),
+                                                                              onTap: () {
+                                                                                if (isAvailable) {
+                                                                                  return;
+                                                                                }
+                                                                                ScaffoldMessenger.of(
+                                                                                  context,
+                                                                                ).showSnackBar(
+                                                                                  SnackBar(
+                                                                                    content: Text(
+                                                                                      LabelService().getLabel(
+                                                                                        189,
+                                                                                      ),
+                                                                                    ),
+                                                                                    backgroundColor:
+                                                                                        Colors.red,
                                                                                   ),
                                                                                 );
-                                                                              }
-                                                                              viewModel.notifyListeners();
-                                                                            },
+                                                                              },
+                                                                              onChanged: (
+                                                                                value,
+                                                                              ) {
+                                                                                if (!isAvailable) {
+                                                                                  return;
+                                                                                }
+                                                                                final qty =
+                                                                                    int.tryParse(
+                                                                                      value,
+                                                                                    ) ??
+                                                                                    0;
+                                                                                if (existing !=
+                                                                                    null) {
+                                                                                  existing.displayCheckCount = qty;
+                                                                                } else {
+                                                                                  viewModel.selectedProducts.add(
+                                                                                    ProductSelection(
+                                                                                      productId:
+                                                                                          item.productId,
+                                                                                      displayCheckCount:
+                                                                                          qty,
+                                                                                      displayCheck:
+                                                                                          0,
+                                                                                      token:
+                                                                                          viewModel.user!.apiToken.toString(),
+                                                                                      storeId:
+                                                                                          widget.storeId.toString(),
+                                                                                      teamMemberId:
+                                                                                          viewModel.user!.teamMemberID.toString(),
+                                                                                    ),
+                                                                                  );
+                                                                                }
+                                                                                viewModel.notifyListeners();
+                                                                              },
+                                                                            ),
                                                                           );
                                                                         },
+                                                                        ),
                                                                       )
                                                                       : GestureDetector(
-                                                                        onTap: () {
-                                                                          final existing = viewModel.selectedProducts.firstWhereOrNull(
-                                                                            (
-                                                                              e,
-                                                                            ) =>
-                                                                                e.productId ==
-                                                                                item.productId,
-                                                                          );
-                                                                          final isAvailable =
-                                                                              existing?.displayCheck ==
-                                                                              1;
-                                                                          if (!isAvailable) {
-                                                                            ScaffoldMessenger.of(
-                                                                              context,
-                                                                            ).showSnackBar(
-                                                                              SnackBar(
-                                                                                content: Text(
-                                                                                  LabelService().getLabel(
-                                                                                    189,
-                                                                                  ),
-                                                                                ),
-                                                                                backgroundColor:
-                                                                                    Colors.red,
-                                                                              ),
+                                                                        child: Builder(
+                                                                          builder: (
+                                                                            context,
+                                                                          ) {
+                                                                            final existing = viewModel.selectedProducts.firstWhereOrNull(
+                                                                              (
+                                                                                e,
+                                                                              ) =>
+                                                                                  e.productId ==
+                                                                                  item.productId,
                                                                             );
-                                                                            return;
-                                                                          }
-
-                                                                          if (existing !=
-                                                                              null) {
-                                                                            existing.displayCheckCount =
+                                                                            final isAvailable =
+                                                                                existing?.displayCheck ==
+                                                                                1;
+                                                                            final isYes =
+                                                                                existing?.displayCheckCount ==
+                                                                                1;
+                                                                            final isNo =
+                                                                                existing !=
+                                                                                    null &&
                                                                                 existing.displayCheckCount ==
-                                                                                        1
-                                                                                    ? 0
-                                                                                    : 1;
-                                                                          } else {
-                                                                            viewModel.selectedProducts.add(
-                                                                              ProductSelection(
-                                                                                productId:
-                                                                                    item.productId,
-                                                                                displayCheckCount:
-                                                                                    1,
-                                                                                displayCheck:
-                                                                                    0,
-                                                                                token:
-                                                                                    viewModel.user!.apiToken.toString(),
-                                                                                storeId:
-                                                                                    widget.storeId.toString(),
-                                                                                teamMemberId:
-                                                                                    viewModel.user!.teamMemberID.toString(),
+                                                                                    0;
+
+                                                                            return Center(
+                                                                              child: _yesNoToggle(
+                                                                                isYes:
+                                                                                    isYes,
+                                                                                isNo:
+                                                                                    isNo,
+                                                                                onChanged: (
+                                                                                  value,
+                                                                                ) {
+                                                                                  if (!isAvailable) {
+                                                                                    ScaffoldMessenger.of(
+                                                                                      context,
+                                                                                    ).showSnackBar(
+                                                                                      SnackBar(
+                                                                                        content: Text(
+                                                                                          LabelService().getLabel(
+                                                                                            189,
+                                                                                          ),
+                                                                                        ),
+                                                                                        backgroundColor:
+                                                                                            Colors.red,
+                                                                                      ),
+                                                                                    );
+                                                                                    return;
+                                                                                  }
+
+                                                                                  if (existing !=
+                                                                                      null) {
+                                                                                    existing.displayCheckCount =
+                                                                                        value
+                                                                                            ? 1
+                                                                                            : 0;
+                                                                                  } else {
+                                                                                    viewModel.selectedProducts.add(
+                                                                                      ProductSelection(
+                                                                                        productId:
+                                                                                            item.productId,
+                                                                                        displayCheckCount:
+                                                                                            value
+                                                                                                ? 1
+                                                                                                : 0,
+                                                                                        displayCheck:
+                                                                                            1,
+                                                                                        token:
+                                                                                            viewModel.user!.apiToken.toString(),
+                                                                                        storeId:
+                                                                                            widget.storeId.toString(),
+                                                                                        teamMemberId:
+                                                                                            viewModel.user!.teamMemberID.toString(),
+                                                                                      ),
+                                                                                    );
+                                                                                  }
+                                                                                  viewModel
+                                                                                      .notifyListeners();
+                                                                                },
                                                                               ),
                                                                             );
-                                                                          }
-                                                                          viewModel
-                                                                              .notifyListeners();
-                                                                        },
-                                                                        child: Icon(
-                                                                          viewModel.selectedProducts.any(
-                                                                                (
-                                                                                  e,
-                                                                                ) =>
-                                                                                    e.productId ==
-                                                                                        item.productId &&
-                                                                                    e.displayCheckCount ==
-                                                                                        1,
-                                                                              )
-                                                                              ? Icons.check_circle
-                                                                              : Icons.check_circle_outline,
-                                                                          size:
-                                                                              35,
-                                                                          color:
-                                                                              viewModel.selectedProducts.any(
-                                                                                    (
-                                                                                      e,
-                                                                                    ) =>
-                                                                                        e.productId ==
-                                                                                            item.productId &&
-                                                                                        e.displayCheckCount ==
-                                                                                            1,
-                                                                                  )
-                                                                                  ? AppColors.primary
-                                                                                  : Colors.grey.shade400,
+                                                                          },
                                                                         ),
                                                                       ),
                                                             ),
@@ -1306,10 +1334,70 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                               .rightImages
                                                               .isNotEmpty;
 
+                                                      final missingAvailable = viewModel
+                                                          .auditList
+                                                          .firstWhereOrNull((
+                                                            item,
+                                                          ) {
+                                                            final existing = viewModel
+                                                                .selectedProducts
+                                                                .firstWhereOrNull(
+                                                                  (e) =>
+                                                                      e.productId ==
+                                                                      item.productId,
+                                                                );
+                                                            return existing
+                                                                    ?.displayCheck !=
+                                                                1;
+                                                          });
+
+                                                      if (missingAvailable !=
+                                                          null) {
+                                                        AppSnackBar.showError(
+                                                          context,
+                                                          'Please check Available for ${missingAvailable.productModelCode}.',
+                                                        );
+                                                        return;
+                                                      }
+
+                                                      final missingQuantity = viewModel
+                                                          .auditList
+                                                          .firstWhereOrNull((
+                                                            item,
+                                                          ) {
+                                                            if (item.inputType !=
+                                                                1) {
+                                                              return false;
+                                                            }
+                                                            final existing = viewModel
+                                                                .selectedProducts
+                                                                .firstWhereOrNull(
+                                                                  (e) =>
+                                                                      e.productId ==
+                                                                      item.productId,
+                                                                );
+                                                            return (existing?.displayCheck ??
+                                                                        0) ==
+                                                                    1 &&
+                                                                (existing?.displayCheckCount ??
+                                                                        0) <=
+                                                                    0;
+                                                          });
+
+                                                      if (missingQuantity !=
+                                                          null) {
+                                                        AppSnackBar.showError(
+                                                          context,
+                                                          'Please enter quantity for ${missingQuantity.productModelCode}.',
+                                                        );
+                                                        return;
+                                                      }
+
                                                       if (!hasBrandImages) {
                                                         AppSnackBar.showError(
                                                           context,
-                                                          'Brand images are required before submitting.',
+                                                          LabelService()
+                                                              .getLabel(393),
                                                         );
                                                         return;
                                                       }
@@ -1317,7 +1405,8 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                       if (!hasCompetitionImages) {
                                                         AppSnackBar.showError(
                                                           context,
-                                                          'Competition images are required before submitting.',
+                                                          LabelService()
+                                                              .getLabel(394),
                                                         );
                                                         return;
                                                       }

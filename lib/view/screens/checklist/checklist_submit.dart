@@ -715,7 +715,7 @@ class _MyConsumerState extends ConsumerState<ChecklistSubmit> {
                                     .inputTypeID;
                             final String optionLabel =
                                 inputType == 1
-                                    ? 'Status'
+                                    ? LabelService().getLabel(347)
                                     : inputType == 2
                                     ? LabelService().getLabel(75)
                                     : inputType == 3

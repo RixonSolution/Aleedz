@@ -489,7 +489,7 @@ class _HomeTeamViewState extends ConsumerState<HomeChartTeamView> {
                     Text(
                       entry.targetDescription.isNotEmpty
                           ? entry.targetDescription
-                          : 'Achievement progress',
+                          : LabelService().getLabel(371),
                       style: TextStyle(color: AppColors.greyText, fontSize: 12),
                     ),
                   ],

@@ -417,7 +417,9 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                           const SizedBox(height: 8),
                           DropdownButtonFormField<int>(
                             value: _selectedIssueCategory?.activityCategoryID,
-                            decoration: _sheetInputDecoration('Select Issue'),
+                            decoration: _sheetInputDecoration(
+                              LabelService().getLabel(373),
+                            ),
                             items:
                                 viewModel.issueList
                                     .map(
@@ -464,7 +466,7 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          _fieldLabel('Photos'),
+                          _fieldLabel(LabelService().getLabel(335)),
                           const SizedBox(height: 8),
                           Row(
                             children: [
@@ -765,7 +767,9 @@ class _IssueSubmitViewState extends ConsumerState<IssueSubmitView> {
                         const SizedBox(height: 8),
                         DropdownButtonFormField<int>(
                           value: _selectedIssueCategory?.activityCategoryID,
-                          decoration: _sheetInputDecoration('Select Issue'),
+                          decoration: _sheetInputDecoration(
+                            LabelService().getLabel(373),
+                          ),
                           items:
                               viewModel.issueList
                                   .map(

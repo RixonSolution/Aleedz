@@ -483,7 +483,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                           ),
 
                           const SizedBox(height: 16),
-                          _fieldLabel('Upload Photo'),
+                          _fieldLabel(LabelService().getLabel(395)),
                           const SizedBox(height: 8),
                           GestureDetector(
                             onTap: () {
@@ -569,7 +569,7 @@ class _DisplayAuditCheckSummaryState extends ConsumerState<DisplayPicture> {
                                         if (viewModel.selectedBrand == null) {
                                           AppSnackBar.showError(
                                             context,
-                                            'Please select brand',
+                                            LabelService().getLabel(350),
                                           );
                                         } else if (viewModel
                                                 .selectedPictureModel ==

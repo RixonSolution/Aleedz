@@ -132,7 +132,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
         } else {
           AppSnackBar.showError(
             context,
-            'Please check in before transferring the products.',
+            LabelService().getLabel(396),
           );
         }
         break;
