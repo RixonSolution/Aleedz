@@ -44,18 +44,28 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
   Widget _yesNoToggle({
     required bool isYes,
     required bool isNo,
+    bool enabled = true,
+    Color? selectedFillColor,
+    Color? selectedBorderColor,
     required ValueChanged<bool> onChanged,
   }) {
+    final activeFillColor =
+        selectedFillColor ??
+        (enabled ? AppColors.primary : Colors.grey.shade400);
+    final activeBorderColor =
+        selectedBorderColor ??
+        (enabled ? AppColors.primary : Colors.grey.shade400);
+    final inactiveColor = enabled ? Colors.black87 : Colors.grey.shade500;
     return ToggleButtons(
       borderRadius: BorderRadius.circular(10),
       constraints: const BoxConstraints(minHeight: 36, minWidth: 36),
       isSelected: [isYes, isNo],
-      onPressed: (index) => onChanged(index == 0),
-      color: Colors.black87,
+      onPressed: enabled ? (index) => onChanged(index == 0) : null,
+      color: inactiveColor,
       selectedColor: Colors.white,
-      fillColor: AppColors.primary,
+      fillColor: activeFillColor,
       borderColor: Colors.grey.shade300,
-      selectedBorderColor: AppColors.primary,
+      selectedBorderColor: activeBorderColor,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -854,24 +864,32 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                           builder: (
                                                                             context,
                                                                           ) {
-                                                                            final existing = viewModel.selectedProducts.firstWhereOrNull(
-                                                                              (
-                                                                                e,
-                                                                              ) =>
-                                                                                  e.productId ==
-                                                                                  item.productId,
-                                                                            );
+                                                                  final existing = viewModel.selectedProducts.firstWhereOrNull(
+                                                                            (
+                                                                              e,
+                                                                            ) =>
+                                                                                e.productId ==
+                                                                                item.productId,
+                                                                          );
                                                                             final isAvailable =
                                                                                 existing?.displayCheck ==
                                                                                 1;
-                                                                            final isYes =
-                                                                                existing?.displayCheckCount ==
-                                                                                1;
-                                                                            final isNo =
+                                                                            final hasSelection =
                                                                                 existing !=
-                                                                                    null &&
+                                                                                null;
+                                                                            final isNo =
+                                                                                hasSelection &&
+                                                                                (existing
+                                                                                        .displayCheck ==
+                                                                                    0 ||
+                                                                                    existing.displayCheckCount ==
+                                                                                        0);
+                                                                            final isYes =
+                                                                                hasSelection &&
+                                                                                existing.displayCheck ==
+                                                                                    1 &&
                                                                                 existing.displayCheckCount ==
-                                                                                    0;
+                                                                                    1;
 
                                                                             return Center(
                                                                               child: _yesNoToggle(
@@ -879,26 +897,18 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                                     isYes,
                                                                                 isNo:
                                                                                     isNo,
+                                                                                enabled:
+                                                                                    true,
+                                                                                selectedFillColor:
+                                                                                    null,
+                                                                                selectedBorderColor:
+                                                                                    null,
                                                                                 onChanged: (
                                                                                   value,
                                                                                 ) {
                                                                                   if (!isAvailable) {
-                                                                                    ScaffoldMessenger.of(
-                                                                                      context,
-                                                                                    ).showSnackBar(
-                                                                                      SnackBar(
-                                                                                        content: Text(
-                                                                                          LabelService().getLabel(
-                                                                                            189,
-                                                                                          ),
-                                                                                        ),
-                                                                                        backgroundColor:
-                                                                                            Colors.red,
-                                                                                      ),
-                                                                                    );
                                                                                     return;
                                                                                   }
-
                                                                                   if (existing !=
                                                                                       null) {
                                                                                     existing.displayCheckCount =
@@ -1337,19 +1347,17 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                       final missingAvailable = viewModel
                                                           .auditList
                                                           .firstWhereOrNull((
-                                                            item,
-                                                          ) {
-                                                            final existing = viewModel
-                                                                .selectedProducts
-                                                                .firstWhereOrNull(
-                                                                  (e) =>
-                                                                      e.productId ==
-                                                                      item.productId,
-                                                                );
-                                                            return existing
-                                                                    ?.displayCheck !=
-                                                                1;
-                                                          });
+                                                        item,
+                                                      ) {
+                                                        final existing = viewModel
+                                                            .selectedProducts
+                                                            .firstWhereOrNull(
+                                                              (e) =>
+                                                                  e.productId ==
+                                                                  item.productId,
+                                                            );
+                                                        return existing == null;
+                                                      });
 
                                                       if (missingAvailable !=
                                                           null) {
