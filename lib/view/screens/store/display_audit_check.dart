@@ -877,19 +877,22 @@ class _DisplayAuditCheckState extends ConsumerState<DisplayAuditCheck> {
                                                                             final hasSelection =
                                                                                 existing !=
                                                                                 null;
-                                                                            final isNo =
-                                                                                hasSelection &&
-                                                                                (existing
-                                                                                        .displayCheck ==
-                                                                                    0 ||
-                                                                                    existing.displayCheckCount ==
-                                                                                        0);
-                                                                            final isYes =
-                                                                                hasSelection &&
-                                                                                existing.displayCheck ==
-                                                                                    1 &&
-                                                                                existing.displayCheckCount ==
-                                                                                    1;
+                                                                          final isNo =
+                                                                              hasSelection &&
+                                                                              existing.displayCheck ==
+                                                                                  1 &&
+                                                                              existing.displayCheckCount ==
+                                                                                  0;
+                                                                          final isYes =
+                                                                              hasSelection &&
+                                                                              ((existing.displayCheck ==
+                                                                                          0 &&
+                                                                                      existing.displayCheckCount ==
+                                                                                          0) ||
+                                                                                  (existing.displayCheck ==
+                                                                                          1 &&
+                                                                                      existing.displayCheckCount ==
+                                                                                          1));
 
                                                                             return Center(
                                                                               child: _yesNoToggle(
