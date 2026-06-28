@@ -6,6 +6,7 @@ import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/onboarding/login_view.dart';
 import 'package:aleedz/view/screens/change_pwd/change_pwd_view.dart';
 import 'package:aleedz/view/screens/leave_request.dart';
+import 'package:aleedz/view/screens/store/shelf_share_view.dart';
 import 'package:aleedz/view/screens/user_profile/user_profile_view.dart';
 import 'package:aleedz/view/screens/user_training/user_training_list_view.dart';
 import 'package:aleedz/viewmodel/store_viewmodel.dart';
@@ -181,6 +182,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           if (widget.onClose != null) widget.onClose!();
           await Future.delayed(const Duration(milliseconds: 300));
           NavigationService.navigateTo(const LeaveRequestView());
+        },
+      },
+      {
+        'title': 'Shelf Share',
+        'icon': Icons.layers_outlined,
+        'onTap': () async {
+          if (widget.onClose != null) widget.onClose!();
+          await Future.delayed(const Duration(milliseconds: 300));
+          NavigationService.navigateTo(
+            ShelfShareView(
+              storeName: 'Shelf Share',
+              checkInTime: '--',
+              address: '',
+              storeId: 0,
+              visitId: 0,
+            ),
+          );
         },
       },
       {

@@ -14,6 +14,7 @@ import 'package:aleedz/view/screens/sales/sale_view.dart';
 import 'package:aleedz/view/screens/stock/stock_summary_view.dart';
 import 'package:aleedz/view/screens/store/display_audit_check_summary.dart';
 import 'package:aleedz/view/screens/store/display_picture.dart';
+import 'package:aleedz/view/screens/store/shelf_share_view.dart';
 import 'package:aleedz/view/screens/store_share/store_share_view.dart';
 import 'package:aleedz/view/screens/training/training_list_view.dart';
 import 'package:aleedz/view/screens/transfer/transfer_view.dart';
@@ -370,6 +371,69 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
     );
   }
 
+  Widget _buildShelfShareItem(BuildContext context, int visitId) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () {
+        NavigationService.navigateTo(
+          ShelfShareView(
+            storeName: widget.storeName,
+            checkInTime: widget.checkInTime,
+            address: widget.address,
+            storeId: widget.storeId,
+            visitId: visitId,
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Icons.layers_outlined,
+                color: Colors.orange,
+                size: 28,
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Shelf Share',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.blackColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(storeModelProvider);
@@ -541,9 +605,16 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                                 mainAxisSpacing: 1,
                                 childAspectRatio: 0.8,
                               ),
-                          itemCount: viewModel.rosLabels.length,
+                          itemCount: viewModel.rosLabels.length + 1,
                           itemBuilder: (context, index) {
-                            final ros = viewModel.rosLabels[index];
+                            if (index == 0) {
+                              return _buildShelfShareItem(
+                                context,
+                                viewModel.visitId,
+                              );
+                            }
+
+                            final ros = viewModel.rosLabels[index - 1];
                             return _buildGridItem(
                               context,
                               ros,
