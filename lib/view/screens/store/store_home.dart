@@ -131,10 +131,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
             ),
           );
         } else {
-          AppSnackBar.showError(
-            context,
-            LabelService().getLabel(396),
-          );
+          AppSnackBar.showError(context, LabelService().getLabel(396));
         }
         break;
       case 34:
@@ -335,7 +332,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
           border: Border.all(color: Colors.grey.shade200),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -348,7 +345,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
               width: 54,
               height: 54,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.12),
+                color: accent.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Center(child: iconWidget),
@@ -375,6 +372,10 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
     return InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: () {
+        if (widget.storeId <= 0 || visitId <= 0) {
+          AppSnackBar.showError(context, 'Shelf Share needs an active store');
+          return;
+        }
         NavigationService.navigateTo(
           ShelfShareView(
             storeName: widget.storeName,
@@ -394,7 +395,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
           border: Border.all(color: Colors.grey.shade200),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -407,7 +408,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
               width: 54,
               height: 54,
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.12),
+                color: Colors.orange.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: const Icon(
@@ -479,7 +480,8 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              Text(LabelService().getLabel(285),
+                              Text(
+                                LabelService().getLabel(285),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
@@ -515,7 +517,7 @@ class _StoreHomeState extends ConsumerState<StoreHome> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(

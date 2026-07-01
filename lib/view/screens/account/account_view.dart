@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:aleedz/core/constants/api_constants.dart';
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/services/label_services.dart';
+import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
 import 'package:aleedz/view/screens/onboarding/login_view.dart';
 import 'package:aleedz/view/screens/change_pwd/change_pwd_view.dart';
@@ -16,8 +17,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final VoidCallback? onClose;
+  final int? storeId;
 
-  const ProfileScreen({super.key, this.onClose});
+  const ProfileScreen({super.key, this.onClose, this.storeId});
 
   @override
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
@@ -190,12 +192,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         'onTap': () async {
           if (widget.onClose != null) widget.onClose!();
           await Future.delayed(const Duration(milliseconds: 300));
+          final currentStoreId = widget.storeId ?? 0;
+          if (currentStoreId <= 0) {
+            AppSnackBar.showError(
+              context,
+              'Open Shelf Share from a store visit',
+            );
+            return;
+          }
           NavigationService.navigateTo(
             ShelfShareView(
               storeName: 'Shelf Share',
               checkInTime: '--',
               address: '',
-              storeId: 0,
+              storeId: currentStoreId,
               visitId: 0,
             ),
           );

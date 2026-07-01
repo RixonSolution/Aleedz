@@ -1,10 +1,14 @@
 import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/routes/navigation_services.dart';
+import 'package:aleedz/models/category_store_share_model.dart';
 import 'package:aleedz/view/screens/store/shelf_share_detail_view.dart';
+import 'package:aleedz/viewmodel/store_share_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class ShelfShareView extends StatefulWidget {
+class ShelfShareView extends ConsumerStatefulWidget {
   final String storeName;
   final String checkInTime;
   final String address;
@@ -21,30 +25,44 @@ class ShelfShareView extends StatefulWidget {
   });
 
   @override
-  State<ShelfShareView> createState() => _ShelfShareViewState();
+  ConsumerState<ShelfShareView> createState() => _ShelfShareViewState();
 }
 
-class _ShelfShareViewState extends State<ShelfShareView> {
-  static const List<_ShelfShareCategory> _categories = [
-    _ShelfShareCategory('Bluetooth Headset', 1, 0),
-    _ShelfShareCategory('Combos', 2, 0),
-    _ShelfShareCategory('Keyboards', 2, 0),
-    _ShelfShareCategory('Mice', 2, 0),
-    _ShelfShareCategory('Headset', 4, 0),
-  ];
+class _ShelfShareViewState extends ConsumerState<ShelfShareView> {
+  int _selectedCategoryFilter = 0;
+  bool _loading = true;
+  String? _loadError;
 
-  String _selectedCategoryFilter = 'All Categories';
-
-  List<_ShelfShareCategory> get _visibleCategories {
-    if (_selectedCategoryFilter == 'All Categories') {
-      return _categories;
-    }
-    return _categories
-        .where((category) => category.name == _selectedCategoryFilter)
-        .toList();
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(_loadData);
   }
 
-  void _openCategory(_ShelfShareCategory category) {
+  Future<void> _loadData() async {
+    if (widget.storeId <= 0) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = 'Shelf Share needs an active store';
+        _loading = false;
+      });
+      return;
+    }
+
+    final notifier = ref.read(storeShareModelProvider.notifier);
+    await notifier.loadUser();
+    await notifier.getShelfShareCategoryDropdown();
+    await notifier.getShelfShareCategorySummary(
+      storeId: widget.storeId,
+      productCategoryId: 0,
+    );
+    if (!mounted) return;
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  void _openCategory(CategoryStoreShareModel category) {
     NavigationService.navigateTo(
       ShelfShareDetailView(
         storeName: widget.storeName,
@@ -52,14 +70,16 @@ class _ShelfShareViewState extends State<ShelfShareView> {
         address: widget.address,
         storeId: widget.storeId,
         visitId: widget.visitId,
-        categoryName: category.name,
+        productCategoryId: category.productCategoryID ?? 0,
+        productCategoryName:
+            category.productCategoryName ?? category.brandName ?? '',
       ),
     );
   }
 
   Widget _buildCategoryTile(
     BuildContext context,
-    _ShelfShareCategory category,
+    CategoryStoreShareModel category,
     int displayIndex,
   ) {
     return InkWell(
@@ -110,7 +130,9 @@ class _ShelfShareViewState extends State<ShelfShareView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        category.name,
+                        category.productCategoryName ??
+                            category.brandName ??
+                            '',
                         style: const TextStyle(
                           color: Color(0xFF111827),
                           fontSize: 15,
@@ -119,7 +141,7 @@ class _ShelfShareViewState extends State<ShelfShareView> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Updated by: 1',
+                        'Updated by: ${category.code ?? '--'}',
                         style: TextStyle(
                           color: Colors.grey.shade500,
                           fontSize: 12,
@@ -138,7 +160,7 @@ class _ShelfShareViewState extends State<ShelfShareView> {
                     SizedBox(
                       width: 64,
                       child: Text(
-                        '${category.facing}',
+                        '${category.count ?? 0}',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Color(0xFF111827),
@@ -147,18 +169,7 @@ class _ShelfShareViewState extends State<ShelfShareView> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 64,
-                      child: Text(
-                        '${category.stock}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Color(0xFFD97706),
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
+                    SizedBox(width: 64, child: const Text('')),
                   ],
                 ),
               ),
@@ -171,208 +182,264 @@ class _ShelfShareViewState extends State<ShelfShareView> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = ref.watch(storeShareModelProvider);
+    final categories = viewModel.shelfShareCategoryList;
+    final summaryItems = viewModel.shelfShareCategorySummaryList;
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.grey.shade100,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF111827), Color(0xFF0B1120)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: () => NavigationService.goBack(),
-                        child: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          size: 18,
-                          color: Colors.white,
+        body:
+            _loading
+                ? Center(
+                  child: LoadingAnimationWidget.discreteCircle(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                )
+                : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 18,
+                      ),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF111827), Color(0xFF0B1120)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Shelf Share',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              InkWell(
+                                onTap: () => NavigationService.goBack(),
+                                child: const Icon(
+                                  Icons.arrow_back_ios_new_rounded,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              const Text(
+                                'Shelf Share',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            widget.storeName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            widget.address,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.grey.shade300,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.check,
+                                  color: AppColors.primary,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '${LabelService().getLabel(14)} ${widget.checkInTime}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    widget.storeName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    widget.address,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.grey.shade300,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.check,
-                          color: AppColors.primary,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          '${LabelService().getLabel(14)} ${widget.checkInTime}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                    const SizedBox(height: 12),
+                    if (_loadError != null)
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            _loadError!,
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x12000000),
-                      blurRadius: 12,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _selectedCategoryFilter,
-                    isExpanded: true,
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded),
-                    borderRadius: BorderRadius.circular(14),
-                    items: [
-                      const DropdownMenuItem(
-                        value: 'All Categories',
-                        child: Text('All Categories'),
-                      ),
-                      ..._categories.map(
-                        (category) => DropdownMenuItem(
-                          value: category.name,
-                          child: Text(category.name),
+                      )
+                    else ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x12000000),
+                                blurRadius: 12,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<int>(
+                              value: _selectedCategoryFilter,
+                              isExpanded: true,
+                              icon: const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                              ),
+                              borderRadius: BorderRadius.circular(14),
+                              items: [
+                                const DropdownMenuItem<int>(
+                                  value: 0,
+                                  child: Text('All Categories'),
+                                ),
+                                ...categories.map(
+                                  (category) => DropdownMenuItem<int>(
+                                    value: category.productCategoryID ?? 0,
+                                    child: Text(
+                                      category.productCategoryName ??
+                                          category.brandName ??
+                                          '',
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              onChanged: (value) async {
+                                if (value == null) return;
+                                setState(() {
+                                  _selectedCategoryFilter = value;
+                                });
+                                await ref
+                                    .read(storeShareModelProvider.notifier)
+                                    .getShelfShareCategorySummary(
+                                      storeId: widget.storeId,
+                                      productCategoryId: value,
+                                    );
+                              },
+                            ),
+                          ),
                         ),
                       ),
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child: Text(
+                                'Category',
+                                style: TextStyle(
+                                  color: Colors.grey.shade900,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 64,
+                              child: Text(
+                                'Facing',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.grey.shade900,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 64,
+                              child: Text(
+                                'Stock',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.grey.shade900,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child:
+                            viewModel.loader && summaryItems.isEmpty
+                                ? Center(
+                                  child: LoadingAnimationWidget.discreteCircle(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 28,
+                                  ),
+                                )
+                                : summaryItems.isEmpty
+                                ? Center(
+                                  child: Text(
+                                    'No shelf share data found',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                )
+                                : ListView.builder(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  itemCount: summaryItems.length,
+                                  itemBuilder: (context, index) {
+                                    final category = summaryItems[index];
+                                    return _buildCategoryTile(
+                                      context,
+                                      category,
+                                      index + 1,
+                                    );
+                                  },
+                                ),
+                      ),
                     ],
-                    onChanged: (value) {
-                      if (value == null) return;
-                      setState(() {
-                        _selectedCategoryFilter = value;
-                      });
-                    },
-                  ),
+                  ],
                 ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 5,
-                    child: Text(
-                      'Category',
-                      style: TextStyle(
-                        color: Colors.grey.shade900,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 64,
-                    child: Text(
-                      'Facing',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.grey.shade900,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 64,
-                    child: Text(
-                      'Stock',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.grey.shade900,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 12),
-                itemCount: _visibleCategories.length,
-                itemBuilder: (context, index) {
-                  final category = _visibleCategories[index];
-                  return _buildCategoryTile(context, category, index + 1);
-                },
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
-}
-
-class _ShelfShareCategory {
-  final String name;
-  final int facing;
-  final int stock;
-
-  const _ShelfShareCategory(this.name, this.facing, this.stock);
 }

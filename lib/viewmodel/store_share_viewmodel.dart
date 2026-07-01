@@ -6,6 +6,8 @@ import 'package:aleedz/models/brand_list_model.dart';
 import 'package:aleedz/models/brand_store_share_model.dart';
 import 'package:aleedz/models/category_store_share_model.dart';
 import 'package:aleedz/models/product_store_share_model.dart';
+import 'package:aleedz/models/shelf_share_brand_summary_model.dart';
+import 'package:aleedz/models/shelf_share_display_location_model.dart';
 import 'package:aleedz/models/store_share_element_type_model.dart';
 import 'package:aleedz/models/store_share_summary_model.dart';
 import 'package:aleedz/models/user_model.dart';
@@ -31,7 +33,29 @@ class StoreShareViewModel extends ChangeNotifier {
   List<BrandListModel> brandList = [];
   BrandListModel? selectedBrand;
 
+  List<CategoryStoreShareModel> shelfShareCategoryList = [];
+  List<CategoryStoreShareModel> shelfShareCategorySummaryList = [];
+  List<BrandStoreShareModel> shelfShareBrandList = [];
+  List<ShelfShareBrandSummaryModel> shelfShareBrandSummaryList = [];
+  List<ShelfShareDisplayLocationModel> shelfShareDisplayLocationList = [];
+  CategoryStoreShareModel? selectedShelfShareCategory;
+  ShelfShareBrandSummaryModel? selectedShelfShareBrandSummary;
+
   bool loader = false;
+
+  int _currentWeekNo() {
+    final date = DateTime.now();
+    final thursday = date.add(
+      Duration(days: 4 - (date.weekday == 7 ? 7 : date.weekday)),
+    );
+    final firstThursday = DateTime(thursday.year, 1, 4);
+    final week1Start = firstThursday.subtract(
+      Duration(days: firstThursday.weekday - 1),
+    );
+    return 1 + thursday.difference(week1Start).inDays ~/ 7;
+  }
+
+  int _currentYear() => DateTime.now().year;
 
   void selectBrand(int storeId, BrandListModel? brand) async {
     selectedBrand = brand;
@@ -63,6 +87,163 @@ class StoreShareViewModel extends ChangeNotifier {
       notifyListeners();
     } else {
       debugPrint("coverage list Error: ${response?['data']}");
+    }
+  }
+
+  Future<void> getShelfShareCategoryDropdown() async {
+    shelfShareCategoryList = [];
+    final response = await _shareController.shelfShareCategoryDropdown(
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final payload = response["data"];
+      final rawList =
+          payload is List ? payload : (payload is Map ? payload["data"] : null);
+
+      if (rawList is List) {
+        shelfShareCategoryList =
+            rawList.map((e) => CategoryStoreShareModel.fromJson(e)).toList();
+      } else {
+        shelfShareCategoryList = [];
+      }
+
+      notifyListeners();
+    } else {
+      debugPrint("shelf share category dropdown error: ${response?['data']}");
+    }
+  }
+
+  Future<void> getShelfShareCategorySummary({
+    required int storeId,
+    required int productCategoryId,
+  }) async {
+    loader = true;
+    shelfShareCategorySummaryList = [];
+    notifyListeners();
+
+    debugPrint(
+      'shelf share category summary request: storeId=$storeId, productCategoryId=$productCategoryId, weekNo=${_currentWeekNo()}',
+    );
+
+    final response = await _shareController.shelfShareCategorySummary(
+      token: user?.apiToken ?? '',
+      storeId: storeId.toString(),
+      productCategoryId: productCategoryId.toString(),
+      weekNo: _currentWeekNo().toString(),
+    );
+
+    if (response != null && response["status"] == 200) {
+      final payload = response["data"];
+      final rawList =
+          payload is List ? payload : (payload is Map ? payload["data"] : null);
+
+      if (rawList is List) {
+        shelfShareCategorySummaryList =
+            rawList.map((e) => CategoryStoreShareModel.fromJson(e)).toList();
+      } else {
+        shelfShareCategorySummaryList = [];
+      }
+    } else {
+      debugPrint("shelf share category summary error: ${response?['data']}");
+    }
+
+    loader = false;
+    notifyListeners();
+  }
+
+  Future<void> getShelfShareAllBrands() async {
+    shelfShareBrandList = [];
+    debugPrint('shelf share all brands request started');
+    final response = await _shareController.shelfShareAllBrands(
+      token: user?.apiToken ?? '',
+    );
+
+    if (response != null && response["status"] == 200) {
+      final payload = response["data"];
+      final rawList =
+          payload is List ? payload : (payload is Map ? payload["data"] : null);
+
+      if (rawList is List) {
+        shelfShareBrandList =
+            rawList.map((e) => BrandStoreShareModel.fromJson(e)).toList();
+      } else {
+        shelfShareBrandList = [];
+      }
+
+      notifyListeners();
+    } else {
+      debugPrint("shelf share all brands error: ${response?['data']}");
+    }
+  }
+
+  Future<void> getShelfShareBrandSummaryByCategory({
+    required int storeId,
+    required int productCategoryId,
+    required int brandId,
+  }) async {
+    loader = true;
+    shelfShareBrandSummaryList = [];
+    shelfShareDisplayLocationList = [];
+    notifyListeners();
+
+    debugPrint(
+      'shelf share brand summary request: storeId=$storeId, productCategoryId=$productCategoryId, brandId=$brandId, weekNo=${_currentWeekNo()}',
+    );
+
+    final response = await _shareController.shelfShareBrandSummaryByCategory(
+      token: user?.apiToken ?? '',
+      storeId: storeId.toString(),
+      productCategoryId: productCategoryId.toString(),
+      brandId: brandId.toString(),
+      weekNo: _currentWeekNo().toString(),
+    );
+
+    if (response != null && response["status"] == 200) {
+      final payload = response["data"];
+      final rawList =
+          payload is List ? payload : (payload is Map ? payload["data"] : null);
+
+      if (rawList is List) {
+        shelfShareBrandSummaryList =
+            rawList
+                .map((e) => ShelfShareBrandSummaryModel.fromJson(e))
+                .toList();
+      } else {
+        shelfShareBrandSummaryList = [];
+      }
+    } else {
+      debugPrint("shelf share brand summary error: ${response?['data']}");
+    }
+
+    loader = false;
+    notifyListeners();
+  }
+
+  Future<void> getShelfShareDisplayLocation(int shelfShareId) async {
+    shelfShareDisplayLocationList = [];
+    final response = await _shareController.shelfShareBrandDisplayLocation(
+      token: user?.apiToken ?? '',
+      shelfShareId: shelfShareId.toString(),
+    );
+
+    if (response != null && response["status"] == 200) {
+      final payload = response["data"];
+      final rawList =
+          payload is List ? payload : (payload is Map ? payload["data"] : null);
+
+      if (rawList is List) {
+        shelfShareDisplayLocationList =
+            rawList
+                .map((e) => ShelfShareDisplayLocationModel.fromJson(e))
+                .toList();
+      } else {
+        shelfShareDisplayLocationList = [];
+      }
+
+      notifyListeners();
+    } else {
+      debugPrint("shelf share display location error: ${response?['data']}");
     }
   }
 
@@ -213,6 +394,56 @@ class StoreShareViewModel extends ChangeNotifier {
 
     loader = false;
     notifyListeners();
+  }
+
+  Future<bool> submitShelfShareAdd({
+    required int shelfShareId,
+    required int storeId,
+    required int productCategoryId,
+    required int brandId,
+    required int facingCount,
+    required int stockCount,
+  }) async {
+    if (user == null) {
+      await loadUser();
+    }
+
+    final response = await _shareController.shelfShareAdd(
+      token: user?.apiToken ?? '',
+      shelfShareId: shelfShareId.toString(),
+      storeId: storeId.toString(),
+      productCategoryId: productCategoryId.toString(),
+      weekNo: _currentWeekNo().toString(),
+      year: _currentYear().toString(),
+      brandId: brandId.toString(),
+      facingCount: facingCount.toString(),
+      stockCount: stockCount.toString(),
+      teamMemberId: user?.teamMemberID.toString() ?? '0',
+    );
+
+    return response != null && response["status"] == 200;
+  }
+
+  Future<bool> submitShelfShareDisplayLocation({
+    required int shelfShareDisplayId,
+    required int shelfShareId,
+    required int shelfShareDisplayLocationId,
+    required bool isShelfShareDisplay,
+  }) async {
+    if (user == null) {
+      await loadUser();
+    }
+
+    final response = await _shareController.shelfShareDisplayLocationAdd(
+      token: user?.apiToken ?? '',
+      shelfShareDisplayId: shelfShareDisplayId.toString(),
+      shelfShareId: shelfShareId.toString(),
+      shelfShareDisplayLocationId: shelfShareDisplayLocationId.toString(),
+      isShelfShareDisplay: isShelfShareDisplay ? '1' : '0',
+      teamMemberId: user?.teamMemberID.toString() ?? '0',
+    );
+
+    return response != null && response["status"] == 200;
   }
 
   Future<bool> submitStoreShareAdd({

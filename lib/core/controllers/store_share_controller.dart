@@ -5,6 +5,102 @@ import 'package:aleedz/core/services/store_share_services.dart';
 class StoreShareController {
   final StoreShareServices _apiService = StoreShareServices();
 
+  Future<Map<String, dynamic>?> shelfShareCategorySummary({
+    required String token,
+    required String storeId,
+    required String productCategoryId,
+    required String weekNo,
+  }) async {
+    return await _apiService.shelfShareCategorySummary(
+      token: token,
+      storeId: storeId,
+      productCategoryId: productCategoryId,
+      weekNo: weekNo,
+    );
+  }
+
+  Future<Map<String, dynamic>?> shelfShareCategoryDropdown({
+    required String token,
+  }) async {
+    return await _apiService.shelfShareCategoryDropdown(token: token);
+  }
+
+  Future<Map<String, dynamic>?> shelfShareAllBrands({
+    required String token,
+  }) async {
+    return await _apiService.shelfShareAllBrands(token: token);
+  }
+
+  Future<Map<String, dynamic>?> shelfShareBrandSummaryByCategory({
+    required String token,
+    required String storeId,
+    required String productCategoryId,
+    required String brandId,
+    required String weekNo,
+  }) async {
+    return await _apiService.shelfShareBrandSummaryByCategory(
+      token: token,
+      storeId: storeId,
+      productCategoryId: productCategoryId,
+      brandId: brandId,
+      weekNo: weekNo,
+    );
+  }
+
+  Future<Map<String, dynamic>?> shelfShareBrandDisplayLocation({
+    required String token,
+    required String shelfShareId,
+  }) async {
+    return await _apiService.shelfShareBrandDisplayLocation(
+      token: token,
+      shelfShareId: shelfShareId,
+    );
+  }
+
+  Future<Map<String, dynamic>?> shelfShareAdd({
+    required String token,
+    required String shelfShareId,
+    required String storeId,
+    required String productCategoryId,
+    required String weekNo,
+    required String year,
+    required String brandId,
+    required String facingCount,
+    required String stockCount,
+    required String teamMemberId,
+  }) async {
+    return await _apiService.shelfShareAdd(
+      token: token,
+      shelfShareId: shelfShareId,
+      storeId: storeId,
+      productCategoryId: productCategoryId,
+      weekNo: weekNo,
+      year: year,
+      brandId: brandId,
+      facingCount: facingCount,
+      stockCount: stockCount,
+      teamMemberId: teamMemberId,
+    );
+  }
+
+  Future<Map<String, dynamic>?> shelfShareDisplayLocationAdd({
+    required String token,
+    required String shelfShareDisplayId,
+    required String shelfShareId,
+    required String shelfShareDisplayLocationId,
+    required String isShelfShareDisplay,
+    required String teamMemberId,
+  }) async {
+    return await _apiService.shelfShareDisplayLocationAdd(
+      token: token,
+      shelfShareDisplayId: shelfShareDisplayId,
+      shelfShareId: shelfShareId,
+      shelfShareDisplayLocationId: shelfShareDisplayLocationId,
+      isShelfShareDisplay: isShelfShareDisplay,
+      teamMemberId: teamMemberId,
+    );
+  }
+
   Future<Map<String, dynamic>?> brandList({
     required String token,
     required String storeId,

@@ -164,6 +164,21 @@ class ApiConstants {
       "$baseUrl/Store_Share.asmx/StoreShare_Summary";
   static String get storeShareAdd => "$baseUrl/Store_Share.asmx/Store_Share_Add";
 
+  static String get shelfShareCategorySummary =>
+      "$baseUrl/ShelfShare.asmx/StoreShelfShareSummaryByCategory";
+  static String get shelfShareCategoryDropdown =>
+      "$baseUrl/WebService.asmx/ProductCategoryListOnly";
+  static String get shelfShareAllBrands =>
+      "$baseUrl/ShelfShare.asmx/AllBrands";
+  static String get shelfShareBrandSummaryByCategory =>
+      "$baseUrl/ShelfShare.asmx/StoreShelfShareSummaryByBrand_ByCategory";
+  static String get shelfShareBrandDisplayLocation =>
+      "$baseUrl/ShelfShare.asmx/StoreShelfShareSummaryByBrand_DisplayLocation";
+  static String get shelfShareAdd =>
+      "$baseUrl/ShelfShare.asmx/ShelfShare_Add";
+  static String get shelfShareDisplayLocationAdd =>
+      "$baseUrl/ShelfShare.asmx/ShelfShareStoreDisplayLocation_Add";
+
   static String get openIssues =>
       "$baseUrl/OperMarketActivities.asmx/openIssues";
 
