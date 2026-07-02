@@ -4,6 +4,8 @@ class CategoryStoreShareModel {
   String? brandName;
   int? productCategoryID;
   String? productCategoryName;
+  int? facingCount;
+  int? stockCount;
   int? count;
   String? code;
   String? picture;
@@ -14,6 +16,8 @@ class CategoryStoreShareModel {
     this.brandName,
     this.productCategoryID,
     this.productCategoryName,
+    this.facingCount,
+    this.stockCount,
     this.count,
     this.code,
     this.picture,
@@ -25,6 +29,8 @@ class CategoryStoreShareModel {
     brandName = json['BrandName'];
     productCategoryID = json['ProductCategoryID'];
     productCategoryName = json['ProductCategoryName'];
+    facingCount = int.tryParse(json['FacingCount']?.toString() ?? '');
+    stockCount = int.tryParse(json['StockCount']?.toString() ?? '');
     count = json['Count'];
     code = json['Code'];
     picture = json['Picture'];
@@ -37,6 +43,8 @@ class CategoryStoreShareModel {
     data['BrandName'] = this.brandName;
     data['ProductCategoryID'] = this.productCategoryID;
     data['ProductCategoryName'] = this.productCategoryName;
+    data['FacingCount'] = this.facingCount;
+    data['StockCount'] = this.stockCount;
     data['Count'] = this.count;
     data['Code'] = this.code;
     data['Picture'] = this.picture;

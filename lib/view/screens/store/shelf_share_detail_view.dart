@@ -4,7 +4,6 @@ import 'package:aleedz/core/constants/app_colors.dart';
 import 'package:aleedz/core/services/label_services.dart';
 import 'package:aleedz/core/utils/app_snackbar.dart';
 import 'package:aleedz/routes/navigation_services.dart';
-import 'package:aleedz/models/brand_store_share_model.dart';
 import 'package:aleedz/models/shelf_share_brand_summary_model.dart';
 import 'package:aleedz/models/shelf_share_display_location_model.dart';
 import 'package:aleedz/viewmodel/store_share_viewmodel.dart';
@@ -44,11 +43,13 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
   final Map<String, File> _slotImages = {};
   final Map<String, TextEditingController> _facingControllers = {};
   final Map<String, TextEditingController> _stockControllers = {};
+  final Map<String, List<ShelfShareDisplayLocationModel>> _locationsByCard = {};
+  final Map<String, bool> _locationLoadingByCard = {};
+  final Map<String, bool> _submittingByCard = {};
 
-  int? _selectedBrandId;
-  int _expandedShelfShareId = 0;
+  int _selectedBrandId = 0;
   bool _loading = true;
-  bool _submitting = false;
+  bool _filterLoading = false;
 
   @override
   void initState() {
@@ -57,65 +58,24 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
   }
 
   Future<void> _loadData() async {
+    if (mounted) {
+      setState(() {
+        _slotEnabled.clear();
+        _slotImages.clear();
+        _locationsByCard.clear();
+        _locationLoadingByCard.clear();
+        _submittingByCard.clear();
+        _selectedBrandId = 0;
+      });
+    }
     final notifier = ref.read(storeShareModelProvider.notifier);
     await notifier.loadUser();
     await notifier.getShelfShareAllBrands();
-    if (!_hasUsableShelfShareBrands(notifier)) {
-      await notifier.getBrandDropDown();
-    }
-
-    final initialBrandId = _initialBrandId(notifier);
-    if (initialBrandId != null) {
-      _selectedBrandId = initialBrandId;
-      await notifier.getShelfShareBrandSummaryByCategory(
-        storeId: widget.storeId,
-        productCategoryId: widget.productCategoryId,
-        brandId: initialBrandId,
-      );
-    }
+    await _loadSummaryForBrand(0);
     if (!mounted) return;
     setState(() {
       _loading = false;
     });
-  }
-
-  bool _hasUsableShelfShareBrands(StoreShareViewModel viewModel) {
-    return viewModel.shelfShareBrandList.any(
-      (brand) => (brand.brandID ?? 0) > 0,
-    );
-  }
-
-  List<BrandStoreShareModel> _effectiveBrandOptions(
-    StoreShareViewModel viewModel,
-  ) {
-    final shelfShareBrands =
-        viewModel.shelfShareBrandList
-            .where((brand) => (brand.brandID ?? 0) > 0)
-            .toList();
-    if (shelfShareBrands.isNotEmpty) {
-      return shelfShareBrands;
-    }
-
-    final genericBrands =
-        viewModel.brandList
-            .where((brand) => brand.brandId > 0)
-            .map(
-              (brand) => BrandStoreShareModel(
-                brandID: brand.brandId,
-                brandName: brand.brandName,
-              ),
-            )
-            .toList();
-    return genericBrands;
-  }
-
-  int? _initialBrandId(StoreShareViewModel viewModel) {
-    final brands = _effectiveBrandOptions(viewModel);
-    if (brands.isNotEmpty) {
-      return brands.first.brandID;
-    }
-
-    return null;
   }
 
   @override
@@ -133,6 +93,100 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
     return '${item.shelfShareId ?? 0}-${item.brandId ?? 0}';
   }
 
+  String _slotKey(String summaryKey, int locationId) => '$summaryKey-$locationId';
+
+  List<ShelfShareBrandSummaryModel> _orderedSummaries(
+    StoreShareViewModel viewModel,
+  ) {
+    final summaries = List<ShelfShareBrandSummaryModel>.from(
+      viewModel.shelfShareBrandSummaryList,
+    );
+    final brandOrder = <int, int>{};
+    for (var i = 0; i < viewModel.shelfShareBrandList.length; i++) {
+      brandOrder[viewModel.shelfShareBrandList[i].brandID ?? 0] = i;
+    }
+
+    summaries.sort((a, b) {
+      final aOrder = brandOrder[a.brandId ?? 0] ?? 1 << 30;
+      final bOrder = brandOrder[b.brandId ?? 0] ?? 1 << 30;
+      return aOrder.compareTo(bOrder);
+    });
+    return summaries;
+  }
+
+  Future<void> _loadCardLocations(StoreShareViewModel notifier) async {
+    final summaries = List<ShelfShareBrandSummaryModel>.from(
+      notifier.shelfShareBrandSummaryList,
+    );
+    if (summaries.isEmpty) return;
+
+    if (!mounted) return;
+    setState(() {
+      for (final summary in summaries) {
+        _locationLoadingByCard[_summaryKey(summary)] = true;
+      }
+    });
+
+    for (final summary in summaries) {
+      final key = _summaryKey(summary);
+      await notifier.getShelfShareDisplayLocation(summary.shelfShareId ?? 0);
+      if (!mounted) return;
+
+      final locations = List<ShelfShareDisplayLocationModel>.from(
+        ref.read(storeShareModelProvider).shelfShareDisplayLocationList,
+      );
+
+      setState(() {
+        _locationsByCard[key] = locations;
+        _locationLoadingByCard[key] = false;
+        for (final location in locations) {
+          final slotKey = _slotKey(
+            key,
+            location.shelfShareDisplayLocationId ?? 0,
+          );
+          final enabled = (location.isShelfShareDisplay ?? 0) == 1;
+          _slotEnabled[slotKey] = enabled;
+          if (!enabled) {
+            _slotImages.remove(slotKey);
+          }
+        }
+      });
+    }
+  }
+
+  Future<void> _loadSummaryForBrand(int brandId) async {
+    final notifier = ref.read(storeShareModelProvider.notifier);
+    await notifier.getShelfShareBrandSummaryByCategory(
+      storeId: widget.storeId,
+      productCategoryId: widget.productCategoryId,
+      brandId: brandId,
+      visitId: widget.visitId,
+    );
+    if (!mounted) return;
+    await _loadCardLocations(notifier);
+  }
+
+  Future<void> _selectBrand(int brandId) async {
+    if (mounted) {
+      setState(() {
+        _selectedBrandId = brandId;
+        _filterLoading = true;
+        _slotEnabled.clear();
+        _slotImages.clear();
+        _locationsByCard.clear();
+        _locationLoadingByCard.clear();
+        _submittingByCard.clear();
+      });
+    }
+
+    await _loadSummaryForBrand(brandId);
+
+    if (!mounted) return;
+    setState(() {
+      _filterLoading = false;
+    });
+  }
+
   TextEditingController _controllerFor(
     Map<String, TextEditingController> map,
     String key,
@@ -144,43 +198,8 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
     );
   }
 
-  Future<void> _selectBrand(int brandId) async {
-    setState(() {
-      _selectedBrandId = brandId;
-      _expandedShelfShareId = 0;
-    });
-    await ref
-        .read(storeShareModelProvider.notifier)
-        .getShelfShareBrandSummaryByCategory(
-          storeId: widget.storeId,
-          productCategoryId: widget.productCategoryId,
-          brandId: brandId,
-        );
-  }
-
-  Future<void> _toggleExpanded(ShelfShareBrandSummaryModel item) async {
-    final shelfShareId = item.shelfShareId ?? 0;
-    if (shelfShareId == 0) return;
-
-    if (_expandedShelfShareId == shelfShareId) {
-      setState(() {
-        _expandedShelfShareId = 0;
-      });
-      return;
-    }
-
-    await ref
-        .read(storeShareModelProvider.notifier)
-        .getShelfShareDisplayLocation(shelfShareId);
-
-    if (!mounted) return;
-    setState(() {
-      _expandedShelfShareId = shelfShareId;
-    });
-  }
-
-  Future<void> _pickImage(String key) async {
-    if (_slotEnabled[key] != true) return;
+  Future<void> _pickImage(String key, bool enabled) async {
+    if (!enabled) return;
 
     final source = await showDialog<ImageSource?>(
       context: context,
@@ -256,15 +275,11 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
     });
   }
 
-  String _slotKey(int shelfShareId, int locationId) =>
-      '$shelfShareId-$locationId';
-
-  Widget _buildPreviewButton(String key) {
+  Widget _buildPreviewButton(String key, bool enabled) {
     final image = _slotImages[key];
-    final enabled = _slotEnabled[key] == true;
 
     return InkWell(
-      onTap: enabled ? () => _pickImage(key) : null,
+      onTap: enabled ? () => _pickImage(key, enabled) : null,
       borderRadius: BorderRadius.circular(10),
       child: Container(
         width: 52,
@@ -291,47 +306,56 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
     );
   }
 
-  Widget _buildSlotRow(int shelfShareId, int locationId, String slot) {
-    final key = _slotKey(shelfShareId, locationId);
-    final enabled = _slotEnabled[key] == true;
+  Widget _buildSlotRow(
+    String summaryKey,
+    ShelfShareDisplayLocationModel location,
+  ) {
+    final locationId = location.shelfShareDisplayLocationId ?? 0;
+    final key = _slotKey(summaryKey, locationId);
+    final enabled = (location.isShelfShareDisplay ?? 0) == 1;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          SizedBox(
-            width: 36,
-            child: Checkbox(
-              value: enabled,
-              activeColor: AppColors.primary,
-              onChanged: (checked) {
-                setState(() {
-                  _slotEnabled[key] = checked ?? false;
-                  if (checked != true) {
-                    _slotImages.remove(key);
-                  }
-                });
-              },
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              color: enabled ? const Color(0xFFEFF6FF) : Colors.white,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(
+                color: enabled ? AppColors.primary : Colors.grey.shade300,
+                width: 1,
+              ),
+            ),
+            child: Icon(
+              enabled ? Icons.check_rounded : Icons.remove,
+              size: enabled ? 14 : 10,
+              color: enabled ? AppColors.primary : Colors.transparent,
             ),
           ),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
-              slot,
+              location.shelfShareDisplayLocationName ??
+                  'Location $locationId',
               style: const TextStyle(
                 color: Color(0xFF111827),
-                fontSize: 18,
+                fontSize: 14,
                 fontWeight: FontWeight.w800,
               ),
             ),
           ),
-          _buildPreviewButton(key),
+          _buildPreviewButton(key, enabled),
         ],
       ),
     );
   }
 
-  Future<void> _submitSummary(ShelfShareBrandSummaryModel summary) async {
-    if (_submitting) return;
+  Future<bool> _submitSummary(ShelfShareBrandSummaryModel summary) async {
+    final key = _summaryKey(summary);
+    if (_submittingByCard[key] == true) return false;
     final shelfShareId = summary.shelfShareId ?? 0;
     final brandId = summary.brandId ?? 0;
     final facing =
@@ -354,61 +378,27 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
         0;
 
     setState(() {
-      _submitting = true;
+      _submittingByCard[key] = true;
     });
-    final ok = await ref
-        .read(storeShareModelProvider.notifier)
-        .submitShelfShareAdd(
+    final ok = await ref.read(storeShareModelProvider.notifier).submitShelfShareAdd(
           shelfShareId: shelfShareId,
           storeId: widget.storeId,
           productCategoryId: widget.productCategoryId,
           brandId: brandId,
           facingCount: facing,
           stockCount: stock,
+          visitId: widget.visitId,
         );
-    if (!mounted) return;
+    if (!mounted) return false;
     setState(() {
-      _submitting = false;
+      _submittingByCard[key] = false;
     });
     if (ok) {
       AppSnackBar.showSuccess(context, 'Shelf share saved');
-    } else {
-      AppSnackBar.showError(context, 'Unable to save shelf share');
+      return true;
     }
-  }
-
-  Future<void> _submitLocations(ShelfShareBrandSummaryModel summary) async {
-    final locations =
-        ref.read(storeShareModelProvider).shelfShareDisplayLocationList;
-    if (locations.isEmpty) {
-      AppSnackBar.showError(context, 'No locations loaded');
-      return;
-    }
-
-    for (final location in locations) {
-      final key = _slotKey(
-        summary.shelfShareId ?? 0,
-        location.shelfShareDisplayLocationId ?? 0,
-      );
-      final enabled = _slotEnabled[key] == true;
-      if (!enabled) continue;
-
-      final ok = await ref
-          .read(storeShareModelProvider.notifier)
-          .submitShelfShareDisplayLocation(
-            shelfShareDisplayId: location.shelfShareDisplayId ?? 0,
-            shelfShareId: summary.shelfShareId ?? 0,
-            shelfShareDisplayLocationId:
-                location.shelfShareDisplayLocationId ?? 0,
-            isShelfShareDisplay: true,
-          );
-      if (!ok) {
-        AppSnackBar.showError(context, 'Unable to save location');
-        return;
-      }
-    }
-
-    AppSnackBar.showSuccess(context, 'Locations saved');
+    AppSnackBar.showError(context, 'Unable to save shelf share');
+    return false;
   }
 
   Widget _buildBrandCard(
@@ -427,7 +417,8 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
       key,
       '${summary.stockCount ?? 0}',
     );
-    final isExpanded = _expandedShelfShareId == (summary.shelfShareId ?? 0);
+    final isLoadingLocations = _locationLoadingByCard[key] == true;
+    final isSubmitting = _submittingByCard[key] == true;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -444,37 +435,42 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    '${index + 1}. ${summary.brandName ?? '--'}',
-                    style: const TextStyle(
-                      color: Color(0xFF111827),
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${index + 1}. ${summary.brandName ?? '--'}',
+                        style: const TextStyle(
+                          color: Color(0xFF111827),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 10),
                 const SizedBox(
-                  width: 78,
+                  width: 68,
                   child: Text(
                     'Facing',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Color(0xFF111827),
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 const SizedBox(
-                  width: 78,
+                  width: 68,
                   child: Text(
                     'Stock',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Color(0xFF111827),
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -486,7 +482,7 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
               children: [
                 const Spacer(),
                 SizedBox(
-                  width: 78,
+                  width: 68,
                   child: TextFormField(
                     controller: facingController,
                     keyboardType: TextInputType.number,
@@ -496,8 +492,8 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
                       filled: true,
                       fillColor: Colors.white,
                       contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 10,
+                        horizontal: 6,
+                        vertical: 6,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(6),
@@ -508,7 +504,7 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
                 ),
                 const SizedBox(width: 12),
                 SizedBox(
-                  width: 78,
+                  width: 68,
                   child: TextFormField(
                     controller: stockController,
                     keyboardType: TextInputType.number,
@@ -518,8 +514,8 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
                       filled: true,
                       fillColor: Colors.white,
                       contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 10,
+                        horizontal: 6,
+                        vertical: 6,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(6),
@@ -531,70 +527,62 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
               ],
             ),
             const SizedBox(height: 10),
-            InkWell(
-              onTap: () => _toggleExpanded(summary),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+              if (isLoadingLocations)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 8),
+                child: Center(
+                  child: SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              )
+            else if (locations.isEmpty)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 8),
                 child: Text(
-                  isExpanded ? 'Hide Locations' : 'Show Locations',
-                  style: const TextStyle(
-                    color: AppColors.primary,
+                  'No locations available',
+                  style: TextStyle(
+                    color: Color(0xFF111827),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-              ),
-            ),
-            if (isExpanded)
+              )
+            else
               for (final location in locations)
-                _buildSlotRow(
-                  summary.shelfShareId ?? 0,
-                  location.shelfShareDisplayLocationId ?? 0,
-                  location.shelfShareDisplayLocationName ??
-                      'Location ${location.shelfShareDisplayLocationId ?? 0}',
-                ),
+                _buildSlotRow(key, location),
             const SizedBox(height: 6),
-            Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 40,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      onPressed: () => _submitSummary(summary),
-                      child: const Text(
-                        'Submit',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
+            Center(
+              child: SizedBox(
+                width: 140,
+                height: 36,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF7931E),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: SizedBox(
-                    height: 40,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black87,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                  onPressed: () async {
+                    await _submitSummary(summary);
+                  },
+                  child: isSubmitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'Submit',
+                          style: TextStyle(fontWeight: FontWeight.w700),
                         ),
-                      ),
-                      onPressed: () => _submitLocations(summary),
-                      child: const Text(
-                        'Save Locations',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ),
                 ),
-              ],
+              ),
             ),
           ],
         ),
@@ -605,23 +593,23 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(storeShareModelProvider);
-    final brandOptions = _effectiveBrandOptions(viewModel);
-    final summaries = viewModel.shelfShareBrandSummaryList;
-    final locations = viewModel.shelfShareDisplayLocationList;
+    final summaries = _orderedSummaries(viewModel);
 
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.grey.shade100,
-        body:
-            _loading
-                ? Center(
-                  child: LoadingAnimationWidget.discreteCircle(
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 32,
-                  ),
-                )
-                : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        body: _loading
+            ? Center(
+                child: LoadingAnimationWidget.discreteCircle(
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 32,
+                ),
+              )
+            : RefreshIndicator(
+                onRefresh: _loadData,
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.zero,
                   children: [
                     Container(
                       width: double.infinity,
@@ -654,7 +642,7 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
                                 'Shelf Share',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 18,
+                fontSize: 15,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -665,7 +653,7 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
                             widget.storeName,
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
+                fontSize: 12,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -727,59 +715,68 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
                             ),
                           ],
                         ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<int?>(
-                            value: _selectedBrandId,
-                            isExpanded: true,
-                            icon: const Icon(Icons.keyboard_arrow_down_rounded),
-                            items: [
-                              const DropdownMenuItem<int?>(
-                                value: null,
-                                child: Text('All Brands'),
-                              ),
-                              ...brandOptions.map(
-                                (brand) => DropdownMenuItem<int?>(
-                                  value: brand.brandID,
-                                  child: Text(brand.brandName ?? '--'),
-                                ),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedBrandId = value;
-                                _expandedShelfShareId = 0;
-                              });
-                              if (value == null || value <= 0) return;
-                              _selectBrand(value);
-                            },
+                        child: DropdownButtonFormField<int>(
+                          initialValue: _selectedBrandId,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
+                            hintText: 'Select Brand',
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 10,
+                            ),
                           ),
+                          icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                          items: [
+                            const DropdownMenuItem<int>(
+                              value: 0,
+                              child: Text('All Brands'),
+                            ),
+                            ...viewModel.shelfShareBrandList.map(
+                              (brand) => DropdownMenuItem<int>(
+                                value: brand.brandID ?? 0,
+                                child: Text(brand.brandName ?? '--'),
+                              ),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            if (value == null) return;
+                            _selectBrand(value);
+                          },
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF6EDEE),
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: Colors.orange, width: 2),
-                          ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF6EDEE),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: Colors.orange, width: 2),
+                        ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'All Brands (Select Brand)',
-                                style: TextStyle(
-                                  color: Color(0xFF111827),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              if (summaries.isEmpty)
+                              if (_filterLoading)
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 24),
+                                  child: Center(
+                                    child: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              else if (summaries.isEmpty)
                                 const Padding(
                                   padding: EdgeInsets.symmetric(vertical: 24),
                                   child: Center(
@@ -787,28 +784,21 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
                                   ),
                                 )
                               else
-                                for (
-                                  var index = 0;
-                                  index < summaries.length;
-                                  index++
-                                )
+                                for (var index = 0; index < summaries.length; index++)
                                   _buildBrandCard(
                                     summaries[index],
                                     index,
-                                    _expandedShelfShareId ==
-                                            (summaries[index].shelfShareId ?? 0)
-                                        ? locations
-                                        : const <
-                                          ShelfShareDisplayLocationModel
-                                        >[],
+                                    _locationsByCard[_summaryKey(summaries[index])] ??
+                                        const <ShelfShareDisplayLocationModel>[],
                                   ),
-                            ],
-                          ),
+                          ],
                         ),
                       ),
                     ),
+                    const SizedBox(height: 16),
                   ],
                 ),
+              ),
       ),
     );
   }

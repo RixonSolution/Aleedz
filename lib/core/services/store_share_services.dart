@@ -36,14 +36,16 @@ class StoreShareServices {
     required String storeId,
     required String productCategoryId,
     required String weekNo,
+    required String visitId,
   }) async {
     final encodedToken = Uri.encodeComponent(token);
     final encodedStoreId = Uri.encodeComponent(storeId);
     final encodedProductCategoryId = Uri.encodeComponent(productCategoryId);
     final encodedWeekNo = Uri.encodeComponent(weekNo);
+    final encodedVisitId = Uri.encodeComponent(visitId);
 
     final url = Uri.parse(
-      '${ApiConstants.shelfShareCategorySummary}?_token=$encodedToken&StoreID=$encodedStoreId&ProductCategoryID=$encodedProductCategoryId&WeekNo=$encodedWeekNo',
+      '${ApiConstants.shelfShareCategorySummary}?_token=$encodedToken&StoreID=$encodedStoreId&ProductCategoryID=$encodedProductCategoryId&WeekNo=$encodedWeekNo&VisitID=$encodedVisitId',
     );
 
     try {
@@ -107,15 +109,17 @@ class StoreShareServices {
     required String productCategoryId,
     required String brandId,
     required String weekNo,
+    required String visitId,
   }) async {
     final encodedToken = Uri.encodeComponent(token);
     final encodedStoreId = Uri.encodeComponent(storeId);
     final encodedProductCategoryId = Uri.encodeComponent(productCategoryId);
     final encodedBrandId = Uri.encodeComponent(brandId);
     final encodedWeekNo = Uri.encodeComponent(weekNo);
+    final encodedVisitId = Uri.encodeComponent(visitId);
 
     final url = Uri.parse(
-      '${ApiConstants.shelfShareBrandSummaryByCategory}?_token=$encodedToken&StoreID=$encodedStoreId&ProductCategoryID=$encodedProductCategoryId&BrandID=$encodedBrandId&WeekNo=$encodedWeekNo',
+      '${ApiConstants.shelfShareBrandSummaryByCategory}?_token=$encodedToken&StoreID=$encodedStoreId&ProductCategoryID=$encodedProductCategoryId&BrandID=$encodedBrandId&WeekNo=$encodedWeekNo&VisitID=$encodedVisitId',
     );
 
     try {
@@ -164,6 +168,7 @@ class StoreShareServices {
     required String brandId,
     required String facingCount,
     required String stockCount,
+    required String visitId,
     required String teamMemberId,
   }) async {
     final encodedToken = Uri.encodeComponent(token);
@@ -175,10 +180,11 @@ class StoreShareServices {
     final encodedBrandId = Uri.encodeComponent(brandId);
     final encodedFacing = Uri.encodeComponent(facingCount);
     final encodedStock = Uri.encodeComponent(stockCount);
+    final encodedVisitId = Uri.encodeComponent(visitId);
     final encodedTeamMemberId = Uri.encodeComponent(teamMemberId);
 
     final url = Uri.parse(
-      '${ApiConstants.shelfShareAdd}?_token=$encodedToken&ShelfShareID=$encodedShelfShareId&StoreID=$encodedStoreId&ProductCategoryID=$encodedProductCategoryId&WeekNo=$encodedWeekNo&Year=$encodedYear&BrandID=$encodedBrandId&FacingCount=$encodedFacing&StockCount=$encodedStock&TeamMemberID=$encodedTeamMemberId',
+      '${ApiConstants.shelfShareAdd}?_token=$encodedToken&ShelfShareID=$encodedShelfShareId&StoreID=$encodedStoreId&ProductCategoryID=$encodedProductCategoryId&WeekNo=$encodedWeekNo&Year=$encodedYear&BrandID=$encodedBrandId&FacingCount=$encodedFacing&StockCount=$encodedStock&TeamMemberID=$encodedTeamMemberId&VisitID=$encodedVisitId',
     );
 
     try {

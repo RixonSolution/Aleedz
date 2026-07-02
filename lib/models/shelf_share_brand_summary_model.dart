@@ -8,6 +8,8 @@ class ShelfShareBrandSummaryModel {
   int? year;
   int? facingCount;
   int? stockCount;
+  String? displayLocations;
+  String? updatedBy;
   String? code;
   String? picture;
 
@@ -21,6 +23,8 @@ class ShelfShareBrandSummaryModel {
     this.year,
     this.facingCount,
     this.stockCount,
+    this.displayLocations,
+    this.updatedBy,
     this.code,
     this.picture,
   });
@@ -35,6 +39,8 @@ class ShelfShareBrandSummaryModel {
     year = int.tryParse(json['Year']?.toString() ?? '');
     facingCount = int.tryParse(json['FacingCount']?.toString() ?? '');
     stockCount = int.tryParse(json['StockCount']?.toString() ?? '');
+    displayLocations = json['DisplayLocations'];
+    updatedBy = json['UpdatedBy'];
     code = json['Code'];
     picture = json['Picture'];
   }

@@ -39,6 +39,14 @@ class _ShelfShareViewState extends ConsumerState<ShelfShareView> {
     Future.microtask(_loadData);
   }
 
+  Future<void> _fetchSummary({required int productCategoryId}) async {
+    await ref.read(storeShareModelProvider.notifier).getShelfShareCategorySummary(
+          storeId: widget.storeId,
+          productCategoryId: productCategoryId,
+          visitId: widget.visitId,
+        );
+  }
+
   Future<void> _loadData() async {
     if (widget.storeId <= 0) {
       if (!mounted) return;
@@ -49,17 +57,32 @@ class _ShelfShareViewState extends ConsumerState<ShelfShareView> {
       return;
     }
 
-    final notifier = ref.read(storeShareModelProvider.notifier);
-    await notifier.loadUser();
-    await notifier.getShelfShareCategoryDropdown();
-    await notifier.getShelfShareCategorySummary(
-      storeId: widget.storeId,
-      productCategoryId: 0,
-    );
-    if (!mounted) return;
-    setState(() {
-      _loading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _loading = true;
+        _loadError = null;
+      });
+    }
+
+    try {
+      final notifier = ref.read(storeShareModelProvider.notifier);
+      await notifier.loadUser();
+      if (!mounted) return;
+      await notifier.getShelfShareCategoryDropdown();
+      if (!mounted) return;
+      await _fetchSummary(productCategoryId: _selectedCategoryFilter);
+    } catch (error) {
+      debugPrint('Shelf share load failed: $error');
+      if (!mounted) return;
+      setState(() {
+        _loadError = 'Unable to load shelf share data';
+      });
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+      });
+    }
   }
 
   void _openCategory(CategoryStoreShareModel category) {
@@ -141,7 +164,7 @@ class _ShelfShareViewState extends ConsumerState<ShelfShareView> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Updated by: ${category.code ?? '--'}',
+                        'Updated by: 1',
                         style: TextStyle(
                           color: Colors.grey.shade500,
                           fontSize: 12,
@@ -160,7 +183,7 @@ class _ShelfShareViewState extends ConsumerState<ShelfShareView> {
                     SizedBox(
                       width: 64,
                       child: Text(
-                        '${category.count ?? 0}',
+                        '${category.facingCount ?? 0}',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Color(0xFF111827),
@@ -169,7 +192,18 @@ class _ShelfShareViewState extends ConsumerState<ShelfShareView> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 64, child: const Text('')),
+                    SizedBox(
+                      width: 64,
+                      child: Text(
+                        '${category.stockCount ?? 0}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xFF111827),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -294,12 +328,26 @@ class _ShelfShareViewState extends ConsumerState<ShelfShareView> {
                     if (_loadError != null)
                       Expanded(
                         child: Center(
-                          child: Text(
-                            _loadError!,
-                            style: TextStyle(
-                              color: Colors.grey.shade700,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _loadError!,
+                                style: TextStyle(
+                                  color: Colors.grey.shade700,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              ElevatedButton(
+                                onPressed: _loadData,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text('Retry'),
+                              ),
+                            ],
                           ),
                         ),
                       )
@@ -353,7 +401,9 @@ class _ShelfShareViewState extends ConsumerState<ShelfShareView> {
                                     .getShelfShareCategorySummary(
                                       storeId: widget.storeId,
                                       productCategoryId: value,
+                                      visitId: widget.visitId,
                                     );
+                                if (!mounted) return;
                               },
                             ),
                           ),
@@ -404,37 +454,58 @@ class _ShelfShareViewState extends ConsumerState<ShelfShareView> {
                       ),
                       const SizedBox(height: 8),
                       Expanded(
-                        child:
-                            viewModel.loader && summaryItems.isEmpty
-                                ? Center(
-                                  child: LoadingAnimationWidget.discreteCircle(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    size: 28,
+                        child: RefreshIndicator(
+                          onRefresh: _loadData,
+                          child:
+                              viewModel.loader && summaryItems.isEmpty
+                                  ? ListView(
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    children: [
+                                      const SizedBox(height: 120),
+                                      Center(
+                                        child:
+                                            LoadingAnimationWidget.discreteCircle(
+                                          color:
+                                              Theme.of(context).colorScheme.primary,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                  : summaryItems.isEmpty
+                                  ? ListView(
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    children: [
+                                      const SizedBox(height: 120),
+                                      Center(
+                                        child: Text(
+                                          'No shelf share data found',
+                                          style: TextStyle(
+                                            color: Colors.grey.shade600,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                  : ListView.builder(
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    padding:
+                                        const EdgeInsets.only(bottom: 12),
+                                    itemCount: summaryItems.length,
+                                    itemBuilder: (context, index) {
+                                      final category = summaryItems[index];
+                                      return _buildCategoryTile(
+                                        context,
+                                        category,
+                                        index + 1,
+                                      );
+                                    },
                                   ),
-                                )
-                                : summaryItems.isEmpty
-                                ? Center(
-                                  child: Text(
-                                    'No shelf share data found',
-                                    style: TextStyle(
-                                      color: Colors.grey.shade600,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                )
-                                : ListView.builder(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  itemCount: summaryItems.length,
-                                  itemBuilder: (context, index) {
-                                    final category = summaryItems[index];
-                                    return _buildCategoryTile(
-                                      context,
-                                      category,
-                                      index + 1,
-                                    );
-                                  },
-                                ),
+                        ),
                       ),
                     ],
                   ],

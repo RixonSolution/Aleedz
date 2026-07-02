@@ -11,7 +11,12 @@ class AppSnackBar {
   }
 
   static void _show(BuildContext context, String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    if (!context.mounted) return;
+
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) return;
+
+    messenger.showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: color,

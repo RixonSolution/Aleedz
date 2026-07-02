@@ -10,12 +10,14 @@ class StoreShareController {
     required String storeId,
     required String productCategoryId,
     required String weekNo,
+    required String visitId,
   }) async {
     return await _apiService.shelfShareCategorySummary(
       token: token,
       storeId: storeId,
       productCategoryId: productCategoryId,
       weekNo: weekNo,
+      visitId: visitId,
     );
   }
 
@@ -37,6 +39,7 @@ class StoreShareController {
     required String productCategoryId,
     required String brandId,
     required String weekNo,
+    required String visitId,
   }) async {
     return await _apiService.shelfShareBrandSummaryByCategory(
       token: token,
@@ -44,6 +47,7 @@ class StoreShareController {
       productCategoryId: productCategoryId,
       brandId: brandId,
       weekNo: weekNo,
+      visitId: visitId,
     );
   }
 
@@ -67,6 +71,7 @@ class StoreShareController {
     required String brandId,
     required String facingCount,
     required String stockCount,
+    required String visitId,
     required String teamMemberId,
   }) async {
     return await _apiService.shelfShareAdd(
@@ -79,6 +84,7 @@ class StoreShareController {
       brandId: brandId,
       facingCount: facingCount,
       stockCount: stockCount,
+      visitId: visitId,
       teamMemberId: teamMemberId,
     );
   }

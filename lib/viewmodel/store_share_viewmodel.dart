@@ -43,18 +43,6 @@ class StoreShareViewModel extends ChangeNotifier {
 
   bool loader = false;
 
-  int _currentWeekNo() {
-    final date = DateTime.now();
-    final thursday = date.add(
-      Duration(days: 4 - (date.weekday == 7 ? 7 : date.weekday)),
-    );
-    final firstThursday = DateTime(thursday.year, 1, 4);
-    final week1Start = firstThursday.subtract(
-      Duration(days: firstThursday.weekday - 1),
-    );
-    return 1 + thursday.difference(week1Start).inDays ~/ 7;
-  }
-
   int _currentYear() => DateTime.now().year;
 
   void selectBrand(int storeId, BrandListModel? brand) async {
@@ -117,20 +105,22 @@ class StoreShareViewModel extends ChangeNotifier {
   Future<void> getShelfShareCategorySummary({
     required int storeId,
     required int productCategoryId,
+    required int visitId,
   }) async {
     loader = true;
     shelfShareCategorySummaryList = [];
     notifyListeners();
 
     debugPrint(
-      'shelf share category summary request: storeId=$storeId, productCategoryId=$productCategoryId, weekNo=${_currentWeekNo()}',
+      'shelf share category summary request: storeId=$storeId, productCategoryId=$productCategoryId, weekNo=0, visitId=$visitId',
     );
 
     final response = await _shareController.shelfShareCategorySummary(
       token: user?.apiToken ?? '',
       storeId: storeId.toString(),
       productCategoryId: productCategoryId.toString(),
-      weekNo: _currentWeekNo().toString(),
+      weekNo: '0',
+      visitId: visitId.toString(),
     );
 
     if (response != null && response["status"] == 200) {
@@ -181,6 +171,7 @@ class StoreShareViewModel extends ChangeNotifier {
     required int storeId,
     required int productCategoryId,
     required int brandId,
+    required int visitId,
   }) async {
     loader = true;
     shelfShareBrandSummaryList = [];
@@ -188,7 +179,7 @@ class StoreShareViewModel extends ChangeNotifier {
     notifyListeners();
 
     debugPrint(
-      'shelf share brand summary request: storeId=$storeId, productCategoryId=$productCategoryId, brandId=$brandId, weekNo=${_currentWeekNo()}',
+      'shelf share brand summary request: storeId=$storeId, productCategoryId=$productCategoryId, brandId=$brandId, weekNo=0, visitId=$visitId',
     );
 
     final response = await _shareController.shelfShareBrandSummaryByCategory(
@@ -196,7 +187,8 @@ class StoreShareViewModel extends ChangeNotifier {
       storeId: storeId.toString(),
       productCategoryId: productCategoryId.toString(),
       brandId: brandId.toString(),
-      weekNo: _currentWeekNo().toString(),
+      weekNo: '0',
+      visitId: visitId.toString(),
     );
 
     if (response != null && response["status"] == 200) {
@@ -403,6 +395,7 @@ class StoreShareViewModel extends ChangeNotifier {
     required int brandId,
     required int facingCount,
     required int stockCount,
+    required int visitId,
   }) async {
     if (user == null) {
       await loadUser();
@@ -413,11 +406,12 @@ class StoreShareViewModel extends ChangeNotifier {
       shelfShareId: shelfShareId.toString(),
       storeId: storeId.toString(),
       productCategoryId: productCategoryId.toString(),
-      weekNo: _currentWeekNo().toString(),
+      weekNo: '0',
       year: _currentYear().toString(),
       brandId: brandId.toString(),
       facingCount: facingCount.toString(),
       stockCount: stockCount.toString(),
+      visitId: visitId.toString(),
       teamMemberId: user?.teamMemberID.toString() ?? '0',
     );
 
