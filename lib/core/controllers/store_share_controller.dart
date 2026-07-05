@@ -107,6 +107,26 @@ class StoreShareController {
     );
   }
 
+  Future<Map<String, dynamic>?> shelfShareStoreDisplayLocationAdd({
+    required String token,
+    required String shelfShareId,
+    required String shelfShareDisplayLocationId,
+    required String isShelfShareDisplay,
+    required String visitId,
+    required String teamMemberId,
+    File? displayLocationImage,
+  }) async {
+    return await _apiService.shelfShareStoreDisplayLocationAdd(
+      token: token,
+      shelfShareId: shelfShareId,
+      shelfShareDisplayLocationId: shelfShareDisplayLocationId,
+      isShelfShareDisplay: isShelfShareDisplay,
+      visitId: visitId,
+      teamMemberId: teamMemberId,
+      displayLocationImage: displayLocationImage,
+    );
+  }
+
   Future<Map<String, dynamic>?> brandList({
     required String token,
     required String storeId,

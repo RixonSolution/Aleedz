@@ -388,8 +388,7 @@ class StoreShareViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> submitShelfShareAdd({
-    required int shelfShareId,
+  Future<int?> submitShelfShareAdd({
     required int storeId,
     required int productCategoryId,
     required int brandId,
@@ -403,7 +402,7 @@ class StoreShareViewModel extends ChangeNotifier {
 
     final response = await _shareController.shelfShareAdd(
       token: user?.apiToken ?? '',
-      shelfShareId: shelfShareId.toString(),
+      shelfShareId: '1',
       storeId: storeId.toString(),
       productCategoryId: productCategoryId.toString(),
       weekNo: '0',
@@ -415,26 +414,44 @@ class StoreShareViewModel extends ChangeNotifier {
       teamMemberId: user?.teamMemberID.toString() ?? '0',
     );
 
-    return response != null && response["status"] == 200;
+    if (response == null || response["status"] != 200) {
+      return null;
+    }
+
+    final payload = response["data"];
+    final rows =
+        payload is List ? payload : (payload is Map ? payload["data"] : null);
+    if (rows is List && rows.isNotEmpty) {
+      final first = rows.first;
+      final column1 = first is Map ? first['Column1'] : null;
+      final shelfShareValue = int.tryParse(column1?.toString() ?? '');
+      if (shelfShareValue != null) {
+        return shelfShareValue;
+      }
+    }
+
+    return null;
   }
 
-  Future<bool> submitShelfShareDisplayLocation({
-    required int shelfShareDisplayId,
+  Future<bool> submitShelfShareStoreDisplayLocationAdd({
     required int shelfShareId,
     required int shelfShareDisplayLocationId,
     required bool isShelfShareDisplay,
+    required int visitId,
+    File? displayLocationImage,
   }) async {
     if (user == null) {
       await loadUser();
     }
 
-    final response = await _shareController.shelfShareDisplayLocationAdd(
+    final response = await _shareController.shelfShareStoreDisplayLocationAdd(
       token: user?.apiToken ?? '',
-      shelfShareDisplayId: shelfShareDisplayId.toString(),
       shelfShareId: shelfShareId.toString(),
       shelfShareDisplayLocationId: shelfShareDisplayLocationId.toString(),
       isShelfShareDisplay: isShelfShareDisplay ? '1' : '0',
+      visitId: visitId.toString(),
       teamMemberId: user?.teamMemberID.toString() ?? '0',
+      displayLocationImage: displayLocationImage,
     );
 
     return response != null && response["status"] == 200;

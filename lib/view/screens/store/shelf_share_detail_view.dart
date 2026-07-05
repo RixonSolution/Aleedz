@@ -41,6 +41,7 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
   final ImagePicker _imagePicker = ImagePicker();
   final Map<String, bool> _slotEnabled = {};
   final Map<String, File> _slotImages = {};
+  final Map<String, String> _slotImageUrls = {};
   final Map<String, TextEditingController> _facingControllers = {};
   final Map<String, TextEditingController> _stockControllers = {};
   final Map<String, List<ShelfShareDisplayLocationModel>> _locationsByCard = {};
@@ -62,6 +63,7 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
       setState(() {
         _slotEnabled.clear();
         _slotImages.clear();
+        _slotImageUrls.clear();
         _locationsByCard.clear();
         _locationLoadingByCard.clear();
         _submittingByCard.clear();
@@ -146,6 +148,12 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
           );
           final enabled = (location.isShelfShareDisplay ?? 0) == 1;
           _slotEnabled[slotKey] = enabled;
+          final picture = location.picture?.trim();
+          if (picture != null && picture.isNotEmpty) {
+            _slotImageUrls[slotKey] = picture;
+          } else {
+            _slotImageUrls.remove(slotKey);
+          }
           if (!enabled) {
             _slotImages.remove(slotKey);
           }
@@ -173,6 +181,7 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
         _filterLoading = true;
         _slotEnabled.clear();
         _slotImages.clear();
+        _slotImageUrls.clear();
         _locationsByCard.clear();
         _locationLoadingByCard.clear();
         _submittingByCard.clear();
@@ -272,11 +281,32 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
 
     setState(() {
       _slotImages[key] = File(picked.path);
+      _slotImageUrls.remove(key);
+    });
+  }
+
+  void _clearSlotImage(String key) {
+    setState(() {
+      _slotImages.remove(key);
+      _slotImageUrls.remove(key);
+    });
+  }
+
+  void _toggleSlot(String key) {
+    setState(() {
+      final nextEnabled = !(_slotEnabled[key] == true);
+      _slotEnabled[key] = nextEnabled;
+      if (!nextEnabled) {
+        _slotImages.remove(key);
+        _slotImageUrls.remove(key);
+      }
     });
   }
 
   Widget _buildPreviewButton(String key, bool enabled) {
     final image = _slotImages[key];
+    final imageUrl = _slotImageUrls[key];
+    final hasPreview = image != null || (imageUrl?.isNotEmpty == true);
 
     return InkWell(
       onTap: enabled ? () => _pickImage(key, enabled) : null,
@@ -291,17 +321,58 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
             color: enabled ? Colors.grey.shade400 : Colors.grey.shade300,
           ),
         ),
-        child:
-            image != null
-                ? ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.file(image, fit: BoxFit.cover),
-                )
-                : Icon(
-                  enabled ? Icons.image_outlined : Icons.image_not_supported,
-                  color: enabled ? Colors.grey.shade800 : Colors.grey.shade500,
-                  size: 26,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child:
+                  image != null
+                      ? Image.file(image, fit: BoxFit.cover)
+                      : (imageUrl != null && imageUrl.isNotEmpty)
+                          ? Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Icon(
+                              Icons.broken_image_outlined,
+                              color: Colors.grey.shade500,
+                              size: 26,
+                            ),
+                          )
+                          : Icon(
+                            enabled
+                                ? Icons.image_outlined
+                                : Icons.image_not_supported,
+                            color:
+                                enabled
+                                    ? Colors.grey.shade800
+                                    : Colors.grey.shade500,
+                            size: 26,
+                          ),
+            ),
+            if (hasPreview && enabled)
+              Positioned(
+                top: 2,
+                right: 2,
+                child: GestureDetector(
+                  onTap: () => _clearSlotImage(key),
+                  child: Container(
+                    width: 18,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.7),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      size: 12,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -312,27 +383,31 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
   ) {
     final locationId = location.shelfShareDisplayLocationId ?? 0;
     final key = _slotKey(summaryKey, locationId);
-    final enabled = (location.isShelfShareDisplay ?? 0) == 1;
+    final enabled = _slotEnabled[key] == true;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Container(
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-              color: enabled ? const Color(0xFFEFF6FF) : Colors.white,
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(
-                color: enabled ? AppColors.primary : Colors.grey.shade300,
-                width: 1,
+          InkWell(
+            onTap: () => _toggleSlot(key),
+            borderRadius: BorderRadius.circular(4),
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                color: enabled ? const Color(0xFFEFF6FF) : Colors.white,
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: enabled ? AppColors.primary : Colors.grey.shade300,
+                  width: 1,
+                ),
               ),
-            ),
-            child: Icon(
-              enabled ? Icons.check_rounded : Icons.remove,
-              size: enabled ? 14 : 10,
-              color: enabled ? AppColors.primary : Colors.transparent,
+              child: Icon(
+                enabled ? Icons.check_rounded : Icons.remove,
+                size: enabled ? 14 : 10,
+                color: enabled ? AppColors.primary : Colors.transparent,
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -356,7 +431,6 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
   Future<bool> _submitSummary(ShelfShareBrandSummaryModel summary) async {
     final key = _summaryKey(summary);
     if (_submittingByCard[key] == true) return false;
-    final shelfShareId = summary.shelfShareId ?? 0;
     final brandId = summary.brandId ?? 0;
     final facing =
         int.tryParse(
@@ -377,28 +451,64 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
         ) ??
         0;
 
+    final locations = _locationsByCard[key] ?? const [];
+
     setState(() {
       _submittingByCard[key] = true;
     });
-    final ok = await ref.read(storeShareModelProvider.notifier).submitShelfShareAdd(
-          shelfShareId: shelfShareId,
-          storeId: widget.storeId,
-          productCategoryId: widget.productCategoryId,
-          brandId: brandId,
-          facingCount: facing,
-          stockCount: stock,
-          visitId: widget.visitId,
-        );
-    if (!mounted) return false;
-    setState(() {
-      _submittingByCard[key] = false;
-    });
-    if (ok) {
+
+    try {
+      final mainShelfShareId = await ref
+          .read(storeShareModelProvider.notifier)
+          .submitShelfShareAdd(
+            storeId: widget.storeId,
+            productCategoryId: widget.productCategoryId,
+            brandId: brandId,
+            facingCount: facing,
+            stockCount: stock,
+            visitId: widget.visitId,
+          );
+
+      if (mainShelfShareId == null) {
+        if (mounted) {
+          AppSnackBar.showError(context, 'Unable to save shelf share');
+        }
+        return false;
+      }
+
+      for (final location in locations) {
+        final locationId = location.shelfShareDisplayLocationId ?? 0;
+        final slotKey = _slotKey(key, locationId);
+        final enabled = _slotEnabled[slotKey] == true;
+        final image = enabled ? _slotImages[slotKey] : null;
+
+        final ok = await ref
+            .read(storeShareModelProvider.notifier)
+            .submitShelfShareStoreDisplayLocationAdd(
+              shelfShareId: mainShelfShareId,
+              shelfShareDisplayLocationId: locationId,
+              isShelfShareDisplay: enabled,
+              visitId: widget.visitId,
+              displayLocationImage: image,
+            );
+        if (!ok) {
+          if (mounted) {
+            AppSnackBar.showError(context, 'Unable to save location');
+          }
+          return false;
+        }
+      }
+
+      if (!mounted) return false;
       AppSnackBar.showSuccess(context, 'Shelf share saved');
       return true;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _submittingByCard[key] = false;
+        });
+      }
     }
-    AppSnackBar.showError(context, 'Unable to save shelf share');
-    return false;
   }
 
   Widget _buildBrandCard(
@@ -565,9 +675,12 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: () async {
-                    await _submitSummary(summary);
-                  },
+                  onPressed:
+                      isSubmitting
+                          ? null
+                          : () async {
+                            await _submitSummary(summary);
+                          },
                   child: isSubmitting
                       ? const SizedBox(
                           width: 18,

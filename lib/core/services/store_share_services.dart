@@ -234,6 +234,47 @@ class StoreShareServices {
     }
   }
 
+  Future<Map<String, dynamic>?> shelfShareStoreDisplayLocationAdd({
+    required String token,
+    required String shelfShareId,
+    required String shelfShareDisplayLocationId,
+    required String isShelfShareDisplay,
+    required String visitId,
+    required String teamMemberId,
+    File? displayLocationImage,
+  }) async {
+    try {
+      final url = Uri.parse(ApiConstants.shelfShareDisplayLocationAdd);
+      final request = http.MultipartRequest('POST', url);
+
+      request.headers.addAll({'Accept': 'application/json'});
+      request.fields['_token'] = token;
+      request.fields['ShelfShareID'] = shelfShareId;
+      request.fields['ShelfShareDisplayLocationID'] =
+          shelfShareDisplayLocationId;
+      request.fields['IsShelfShareDisplay'] = isShelfShareDisplay;
+      request.fields['TeamMemberID'] = teamMemberId;
+      request.fields['VisitID'] = visitId;
+
+      if (displayLocationImage != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'displayLocation_image',
+            displayLocationImage.path,
+          ),
+        );
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      final data = json.decode(response.body);
+      return {"status": response.statusCode, "data": data};
+    } catch (e) {
+      print('Unhandled error: $e');
+      return null;
+    }
+  }
+
   Future<Map<String, dynamic>?> getBrandDropDown({
     required String token,
   }) async {

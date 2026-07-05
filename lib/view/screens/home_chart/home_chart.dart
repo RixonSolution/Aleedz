@@ -441,7 +441,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(18),
@@ -458,41 +458,18 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                height: 42,
-                width: 42,
+                height: 38,
+                width: 38,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
                   border: Border.all(color: color.withOpacity(0.3)),
                 ),
-                child: Icon(Icons.assessment, color: color),
+                child: Icon(Icons.assessment, color: color, size: 20),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      entry.brandName,
-                      style: TextStyle(
-                        color: AppColors.blackColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      entry.targetDescription.isNotEmpty
-                          ? entry.targetDescription
-                          : LabelService().getLabel(371),
-                      style: TextStyle(color: AppColors.greyText, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
+              const Spacer(),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -500,15 +477,17 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                     '${entry.percentage.toStringAsFixed(0)}%',
                     style: TextStyle(
                       color: color,
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                   Text(
                     LabelService().getLabel(237),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: AppColors.greyText,
-                      fontSize: 12,
+                      fontSize: 10,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -516,20 +495,53 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          const SizedBox(height: 10),
+          Text(
+            entry.brandName,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: AppColors.blackColor,
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            entry.targetDescription.isNotEmpty
+                ? entry.targetDescription
+                : LabelService().getLabel(371),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: AppColors.greyText, fontSize: 11),
+          ),
+          const Spacer(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${LabelService().getLabel(236)}: ${_formatValue(entry.target)}',
+                LabelService().getLabel(236),
+                style: TextStyle(color: AppColors.greyText, fontSize: 10),
+              ),
+              Text(
+                _formatValue(entry.target),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: AppColors.blackColor,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
               ),
+              const SizedBox(height: 4),
               Text(
-                '${LabelService().getLabel(237)}: ${_formatValue(entry.achieved)}',
+                LabelService().getLabel(237),
+                style: TextStyle(color: AppColors.greyText, fontSize: 10),
+              ),
+              Text(
+                _formatValue(entry.achieved),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: color,
                   fontSize: 13,
@@ -542,7 +554,7 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Container(
-              height: 8,
+              height: 7,
               color: Colors.white,
               child: Stack(
                 children: [
@@ -999,21 +1011,23 @@ class _HomeViewState extends ConsumerState<HomeChartView> {
                               ),
                               const SizedBox(height: 8),
                               if (achievements.isNotEmpty)
-                                ...achievements
-                                    .asMap()
-                                    .entries
-                                    .map(
-                                      (entry) => Padding(
-                                        padding: const EdgeInsets.only(
-                                          bottom: 10,
-                                        ),
-                                        child: _buildAchievementCard(
-                                          entry.value,
-                                          entry.key,
-                                        ),
+                                GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  padding: EdgeInsets.zero,
+                                  itemCount: achievements.length,
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        crossAxisSpacing: 10,
+                                        mainAxisSpacing: 10,
+                                        childAspectRatio: 0.72,
                                       ),
-                                    )
-                                    .toList()
+                                  itemBuilder: (context, index) {
+                                    final entry = achievements[index];
+                                    return _buildAchievementCard(entry, index);
+                                  },
+                                )
                               else
                                 Container(
                                   padding: const EdgeInsets.all(12),
