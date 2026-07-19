@@ -164,7 +164,7 @@ class _ShelfShareViewState extends ConsumerState<ShelfShareView> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Updated by: 1',
+                        category.lastUpdate ?? '',
                         style: TextStyle(
                           color: Colors.grey.shade500,
                           fontSize: 12,

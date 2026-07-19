@@ -9,6 +9,7 @@ class CategoryStoreShareModel {
   int? count;
   String? code;
   String? picture;
+  String? lastUpdate;
 
   CategoryStoreShareModel({
     this.levelID,
@@ -21,6 +22,7 @@ class CategoryStoreShareModel {
     this.count,
     this.code,
     this.picture,
+    this.lastUpdate,
   });
 
   CategoryStoreShareModel.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class CategoryStoreShareModel {
     count = json['Count'];
     code = json['Code'];
     picture = json['Picture'];
+    lastUpdate = json['LastUpdate'];
   }
 
   Map<String, dynamic> toJson() {
@@ -48,6 +51,7 @@ class CategoryStoreShareModel {
     data['Count'] = this.count;
     data['Code'] = this.code;
     data['Picture'] = this.picture;
+    data['LastUpdate'] = this.lastUpdate;
     return data;
   }
 }

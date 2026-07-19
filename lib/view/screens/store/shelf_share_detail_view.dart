@@ -47,6 +47,8 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
   final Map<String, List<ShelfShareDisplayLocationModel>> _locationsByCard = {};
   final Map<String, bool> _locationLoadingByCard = {};
   final Map<String, bool> _submittingByCard = {};
+  final Map<String, bool> _cardHadExistingImage = {};
+  final Map<String, bool> _cardEdited = {};
 
   int _selectedBrandId = 0;
   bool _loading = true;
@@ -67,6 +69,8 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
         _locationsByCard.clear();
         _locationLoadingByCard.clear();
         _submittingByCard.clear();
+        _cardHadExistingImage.clear();
+        _cardEdited.clear();
         _selectedBrandId = 0;
       });
     }
@@ -141,6 +145,7 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
       setState(() {
         _locationsByCard[key] = locations;
         _locationLoadingByCard[key] = false;
+        bool hasExistingImage = false;
         for (final location in locations) {
           final slotKey = _slotKey(
             key,
@@ -149,8 +154,9 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
           final enabled = (location.isShelfShareDisplay ?? 0) == 1;
           _slotEnabled[slotKey] = enabled;
           final picture = location.picture?.trim();
-          if (picture != null && picture.isNotEmpty) {
+          if (enabled && picture != null && picture.isNotEmpty) {
             _slotImageUrls[slotKey] = picture;
+            hasExistingImage = true;
           } else {
             _slotImageUrls.remove(slotKey);
           }
@@ -158,6 +164,8 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
             _slotImages.remove(slotKey);
           }
         }
+        _cardHadExistingImage[key] = hasExistingImage;
+        _cardEdited[key] = false;
       });
     }
   }
@@ -185,6 +193,8 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
         _locationsByCard.clear();
         _locationLoadingByCard.clear();
         _submittingByCard.clear();
+        _cardHadExistingImage.clear();
+        _cardEdited.clear();
       });
     }
 
@@ -207,7 +217,20 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
     );
   }
 
-  Future<void> _pickImage(String key, bool enabled) async {
+  void _markCardEdited(String summaryKey) {
+    if (_cardHadExistingImage[summaryKey] == true) {
+      AppSnackBar.showError(
+        context,
+        'Your this brand data will be lost, you need to update new one.',
+      );
+    }
+    if (!mounted) return;
+    setState(() {
+      _cardEdited[summaryKey] = true;
+    });
+  }
+
+  Future<void> _pickImage(String summaryKey, String key, bool enabled) async {
     if (!enabled) return;
 
     final source = await showDialog<ImageSource?>(
@@ -283,6 +306,7 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
       _slotImages[key] = File(picked.path);
       _slotImageUrls.remove(key);
     });
+    _markCardEdited(summaryKey);
   }
 
   void _clearSlotImage(String key) {
@@ -292,7 +316,7 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
     });
   }
 
-  void _toggleSlot(String key) {
+  void _toggleSlot(String summaryKey, String key) {
     setState(() {
       final nextEnabled = !(_slotEnabled[key] == true);
       _slotEnabled[key] = nextEnabled;
@@ -301,15 +325,16 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
         _slotImageUrls.remove(key);
       }
     });
+    _markCardEdited(summaryKey);
   }
 
-  Widget _buildPreviewButton(String key, bool enabled) {
+  Widget _buildPreviewButton(String summaryKey, String key, bool enabled) {
     final image = _slotImages[key];
     final imageUrl = _slotImageUrls[key];
     final hasPreview = image != null || (imageUrl?.isNotEmpty == true);
 
     return InkWell(
-      onTap: enabled ? () => _pickImage(key, enabled) : null,
+      onTap: enabled ? () => _pickImage(summaryKey, key, enabled) : null,
       borderRadius: BorderRadius.circular(10),
       child: Container(
         width: 52,
@@ -390,7 +415,7 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
       child: Row(
         children: [
           InkWell(
-            onTap: () => _toggleSlot(key),
+            onTap: () => _toggleSlot(summaryKey, key),
             borderRadius: BorderRadius.circular(4),
             child: Container(
               width: 20,
@@ -422,7 +447,7 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
               ),
             ),
           ),
-          _buildPreviewButton(key, enabled),
+          _buildPreviewButton(summaryKey, key, enabled),
         ],
       ),
     );
@@ -529,6 +554,7 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
     );
     final isLoadingLocations = _locationLoadingByCard[key] == true;
     final isSubmitting = _submittingByCard[key] == true;
+    final isEdited = _cardEdited[key] == true;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -597,6 +623,8 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
                     controller: facingController,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
+                    onChanged:
+                        (_) => setState(() => _cardEdited[key] = true),
                     decoration: InputDecoration(
                       isDense: true,
                       filled: true,
@@ -619,6 +647,8 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
                     controller: stockController,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
+                    onChanged:
+                        (_) => setState(() => _cardEdited[key] = true),
                     decoration: InputDecoration(
                       isDense: true,
                       filled: true,
@@ -662,41 +692,43 @@ class _ShelfShareDetailViewState extends ConsumerState<ShelfShareDetailView> {
             else
               for (final location in locations)
                 _buildSlotRow(key, location),
-            const SizedBox(height: 6),
-            Center(
-              child: SizedBox(
-                width: 140,
-                height: 36,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF7931E),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+            if (isEdited) ...[
+              const SizedBox(height: 6),
+              Center(
+                child: SizedBox(
+                  width: 140,
+                  height: 36,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF7931E),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                  onPressed:
-                      isSubmitting
-                          ? null
-                          : () async {
-                            await _submitSummary(summary);
-                          },
-                  child: isSubmitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
+                    onPressed:
+                        isSubmitting
+                            ? null
+                            : () async {
+                              await _submitSummary(summary);
+                            },
+                    child: isSubmitting
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Submit',
+                            style: TextStyle(fontWeight: FontWeight.w700),
                           ),
-                        )
-                      : const Text(
-                          'Submit',
-                          style: TextStyle(fontWeight: FontWeight.w700),
-                        ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),

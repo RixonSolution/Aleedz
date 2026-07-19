@@ -29,6 +29,6 @@ class ShelfShareDisplayLocationModel {
         json['ShelfShareDisplayLocation'];
     isShelfShareDisplay = int.tryParse(json['IsShelfShareDisplay']?.toString() ?? '');
     code = json['Code'];
-    picture = json['Picture'];
+    picture = json['ShelfShare_Image'] ?? json['Picture'];
   }
 }
